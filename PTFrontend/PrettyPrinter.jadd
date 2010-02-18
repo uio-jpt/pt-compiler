@@ -1,0 +1,12 @@
+aspect PrettyPrint {
+
+       public void PTCompilationUnit.toString(StringBuffer sb) {
+           super.toString(sb);
+           for (PTDecl ptDecl: getPTDecls()) 
+               ptDecl.toString(sb);
+       }
+
+       public void PTDecl.toString(StringBuffer sb) {
+           sb.append("Package " + getName() + " { }\n");
+       }
+}

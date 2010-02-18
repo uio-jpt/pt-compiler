@@ -1,0 +1,7 @@
+CompilationUnit compilation_unit =
+package_declaration.p import_declarations.i? pt_declaration.pt+ type_declarations.t? {: return new PTCompilationUnit(p.getID(), i, pt, t); :}
+| import_declarations.i? pt_declaration.pt+ type_declarations.t? {: return new PTCompilationUnit("", i, pt, t); :}
+;
+
+PTDecl pt_declaration = TEMPLATE IDENTIFIER LBRACE RBRACE {: return new PTDecl(IDENTIFIER); :}
+;
