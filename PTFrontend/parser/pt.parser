@@ -3,5 +3,7 @@ package_declaration.p import_declarations.i? pt_declaration.pt+ type_declaration
 | import_declarations.i? pt_declaration.pt+ type_declarations.t? {: return new PTCompilationUnit("", i, pt, t); :}
 ;
 
-PTDecl pt_declaration = TEMPLATE IDENTIFIER LBRACE RBRACE {: return new PTDecl(IDENTIFIER); :}
+PTDecl pt_declaration = TEMPLATE IDENTIFIER LBRACE type_declarations.tdecls RBRACE {: return new PTDecl(IDENTIFIER,tdecls); :}
+| TEMPLATE IDENTIFIER LBRACE  RBRACE {: return new PTDecl(IDENTIFIER,new List()); :}
 ;
+

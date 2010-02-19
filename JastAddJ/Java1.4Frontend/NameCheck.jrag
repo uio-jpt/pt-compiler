@@ -244,8 +244,10 @@ aspect NameCheck {
   eq Program.getChild().enclosingBlock() = null;
 
   public void TypeDecl.nameCheck() {
-    if(isTopLevelType() && lookupType(packageName(), name()) != this)
-      error("duplicate member " + name() + " in compilation unit");
+      if(isTopLevelType() && lookupType(packageName(), name()) != this) {
+          error(packageName() + " - " + name() + " - " + "duplicate member " + name() + " in compilation unit");          
+          error("duplicate member " + name() + " in compilation unit");
+      }
   
     if(!isTopLevelType() && !isAnonymous() && !isLocalClass() && extractSingleType(enclosingType().memberTypes(name())) != this)
       error("duplicate member type " + name() + " in type " + enclosingType().typeName());
