@@ -4,6 +4,7 @@ template TemplateTest1 {
 }
 
 template TemplateTest2 {
+    class inside {}
 }
 
 class TestOutside {
