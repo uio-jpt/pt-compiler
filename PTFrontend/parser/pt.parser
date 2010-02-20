@@ -11,11 +11,30 @@ PTDecl pt_declaration =
 ;
 
 PTDecl pt_template =
-  TEMPLATE IDENTIFIER LBRACE class_declaration.tdecls* RBRACE
+  TEMPLATE IDENTIFIER LBRACE pt_inst_declaration.inst* pt_class_declaration.tdecls* RBRACE
            {: return new PTDecl(IDENTIFIER,tdecls); :}
 ;
 
 PTDecl pt_package =
-  PACKAGE IDENTIFIER LBRACE class_declaration.tdecls* RBRACE
+  PACKAGE IDENTIFIER LBRACE pt_inst_declaration.inst+ pt_class_declaration.tdecls* RBRACE
            {: return new PTDecl(IDENTIFIER,tdecls); :}
 ;
+
+PTDecl pt_class_declaration =
+  CLASS IDENTIFIER pt_super.s? interfaces.i? LBRACE class_body_declaration.b* RBRACE
+        {: return new PTDecl(IDENTIFIER, new List()); :}
+| CLASS IDENTIFIER pt_super.s? interfaces.i? ADDS LBRACE class_body_declaration.b* RBRACE
+        {: return new PTDecl(IDENTIFIER, new List()); :}
+;
+
+/* TODO allow better class names and let semcheck give error message if class outside template*/  
+String pt_super =
+  EXTENDS IDENTIFIER
+          {: return IDENTIFIER; :}
+;
+
+PTDecl pt_inst_declaration =
+  INST IDENTIFIER SEMICOLON
+       {: return new PTDecl(IDENTIFIER, new List()); :}
+;
+

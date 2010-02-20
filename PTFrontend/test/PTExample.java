@@ -1,12 +1,6 @@
 template TemplateTest1 {
-    class TestInside {
-    }    
+    class T {}
+    class Q adds {}
 }
 
-template TemplateTest2 {
-    class inside {}
-}
 
-class TestOutside {
-
-}
