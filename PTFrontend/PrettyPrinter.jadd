@@ -7,6 +7,6 @@ aspect PrettyPrint {
        }
 
        public void PTDecl.toString(StringBuffer sb) {
-           sb.append("Package " + getName() + " { }\n");
+           sb.append("Template " + getName() + " { }\n");
        }
 }
