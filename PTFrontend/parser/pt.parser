@@ -12,12 +12,12 @@ PTDecl pt_declaration =
 
 PTDecl pt_template =
   TEMPLATE IDENTIFIER LBRACE pt_inst_declaration.inst* pt_class_declaration.tdecls* RBRACE
-           {: return new PTDecl(IDENTIFIER,tdecls); :}
+           {: return new PTTemplate(IDENTIFIER,inst,tdecls); :}
 ;
 
 PTDecl pt_package =
   PACKAGE IDENTIFIER LBRACE pt_inst_declaration.inst+ pt_class_declaration.tdecls* RBRACE
-           {: return new PTDecl(IDENTIFIER,tdecls); :}
+           {: return new PTPackage(IDENTIFIER,inst,tdecls); :}
 ;
 
 PTClassDecl pt_class_declaration =

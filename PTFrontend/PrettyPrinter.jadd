@@ -1,12 +1,46 @@
 aspect PrettyPrint {
 
-       public void PTCompilationUnit.toString(StringBuffer sb) {
-           super.toString(sb);
-           for (PTDecl ptDecl: getPTDecls()) 
-               ptDecl.toString(sb);
-       }
+    public void PTCompilationUnit.toString(StringBuffer sb) {
+        super.toString(sb);
+        for (PTDecl ptDecl: getPTDecls()) 
+            ptDecl.toString(sb);
+    }
 
-       public void PTDecl.toString(StringBuffer sb) {
-           sb.append("Template " + getName() + " { }\n");
-       }
+    public void PTDecl.toString(StringBuffer sb) {
+        sb.append(indent());
+        sb.append(getDeclType() + " " + getName() + " {");
+        for (PTInstDecl inst : getPTInstDecls())
+            inst.toString(sb);
+        for (PTClassDecl ptclass : getPTClassDecls())
+            ptclass.toString(sb);
+        sb.append(indent() + "}");
+    }
+
+    public void PTInstDecl.toString(StringBuffer sb) {
+        sb.append(indent());
+        sb.append("inst " + getID() + ";");
+    }
+
+    public void PTClassAddsDecl.toString(StringBuffer s) {
+        s.append(indent());
+        getModifiers().toString(s);
+        s.append("class " + name());
+        if(hasSuperClassAccess()) {
+            s.append(" extends ");
+            getSuperClassAccess().toString(s);
+        }
+        if(getNumImplements() > 0) {
+            s.append(" implements ");
+            getImplements(0).toString(s);
+            for(int i = 1; i < getNumImplements(); i++) {
+                s.append(", ");
+                getImplements(i).toString(s);
+            }
+        }
+        s.append(" adds {");
+        for(int i=0; i < getNumBodyDecl(); i++) {
+            getBodyDecl(i).toString(s);
+        }
+        s.append(indent() + "}");
+    }
 }

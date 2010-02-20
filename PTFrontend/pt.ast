@@ -1,6 +1,8 @@
 PTCompilationUnit : CompilationUnit ::= <PackageDecl:java.lang.String> ImportDecl* PTDecl* TypeDecl*;
 
-PTDecl ::= <Name> PTClassDecl*;
+abstract PTDecl ::= <Name> PTInstDecl* PTClassDecl*;
+PTTemplate : PTDecl;
+PTPackage : PTDecl;
 
 PTClassDecl : ClassDecl;
 PTClassAddsDecl : PTClassDecl;

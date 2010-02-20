@@ -15,3 +15,11 @@ aspect TypeCheck {
     eq PTCompilationUnit.getPTDecl(int i).enclosingLookupType(String packageName, String typeName) = lookupType(packageName, typeName);
 
 }
+
+aspect PrettyPrint {
+
+    syn String PTDecl.getDeclType();
+
+    eq PTPackage.getDeclType() = "package";
+    eq PTTemplate.getDeclType() = "template";    
+}
