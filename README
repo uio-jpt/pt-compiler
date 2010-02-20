@@ -1,1 +1,13 @@
- 
+PT HOWTO
+--------
+
+Min implementasjon ligger i mappen PTFrontend. Til nå er det mest
+imponerende som funker en enkel prettyprint. Jeg har brukt en del tid
+på å vurdere forskjellige valg ved AST struktur. Jeg holder nå på med
+noe jeg tror er sånn noenlunde. Håper å snart ha AST for hele PT, samt
+sematikksjekk.
+
+$ git clone git@github.com:eivindgl/pt-compiler.git
+$ cd pt-compiler/PTFrontend
+$ ant
+$ java JavaPrettyPrinter test/PTExample.java
