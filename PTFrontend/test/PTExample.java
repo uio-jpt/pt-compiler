@@ -1,5 +1,7 @@
 template TemplateTest1 {
-    class T {}
+    class T {
+        public void a() {};
+    }
     class Q adds {}
 }
 

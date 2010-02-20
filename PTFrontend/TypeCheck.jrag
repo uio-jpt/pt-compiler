@@ -1,11 +1,17 @@
 aspect TypeCheck {
 
-    eq PTDecl.getTypeDecl(int i).lookupType(String packageName, String typeName) {
+    eq PTDecl.getPTClassDecl(int i).lookupType(String packageName, String typeName) {
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
-        for (TypeDecl type: getTypeDecls())
-            if (type.fullName().equals(fullName))
+        for (TypeDecl type: getPTClassDecls()) {
+            if (type.fullName().equals(fullName)) {
                 return type;
-        return null; // TODO should I check other levels here.. 
+            }
+        }
+        return enclosingLookupType(packageName, typeName); // TODO should I check other levels here.. 
     }
+
+    // Makes it possible for a template to view outer scope.
+    inh TypeDecl PTDecl.enclosingLookupType(String packageName, String typeName);
+    eq PTCompilationUnit.getPTDecl(int i).enclosingLookupType(String packageName, String typeName) = lookupType(packageName, typeName);
 
 }
