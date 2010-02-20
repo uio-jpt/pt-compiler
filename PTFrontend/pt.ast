@@ -4,3 +4,4 @@ PTDecl ::= <Name> PTClassDecl*;
 
 PTClassDecl : ClassDecl;
 PTClassAddsDecl : PTClassDecl;
+PTInstDecl ::= <ID>;

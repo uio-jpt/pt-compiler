@@ -27,8 +27,8 @@ PTClassDecl pt_class_declaration =
         {: return new PTClassAddsDecl(new Modifiers(m), IDENTIFIER, s, i, b); :}        
 ;
 
-PTDecl pt_inst_declaration =
+PTInstDecl pt_inst_declaration =
   INST IDENTIFIER SEMICOLON
-       {: return new PTDecl(IDENTIFIER, new List()); :}
+       {: return new PTInstDecl(IDENTIFIER); :}
 ;
 
