@@ -17,10 +17,10 @@ Dot : AbstractDot;
 
 VarAccess : Access ::= <ID:String>;
 MethodAccess : Access ::= <ID:String> Arg:Expr*;
-// egl: i hvilken sammenheng brukes konstruktoraccess? sammen med new?
+// egl: i hvilken sammenheng brukes konstruktoraccess? this() i en annen konstruktør?
 ConstructorAccess : Access ::= <ID:String> Arg:Expr*;
 SuperConstructorAccess : ConstructorAccess;
-// egl: er dette acces av en static verdi?? eller hur? en klasse?
+// egl: er navn på en klasse (i en pakke)
 TypeAccess : Access ::= <Package:String> <ID:String>;
 // egl: hva gjør backslash?
 PrimitiveTypeAccess : TypeAccess ::= /<Package:String>/ /<ID:String>/ <Name:String>;

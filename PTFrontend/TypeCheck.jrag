@@ -1,6 +1,7 @@
 aspect TypeCheck {
 
     // redefine ParseName node 
+    //   eq ClassDecl.getSuperClassAccess().nameType() = NameType.TYPE_NAME;
     eq PTInstDecl.getAccess().nameType() = NameType.TYPE_NAME;
 
     eq PTDecl.getPTClassDecl(int i).lookupType(String packageName, String typeName) {
@@ -17,6 +18,17 @@ aspect TypeCheck {
     inh TypeDecl PTDecl.enclosingLookupType(String packageName, String typeName);
     eq PTCompilationUnit.getPTDecl(int i).enclosingLookupType(String packageName, String typeName) = lookupType(packageName, typeName);
 
+    // TODO not working .... :(
+    eq PTCompilationUnit.getPTDecl(int i).lookupType(String packageName, String typeName) {
+        String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
+
+        for (PTDecl ptDecl : getPTDecls()) {
+            for (PTClassDecl ptClassDecl : ptDecl.getPTClassDecls()) 
+                if(ptClassDecl.fullName().equals(fullName)) 
+                    return ptClassDecl;
+        }
+        return null; // TODO enclosing type lookup
+    }
 }
 
 aspect PrettyPrint {
