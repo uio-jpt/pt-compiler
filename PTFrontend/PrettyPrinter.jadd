@@ -18,7 +18,9 @@ aspect PrettyPrint {
 
     public void PTInstDecl.toString(StringBuffer sb) {
         sb.append(indent());
-        sb.append("inst " + getID() + ";");
+        sb.append("inst ");
+        getAccess().toString(sb);
+        sb.append(";");
     }
 
     public void PTClassAddsDecl.toString(StringBuffer s) {

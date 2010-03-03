@@ -6,4 +6,4 @@ PTPackage : PTDecl;
 
 PTClassDecl : ClassDecl;
 PTClassAddsDecl : PTClassDecl;
-PTInstDecl ::= <ID>;
+PTInstDecl ::= Access;

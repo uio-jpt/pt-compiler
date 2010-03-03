@@ -1,5 +1,4 @@
 template TemplateTest1 {
-    inst Kjell;
     class T {
         public void a() {
             System.out.println("TEST");
@@ -10,6 +9,10 @@ template TemplateTest1 {
             System.out.println("TEST");
         };
     }
+}
+
+package TemplateTest2 {
+    inst T;
 }
 
 

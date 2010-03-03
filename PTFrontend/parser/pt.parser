@@ -28,7 +28,7 @@ PTClassDecl pt_class_declaration =
 ;
 
 PTInstDecl pt_inst_declaration =
-  INST IDENTIFIER SEMICOLON
-       {: return new PTInstDecl(IDENTIFIER); :}
+  INST class_or_interface_type.name SEMICOLON
+       {: return new PTInstDecl(name); :}
 ;
 
