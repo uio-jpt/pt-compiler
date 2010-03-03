@@ -8,11 +8,8 @@ template TemplateTest1 {
         public void blah() {
             System.out.println("TEST");
         };
-    }
-}
 
-package TemplateTest2 {
-    inst T;
+    }
 }
 
 

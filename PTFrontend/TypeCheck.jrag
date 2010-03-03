@@ -1,5 +1,8 @@
 aspect TypeCheck {
 
+    // redefine ParseName node 
+    eq PTInstDecl.getAccess().nameType() = NameType.TYPE_NAME;
+
     eq PTDecl.getPTClassDecl(int i).lookupType(String packageName, String typeName) {
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
         for (TypeDecl type: getPTClassDecls()) {

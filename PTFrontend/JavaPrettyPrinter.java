@@ -27,9 +27,9 @@ class JavaPrettyPrinter extends Frontend {
     );
   }
   protected void processErrors(java.util.Collection errors, CompilationUnit unit) {
-    super.processErrors(errors, unit);
-    System.out.println(unit.toString());
-    System.out.println(unit.dumpTreeNoRewrite());
+      super.processErrors(errors, unit);
+      System.out.println(unit.toString());
+      System.out.println(unit.dumpTreeNoRewrite());
   }
   protected void processNoErrors(CompilationUnit unit) {
     System.out.println(unit.toString());
