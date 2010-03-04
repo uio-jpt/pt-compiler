@@ -6,10 +6,10 @@
  * Copyright (c) 2005-2008, Torbjorn Ekman
  * All rights reserved.
  */
-
+package testutils;
 import AST.*;
 
-class JavaPrettyPrinter extends Frontend {
+public class JavaPrettyPrinter extends Frontend {
   public static void main(String args[]) {
     if(!compile(args))
       System.exit(1);

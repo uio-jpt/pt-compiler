@@ -6,10 +6,10 @@
  * Copyright (c) 2005-2008, Torbjorn Ekman
  * All rights reserved.
  */
-
+package testutils;
 import AST.*;
 
-class JavaChecker extends Frontend {
+public class JavaChecker extends Frontend {
   public static void main(String args[]) {
     compile(args);
   }

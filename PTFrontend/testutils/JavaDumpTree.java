@@ -6,13 +6,13 @@
  * Copyright (c) 2005-2008, Torbjorn Ekman
  * All rights reserved.
  */
-
+package testutils;
 import AST.*;
 
 import java.util.*;
 import java.io.*;
 
-class JavaDumpTree extends Frontend {
+public class JavaDumpTree extends Frontend {
   public static void main(String args[]) {
     compile(args);
   }
