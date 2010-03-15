@@ -16,6 +16,7 @@ public class JavaPrettyPrinter extends Frontend {
   }
 
   public static boolean compile(String args[]) {
+      System.out.println("JavaPrettyPrinter.java:");
     return new JavaPrettyPrinter().process(
         args,
         new BytecodeParser(),

@@ -1,6 +1,7 @@
 aspect PrettyPrint {
 
     public void PTCompilationUnit.toString(StringBuffer sb) {
+        System.out.println("PTCOMPL");
         super.toString(sb);
         for (PTDecl ptDecl: getPTDecls()) 
             ptDecl.toString(sb);
@@ -8,7 +9,7 @@ aspect PrettyPrint {
 
     public void PTDecl.toString(StringBuffer sb) {
         sb.append(indent());
-        sb.append(getDeclType() + " " + getName() + " {");
+        sb.append(getDeclType() + " " + getID() + " {");
         for (PTInstDecl inst : getPTInstDecls())
             inst.toString(sb);
         for (PTClassDecl ptclass : getPTClassDecls())
@@ -18,9 +19,7 @@ aspect PrettyPrint {
 
     public void PTInstDecl.toString(StringBuffer sb) {
         sb.append(indent());
-        sb.append("inst ");
-        getAccess().toString(sb);
-        sb.append(";");
+        sb.append("inst " + getID() + ";");
     }
 
     public void PTClassAddsDecl.toString(StringBuffer s) {

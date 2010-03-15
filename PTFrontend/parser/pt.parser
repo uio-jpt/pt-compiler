@@ -1,6 +1,6 @@
 CompilationUnit compilation_unit =
-package_declaration.p import_declarations.i? pt_declaration.pt+ type_declarations.t? {: return new PTCompilationUnit(p.getID(), i, pt, t); :}
-| import_declarations.i? pt_declaration.pt+ type_declarations.t? {: return new PTCompilationUnit("", i, pt, t); :}
+package_declaration.p import_declarations.i? pt_declaration.pt+ {: return new PTCompilationUnit(p.getID(), i, new List<TypeDecl>(), pt); :}
+| import_declarations.i? pt_declaration.pt+ {: return new PTCompilationUnit("", i, new List<TypeDecl>(), pt); :}
 ;
 
 PTDecl pt_declaration =
@@ -11,24 +11,24 @@ PTDecl pt_declaration =
 ;
 
 PTDecl pt_template =
-  TEMPLATE IDENTIFIER LBRACE pt_inst_declaration.inst* pt_class_declaration.tdecls* RBRACE
-           {: return new PTTemplate(IDENTIFIER,inst,tdecls); :}
+ TEMPLATE IDENTIFIER LBRACE pt_inst_decl.pt_inst* pt_class_declaration.pt_class* RBRACE
+          {: return new PTTemplate(IDENTIFIER, pt_inst, pt_class); :}
 ;
 
 PTDecl pt_package =
-  PACKAGE IDENTIFIER LBRACE pt_inst_declaration.inst+ pt_class_declaration.tdecls* RBRACE
-           {: return new PTPackage(IDENTIFIER,inst,tdecls); :}
+ PACKAGE IDENTIFIER LBRACE pt_inst_decl.pt_inst+ pt_class_declaration.pt_class* RBRACE
+          {: return new PTPackage(IDENTIFIER, pt_inst, pt_class); :}
 ;
 
 PTClassDecl pt_class_declaration =
-    modifiers.m? CLASS IDENTIFIER super.s? interfaces.i? class_body.b 
-        {: return new PTClassDecl(new Modifiers(m), IDENTIFIER, s, i, b); :}
-|   modifiers.m? CLASS IDENTIFIER super.s? interfaces.i? ADDS class_body.b 
-        {: return new PTClassAddsDecl(new Modifiers(m), IDENTIFIER, s, i, b); :}        
-;
+  CLASS IDENTIFIER super.s? interfaces.i? class_body.b 
+              {: return new PTClassDecl(new Modifiers(), IDENTIFIER, s, i, b); :}
+| CLASS IDENTIFIER ADDS class_body.b 
+              {: return new PTClassAddsDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}              
+  ;
 
-PTInstDecl pt_inst_declaration =
-  INST class_or_interface_type.name SEMICOLON
-       {: return new PTInstDecl(name); :}
+PTInstDecl pt_inst_decl =
+  INST IDENTIFIER SEMICOLON
+       {: return new PTInstDecl(IDENTIFIER); :}
 ;
 

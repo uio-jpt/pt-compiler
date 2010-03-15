@@ -6,7 +6,7 @@
     gen             - generates java files
     genClean        - removes all generated files and their class files
 -->
-<project name="JavaExtension" default="build">
+<project name="JavaExtension" default="run">
 
   <property name="PTFrontend" value="."/>  
   <!-- location of Java1.4Frontend -->

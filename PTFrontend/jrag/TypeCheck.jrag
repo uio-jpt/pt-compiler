@@ -1,9 +1,5 @@
 aspect TypeCheck {
 
-    // redefine ParseName node 
-    //   eq ClassDecl.getSuperClassAccess().nameType() = NameType.TYPE_NAME;
-    eq PTInstDecl.getAccess().nameType() = NameType.TYPE_NAME;
-
     eq PTDecl.getPTClassDecl(int i).lookupType(String packageName, String typeName) {
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
         for (TypeDecl type: getPTClassDecls()) {
@@ -11,30 +7,10 @@ aspect TypeCheck {
                 return type;
             }
         }
-        return enclosingLookupType(packageName, typeName); // TODO should I check other levels here.. 
+        return enclosingLookupType(packageName, typeName);
     }
 
-    // Makes it possible for a template to view outer scope.
     inh TypeDecl PTDecl.enclosingLookupType(String packageName, String typeName);
     eq PTCompilationUnit.getPTDecl(int i).enclosingLookupType(String packageName, String typeName) = lookupType(packageName, typeName);
-
-    // TODO not working .... :(
-    eq PTCompilationUnit.getPTDecl(int i).lookupType(String packageName, String typeName) {
-        String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
-
-        for (PTDecl ptDecl : getPTDecls()) {
-            for (PTClassDecl ptClassDecl : ptDecl.getPTClassDecls()) 
-                if(ptClassDecl.fullName().equals(fullName)) 
-                    return ptClassDecl;
-        }
-        return null; // TODO enclosing type lookup
-    }
 }
 
-aspect PrettyPrint {
-
-    syn String PTDecl.getDeclType();
-
-    eq PTPackage.getDeclType() = "package";
-    eq PTTemplate.getDeclType() = "template";    
-}

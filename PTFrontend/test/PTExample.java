@@ -12,7 +12,7 @@ template TemplateTest1 {
 }
 
 package TemplateTest2 {
-    inst T;
+    inst sfd;
 }
 
 

@@ -5,6 +5,9 @@ run test: java JavaPrettyPrinter test/PTExample.java
 
 TODO:
 
+modifiers, modifiers, helvete maa fikses slik at alt blir public i PT.
+
+---------------
 
 Inst bruker access. javaprettyprinter kaller sin processErrors,
 kanskje fordi lookup av inst<access> ikke funker?

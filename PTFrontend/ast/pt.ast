@@ -1,9 +1,10 @@
-PTCompilationUnit : CompilationUnit ::= <PackageDecl:java.lang.String> ImportDecl* PTDecl* TypeDecl*;
+PTCompilationUnit : CompilationUnit ::= PTDecl*;
 
-abstract PTDecl ::= <Name> PTInstDecl* PTClassDecl*;
+abstract PTDecl ::= <ID> PTInstDecl* PTClassDecl*;
 PTTemplate : PTDecl;
 PTPackage : PTDecl;
 
 PTClassDecl : ClassDecl;
 PTClassAddsDecl : PTClassDecl;
-PTInstDecl ::= Access;
+
+PTInstDecl ::= <ID>;
