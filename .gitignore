@@ -6,3 +6,8 @@ AST
 *~
 \#*
 .\#*
+.idea
+out
+*.iml
+.classpath
+bin
