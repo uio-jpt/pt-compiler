@@ -30,5 +30,7 @@ PTClassDecl pt_class_declaration =
 PTInstDecl pt_inst_decl =
   INST IDENTIFIER SEMICOLON
        {: return new PTInstDecl(IDENTIFIER); :}
+| INST IDENTIFIER SEMICOLON WITH RIGHTARROW
+       {: return new PTInstDecl(IDENTIFIER); :}
 ;
 
