@@ -9,5 +9,5 @@ sematikksjekk.
 
 $ git clone git@github.com:eivindgl/pt-compiler.git
 $ cd pt-compiler/PTFrontend
-$ ant
-$ java JavaPrettyPrinter test/PTExample.java
+$ ant build
+$ ant run

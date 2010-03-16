@@ -1,0 +1,18 @@
+aspect LookupTemplate {
+
+    inh PTTemplate PTInstDecl.instantiationTemplate(String name);
+    syn PTTemplate PTDecl.lookupTemplate(String name) = null;
+    eq PTTemplate.lookupTemplate(String name) = name.equals(getID()) ? this : null;
+    
+    eq PTCompilationUnit.getPTDecl(int i).instantiationTemplate(String name) {
+        for (PTDecl decl: getPTDecls()) {
+            PTTemplate template = decl.lookupTemplate(name);
+            if (template != null) {
+                return template;
+            }
+        }
+        throw new RuntimeException("PTTemplate " + name + " not found in compilation unit.");
+    }
+
+    syn PTTemplate PTInstDecl.getTemplate() = instantiationTemplate(getID());
+}

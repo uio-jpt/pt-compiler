@@ -1,5 +1,5 @@
 build: ant build
-run test: java JavaPrettyPrinter test/PTExample.java
+run test: ant run
 
 ----
 
@@ -7,4 +7,6 @@ TODO:
 
 kaster runtimeexception ved error, hvordan funker error() metoden i
 jastaddj?
+
+hvordan funker indent() prettyprint?
 
