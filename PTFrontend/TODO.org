@@ -1,0 +1,13 @@
+TODO - general features to be added
+
+** Superclasses
+   *** Forbid template classes to have superclasses defined outside the
+   template.
+   *** Forbid template classes to have type parameters as superclasses
+   (generics)
+   *** When merged, superclasses are also merged.
+   *** a merge must not result in a cyclic superclass-structure.
+
+
+   
+     

@@ -12,5 +12,7 @@ aspect TypeCheck {
 
     inh TypeDecl PTDecl.enclosingLookupType(String packageName, String typeName);
     eq PTCompilationUnit.getPTDecl(int i).enclosingLookupType(String packageName, String typeName) = lookupType(packageName, typeName);
+
+    
 }
 

@@ -3,7 +3,7 @@ run test: ant run
 
 ----
 
-TODO:
+Fixes TODO:
 
 kaster runtimeexception ved error, hvordan funker error() metoden i
 jastaddj?
