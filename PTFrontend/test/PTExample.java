@@ -11,8 +11,8 @@ template TemplateTest1 {
     }
 }
 
-package TemplateTest2 {
-    inst sfd;
+package PackageTest1 {
+    inst TemplateTest1;
 }
 
 

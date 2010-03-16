@@ -5,23 +5,6 @@ run test: java JavaPrettyPrinter test/PTExample.java
 
 TODO:
 
-modifiers, modifiers, helvete maa fikses slik at alt blir public i PT.
+kaster runtimeexception ved error, hvordan funker error() metoden i
+jastaddj?
 
----------------
-
-Inst bruker access. javaprettyprinter kaller sin processErrors,
-kanskje fordi lookup av inst<access> ikke funker?
-
-maa fikse lookup innad og mellom packages og templates ...
-
-hva får typeaccess til å se etter sin definisjon?
-svar:
-TypeAccess.nameCheck()
-kaller igjen decls()
-som kaller lookuptype, som ikke gir noen treff
-
-TODO:
-propagate     eq PTCompilationUnit.getPTDecl(int i).lookupType
-videre om typen ikke blir funnnet. returnerer null per dags dato.
-
-lookuptype mellom packages og templates fungerer ikke... :(
