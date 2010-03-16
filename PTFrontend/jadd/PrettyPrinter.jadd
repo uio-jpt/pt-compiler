@@ -1,7 +1,6 @@
 aspect PrettyPrint {
 
     public void PTCompilationUnit.toString(StringBuffer sb) {
-        System.out.println("PTCOMPL");
         super.toString(sb);
         for (PTDecl ptDecl: getPTDecls()) 
             ptDecl.toString(sb);
