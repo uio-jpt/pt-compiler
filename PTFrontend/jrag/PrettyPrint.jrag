@@ -1,0 +1,7 @@
+aspect PrettyPrint {
+
+    syn String PTDecl.getDeclType();
+
+    eq PTPackage.getDeclType() = "package";
+    eq PTTemplate.getDeclType() = "template";    
+}
