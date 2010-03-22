@@ -1,0 +1,28 @@
+aspect NameCheck {
+
+    inh PTTemplate PTInstDecl.instantiationTemplate(String name);
+
+    //eq PTCompilationUnit.typeCheck() {    }
+
+    eq PTCompilationUnit.getPTDecl(int i).instantiationTemplate(String name) {
+        for (PTDecl decl: getPTDecls()) {
+            PTTemplate template = decl.lookupTemplate(name);
+            if (template != null) {
+                return template;
+            }
+        }
+        //System.out.println(name + " not found.");
+        return null;
+    }
+
+    syn PTTemplate PTInstDecl.getTemplate() = instantiationTemplate(getID());
+
+    public void PTInstDecl.nameCheck() {
+        System.out.println("PTInst.nameCheck() for " + getID());
+        if (getTemplate() == null)
+            error("PTTemplate " + getID() + " not found in compilation unit.");
+    }
+
+    syn PTTemplate PTDecl.lookupTemplate(String name) = null;
+    eq PTTemplate.lookupTemplate(String name) = name.equals(getID()) ? this : null;
+}
