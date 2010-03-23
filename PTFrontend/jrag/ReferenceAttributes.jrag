@@ -1,0 +1,18 @@
+aspect ReferenceAttributes {
+
+    syn PTTemplate PTInstDecl.getTemplate() = getTemplate(getID());
+    inh PTTemplate PTDummyClass.getTemplate();
+    eq PTInstDecl.getPTDummyClass(int i).getTemplate() = getTemplate();
+
+    inh PTTemplate PTInstDecl.getTemplate(String name);
+
+    eq PTCompilationUnit.getPTDecl(int i).getTemplate(String name) {
+        for (PTDecl decl: getPTDecls()) {
+            PTTemplate template = decl.lookupTemplate(name);
+            if (template != null) {
+                return template;
+            }
+        }
+        return null;
+    }
+}

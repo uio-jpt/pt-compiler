@@ -1,0 +1,27 @@
+aspect TemplateInstantiation {
+
+    rewrite PTDecl {
+        when ( this.isRewritten == false)
+        to PTDecl {
+            for (PTInstDecl templateInst : getPTInstDecls()) {
+                for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
+                    PTClassDecl newClass = dummy.getOriginator().copyAndRename(dummy.getID());
+                    addPTClassDecl(newClass);
+                }
+            }
+            //System.out.println("got rewrite for " + getID() + " => " + getID());
+            this.isRewritten = true;
+            return this;
+        }
+    }
+
+    syn PTClassDecl PTClassDecl.copyAndRename(String ID) {
+        try {
+            PTClassDecl n = this.fullCopy();
+            n.setID(ID);
+            return n;
+        } catch (Exception e) { throw new RuntimeException("BORK!: "+e); }
+    }
+
+    private boolean PTDecl.isRewritten = false;
+}

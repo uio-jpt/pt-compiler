@@ -1,25 +1,9 @@
 aspect TypeCheck {
-
-    eq PTDecl.getPTClassDecl(int i).lookupType(String packageName, String typeName) {
-        String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
-        for (TypeDecl type: getPTClassDecls()) {
-            if (type.fullName().equals(fullName)) {
-                return type;
-            }
-        }
-        return enclosingLookupType(packageName, typeName);
-    }
-
-    public void PTDummyClass.typeCheck() {
-        //System.out.println("fikk typeCheck() for ptdummyclass");
-        if (getOriginator()==null) { error("Unable to find class " + getOrgID() + " in template " + getTemplate().getID()); }
-        
-    }
-
-
-    inh TypeDecl PTDecl.enclosingLookupType(String packageName, String typeName);
-    eq PTCompilationUnit.getPTDecl(int i).enclosingLookupType(String packageName, String typeName) = lookupType(packageName, typeName);
-
     
+    public void PTDummyClass.typeCheck() {
+        if (getOriginator()==null) { 
+            error("Unable to find class " + getOrgID() + " in template " + getTemplate().getID());
+        }
+    }
 }
 

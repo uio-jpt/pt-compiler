@@ -12,3 +12,5 @@ out
 .classpath
 bin
 *.swp
+nbproject
+manifest.mf
