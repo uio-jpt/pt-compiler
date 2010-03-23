@@ -29,8 +29,13 @@ PTClassDecl pt_class_declaration =
 
 PTInstDecl pt_inst_decl =
   INST IDENTIFIER SEMICOLON
-       {: return new PTInstDecl(IDENTIFIER); :}
-| INST IDENTIFIER SEMICOLON WITH RIGHTARROW
-       {: return new PTInstDecl(IDENTIFIER); :}
+       {: return new PTInstDecl(IDENTIFIER, new List()); :}
+| INST IDENTIFIER WITH dummy_class_list.dcl SEMICOLON
+       {: return new PTInstDecl(IDENTIFIER, dcl); :}
 ;
+
+List dummy_class_list =
+      dummy_class_list.dcl COMMA IDENTIFIER.a RIGHTARROW IDENTIFIER.b {: return dcl.add(new PTDummyClass(a,b)); :}
+    | IDENTIFIER.a RIGHTARROW IDENTIFIER.b {: return new List().add(new PTDummyClass(a,b)); :}
+    ;
 

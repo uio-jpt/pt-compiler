@@ -13,6 +13,10 @@ public class JavaPrettyPrinter extends Frontend {
   public static void main(String args[]) {
     if(!compile(args))
       System.exit(1);
+    //ASTNode a;
+     //ClassDecl c;
+     //c
+    //a.typ
   }
 
   public static boolean compile(String args[]) {

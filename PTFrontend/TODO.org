@@ -8,6 +8,15 @@ TODO - general features to be added
    *** When merged, superclasses are also merged.
    *** a merge must not result in a cyclic superclass-structure.
 
+** PrettyPrint for instantiations
+
+Fiks namesjekk paa: (konflikt Q=> f og class f)
+    package PackageTest1 {
+        inst TemplateTest1 with Q => f, T => A; 
+        class f { }
+    }
+
+
 
    
      

@@ -7,4 +7,6 @@ PTPackage : PTDecl;
 PTClassDecl : ClassDecl;
 PTClassAddsDecl : PTClassDecl;
 
-PTInstDecl ::= <ID>;
+PTInstDecl ::= <ID> PTDummyClass*;
+
+PTDummyClass ::= <OrgID> <ID>;

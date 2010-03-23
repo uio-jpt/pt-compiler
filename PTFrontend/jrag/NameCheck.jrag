@@ -17,6 +17,10 @@ aspect NameCheck {
 
     syn PTTemplate PTInstDecl.getTemplate() = instantiationTemplate(getID());
 
+    inh PTTemplate PTDummyClass.getTemplate();
+
+    eq PTInstDecl.getPTDummyClass(int i).getTemplate() = getTemplate();
+
     public void PTInstDecl.nameCheck() {
         System.out.println("PTInst.nameCheck() for " + getID());
         if (getTemplate() == null)

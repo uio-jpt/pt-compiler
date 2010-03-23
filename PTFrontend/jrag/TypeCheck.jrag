@@ -10,6 +10,13 @@ aspect TypeCheck {
         return enclosingLookupType(packageName, typeName);
     }
 
+    public void PTDummyClass.typeCheck() {
+        //System.out.println("fikk typeCheck() for ptdummyclass");
+        if (getOriginator()==null) { error("Unable to find class " + getOrgID() + " in template " + getTemplate().getID()); }
+        
+    }
+
+
     inh TypeDecl PTDecl.enclosingLookupType(String packageName, String typeName);
     eq PTCompilationUnit.getPTDecl(int i).enclosingLookupType(String packageName, String typeName) = lookupType(packageName, typeName);
 

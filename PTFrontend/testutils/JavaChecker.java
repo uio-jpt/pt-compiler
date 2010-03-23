@@ -12,6 +12,8 @@ import AST.*;
 public class JavaChecker extends Frontend {
   public static void main(String args[]) {
     compile(args);
+    //PTCompilationUnit cu;
+    //cu.collectErrors();
   }
 
   public static boolean compile(String args[]) {
