@@ -8,6 +8,12 @@ TODO - general features to be added
    *** When merged, superclasses are also merged.
    *** a merge must not result in a cyclic superclass-structure.
 
+** Regel for PTDecl:
+    omskriv seg selv hvis PTInstDecl*.size() > 0    
+        - kopi av getOriginator() til dummyNodes
+        - legg til i egen PTClassDecl*
+        - (hvis det ikke finnes adds klasse)
+
 ** PrettyPrint for instantiations
 
 Fiks namesjekk paa: (konflikt Q=> f og class f)

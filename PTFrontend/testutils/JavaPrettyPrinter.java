@@ -15,7 +15,13 @@ public class JavaPrettyPrinter extends Frontend {
       System.exit(1);
     //ASTNode a;
      //ClassDecl c;
-     //c
+
+    //PTDecl pt;
+    //PTInstDecl p;
+    //p.getPTDummyClassList().
+
+
+     
     //a.typ
   }
 
