@@ -5,8 +5,5 @@ run test: ant run
 
 Fixes TODO:
 
-kaster runtimeexception ved error, hvordan funker error() metoden i
-jastaddj?
-
 hvordan funker indent() prettyprint?
 
