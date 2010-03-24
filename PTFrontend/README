@@ -7,3 +7,48 @@ Fixes TODO:
 
 hvordan funker indent() prettyprint?
 
+PTDecl:
+    -for each PTInstDecl
+        - Lag dummynodes for at alle classer i template som blir instansiert:
+               - Noen må renames ( gammeltnavn => nyttnavn)
+               - resten får implesitt dummyClass nodes med gammeltnavn == nyttNavn
+        - Kopi av alle PTDummyClass getOriginator() inn i PTClassDecl*
+
+        - adds klasser spesielle:
+            - de kan stå som egne klasser bortsett fra at man ikke
+            - ønsker å utføre typesjekk på dem før etter de er
+            - merget med orginalklassen...
+        - DummyNode kopi, samt adds skall, Høna eller egget! :
+          - kan evt per dummynode sjekke om det finnes en adds classe
+            med samme navn og dermed kopiere innhold.
+          - også mulig å lage to instanser (add med <navn>_adds som
+            - navn), kopiere alt over og deretter slette adds instansen.
+
+    - Å sin egen klasse som returtype i en metode gir feil, hvorfor?
+      - fordi en inst klasse ikke renamer!
+      - Feil med copyAndRename.
+      - hvordan håndere typer til andre klasser som også renames?
+        - collection attribute. la alle typer brukt i en PTDecl legge
+          seg til en collection.
+        - så kan man enkelt loope over listen i rewrite delen og
+          rename de delene som trengs.
+
+** Superclasses
+   *** Forbid template classes to have superclasses defined outside the
+   template.
+   *** Forbid template classes to have type parameters as superclasses
+   (generics)
+   *** When merged, superclasses are also merged.
+   *** a merge must not result in a cyclic superclass-structure.
+
+** PrettyPrint for instantiations
+Fiks namesjekk paa: (konflikt Q=> f og class f)
+    package PackageTest1 {
+        inst TemplateTest1 with Q => f, T => A; 
+        class f { }
+    }
+
+
+
+   
+     
