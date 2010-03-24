@@ -13,10 +13,24 @@ public class JavaPrettyPrinter extends Frontend {
   public static void main(String args[]) {
     if(!compile(args))
       System.exit(1);
-    //ASTNode a;
-     //ClassDecl c;
+      //ASTNode a;
+      //a.ge
+
+
+
+      //PTPackage p;
+      //p.getPT
+//    PTClassAddsDecl p;
+//    p.getBodyDeclList()
+
+    //p.addBodyDecl;
 
     //PTDecl pt;
+    //pt.getPT
+    //pt.getPTClassDecls()
+    //pt.getIndexOfChild(pt);
+
+    //pt.removeChild(i);
     //PTInstDecl p;
     //p.getPTDummyClassList().
 
