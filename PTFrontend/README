@@ -51,6 +51,8 @@ Fiks namesjekk paa: (konflikt Q=> f og class f)
     }
 
 
-
-   
-     
+implementer hashCode for:
+    public int ConstructorDecl.hashCode() {
+        String id = getId()
+    }
+ 

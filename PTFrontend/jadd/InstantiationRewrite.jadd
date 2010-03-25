@@ -35,9 +35,14 @@ aspect InstantiationRewrite {
         } catch (Exception e) { throw new RuntimeException("extendWithAddClass!: "+e); }
     }
 
+    public void PTClassDecl.addBodyDecl(FieldDeclaration fd) {
+        System.out.println("fikk :: " + fd.dumpTreeNoRewrite());
+    }
+
     public void PTClassAddsDecl.addInto(PTClassDecl target) {
         try {
             for (BodyDecl bd : getBodyDecls()) {
+                // this/self  takes precedence over target
                 target.addBodyDecl( bd.clone() );
             }
         } catch (Exception e) { throw new RuntimeException("addInto:"+e); }
@@ -73,6 +78,7 @@ aspect InstantiationRewrite {
     }
 
     public void TypeAccess.visitRename(HashMap<String,String> ht) {
+        //super.visitRename(ht);
         if (ht.containsKey(getID())) {
             //System.out.print("renamed " + getID() + " => ");
             setID(ht.get(getID()));
@@ -87,4 +93,5 @@ aspect InstantiationRewrite {
         }
     }
 
+    
 }

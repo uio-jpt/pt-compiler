@@ -1,37 +1,26 @@
 template TemplateTest1 {
-    class T {
-        T temp;
-        public T a() {
+    class T { // rename ok
+        T temp; // ok
+        public T a() { // ok
             T nytemp;
             System.out.println("TEST");
+            double x = ff+1.0; // feil
             return null;
         }
+        double ff;
     }
 }
 
 package PackageTest1 {
     inst TemplateTest1 with T => F;
-    //inst TemplateTest1;
-    // T => F, Q => Q;
-/*
-    class F {
-	int ff;
-        public F a() {
-            System.out.println("TEST");
-		return null;
-        }
-    }
-    class Q {
-        public void blah() {
-            System.out.println("TEST");
-        }
-    }
-*/
-    /*
+    /* adds merge kriterier::
+     * 0. overskrive alt.
+     * 1. bare en tom konstruktur
+     *
+     */
     class F adds {
         int ff;
     }
-    */
 }
 
 
