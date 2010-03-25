@@ -17,10 +17,10 @@ aspect ReferenceAttributes {
         return null;
     }
 
-    syn HashSet<String> PTInstDecl.getRenamedClasses() {
-        HashSet<String> renamedClasses = new HashSet<String>();
+    syn HashMap<String,String> PTInstDecl.getRenamedClasses() {
+        HashMap<String,String> renamedClasses = new HashMap<String,String>();
         for (PTDummyClass dummy: getPTDummyClassList()) 
-            renamedClasses.add(dummy.getOrgID());
+            renamedClasses.put(dummy.getOrgID(),dummy.getID());
         return renamedClasses;
     }
 }

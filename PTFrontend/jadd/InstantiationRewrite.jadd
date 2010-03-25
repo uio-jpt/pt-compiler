@@ -6,8 +6,9 @@ aspect InstantiationRewrite {
             for (PTInstDecl templateInst : getPTInstDecls()) {
                 List<PTDummyClass> allDummyClasses = templateInst.getCompleteDummyClassSet();
                 for (PTDummyClass dummy : allDummyClasses) {
-                    PTClassDecl newClass = dummy.getOriginator().copyAndRename(dummy.getID());                    
-                    addPTClassDecl(newClass);                    
+                    PTClassDecl newClass = dummy.getOriginator().copyAndRename(dummy.getID());
+                    newClass.renameTypes(templateInst.getRenamedClasses());
+                    addPTClassDecl(newClass);
                     PTClassAddsDecl extension = lookupAddClass(newClass.getID());
                     if (extension != null) {
                         newClass.extendWithAddClass(extension);
@@ -48,16 +49,42 @@ aspect InstantiationRewrite {
     }
 
     public List<PTDummyClass> PTInstDecl.getCompleteDummyClassSet() {
-        HashSet<String> renamedClasses = getRenamedClasses();
+        HashMap<String,String> renamedClasses = getRenamedClasses();
         List<PTClassDecl> templateClasses = getTemplate().getPTClassDeclList();
         List<PTDummyClass> dummies = getPTDummyClassList();
         for (PTClassDecl templateClass: templateClasses) {
             String templateID = templateClass.getID();
-            if (!renamedClasses.contains(templateID)) {
+            if (!renamedClasses.containsKey(templateID)) {
                 PTDummyClass dummy = new PTDummyClass(templateID, templateID);
                 dummies.add(dummy);
             }
         }
         return dummies;
     }
+
+    public void ASTNode.visitRename(HashMap<String,String> ht) { }
+
+    public void ASTNode.renameTypes(HashMap<String,String> ht) {
+        for(int i = 0; i < getNumChild(); i++) {
+            ASTNode child = getChild(i);
+            child.visitRename(ht);
+            child.renameTypes(ht);
+        }
+    }
+
+    public void TypeAccess.visitRename(HashMap<String,String> ht) {
+        if (ht.containsKey(getID())) {
+            //System.out.print("renamed " + getID() + " => ");
+            setID(ht.get(getID()));
+            System.out.println(getID());
+        }
+        //System.out.println("fikk :: " + this.dumpTreeNoRewrite() + "\n" + ht + "\n");
+    }
+
+    public void TypeDecl.visitRename(HashMap<String,String> ht) {
+        if (ht.containsKey(getID())) {
+            setID(ht.get(getID()));
+        }
+    }
+
 }
