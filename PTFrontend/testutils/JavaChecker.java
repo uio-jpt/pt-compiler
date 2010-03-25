@@ -14,6 +14,10 @@ public class JavaChecker extends Frontend {
     compile(args);
     //PTCompilationUnit cu;
     //cu.collectErrors();
+//    ASTNode an;
+//    an.get
+//    PTInstDecl pi;
+
   }
 
   public static boolean compile(String args[]) {

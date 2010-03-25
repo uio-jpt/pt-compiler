@@ -22,7 +22,9 @@ PTDecl:
           - kan evt per dummynode sjekke om det finnes en adds classe
             med samme navn og dermed kopiere innhold.
           - også mulig å lage to instanser (add med <navn>_adds som
-            - navn), kopiere alt over og deretter slette adds instansen.
+            - navn), kopiere alt over og deretter slette adds
+            - instansen.
+          - adds removeself krasjer, hvorfor? (kommentert ut i InstantiationRewrite.jadd)
 
     - Å sin egen klasse som returtype i en metode gir feil, hvorfor?
       - fordi en inst klasse ikke renamer!

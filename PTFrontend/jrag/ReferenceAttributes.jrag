@@ -16,4 +16,11 @@ aspect ReferenceAttributes {
         }
         return null;
     }
+
+    syn HashSet<String> PTInstDecl.getRenamedClasses() {
+        HashSet<String> renamedClasses = new HashSet<String>();
+        for (PTDummyClass dummy: getPTDummyClassList()) 
+            renamedClasses.add(dummy.getOrgID());
+        return renamedClasses;
+    }
 }

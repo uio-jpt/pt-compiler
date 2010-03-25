@@ -27,11 +27,11 @@ package PackageTest1 {
             System.out.println("TEST");
         }
     }
-*/
+
     class F adds {
 	int ff;
     }
-
+*/
 }
 
 

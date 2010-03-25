@@ -4,12 +4,15 @@ aspect InstantiationRewrite {
         when ( this.isRewritten == false)
         to PTDecl {
             for (PTInstDecl templateInst : getPTInstDecls()) {
-                for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
-                    PTClassDecl newClass = dummy.getOriginator().copyAndRename(dummy.getID());
+                List<PTDummyClass> allDummyClasses = templateInst.getCompleteDummyClassSet();
+                for (PTDummyClass dummy : allDummyClasses) {
+                    PTClassDecl newClass = dummy.getOriginator().copyAndRename(dummy.getID());                    
+                    addPTClassDecl(newClass);                    
                     PTClassAddsDecl extension = lookupAddClass(newClass.getID());
-                    addPTClassDecl(newClass);
-                    newClass.extendWithAddClass(extension);
-                    extension.removeSelf();
+                    if (extension != null) {
+                        newClass.extendWithAddClass(extension);
+                        // extension.removeSelf();
+                    }
                 }
             }
             //System.out.println("got rewrite for " + getID() + " => " + getID());
@@ -18,17 +21,16 @@ aspect InstantiationRewrite {
         }
     }
 
-    /** Husk følgende: adds klassen skal overskrive alternativer om de finnes
+    /** TODO:
+     *  Husk følgende: adds klassen skal overskrive alternativer om de finnes
      *  i orginalen. 
      *  Et problem er klasser uten konstruktører, for de får generert tomme.
      *  Husk derfor å ikke overskrive med en tom konstruktør uten argumenter.
      */
     public void PTClassDecl.extendWithAddClass(PTClassAddsDecl extension) {
         try {
-            if (extension != null) {
-                extension.addInto(this);
-                //extension.removeSelf();
-            }
+            extension.addInto(this);
+            
         } catch (Exception e) { throw new RuntimeException("extendWithAddClass!: "+e); }
     }
 
@@ -45,5 +47,17 @@ aspect InstantiationRewrite {
         parent.removeChild(parent.getIndexOfChild(this));
     }
 
-
+    public List<PTDummyClass> PTInstDecl.getCompleteDummyClassSet() {
+        HashSet<String> renamedClasses = getRenamedClasses();
+        List<PTClassDecl> templateClasses = getTemplate().getPTClassDeclList();
+        List<PTDummyClass> dummies = getPTDummyClassList();
+        for (PTClassDecl templateClass: templateClasses) {
+            String templateID = templateClass.getID();
+            if (!renamedClasses.contains(templateID)) {
+                PTDummyClass dummy = new PTDummyClass(templateID, templateID);
+                dummies.add(dummy);
+            }
+        }
+        return dummies;
+    }
 }
