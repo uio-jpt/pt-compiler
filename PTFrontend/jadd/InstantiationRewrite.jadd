@@ -27,30 +27,59 @@ aspect InstantiationRewrite {
      *  i orginalen. 
      *  Et problem er klasser uten konstruktører, for de får generert tomme.
      *  Husk derfor å ikke overskrive med en tom konstruktør uten argumenter.
+     *
+     *  25. mars:: Fixed. Se scopeSignature() nedenfor.
      */
     public void PTClassDecl.extendWithAddClass(PTClassAddsDecl extension) {
         try {
             extension.addInto(this);
-            
         } catch (Exception e) { throw new RuntimeException("extendWithAddClass!: "+e); }
     }
 
-    public void PTClassDecl.addBodyDecl(FieldDeclaration fd) {
-        System.out.println("fikk :: " + fd.dumpTreeNoRewrite());
+    public String ASTNode.scopeSignature() { throw new RuntimeException("No scopeSignature for Class " + getClass().getName()); }
+    public String FieldDeclaration.scopeSignature() { return "FIELD{" + getID() + "}"; }
+    public String ConstructorDecl.scopeSignature() { return descName(); }
+    // TODO:
+    // Her på scopeSignature() mangler det sikkert en del. f.eks. (statiske) metoder o.l..
+
+    public void BodyDecl.addSelfTo(ClassDecl target) {
+        //System.out.println("kom til constructorDecl.addSelfTo()");
+
+        if (this instanceof ConstructorDecl) { // special case with an empty constructor with no parameters.
+            ConstructorDecl cd = (ConstructorDecl) this;
+            if (cd.getNumParameter()==0 && cd.getBlock().getNumStmt() == 0) return;
+        }
+
+        for (BodyDecl bd : target.getBodyDecls()) {
+            String a = bd.scopeSignature();
+            String b = this.scopeSignature();
+            if (a.equals(b)) {
+                //System.out.println("addSelfTo fikk match på :: " + a +" vs " + b + "");
+                bd.replaceSelfWith(this);
+                return;
+            }
+        }
+        target.addBodyDecl(this);
     }
 
     public void PTClassAddsDecl.addInto(PTClassDecl target) {
         try {
             for (BodyDecl bd : getBodyDecls()) {
-                // this/self  takes precedence over target
-                target.addBodyDecl( bd.clone() );
+                bd.clone().addSelfTo(target);
             }
         } catch (Exception e) { throw new RuntimeException("addInto:"+e); }
+        //removeSelf();
     }
 
-    public void PTClassAddsDecl.removeSelf() {
+    public void ASTNode.removeSelf() {
         ASTNode parent = getParent();
         parent.removeChild(parent.getIndexOfChild(this));
+    }
+
+    public void ASTNode.replaceSelfWith(ASTNode replacement) {
+        ASTNode parent = getParent();
+        int i = parent.getIndexOfChild(this);
+        parent.setChild(replacement, i);
     }
 
     public List<PTDummyClass> PTInstDecl.getCompleteDummyClassSet() {
@@ -67,7 +96,8 @@ aspect InstantiationRewrite {
         return dummies;
     }
 
-    public void ASTNode.visitRename(HashMap<String,String> ht) { }
+    public void ASTNode.visitRename(HashMap<String,String> ht) {
+    }
 
     public void ASTNode.renameTypes(HashMap<String,String> ht) {
         for(int i = 0; i < getNumChild(); i++) {
@@ -78,13 +108,15 @@ aspect InstantiationRewrite {
     }
 
     public void TypeAccess.visitRename(HashMap<String,String> ht) {
-        //super.visitRename(ht);
         if (ht.containsKey(getID())) {
-            //System.out.print("renamed " + getID() + " => ");
             setID(ht.get(getID()));
-            System.out.println(getID());
         }
-        //System.out.println("fikk :: " + this.dumpTreeNoRewrite() + "\n" + ht + "\n");
+    }
+
+    public void ConstructorDecl.visitRename(HashMap<String,String> ht) {
+        if (ht.containsKey(getID())) {
+            setID(ht.get(getID()));
+        }
     }
 
     public void TypeDecl.visitRename(HashMap<String,String> ht) {

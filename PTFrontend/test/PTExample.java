@@ -1,13 +1,9 @@
 template TemplateTest1 {
     class T { // rename ok
-        T temp; // ok
-        public T a() { // ok
-            T nytemp;
-            System.out.println("TEST");
-            double x = ff+1.0; // feil
-            return null;
-        }
         double ff;
+        T() { int vital_code = 0xfeed; }
+        T(float o) { }
+        T(double d) { }
     }
 }
 
@@ -19,8 +15,33 @@ package PackageTest1 {
      *
      */
     class F adds {
+        F(int i) { }
+        F(double ny_d) { }
         int ff;
     }
 }
+
+/* gir
+ class F {
+   int ff; // shadows double ff
+
+   F() { // non-empty arv fra T
+     super();
+     int vital_code = 0xfeed;
+   }
+
+   F(float o) { // arv fra T
+     super();
+   }
+
+   F(int i) {  // direkte fra F adds
+     super();
+   }
+
+   F(double d) { // override fra F adds
+     super();
+   }
+ }
+ */
 
 
