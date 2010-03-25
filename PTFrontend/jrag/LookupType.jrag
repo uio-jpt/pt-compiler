@@ -30,11 +30,7 @@ aspect LookupType {
     eq PTTemplate.lookupTemplate(String name) = name.equals(getID()) ? this : null;
 
 
-    inh PTClassAddsDecl PTClassDecl.lookupAddClass(String name);
-
-    eq ClassDecl.lookupAddClass(String name) = null;
-
-    eq PTDecl.getPTClassDecl(int i).lookupAddClass(String name) {
+    syn PTClassAddsDecl PTDecl.lookupAddClass(String name) {
         for (PTClassDecl decl: getPTClassDecls()) {
             PTClassDecl match = decl.lookupAddClass(name);
             if (match!=null) return (PTClassAddsDecl)match;
@@ -43,9 +39,5 @@ aspect LookupType {
     }
 
     syn PTClassDecl PTClassDecl.lookupAddClass(String name) = null;
-
-    eq PTClassAddsDecl.lookupAddClass(String name) {
-        return getID().equals(name) ? this : null;
-    }
-
+    eq PTClassAddsDecl.lookupAddClass(String name) = getID().equals(name) ? this : null;
 }

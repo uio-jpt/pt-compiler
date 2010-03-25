@@ -1,0 +1,49 @@
+aspect InstantiationRewrite {
+
+    rewrite PTDecl {
+        when ( this.isRewritten == false)
+        to PTDecl {
+            for (PTInstDecl templateInst : getPTInstDecls()) {
+                for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
+                    PTClassDecl newClass = dummy.getOriginator().copyAndRename(dummy.getID());
+                    PTClassAddsDecl extension = lookupAddClass(newClass.getID());
+                    addPTClassDecl(newClass);
+                    newClass.extendWithAddClass(extension);
+                    extension.removeSelf();
+                }
+            }
+            //System.out.println("got rewrite for " + getID() + " => " + getID());
+            this.isRewritten = true;
+            return this;
+        }
+    }
+
+    /** Husk følgende: adds klassen skal overskrive alternativer om de finnes
+     *  i orginalen. 
+     *  Et problem er klasser uten konstruktører, for de får generert tomme.
+     *  Husk derfor å ikke overskrive med en tom konstruktør uten argumenter.
+     */
+    public void PTClassDecl.extendWithAddClass(PTClassAddsDecl extension) {
+        try {
+            if (extension != null) {
+                extension.addInto(this);
+                //extension.removeSelf();
+            }
+        } catch (Exception e) { throw new RuntimeException("extendWithAddClass!: "+e); }
+    }
+
+    public void PTClassAddsDecl.addInto(PTClassDecl target) {
+        try {
+            for (BodyDecl bd : getBodyDecls()) {
+                target.addBodyDecl( bd.clone() );
+            }
+        } catch (Exception e) { throw new RuntimeException("addInto:"+e); }
+    }
+
+    public void PTClassAddsDecl.removeSelf() {
+        ASTNode parent = getParent();
+        parent.removeChild(parent.getIndexOfChild(this));
+    }
+
+
+}
