@@ -1,5 +1,40 @@
 aspect TemplateInstantiation {
 
+    rewrite PTDecl {
+        when ( this.isRewritten == false)
+        to PTDecl {
+            for (PTInstDecl templateInst : getPTInstDecls()) {
+                for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
+                    PTClassDecl newClass = dummy.getOriginator().copyAndRename(dummy.getID());
+                    addPTClassDecl(newClass);
+                    newClass.extendWithAddClass();
+                }
+            }
+            //System.out.println("got rewrite for " + getID() + " => " + getID());
+            this.isRewritten = true;
+            return this;
+        }
+    }
+
+    public void PTClassDecl.extendWithAddClass() {
+        try {
+            PTClassAddsDecl extension = lookupAddClass(getID());
+            if (extension != null) {
+                extension.addInto(this);
+                //extension.removeSelf();
+            }
+        } catch (Exception e) { throw new RuntimeException("extendWithAddClass!: "+e); }
+    }
+
+    public void PTClassAddsDecl.addInto(PTClassDecl target) {
+        try {
+            for (BodyDecl bd : getBodyDeclList()) {
+                target.addBodyDecl( bd.fullCopy() );
+            }
+        } catch (Exception e) { throw new RuntimeException("addInto:"+e); }
+    }
+
+
     syn PTClassDecl PTClassDecl.copyAndRename(String ID) {
         try {
             PTClassDecl n = this.fullCopy();
@@ -7,6 +42,17 @@ aspect TemplateInstantiation {
             return n;
         } catch (Exception e) { throw new RuntimeException("copyAndRename: "+e); }
     }
+
+    public void PTClassAddsDecl.removeSelf() {
+        ASTNode parent = getParent();
+        parent.removeChild(parent.getIndexOfChild(this));
+    }
+
+    /* void PTClassAddsDecl.addInto(PTClassDecl target) {
+        for (BodyDecl bd : getBodyDeclList()) {
+            target.addBodyDecl(bd.fullCopy());
+        }
+    }*/
 
     private boolean PTDecl.isRewritten = false;
 }
