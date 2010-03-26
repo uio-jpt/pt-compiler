@@ -4,6 +4,12 @@ template TemplateTest1 {
         T() { int vital_code = 0xfeed; }
         T(float o) { }
         T(double d) { }
+        class C { double will_be_shadowed; }
+        C cmemb_will_be_kept;
+        public int minMetode() { return 99999; }
+        public int minMetode(int x) { return x+99999; }
+        public int minMetode(double x) { return 0xface; }
+        public static int minMetode(int x) { return x +4569999999; }
     }
 }
 
@@ -18,30 +24,11 @@ package PackageTest1 {
         F(int i) { }
         F(double ny_d) { }
         int ff;
+        C cmemb;
+        class C { int override; }
+        public int minMetode(int x) { return x +123; }
+        public static int minMetode(int x) { return x +456; }
     }
 }
-
-/* gir
- class F {
-   int ff; // shadows double ff
-
-   F() { // non-empty arv fra T
-     super();
-     int vital_code = 0xfeed;
-   }
-
-   F(float o) { // arv fra T
-     super();
-   }
-
-   F(int i) {  // direkte fra F adds
-     super();
-   }
-
-   F(double d) { // override fra F adds
-     super();
-   }
- }
- */
 
 

@@ -37,24 +37,41 @@ aspect InstantiationRewrite {
     }
 
     public String ASTNode.scopeSignature() { throw new RuntimeException("No scopeSignature for Class " + getClass().getName()); }
-    public String FieldDeclaration.scopeSignature() { return "FIELD{" + getID() + "}"; }
+    public String FieldDeclaration.scopeSignature() { return getID(); } // nok med ID som navn siden vi også sjekker på klassetype
     public String ConstructorDecl.scopeSignature() { return descName(); }
+    public String MethodDecl.scopeSignature() {
+        String _static = getModifiers().isStatic() ? "static" : "instance";
+        return _static + "_" + descName();
+    }
+    public String MemberClassDecl.scopeSignature() { return getClassDecl().getID(); }
+
+    public boolean ASTNode.equalSignature(ASTNode other) {
+        boolean res = this.scopeSignature().equals(other.scopeSignature());
+        //System.out.println(this.dumpTreeNoRewrite() + "\n::vs::\n" + other.dumpTreeNoRewrite() + "\n====> " + res);
+        //System.out.println(this.scopeSignature() + " ::vs:: " + other.scopeSignature() + " => " + res);
+        return res;
+    }
+
     // TODO:
-    // Her på scopeSignature() mangler det sikkert en del. f.eks. (statiske) metoder o.l..
+    // Her på scopeSignature() mangler det nok en del spesialiseringer.
+    // Mer presist navn på 'scopeSignature()'?
+    // Les mer her: http://java.sun.com/docs/books/jls/second_edition/html/names.doc.html#33757
+
+    // BUG:
+    // Siden dette blir gjort 'iterativt', altså mulig erstatning for hver ny gjennomløping,
+    // så vil det kunne bli en erstatning av seg selv. Altså en del av Adds klassen kan
+    // utilsiktet og uten advarsel overskrive seg selv. Kan fikses med å bruke én gjennom-
+    // løping og sets som Eivind foreslo.
 
     public void BodyDecl.addSelfTo(ClassDecl target) {
-        //System.out.println("kom til constructorDecl.addSelfTo()");
 
-        if (this instanceof ConstructorDecl) { // special case with an empty constructor with no parameters.
+        if (this instanceof ConstructorDecl) { // special case with an empty constructor with no parameters and no code.
             ConstructorDecl cd = (ConstructorDecl) this;
             if (cd.getNumParameter()==0 && cd.getBlock().getNumStmt() == 0) return;
         }
 
         for (BodyDecl bd : target.getBodyDecls()) {
-            String a = bd.scopeSignature();
-            String b = this.scopeSignature();
-            if (a.equals(b)) {
-                //System.out.println("addSelfTo fikk match på :: " + a +" vs " + b + "");
+            if (bd.getClass().isInstance(this) && this.equalSignature(bd)) {
                 bd.replaceSelfWith(this);
                 return;
             }

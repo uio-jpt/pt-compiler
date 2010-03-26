@@ -13,7 +13,13 @@ public class JavaPrettyPrinter extends Frontend {
   public static void main(String args[]) {
     if(!compile(args))
       System.exit(1);
+      ClassDecl cd;
+      MethodDecl md;
+      //md.getModifiers().
+      //md.getModifiers().isStatic();
 
+      //cd.getB
+      //cd.get
   }
 
   public static boolean compile(String args[]) {
