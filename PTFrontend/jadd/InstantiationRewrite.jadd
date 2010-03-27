@@ -1,5 +1,7 @@
 aspect InstantiationRewrite {
 
+    private boolean PTDecl.isRewritten = false;
+
     rewrite PTDecl {
         when ( this.isRewritten == false)
         to PTDecl {
@@ -23,14 +25,6 @@ aspect InstantiationRewrite {
         }
     }
 
-    /** TODO:
-     *  Husk følgende: adds klassen skal overskrive alternativer om de finnes
-     *  i orginalen. 
-     *  Et problem er klasser uten konstruktører, for de får generert tomme.
-     *  Husk derfor å ikke overskrive med en tom konstruktør uten argumenter.
-     *
-     *  25. mars:: Fixed. Se scopeSignature() nedenfor.
-     */
     public void PTClassDecl.extendWithAddClass(PTClassAddsDecl extension) {
         try {
             for (BodyDecl bd : extension.getBodyDecls()) {
@@ -92,8 +86,6 @@ aspect InstantiationRewrite {
     // utilsiktet og uten advarsel overskrive seg selv. Kan fikses med å bruke én gjennom-
     // løping og sets som Eivind foreslo.
 
-    
-
     public void ASTNode.removeSelf() {
         ASTNode parent = getParent();
         parent.removeChild(parent.getIndexOfChild(this));
@@ -112,35 +104,4 @@ aspect InstantiationRewrite {
         }
         return dummies;
     }
-
-    public void ASTNode.visitRename(HashMap<String,String> ht) {
-    }
-
-    public void ASTNode.renameTypes(HashMap<String,String> ht) {
-        for(int i = 0; i < getNumChild(); i++) {
-            ASTNode child = getChild(i);
-            child.visitRename(ht);
-            child.renameTypes(ht);
-        }
-    }
-
-    public void TypeAccess.visitRename(HashMap<String,String> ht) {
-        if (ht.containsKey(getID())) {
-            setID(ht.get(getID()));
-        }
-    }
-
-    public void ConstructorDecl.visitRename(HashMap<String,String> ht) {
-        if (ht.containsKey(getID())) {
-            setID(ht.get(getID()));
-        }
-    }
-
-    public void TypeDecl.visitRename(HashMap<String,String> ht) {
-        if (ht.containsKey(getID())) {
-            setID(ht.get(getID()));
-        }
-    }
-
-    
 }

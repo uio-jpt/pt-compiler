@@ -1,0 +1,32 @@
+aspect RenameTypes {
+
+    public void ASTNode.visitRename(HashMap<String,String> ht) {
+    }
+
+    public void ASTNode.renameTypes(HashMap<String,String> ht) {
+        for(int i = 0; i < getNumChild(); i++) {
+            ASTNode child = getChild(i);
+            child.visitRename(ht);
+            child.renameTypes(ht);
+        }
+    }
+
+    public void TypeAccess.visitRename(HashMap<String,String> ht) {
+        if (ht.containsKey(getID())) {
+            setID(ht.get(getID()));
+        }
+    }
+
+    public void ConstructorDecl.visitRename(HashMap<String,String> ht) {
+        if (ht.containsKey(getID())) {
+            setID(ht.get(getID()));
+        }
+    }
+
+    public void TypeDecl.visitRename(HashMap<String,String> ht) {
+        if (ht.containsKey(getID())) {
+            setID(ht.get(getID()));
+        }
+    }
+
+}
