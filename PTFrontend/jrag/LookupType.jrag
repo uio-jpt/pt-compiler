@@ -4,9 +4,9 @@ aspect LookupType {
     inh TypeDecl PTDecl.enclosingLookupType(String packageName, String typeName);
     eq PTCompilationUnit.getPTDecl(int i).enclosingLookupType(String packageName, String typeName) = lookupType(packageName, typeName);
 
-    eq PTDecl.getPTClassDecl(int i).lookupType(String packageName, String typeName) {
+    eq PTDecl.getSimpleClass(int i).lookupType(String packageName, String typeName) {
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
-        for (TypeDecl type: getPTClassDecls()) {
+        for (TypeDecl type: getClassList()) {
             if (type.fullName().equals(fullName)) {
                 return type;
             }
@@ -15,8 +15,8 @@ aspect LookupType {
     }
 
 
-    syn PTClassDecl PTTemplate.lookupType(String name) {
-        for (PTClassDecl cls: getPTClassDecls()) {
+    syn TypeDecl PTTemplate.lookupType(String name) {
+        for (TypeDecl cls: getClassList()) {
             if (cls.getID().equals(name)) {
                 return cls;
             }
@@ -24,20 +24,17 @@ aspect LookupType {
         return null;
     }
 
-    syn PTClassDecl PTDummyClass.getOriginator() = getTemplate().lookupType(getOrgID());
+    syn ClassDecl PTDummyClass.getOriginator() = (ClassDecl) getTemplate().lookupType(getOrgID());
 
     syn PTTemplate PTDecl.lookupTemplate(String name) = null;
     eq PTTemplate.lookupTemplate(String name) = name.equals(getID()) ? this : null;
 
 
     syn PTClassAddsDecl PTDecl.lookupAddClass(String name) {
-        for (PTClassDecl decl: getPTClassDecls()) {
-            PTClassDecl match = decl.lookupAddClass(name);
-            if (match!=null) return (PTClassAddsDecl)match;
+        for (PTClassAddsDecl decl: getAdditionClassList()) {
+            if (decl.getID().equals(name))
+                return decl;
         }
         return null;
     }
-
-    syn PTClassDecl PTClassDecl.lookupAddClass(String name) = null;
-    eq PTClassAddsDecl.lookupAddClass(String name) = getID().equals(name) ? this : null;
 }

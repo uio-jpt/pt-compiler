@@ -2,9 +2,9 @@ aspect TemplateInstantiation {
 
     syn PTClassDecl PTClassDecl.copyAndRename(String ID) {
         try {
-            PTClassDecl n = this.fullCopy();
+            ClassDecl n = getClassDecl().fullCopy();
             n.setID(ID);
-            return n;
+            return new PTClassDecl(n);
         } catch (Exception e) { throw new RuntimeException("copyAndRename: "+e); }
     }
 

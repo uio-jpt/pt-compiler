@@ -11,8 +11,11 @@ aspect PrettyPrint {
         sb.append(getDeclType() + " " + getID() + " {");
         for (PTInstDecl inst : getPTInstDecls())
             inst.toString(sb);
-        for (PTClassDecl ptclass : getPTClassDecls())
+        for (PTClassAddsDecl ptclass : getAdditionClassList())
+            ptclass.toString(sb);        
+        for (ClassDecl ptclass : getClassList())
             ptclass.toString(sb);
+
         sb.append(indent() + "}");
     }
 
@@ -21,27 +24,9 @@ aspect PrettyPrint {
         sb.append("inst " + getID() + "; ");
     }
 
-    /*eq PTInstDecl.typeCheck() {
-        System.out.println("fikk typecheck()");
-    }*/
-
     public void PTClassAddsDecl.toString(StringBuffer s) {
         s.append(indent());
-        getModifiers().toString(s);
-        s.append("class " + name());
-        if(hasSuperClassAccess()) {
-            s.append(" extends ");
-            getSuperClassAccess().toString(s);
-        }
-        if(getNumImplements() > 0) {
-            s.append(" implements ");
-            getImplements(0).toString(s);
-            for(int i = 1; i < getNumImplements(); i++) {
-                s.append(", ");
-                getImplements(i).toString(s);
-            }
-        }
-        s.append(" adds {");
+        s.append("class " + getID() + " adds {");
         for(int i=0; i < getNumBodyDecl(); i++) {
             getBodyDecl(i).toString(s);
         }

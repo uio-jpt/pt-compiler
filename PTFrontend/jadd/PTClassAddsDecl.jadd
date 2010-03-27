@@ -1,0 +1,6 @@
+aspect PTClassAddsDecl {
+
+    public void PTClassAddsDecl.collectErrors () {
+        System.out.println("Breaking the law.");
+    }
+}

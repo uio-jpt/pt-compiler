@@ -11,21 +11,21 @@ PTDecl pt_declaration =
 ;
 
 PTDecl pt_template =
- TEMPLATE IDENTIFIER LBRACE pt_inst_decl.pt_inst* pt_class_declaration.pt_class* RBRACE
+ TEMPLATE IDENTIFIER LBRACE pt_inst_decl.pt_inst* pt_simple_declaration.pt_class* RBRACE
           {: return new PTTemplate(IDENTIFIER, pt_inst, pt_class); :}
 ;
 
 PTDecl pt_package =
- PACKAGE IDENTIFIER LBRACE pt_inst_decl.pt_inst+ pt_class_declaration.pt_class* RBRACE
+ PACKAGE IDENTIFIER LBRACE pt_inst_decl.pt_inst+ pt_simple_declaration.pt_class* RBRACE
           {: return new PTPackage(IDENTIFIER, pt_inst, pt_class); :}
 ;
 
-PTClassDecl pt_class_declaration =
-  CLASS IDENTIFIER super.s? interfaces.i? class_body.b 
-              {: return new PTClassDecl(new Modifiers(), IDENTIFIER, s, i, b); :}
-| CLASS IDENTIFIER ADDS class_body.b 
-              {: return new PTClassAddsDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}              
-  ;
+SimpleClass pt_simple_declaration =
+  class_declaration.cd
+              {: return new PTClassDecl(cd); :}
+| CLASS IDENTIFIER ADDS class_body.b
+              {: return new PTClassAddsDecl(IDENTIFIER, b); :}
+;
 
 PTInstDecl pt_inst_decl =
   INST IDENTIFIER SEMICOLON

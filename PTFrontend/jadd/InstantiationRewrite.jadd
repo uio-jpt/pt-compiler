@@ -6,9 +6,10 @@ aspect InstantiationRewrite {
             for (PTInstDecl templateInst : getPTInstDecls()) {
                 List<PTDummyClass> allDummyClasses = templateInst.getCompleteDummyClassSet();
                 for (PTDummyClass dummy : allDummyClasses) {
-                    PTClassDecl newClass = dummy.getOriginator().copyAndRename(dummy.getID());
+                    ClassDecl temp = dummy.getOriginator().fullCopy();
+                    PTClassDecl newClass = new PTClassDecl(temp);
                     newClass.renameTypes(templateInst.getRenamedClasses());
-                    addPTClassDecl(newClass);
+                    addSimpleClass(newClass);
                     PTClassAddsDecl extension = lookupAddClass(newClass.getID());
                     if (extension != null) {
                         newClass.extendWithAddClass(extension);
@@ -32,9 +33,37 @@ aspect InstantiationRewrite {
      */
     public void PTClassDecl.extendWithAddClass(PTClassAddsDecl extension) {
         try {
-            extension.addInto(this);
+            for (BodyDecl bd : extension.getBodyDecls()) {
+                addDecl(bd.clone());
+            }            
         } catch (Exception e) { throw new RuntimeException("extendWithAddClass!: "+e); }
     }
+
+    public void PTClassDecl.addDecl(BodyDecl decl) {
+        ClassDecl target = getClassDecl();
+        // special case with an empty constructor with no parameters and no code.
+        // TODO: sjekk om det fortatt lages tomme konstruktører
+        if (decl instanceof ConstructorDecl) { 
+            ConstructorDecl cd = (ConstructorDecl) decl;
+            if (cd.getNumParameter()==0 && cd.getBlock().getNumStmt() == 0) return;
+        }
+
+        for (BodyDecl bd : target.getBodyDecls()) {
+            //            if (bd.getClass().isInstance(decl) && this.equalSignature(bd)) {
+            if (decl.equalSignature(bd)) {
+                bd.replaceSelfWith(decl);
+                return;
+            }
+        }
+        target.addBodyDecl(decl);
+    }
+
+    public void ASTNode.replaceSelfWith(ASTNode replacement) {
+        ASTNode parent = getParent();
+        int i = parent.getIndexOfChild(this);
+        parent.setChild(replacement, i);
+    }
+
 
     public String ASTNode.scopeSignature() { throw new RuntimeException("No scopeSignature for Class " + getClass().getName()); }
     public String FieldDeclaration.scopeSignature() { return getID(); } // nok med ID som navn siden vi også sjekker på klassetype
@@ -63,47 +92,18 @@ aspect InstantiationRewrite {
     // utilsiktet og uten advarsel overskrive seg selv. Kan fikses med å bruke én gjennom-
     // løping og sets som Eivind foreslo.
 
-    public void BodyDecl.addSelfTo(ClassDecl target) {
-
-        if (this instanceof ConstructorDecl) { // special case with an empty constructor with no parameters and no code.
-            ConstructorDecl cd = (ConstructorDecl) this;
-            if (cd.getNumParameter()==0 && cd.getBlock().getNumStmt() == 0) return;
-        }
-
-        for (BodyDecl bd : target.getBodyDecls()) {
-            if (bd.getClass().isInstance(this) && this.equalSignature(bd)) {
-                bd.replaceSelfWith(this);
-                return;
-            }
-        }
-        target.addBodyDecl(this);
-    }
-
-    public void PTClassAddsDecl.addInto(PTClassDecl target) {
-        try {
-            for (BodyDecl bd : getBodyDecls()) {
-                bd.clone().addSelfTo(target);
-            }
-        } catch (Exception e) { throw new RuntimeException("addInto:"+e); }
-        //removeSelf();
-    }
+    
 
     public void ASTNode.removeSelf() {
         ASTNode parent = getParent();
         parent.removeChild(parent.getIndexOfChild(this));
     }
 
-    public void ASTNode.replaceSelfWith(ASTNode replacement) {
-        ASTNode parent = getParent();
-        int i = parent.getIndexOfChild(this);
-        parent.setChild(replacement, i);
-    }
-
     public List<PTDummyClass> PTInstDecl.getCompleteDummyClassSet() {
         HashMap<String,String> renamedClasses = getRenamedClasses();
-        List<PTClassDecl> templateClasses = getTemplate().getPTClassDeclList();
+        LinkedList<ClassDecl> templateClasses = getTemplate().getClassList();
         List<PTDummyClass> dummies = getPTDummyClassList();
-        for (PTClassDecl templateClass: templateClasses) {
+        for (ClassDecl templateClass: templateClasses) {
             String templateID = templateClass.getID();
             if (!renamedClasses.containsKey(templateID)) {
                 PTDummyClass dummy = new PTDummyClass(templateID, templateID);

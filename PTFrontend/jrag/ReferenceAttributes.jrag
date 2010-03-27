@@ -6,7 +6,6 @@ aspect ReferenceAttributes {
 
     inh PTTemplate PTInstDecl.getTemplate(String name);
 
-
     eq PTCompilationUnit.getPTDecl(int i).getTemplate(String name) {
         for (PTDecl decl: getPTDecls()) {
             PTTemplate template = decl.lookupTemplate(name);

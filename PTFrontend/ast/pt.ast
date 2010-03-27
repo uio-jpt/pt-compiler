@@ -1,11 +1,12 @@
 PTCompilationUnit : CompilationUnit ::= PTDecl*;
 
-abstract PTDecl ::= <ID> PTInstDecl* PTClassDecl*;
+abstract PTDecl ::= <ID> PTInstDecl* SimpleClass*;
 PTTemplate : PTDecl;
 PTPackage : PTDecl;
 
-PTClassDecl : ClassDecl;
-PTClassAddsDecl : PTClassDecl;
+abstract SimpleClass;
+PTClassDecl : SimpleClass ::= ClassDecl;
+PTClassAddsDecl : SimpleClass ::= <ID> BodyDecl*;
 
 PTInstDecl ::= <ID> PTDummyClass*;
 
