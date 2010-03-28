@@ -25,7 +25,7 @@ package PackageTest1 {
 //      */
      class F adds {
          /* TODO: denne gir feilmelding. ParameterDecl.getOuterScope() gir ikke treff. vet ikke hvorfor. */         
-//         F(int i) { }
+         //         F(int i) { }
 //         F() { }
 //         C cmemb;
 //         class C { int override; }

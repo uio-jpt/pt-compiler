@@ -23,8 +23,8 @@ PTDecl pt_package =
 SimpleClass pt_simple_declaration =
   class_declaration.cd
               {: return new PTClassDecl(cd); :}
-| CLASS IDENTIFIER ADDS class_body.b
-              {: return new PTClassAddsDecl(IDENTIFIER, b); :}
+| adds_class.ac 
+              {: return new PTClassAddsDecl(ac); :}
 ;
 
 PTInstDecl pt_inst_decl =
@@ -38,4 +38,8 @@ List dummy_class_list =
       dummy_class_list.dcl COMMA IDENTIFIER.a RIGHTARROW IDENTIFIER.b {: return dcl.add(new PTDummyClass(a,b)); :}
     | IDENTIFIER.a RIGHTARROW IDENTIFIER.b {: return new List().add(new PTDummyClass(a,b)); :}
     ;
+
+ClassDecl adds_class = 
+  CLASS IDENTIFIER ADDS class_body.b
+    {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :};
 

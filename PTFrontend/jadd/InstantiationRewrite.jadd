@@ -14,7 +14,7 @@ aspect InstantiationRewrite {
                     addSimpleClass(newClass);
                     PTClassAddsDecl extension = lookupAddClass(newClass.getID());
                     if (extension != null) {
-                        newClass.extendWithAddClass(extension);
+                        newClass.extendWithAddClass(extension.getClassDecl());
                         // extension.removeSelf();
                     }
                 }
@@ -25,7 +25,7 @@ aspect InstantiationRewrite {
         }
     }
 
-    public void PTClassDecl.extendWithAddClass(PTClassAddsDecl extension) {
+    public void PTClassDecl.extendWithAddClass(ClassDecl extension) {
         try {
             for (BodyDecl bd : extension.getBodyDecls()) {
                 addDecl(bd.clone());

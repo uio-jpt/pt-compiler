@@ -6,7 +6,7 @@ PTPackage : PTDecl;
 
 abstract SimpleClass;
 PTClassDecl : SimpleClass ::= ClassDecl;
-PTClassAddsDecl : SimpleClass ::= <ID> BodyDecl*;
+PTClassAddsDecl : SimpleClass ::= ClassDecl;
 
 PTInstDecl ::= <ID> PTDummyClass*;
 

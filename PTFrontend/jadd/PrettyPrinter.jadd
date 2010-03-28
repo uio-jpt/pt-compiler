@@ -25,10 +25,11 @@ aspect PrettyPrint {
     }
 
     public void PTClassAddsDecl.toString(StringBuffer s) {
+        ClassDecl addClass = getClassDecl();
         s.append(indent());
-        s.append("class " + getID() + " adds {");
-        for(int i=0; i < getNumBodyDecl(); i++) {
-            getBodyDecl(i).toString(s);
+        s.append("class " + addClass.getID() + " adds {");
+        for(int i=0; i < addClass.getNumBodyDecl(); i++) {
+            addClass.getBodyDecl(i).toString(s);
         }
         s.append(indent() + "}");
     }
