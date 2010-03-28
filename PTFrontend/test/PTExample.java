@@ -25,15 +25,18 @@ package PackageTest1 {
 //      */
      class F adds {
          /* TODO: denne gir feilmelding. ParameterDecl.getOuterScope() gir ikke treff. vet ikke hvorfor. */         
-         //         F(int i) { }
-//         F() { }
-//         C cmemb;
-//         class C { int override; }
-//         public int minMetode(int x) { return x +123; }
-//         public static int minMetode(int x) { return x +456; }
+         F(int i) { }
+         F() { }
+         C cmemb;
+         class C { int override; }
+         public int minMetode(int x) { return x +123; }
+         // static og vanlig med lik signatur er heller ikke lov i
+         // vanlig java.
+         // public static int minMetode(int x) { return x +456; }
          int ff;         
          int kjh;
      }
+
  }
 
 
