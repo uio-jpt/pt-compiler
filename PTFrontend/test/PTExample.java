@@ -14,17 +14,20 @@ template TemplateTest1 {
         public static int minMetode(int x) { return x +4569999999; }
         */
     }
+    class Q {
+        public T getT() { return null; }
+    }//java.util.LinkedList {}    
 }
 
 package PackageTest1 {
-     inst TemplateTest1 with T => F;
-//     /* adds merge kriterier::
-//      * 0. overskrive alt.
-//      * 1. bare en tom konstruktur
-//      *
-//      */
+    // error if next comment removed. dunno why. haven't looked closely.
+    inst TemplateTest1;// with T => F;
+//     adds merge kriterier::
+//     0. overskrive alt.
+//     1. bare en tom konstruktur
+
+
      class F adds {
-         /* TODO: denne gir feilmelding. ParameterDecl.getOuterScope() gir ikke treff. vet ikke hvorfor. */         
          F(int i) { }
          F() { }
          C cmemb;
@@ -36,7 +39,4 @@ package PackageTest1 {
          int ff;         
          int kjh;
      }
-
  }
-
-

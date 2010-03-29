@@ -5,5 +5,17 @@ aspect TypeCheck {
             error("Unable to find class " + getOrgID() + " in template " + getTemplate().getID());
         }
     }
+
+    public void PTClassDecl.typeCheck() {
+        ClassDecl decl = getClassDecl();
+        if (decl.hasSuperClassAccess()) {
+            // PTClassDecl can only extend another PTClassDecl
+            TypeDecl superclass = decl.getSuperClassAccess().type();
+            PTDecl container = getPTDecl();            
+            if (!container.getClassList().contains(superclass)) {
+                String msg = String.format("PTClassDecl %s may only extend another PTClassDecl. Superclass, %s, is not defined in %s %s", getID(), superclass.getID(), container.getDeclType(), container.getID());
+            }
+        }
+    }
 }
 

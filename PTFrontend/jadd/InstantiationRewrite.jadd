@@ -1,13 +1,34 @@
 aspect InstantiationRewrite {
 
     private boolean PTDecl.isRewritten = false;
+    private boolean PTInstDecl.isRewritten = false;
+
+    rewrite PTInstDecl {
+        when (this.isRewritten == false)
+        to PTInstDecl {
+            HashMap<String,String> renamedClasses = getRenamedClasses();
+            LinkedList<ClassDecl> templateClasses = getTemplate().getClassList();
+            for (ClassDecl templateClass: templateClasses) {
+                String templateClassID = templateClass.getID();
+
+                if (!renamedClasses.containsKey(templateClassID)) {
+                    PTDummyClass dummy;                                
+                    dummy = new PTDummyClass(templateClassID,templateClassID);
+                    addPTDummyClass(dummy);
+                } 
+            }
+            this.isRewritten = true;
+            return this;
+        }
+    }
+            
 
     rewrite PTDecl {
         when ( this.isRewritten == false)
         to PTDecl {
             for (PTInstDecl templateInst : getPTInstDecls()) {
-                List<PTDummyClass> allDummyClasses = templateInst.getCompleteDummyClassSet();
-                for (PTDummyClass dummy : allDummyClasses) {
+                for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
+                    System.out.printf("dummy: org=%s new=%s\n", dummy.getOrgID(), dummy.getID());
                     ClassDecl temp = dummy.getOriginator().fullCopy();
                     PTClassDecl newClass = new PTClassDecl(temp);
                     newClass.renameTypes(templateInst.getRenamedClasses());
@@ -91,17 +112,5 @@ aspect InstantiationRewrite {
         parent.removeChild(parent.getIndexOfChild(this));
     }
 
-    public List<PTDummyClass> PTInstDecl.getCompleteDummyClassSet() {
-        HashMap<String,String> renamedClasses = getRenamedClasses();
-        LinkedList<ClassDecl> templateClasses = getTemplate().getClassList();
-        List<PTDummyClass> dummies = getPTDummyClassList();
-        for (ClassDecl templateClass: templateClasses) {
-            String templateID = templateClass.getID();
-            if (!renamedClasses.containsKey(templateID)) {
-                PTDummyClass dummy = new PTDummyClass(templateID, templateID);
-                dummies.add(dummy);
-            }
-        }
-        return dummies;
-    }
+    
 }

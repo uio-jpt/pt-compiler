@@ -1,17 +1,22 @@
 
 aspect LookupType {
 
-    inh TypeDecl PTDecl.enclosingLookupType(String packageName, String typeName);
-    eq PTCompilationUnit.getPTDecl(int i).enclosingLookupType(String packageName, String typeName) = lookupType(packageName, typeName);
+    inh TypeDecl PTDecl.lookupType(String packageName, String typeName);
+    eq PTCompilationUnit.getPTDecl(int i).lookupType(String packageName, String typeName) = lookupType(packageName, typeName);
 
     eq PTDecl.getSimpleClass(int i).lookupType(String packageName, String typeName) {
+        //        System.out.println(String.format("%s: looking up %s.%s", getID(), packageName, typeName));
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
+        //        System.out.print(getID() + ": has " + getClassList().size()+ ": ");
+        //        for (TypeDecl type: getClassList())
+            //            System.out.print(type.fullName() + " ");
+        //        System.out.println();
         for (TypeDecl type: getClassList()) {
             if (type.fullName().equals(fullName)) {
                 return type;
             }
         }
-        return enclosingLookupType(packageName, typeName);
+        return lookupType(packageName, typeName);
     }
 
 
@@ -36,5 +41,14 @@ aspect LookupType {
                 return decl;
         }
         return null;
+    }
+
+    inh SimpleSet PTClassDecl.lookupType(String name);
+
+    eq PTDecl.getSimpleClass(int i).lookupType(String name) {
+        for (ClassDecl decl : getClassList())
+            if (decl.getID().equals(name))
+                return SimpleSet.emptySet.add(decl);
+        return SimpleSet.emptySet;
     }
 }

@@ -3,6 +3,5 @@ aspect PTClassAddsDecl {
     @Override
     public void PTClassAddsDecl.collectErrors () {
         // Does not errorcheck a addClass node.
-        System.out.println("skipping errorcheck");
     }
 }
