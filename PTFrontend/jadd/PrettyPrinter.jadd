@@ -27,7 +27,15 @@ aspect PrettyPrint {
 
     public void PTInstDecl.toString(StringBuffer sb) {
         sb.append(indent());
-        sb.append("inst " + getID() + "; ");
+        sb.append("inst " + getID() + " with ");
+        HashMap<String,String> ht = getRenamedClasses();
+        boolean first = true;
+        for (String k : ht.keySet()) {
+            sb.append( first ? "" : ", ");
+            first = false;
+            sb.append(k + " => " + ht.get(k));
+        }
+        sb.append(";");
     }
 
     public void PTClassAddsDecl.toString(StringBuffer s) {
