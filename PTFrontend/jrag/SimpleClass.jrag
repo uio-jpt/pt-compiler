@@ -4,8 +4,6 @@ aspect SimpleClass {
     inh PTDecl SimpleClass.getPTDecl();
     eq PTDecl.getSimpleClass(int i).getPTDecl() = this;
     
-    coll LinkedList<ClassDecl> PTDecl.getClassList() [new LinkedList<ClassDecl>()] with add root PTDecl;
-    PTClassDecl contributes getClassDecl() to PTDecl.getClassList() for getPTDecl();
 
     coll LinkedList<PTClassAddsDecl> PTDecl.getAdditionClassList() [new LinkedList<PTClassAddsDecl>()]
         with add root PTDecl;

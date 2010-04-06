@@ -1,0 +1,10 @@
+aspect SimpleClass {
+
+    syn LinkedList<ClassDecl> PTDecl.getClassList() {
+        LinkedList<ClassDecl> classList = new LinkedList<ClassDecl>();
+        for (SimpleClass decl : getSimpleClassList()) 
+            if (decl instanceof PTClassDecl)
+                classList.add(decl.getClassDecl());
+        return classList;
+    }
+}
