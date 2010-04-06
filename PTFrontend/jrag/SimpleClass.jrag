@@ -10,7 +10,4 @@ aspect SimpleClass {
     PTClassAddsDecl contributes this to PTDecl.getAdditionClassList() for getPTDecl();
     syn String PTClassDecl.getID() = getClassDecl().getID();
     syn String PTClassAddsDecl.getID() = getClassDecl().getID();    
-
-coll LinkedList<ClassDecl> PTDecl.getClassList() [new LinkedList<ClassDecl>()] with add root PTDecl;
-PTClassDecl contributes getClassDecl() to PTDecl.getClassList() for getPTDecl();
 }
