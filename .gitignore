@@ -12,6 +12,7 @@ out
 .classpath
 bin
 *.swp
+*.tmp
 nbproject
 manifest.mf
 

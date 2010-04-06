@@ -22,17 +22,18 @@ aspect InstantiationRewrite {
         }
     }
             
-
     rewrite PTDecl {
         when ( this.isRewritten == false)
         to PTDecl {
+            //System.out.println("rewriting PTDecl :" + this.dumpString());
             for (PTInstDecl templateInst : getPTInstDecls()) {
                 for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
                     System.out.printf("dummy: org=%s new=%s\n", dummy.getOrgID(), dummy.getID());
                     ClassDecl temp = dummy.getOriginator().fullCopy();
                     PTClassDecl newClass = new PTClassDecl(temp);
-                    newClass.renameTypes(templateInst.getRenamedClasses());
+                    //System.out.println("newClass:\n" + newClass.dumpTreeNoRewrite());
                     addSimpleClass(newClass);
+                    newClass.renameTypes(templateInst.getRenamedClasses());
                     PTClassAddsDecl extension = lookupAddClass(newClass.getID());
                     if (extension != null) {
                         newClass.extendWithAddClass(extension.getClassDecl());
