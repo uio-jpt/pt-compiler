@@ -21,7 +21,7 @@ template TemplateTest1 {
 
 package PackageTest1 {
     // error if next comment removed. dunno why. haven't looked closely.
-    inst TemplateTest1;// with T => F;
+    inst TemplateTest1 with T => F;
 //     adds merge kriterier::
 //     0. overskrive alt.
 //     1. bare en tom konstruktur
