@@ -26,6 +26,13 @@ aspect ReferenceAttributes {
     syn HashMap<String,LinkedList<PTDummyClass>> PTDecl.getClassNamesWithDummyList() {
         HashMap<String,LinkedList<PTDummyClass>> nameAndDummies =
             new HashMap<String,LinkedList<PTDummyClass>>();
+
+    //          inst .. with source  => target
+    //          inst .. with source2 => target
+    //
+    //          String = target class
+    //          LinkedList = list of source classes
+
         for (PTInstDecl templateInst : getPTInstDecls()) {
             for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
                 String name = dummy.getID();

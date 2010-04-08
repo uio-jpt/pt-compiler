@@ -30,13 +30,29 @@ aspect InstantiationRewrite {
             // if length == 1: normal copy
             // else : check ok merge first, then copy all.
             HashMap<String,LinkedList<PTDummyClass>> nameAndDummies = getClassNamesWithDummyList();
+
+            // create rename table:
+            HashMap<String,String> renameTypes = new HashMap<String,String>();
+            {
+                HashMap<String,LinkedList<PTDummyClass>> tmpTable = getClassNamesWithDummyList();
+                for(String targetClassName: nameAndDummies.keySet()) {
+                    LinkedList<PTDummyClass> dummies = tmpTable.get(targetClassName);
+                    while (dummies.size() > 0) {
+                        renameTypes.put(dummies.poll().getOrgID(), targetClassName);
+                    }
+                }
+            }
+
             for(String name: nameAndDummies.keySet()) {
                 LinkedList<PTDummyClass> dummies = nameAndDummies.get(name);
-                if (dummies.size() > 1) {
-                    error("merging not implemented");
-                } else {
-                    normalClassInsertion(dummies.getFirst());
+
+                //error("merging not implemented");
+                PTClassDecl mergedClass = normalClassInsertion(dummies.poll());
+                while(dummies.size() > 0) {
+                    mergedClass.extendWithClass(dummies.poll().getOriginator());
                 }
+                // Rename source class => target class
+                mergedClass.renameTypes(renameTypes);
             }
             // for (PTInstDecl templateInst : getPTInstDecls()) {
             //     for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
@@ -59,12 +75,13 @@ aspect InstantiationRewrite {
         }
     }
 
-    public void PTClassDecl.extendWithAddClass(ClassDecl extension) {
+    public void PTClassDecl.extendWithClass(ClassDecl extension) {
         try {
-            for (BodyDecl bd : extension.getBodyDecls()) {
-                addDecl(bd.clone());
+            ClassDecl ext = extension.fullCopy();
+            for (BodyDecl bd : ext.getBodyDecls()) {
+                addDecl(bd);
             }            
-        } catch (Exception e) { throw new RuntimeException("extendWithAddClass!: "+e); }
+        } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
     }
 
     public void PTClassDecl.addDecl(BodyDecl decl) {
@@ -77,7 +94,7 @@ aspect InstantiationRewrite {
         }
 
         for (BodyDecl bd : target.getBodyDecls()) {
-            //            if (bd.getClass().isInstance(decl) && this.equalSignature(bd)) {
+            //if (bd.getClass().isInstance(decl) && this.equalSignature(bd)) {
             if (decl.equalSignature(bd)) {
                 bd.replaceSelfWith(decl);
                 return;
@@ -124,6 +141,5 @@ aspect InstantiationRewrite {
         ASTNode parent = getParent();
         parent.removeChild(parent.getIndexOfChild(this));
     }
-
     
 }
