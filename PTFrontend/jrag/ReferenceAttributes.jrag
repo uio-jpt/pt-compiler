@@ -1,10 +1,10 @@
 aspect ReferenceAttributes {
 
     syn PTTemplate PTInstDecl.getTemplate() = getTemplate(getID());
-    inh PTTemplate PTDummyClass.getTemplate();
-    eq PTInstDecl.getPTDummyClass(int i).getTemplate() = getTemplate();
-
+    syn PTTemplate PTDummyClass.getTemplate() = getInstDecl().getTemplate();
     inh PTTemplate PTInstDecl.getTemplate(String name);
+    inh PTInstDecl PTDummyClass.getInstDecl();
+    eq PTInstDecl.getPTDummyClass(int i).getInstDecl() = this;
 
     eq PTCompilationUnit.getPTDecl(int i).getTemplate(String name) {
         for (PTDecl decl: getPTDecls()) {
@@ -21,5 +21,20 @@ aspect ReferenceAttributes {
         for (PTDummyClass dummy: getPTDummyClassList()) 
             renamedClasses.put(dummy.getOrgID(),dummy.getID());
         return renamedClasses;
+    }
+
+    syn HashMap<String,LinkedList<PTDummyClass>> PTDecl.getClassNamesWithDummyList() {
+        HashMap<String,LinkedList<PTDummyClass>> nameAndDummies =
+            new HashMap<String,LinkedList<PTDummyClass>>();
+        for (PTInstDecl templateInst : getPTInstDecls()) {
+            for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
+                String name = dummy.getID();
+                if (!nameAndDummies.containsKey(name))
+                    nameAndDummies.put(name,new LinkedList<PTDummyClass>());
+                LinkedList<PTDummyClass> dummies = nameAndDummies.get(name);
+                dummies.add(dummy);
+            }
+        }
+        return nameAndDummies;
     }
 }

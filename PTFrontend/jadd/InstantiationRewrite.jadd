@@ -25,22 +25,34 @@ aspect InstantiationRewrite {
     rewrite PTDecl {
         when ( this.isRewritten == false)
         to PTDecl {
-            //System.out.println("rewriting PTDecl :" + this.dumpString());
-            for (PTInstDecl templateInst : getPTInstDecls()) {
-                for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
-                    System.out.printf("dummy: org=%s new=%s\n", dummy.getOrgID(), dummy.getID());
-                    ClassDecl temp = dummy.getOriginator().fullCopy();
-                    PTClassDecl newClass = new PTClassDecl(temp);
-                    //System.out.println("newClass:\n" + newClass.dumpTreeNoRewrite());
-                    addSimpleClass(newClass);
-                    newClass.renameTypes(templateInst.getRenamedClasses());
-                    PTClassAddsDecl extension = lookupAddClass(newClass.getID());
-                    if (extension != null) {
-                        newClass.extendWithAddClass(extension.getClassDecl());
-                        // extension.removeSelf();
-                    }
+            // get list of tuples instantiating new classes
+            // for each tuple:
+            // if length == 1: normal copy
+            // else : check ok merge first, then copy all.
+            HashMap<String,LinkedList<PTDummyClass>> nameAndDummies = getClassNamesWithDummyList();
+            for(String name: nameAndDummies.keySet()) {
+                LinkedList<PTDummyClass> dummies = nameAndDummies.get(name);
+                if (dummies.size() > 1) {
+                    error("merging not implemented");
+                } else {
+                    normalClassInsertion(dummies.getFirst());
                 }
             }
+            // for (PTInstDecl templateInst : getPTInstDecls()) {
+            //     for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
+            //         System.out.printf("dummy: org=%s new=%s\n", dummy.getOrgID(), dummy.getID());
+            //         ClassDecl temp = dummy.getOriginator().fullCopy();
+            //         PTClassDecl newClass = new PTClassDecl(temp);
+            //         //System.out.println("newClass:\n" + newClass.dumpTreeNoRewrite());
+            //         addSimpleClass(newClass);
+            //         newClass.renameTypes(templateInst.getRenamedClasses());
+            //         PTClassAddsDecl extension = lookupAddClass(newClass.getID());
+            //         if (extension != null) {
+            //             newClass.extendWithAddClass(extension.getClassDecl());
+            //             // extension.removeSelf();
+            //         }
+            //     }
+            // }
             //System.out.println("got rewrite for " + getID() + " => " + getID());
             this.isRewritten = true;
             return this;

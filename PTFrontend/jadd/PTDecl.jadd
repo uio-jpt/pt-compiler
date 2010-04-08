@@ -1,0 +1,13 @@
+aspect PTDecl {
+    public void PTDecl.normalClassInsertion(PTDummyClass dummy) {
+        ClassDecl temp = dummy.getOriginator().fullCopy();
+        PTClassDecl newClass = new PTClassDecl(temp);
+        addSimpleClass(newClass);
+        newClass.renameTypes(dummy.getInstDecl().getRenamedClasses());
+        PTClassAddsDecl extension = lookupAddClass(newClass.getID());
+        if (extension != null) {
+            newClass.extendWithAddClass(extension.getClassDecl());
+            // extension.removeSelf();
+        }
+    }
+}
