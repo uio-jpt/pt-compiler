@@ -30,46 +30,15 @@ aspect InstantiationRewrite {
             // if length == 1: normal copy
             // else : check ok merge first, then copy all.
             HashMap<String,LinkedList<PTDummyClass>> nameAndDummies = getClassNamesWithDummyList();
-
-            // create rename table:
-            HashMap<String,String> renameTypes = new HashMap<String,String>();
-            {
-                HashMap<String,LinkedList<PTDummyClass>> tmpTable = getClassNamesWithDummyList();
-                for(String targetClassName: nameAndDummies.keySet()) {
-                    LinkedList<PTDummyClass> dummies = tmpTable.get(targetClassName);
-                    while (dummies.size() > 0) {
-                        renameTypes.put(dummies.poll().getOrgID(), targetClassName);
-                    }
-                }
-            }
-
             for(String name: nameAndDummies.keySet()) {
                 LinkedList<PTDummyClass> dummies = nameAndDummies.get(name);
 
                 //error("merging not implemented");
                 PTClassDecl mergedClass = normalClassInsertion(dummies.poll());
                 while(dummies.size() > 0) {
-                    mergedClass.extendWithClass(dummies.poll().getOriginator());
+                    mergedClass.extendWithClassAndRename(dummies.poll());
                 }
-                // Rename source class => target class
-                mergedClass.renameTypes(renameTypes);
             }
-            // for (PTInstDecl templateInst : getPTInstDecls()) {
-            //     for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
-            //         System.out.printf("dummy: org=%s new=%s\n", dummy.getOrgID(), dummy.getID());
-            //         ClassDecl temp = dummy.getOriginator().fullCopy();
-            //         PTClassDecl newClass = new PTClassDecl(temp);
-            //         //System.out.println("newClass:\n" + newClass.dumpTreeNoRewrite());
-            //         addSimpleClass(newClass);
-            //         newClass.renameTypes(templateInst.getRenamedClasses());
-            //         PTClassAddsDecl extension = lookupAddClass(newClass.getID());
-            //         if (extension != null) {
-            //             newClass.extendWithAddClass(extension.getClassDecl());
-            //             // extension.removeSelf();
-            //         }
-            //     }
-            // }
-            //System.out.println("got rewrite for " + getID() + " => " + getID());
             this.isRewritten = true;
             return this;
         }
@@ -84,6 +53,18 @@ aspect InstantiationRewrite {
         } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
     }
 
+    public void PTClassDecl.extendWithClassAndRename(PTDummyClass dummy) {
+        try {
+            ClassDecl ext = dummy.getOriginator().fullCopy();
+            HashMap<String,String> renamedTypes = dummy.getInstDecl().getRenamedClasses();
+            for (BodyDecl bd : ext.getBodyDecls()) {
+                addDecl(bd);
+                bd.renameTypes(renamedTypes);
+            }            
+        } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
+    }
+    
+    
     public void PTClassDecl.addDecl(BodyDecl decl) {
         ClassDecl target = getClassDecl();
         // special case with an empty constructor with no parameters and no code.
