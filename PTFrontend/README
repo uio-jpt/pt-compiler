@@ -5,54 +5,26 @@ run test: ant run
 
 Fixes TODO:
 
-hvordan funker indent() prettyprint?
+Merging:
 
-PTDecl:
-    -for each PTInstDecl
-        - Lag dummynodes for at alle classer i template som blir instansiert:
-               - Noen må renames ( gammeltnavn => nyttnavn)
-               - resten får implesitt dummyClass nodes med gammeltnavn == nyttNavn
-        - Kopi av alle PTDummyClass getOriginator() inn i PTClassDecl*
+* Gitt kollisjon mellom variable og ikke-virtuelle metoder:
+  - kreve renaming av minst en.
+* Kollisjon mellom virtuelle-metoder:
+  - renaming eller en adds-refinment klasse som kan kalle begge
+  super-metodene. (se merging and virtual methods)
+* kollisjon i superklasser som blir merget.
+  - da må superklassene selv rename eller raffinere deler av seg selv
+  først!
+* konstruktører:
+  - Kanskje i første omgang lage et kartesisk produkt av
+  konstruktører.
 
-        - adds klasser spesielle:
-            - de kan stå som egne klasser bortsett fra at man ikke
-            - ønsker å utføre typesjekk på dem før etter de er
-            - merget med orginalklassen...
-        - DummyNode kopi, samt adds skall, Høna eller egget! :
-          - kan evt per dummynode sjekke om det finnes en adds classe
-            med samme navn og dermed kopiere innhold.
-          - også mulig å lage to instanser (add med <navn>_adds som
-            - navn), kopiere alt over og deretter slette adds
-            - instansen.
-          - adds removeself krasjer, hvorfor? (kommentert ut i InstantiationRewrite.jadd)
-
-    - Å sin egen klasse som returtype i en metode gir feil, hvorfor?
-      - fordi en inst klasse ikke renamer!
-      - Feil med copyAndRename.
-      - hvordan håndere typer til andre klasser som også renames?
-        - collection attribute. la alle typer brukt i en PTDecl legge
-          seg til en collection.
-        - så kan man enkelt loope over listen i rewrite delen og
-          rename de delene som trengs.
+* implementere parser støtte for spesiell super[<klassenavn>] i merga
+  metoder og konstruktører.
 
 ** Superclasses
    *** Forbid template classes to have superclasses defined outside the
    template.
-   *** Forbid template classes to have type parameters as superclasses
-   (generics)
    *** When merged, superclasses are also merged.
    *** a merge must not result in a cyclic superclass-structure.
 
-** PrettyPrint for instantiations
-Fiks namesjekk paa: (konflikt Q=> f og class f)
-    package PackageTest1 {
-        inst TemplateTest1 with Q => f, T => A; 
-        class f { }
-    }
-
-
-implementer hashCode for:
-    public int ConstructorDecl.hashCode() {
-        String id = getId()
-    }
- 

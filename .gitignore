@@ -15,5 +15,6 @@ bin
 *.tmp
 nbproject
 manifest.mf
-
+build
+PTFrontend/nbbuild.xml
 
