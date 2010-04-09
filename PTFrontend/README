@@ -41,7 +41,7 @@ Hvis merge konflikt med virtuell metode:
         }
     }
     T2 { 
-        class 2 {
+        class B {
             int f() { return 3; }
         }
     }
@@ -71,7 +71,7 @@ hvis alle merga klasser har tomme konstruktører, kan man kanskje skippe dette?
         }
     }
     T2 { 
-        class 2 {
+        class B {
             B() { this.y = 10; }
         }
     }
@@ -113,9 +113,16 @@ hvis alle merga klasser har tomme konstruktører, kan man kanskje skippe dette?
         inst T1 with A => X;
         inst T2 with B => X;
 
-        hidden class MergeClass(SuperA, SuperB) {
+        class SuperASuperB_Merged { // sjekk kollisjoner
         }
 
-        class X extends MergeClass {
+        class Z {
+            SuperASuperB_Merged metodeNavn(SuperASuperB_Merged b) {
+                return b;
+            }
+        }
+
+        class X extends SuperASuperB_Merged {
         }
     }
+

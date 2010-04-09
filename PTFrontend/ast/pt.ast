@@ -8,6 +8,13 @@ abstract SimpleClass ::= ClassDecl;
 PTClassDecl : SimpleClass;
 PTClassAddsDecl : SimpleClass;
 
-PTInstDecl ::= <ID> PTDummyClass*;
+PTInstDecl ::= <ID> PTDummyClass*; // inst T with A => X;
+                                   //      ID     PTDummyClass
 
-PTDummyClass ::= <OrgID> <ID>;
+PTDummyClass ::= <OrgID> <ID> PTDummyRename*;
+
+PTDummyRename ::= <OrgID> <ID>;    // with A => X   (someMethod -> newMethod)
+                                   //      DmyClass  PTDummyRename
+
+
+

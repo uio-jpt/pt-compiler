@@ -35,8 +35,25 @@ PTInstDecl pt_inst_decl =
 ;
 
 List dummy_class_list =
-      dummy_class_list.dcl COMMA IDENTIFIER.a RIGHTARROW IDENTIFIER.b {: return dcl.add(new PTDummyClass(a,b)); :}
-    | IDENTIFIER.a RIGHTARROW IDENTIFIER.b {: return new List().add(new PTDummyClass(a,b)); :}
+      dummy_class_list.dcl COMMA dummy_inst_tuple.t {: return dcl.add(t); :}
+    | dummy_inst_tuple.t {: return new List().add(t); :}
+    ;
+
+PTDummyClass dummy_inst_tuple =
+    IDENTIFIER.a RIGHTARROW IDENTIFIER.b 
+    dummy_inst_tuple_rename_list_opt.l
+    {: return new PTDummyClass(a,b,l); :}
+    ;
+
+List dummy_inst_tuple_rename_list_opt =
+      LPAREN dummy_inst_tuple_rename_list.l RPAREN {: return l; :}
+    | {: return new List(); :}
+    ;
+
+List dummy_inst_tuple_rename_list =
+      dummy_inst_tuple_rename_list.l 
+      IDENTIFIER.a SIMPLERIGHTARROW IDENTIFIER.b {: return l.add(new PTDummyRename(a, b)); :}
+    | IDENTIFIER.a SIMPLERIGHTARROW IDENTIFIER.b {: return new List().add(new PTDummyRename(a, b)); :}
     ;
 
 ClassDecl adds_class = 

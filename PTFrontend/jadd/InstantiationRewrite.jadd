@@ -13,7 +13,7 @@ aspect InstantiationRewrite {
 
                 if (!renamedClasses.containsKey(templateClassID)) {
                     PTDummyClass dummy;                                
-                    dummy = new PTDummyClass(templateClassID,templateClassID);
+                    dummy = new PTDummyClass(templateClassID,templateClassID, new List());
                     addPTDummyClass(dummy);
                 } 
             }
@@ -85,12 +85,12 @@ aspect InstantiationRewrite {
     public void PTClassDecl.extendWithClassAndRename(PTDummyClass dummy) {
         try {
             ClassDecl ext = dummy.getOriginator().fullCopy();
-            System.out.println("ext tree:\n" + ext.showParentsAndSelf());
+            //System.out.println("ext tree:\n" + ext.showParentsAndSelf());
             // fiks 'inline' rename..
             // sjekk kollisjon av signaturer
-            System.out.println("enter signatureCollides");
+            //System.out.println("enter signatureCollides");
             getClassDecl().signaturesCollides(ext);
-            System.out.println("exit signatureCollides");
+            //System.out.println("exit signatureCollides");
             HashMap<String,String> renamedTypes = dummy.getInstDecl().getRenamedClasses();
             for (BodyDecl bd : ext.getBodyDecls()) {
                 addDecl(bd);
@@ -185,7 +185,7 @@ aspect InstantiationRewrite {
     // til listen... Det blir vel forsaavidt det ytterste scopet fjerningen
     // paavirker.
     public void PTClassAddsDecl.removeSelf() {
-        System.out.println(showParentsAndSelf());
+        //System.out.println(showParentsAndSelf());
 
         AST.List parentList = (AST.List)getParent();
         parentList.removeChild(parentList.getIndexOfChild(this));

@@ -5,18 +5,20 @@ aspect LookupType {
     eq PTCompilationUnit.getPTDecl(int i).lookupType(String packageName, String typeName) = lookupType(packageName, typeName);
 
     eq PTDecl.getSimpleClass(int i).lookupType(String packageName, String typeName) {
-        //        System.out.println(String.format("%s: looking up %s.%s", getID(), packageName, typeName));
+        //System.out.println(String.format("%s: looking up %s.%s", getID(), packageName, typeName));
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
-        //        System.out.print(getID() + ": has " + getClassList().size()+ ": ");
-        //        for (TypeDecl type: getClassList())
-            //            System.out.print(type.fullName() + " ");
-        //        System.out.println();
         for (TypeDecl type: getClassList()) {
             if (type.fullName().equals(fullName)) {
                 return type;
             }
         }
-        return lookupType(packageName, typeName);
+        TypeDecl t = lookupType(packageName, typeName);
+        // denne er litt lettvint for å støtte f.eks. String og ikke bare java.lang.String
+        // burde finne bedre fiks
+        if (t==null && packageName.equals("")) {
+            return lookupType("java.lang", typeName);
+        }
+        return t;
     }
 
 
@@ -46,9 +48,22 @@ aspect LookupType {
     inh SimpleSet PTClassDecl.lookupType(String name);
 
     eq PTDecl.getSimpleClass(int i).lookupType(String name) {
+        //System.out.println(String.format("%s: looking up %s", getID(), name));
         for (ClassDecl decl : getClassList())
             if (decl.getID().equals(name))
                 return SimpleSet.emptySet.add(decl);
-        return SimpleSet.emptySet;
+        TypeDecl t = lookupType("", name);
+        // denne er litt lettvint for å støtte f.eks. String og ikke bare java.lang.String
+        // burde finne bedre fiks
+        if (t==null) {
+            t = lookupType("java.lang", name);
+            if (t==null)
+                return SimpleSet.emptySet;
+            else
+                return SimpleSet.emptySet.add(t);
+        }
+        else {
+            return SimpleSet.emptySet.add(t);
+        }
     }
 }

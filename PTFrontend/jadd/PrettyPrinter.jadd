@@ -4,6 +4,9 @@ aspect PrettyPrint {
     eq PTPackage.dumpString() = getClass().getName() + " [" + getID() + "]";
     eq PTClassAddsDecl.dumpString() = getClass().getName() + " [" + getID() + "]";
     eq PTClassDecl.dumpString() = getClass().getName() + " [" + getID() + "]";
+    eq PTInstDecl.dumpString() = getClass().getName() + " [" + getID() + "]";
+    eq PTDummyClass.dumpString() = getClass().getName() + " [" + getOrgID() + " => " + getID() + "]";
+    eq PTDummyRename.dumpString() = getClass().getName() + " [" + getOrgID() + " -> " + getID() + "]";
 
     eq PTPackage.addsIndentationLevel() = true;
     eq PTTemplate.addsIndentationLevel() = true;
