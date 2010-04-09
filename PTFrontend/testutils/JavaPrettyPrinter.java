@@ -41,6 +41,7 @@ public class JavaPrettyPrinter extends Frontend {
   }
   protected void processNoErrors(CompilationUnit unit) {
     System.out.println(unit.toString());
+      System.out.println(unit.dumpTreeNoRewrite());
   }
 
   protected String name() { return "Java1.4Frontend + Backend + Java5Extensions Dumptree"; }

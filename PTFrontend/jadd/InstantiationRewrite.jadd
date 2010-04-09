@@ -118,9 +118,46 @@ aspect InstantiationRewrite {
     // utilsiktet og uten advarsel overskrive seg selv. Kan fikses med å bruke én gjennom-
     // løping og sets som Eivind foreslo.
 
-    public void ASTNode.removeSelf() {
+    public Program ASTNode.getProgram() {
         ASTNode parent = getParent();
-        parent.removeChild(parent.getIndexOfChild(this));
+        while (!(parent instanceof Program)) {
+            parent = parent.getParent();
+        }
+        return (Program)parent;
+    }
+
+    // Debug funksjonalitet for aa vise hvor man er i treet.
+    // Kan godt flyttes til en annen plass.
+    public String ASTNode.showParentsAndSelf() {
+        LinkedList<ASTNode> parents = new LinkedList<ASTNode>();
+        StringBuilder sb = new StringBuilder();
+        ASTNode parent = getParent();
+        parents.add(this);
+        while (parent != null) {
+            parents.add(parent);
+            parent = parent.getParent();
+        }
+        for (int i=0; parents.size()>0; i+=2) {
+            for (int k=0; k<i; k++) { sb.append(" "); }
+            sb.append( parents.removeLast().dumpString()  + "\n");
+        }
+        return sb.toString();
+    }
+
+    // Kan sikkert generaliseres saa lenge parent er en List..
+    // Det litt usikre er hvorfor noyaktig man maa ta flushCaches paa parent
+    // til listen... Det blir vel forsaavidt det ytterste scopet fjerningen
+    // paavirker.
+    public void PTClassAddsDecl.removeSelf() {
+        System.out.println(showParentsAndSelf());
+
+        AST.List parentList = (AST.List)getParent();
+        parentList.removeChild(parentList.getIndexOfChild(this));
+        //System.out.println("det nye treet .. :\n" + parentList.dumpTreeNoRewrite());
+        //System.out.println("flushing caches");
+        //parentList.getProgram().flushCaches();
+        parentList.getParent().flushCaches(); // maa flushe PTPackage, ellers nullpointerexception senere
+        //System.out.println("done flushing caches");
     }
     
 }

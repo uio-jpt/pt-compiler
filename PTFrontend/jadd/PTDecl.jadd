@@ -7,8 +7,7 @@ aspect PTDecl {
         PTClassAddsDecl extension = lookupAddClass(newClass.getID());
         if (extension != null) {
             newClass.extendWithClass(extension.getClassDecl());
-            //extension.replaceSelfWith(new EmptyStmt()); // trodde dette skulle gaa.. men nei.
-            // extension.removeSelf();
+            extension.removeSelf();
         }
         return newClass;
     }
