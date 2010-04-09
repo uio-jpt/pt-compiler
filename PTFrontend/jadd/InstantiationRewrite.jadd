@@ -53,9 +53,44 @@ aspect InstantiationRewrite {
         } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
     }
 
+    //public HashMap<> ClassDecl.ht = new HashMap<>();
+
+    public boolean ClassDecl.signaturesCollides(ClassDecl other) {
+        for (BodyDecl a : getBodyDecls()) {
+            for (BodyDecl b : other.getBodyDecls()) {
+                if (a instanceof ConstructorDecl && b instanceof ConstructorDecl) { 
+                    ConstructorDecl ac = (ConstructorDecl) a;
+                    ConstructorDecl bc = (ConstructorDecl) b;
+                    boolean aEmpty = (ac.getNumParameter()==0 && ac.getBlock().getNumStmt() == 0);
+                    boolean bEmpty = (bc.getNumParameter()==0 && bc.getBlock().getNumStmt() == 0);
+                    if (aEmpty && bEmpty) {
+                        System.out.println("Empty constructor collision avoided");
+                    }
+                    else {
+                        System.out.println("Constructor collision on " + a.dumpString());
+                    }
+                }
+                else if (a.getClass().isInstance(b) && a.equalSignature(b)) {
+                    a.error("Collision with " + b.dumpString()); 
+                    b.error("Collision with " + a.dumpString()); 
+                    //error("Collision on " + a.dumpString());
+                    //error("Collision on " + b.dumpString());
+                    //System.out.println("Collision on " + a.dumpString());
+                }
+            }
+        }
+        return false;
+    }
+
     public void PTClassDecl.extendWithClassAndRename(PTDummyClass dummy) {
         try {
             ClassDecl ext = dummy.getOriginator().fullCopy();
+            System.out.println("ext tree:\n" + ext.showParentsAndSelf());
+            // fiks 'inline' rename..
+            // sjekk kollisjon av signaturer
+            System.out.println("enter signatureCollides");
+            getClassDecl().signaturesCollides(ext);
+            System.out.println("exit signatureCollides");
             HashMap<String,String> renamedTypes = dummy.getInstDecl().getRenamedClasses();
             for (BodyDecl bd : ext.getBodyDecls()) {
                 addDecl(bd);
@@ -75,8 +110,9 @@ aspect InstantiationRewrite {
         }
 
         for (BodyDecl bd : target.getBodyDecls()) {
-            //if (bd.getClass().isInstance(decl) && this.equalSignature(bd)) {
-            if (decl.equalSignature(bd)) {
+            if (bd.getClass().isInstance(decl) && decl.equalSignature(bd)) {
+            //if (decl.equalSignature(bd)) {
+                //error("overwriting 
                 bd.replaceSelfWith(decl);
                 return;
             }

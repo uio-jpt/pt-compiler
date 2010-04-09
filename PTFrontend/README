@@ -28,3 +28,94 @@ Merging:
    *** When merged, superclasses are also merged.
    *** a merge must not result in a cyclic superclass-structure.
 
+ekstra grammatikk:
+PTClassAdds:
+    støtte for spesielle super kall i metoder og konstruktører.
+
+Hvis merge konflikt med virtuell metode:
+    vent med error til man har sjekket for adds_overriding.
+
+    T1 { 
+        class A {
+            int f() { return 2; }
+        }
+    }
+    T2 { 
+        class 2 {
+            int f() { return 3; }
+        }
+    }
+    P {
+        inst T1 with A => X;
+        inst T2 with B => X;
+
+        // krav
+        // enten: 1. renaming i instantiering
+        //        2. overriding / definering i adds klasse. bare lov å kalle supermetode i overridet metode (=errorsjekk)
+        //        3. Feilmelding
+        /*
+        class X adds { 
+            int f() {
+                super[A].f();
+                super[B].f();
+            }
+            int b() { super[A].f(); } // feil
+        }
+        */  
+    }
+merging krever egen adds konstruktør? den må kalle én konstruktør hos alle superklassene.
+hvis alle merga klasser har tomme konstruktører, kan man kanskje skippe dette?
+    T1 { 
+        class A {
+            A() { this.x = 10; }
+        }
+    }
+    T2 { 
+        class 2 {
+            B() { this.y = 10; }
+        }
+    }
+    P {
+        inst T1 with A => X;
+        inst T2 with B => X ( x -> k );
+
+        // krav
+        // 1. må ha adds klasse med konstruktør
+        //    må kalle én konstruktør per merge klasse.
+        /*
+        class X adds { 
+            X() {
+                super[A]();
+                super[B]();
+            }
+        }
+        */  
+    }
+// ------------------ 
+    T1 { 
+        class SuperA {}
+        class A extends SuperA {
+            int f() { return 2; }
+        }
+    }
+    T2 { 
+        class Z {
+            SuperB metodeNavn(SuperB b) {
+                return b;
+            }
+        }
+        class SuperB {}
+        class B extends SuperB{
+            int g() { return 3; }
+        }
+    }
+    P {
+        inst T1 with A => X;
+        inst T2 with B => X;
+
+        hidden class MergeClass(SuperA, SuperB) {
+        }
+
+        class X extends MergeClass {
+        }
+    }
