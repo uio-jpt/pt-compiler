@@ -30,15 +30,33 @@ aspect PrettyPrint {
         sb.append(indent() + "}");
     }
 
+    public void PTDummyRename.toString(StringBuffer sb) {
+        sb.append(getOrgID() + " -> " + getID());
+    }
+
+    public void PTDummyClass.toString(StringBuffer sb) {
+        sb.append(getOrgID() + " => " + getID());
+        if (getNumPTDummyRename() > 0) {
+            sb.append(" (");
+            boolean first = true;
+            for (PTDummyRename p : getPTDummyRenameList()) {
+                sb.append(first ? "" : ", ");
+                first = false;
+                p.toString(sb);
+            }
+            sb.append(")");
+        }
+    }
+
     public void PTInstDecl.toString(StringBuffer sb) {
         sb.append(indent());
-        sb.append("inst " + getID() + " with ");
-        HashMap<String,String> ht = getRenamedClasses();
+        sb.append("inst " + getID());
+
         boolean first = true;
-        for (String k : ht.keySet()) {
-            sb.append( first ? "" : ", ");
+        for (PTDummyClass p : getPTDummyClassList()) {
+            sb.append( first ? " with " : ", ");
             first = false;
-            sb.append(k + " => " + ht.get(k));
+            p.toString(sb);
         }
         sb.append(";");
     }
