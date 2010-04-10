@@ -233,7 +233,9 @@ ExprStmt explicit_constructor_invocation =
        c.setStart(SUPER.getStart());
        c.setEnd(RPAREN.getEnd());
        return new ExprStmt(n.qualifiesAccess(c)); :}
+  | explicit_merged_constructor_invocation.e {: return e; :}
   ;
+
 InterfaceDecl interface_declaration =
   modifiers.m? INTERFACE IDENTIFIER extends_interfaces.i? interface_body.b {: return new InterfaceDecl(new Modifiers(m), IDENTIFIER, i, b); :}
   ;
@@ -576,6 +578,7 @@ Access method_invocation =
         m.setStart(IDENTIFIER.getStart());
         m.setEnd(RPAREN.getEnd());
         return n.qualifiesAccess(s).qualifiesAccess(m); :}
+   | explicit_merged_method_invocation.e {: return e; :}
    ;
 Access array_access =
     name.n LBRACK expression.e RBRACK                 {: ArrayAccess a = new ArrayAccess(e);

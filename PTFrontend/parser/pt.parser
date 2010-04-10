@@ -60,3 +60,21 @@ ClassDecl adds_class =
   CLASS IDENTIFIER ADDS class_body.b
     {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :};
 
+ExprStmt explicit_merged_constructor_invocation =
+    SUPER LBRACK IDENTIFIER RBRACK LPAREN argument_list.l? RPAREN SEMICOLON 
+    {: SuperConstructorAccess c = new SuperConstructorAccess("super", l);
+       c.setStart(SUPER.getStart());
+       c.setEnd(RPAREN.getEnd());
+       return new ExprStmt(c); :}
+    ;
+
+Access explicit_merged_method_invocation =
+     SUPER LBRACK IDENTIFIER RBRACK DOT name LPAREN argument_list.l? RPAREN
+     {: SuperAccess s = new SuperAccess("super");
+        s.setStart(SUPER.getStart());
+        s.setEnd(SUPER.getEnd());
+        MethodAccess m = new MethodAccess(IDENTIFIER, l);
+        m.setStart(IDENTIFIER.getStart());
+        m.setEnd(RPAREN.getEnd());
+        return s.qualifiesAccess(m); :}
+    ;

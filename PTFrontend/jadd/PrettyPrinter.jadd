@@ -34,30 +34,28 @@ aspect PrettyPrint {
         sb.append(getOrgID() + " -> " + getID());
     }
 
+    public void List.toString(StringBuffer sb, String ifNotEmptyStart, String ifNotEmptyEnd, String separator) {
+        if (getNumChild() > 0) {
+            sb.append(ifNotEmptyStart);
+            for (int i=0; i<getNumChild(); i++) {
+                if (i!=0) {
+                    sb.append(separator);
+                }
+                getChild(i).toString(sb);
+            }
+            sb.append(ifNotEmptyEnd);
+        }
+    }
+
     public void PTDummyClass.toString(StringBuffer sb) {
         sb.append(getOrgID() + " => " + getID());
-        if (getNumPTDummyRename() > 0) {
-            sb.append(" (");
-            boolean first = true;
-            for (PTDummyRename p : getPTDummyRenameList()) {
-                sb.append(first ? "" : ", ");
-                first = false;
-                p.toString(sb);
-            }
-            sb.append(")");
-        }
+        getPTDummyRenameList().toString(sb, " (", ")", ", ");
     }
 
     public void PTInstDecl.toString(StringBuffer sb) {
         sb.append(indent());
         sb.append("inst " + getID());
-
-        boolean first = true;
-        for (PTDummyClass p : getPTDummyClassList()) {
-            sb.append( first ? " with " : ", ");
-            first = false;
-            p.toString(sb);
-        }
+        getPTDummyClassList().toString(sb, " with ", "", ", ");
         sb.append(";");
     }
 
