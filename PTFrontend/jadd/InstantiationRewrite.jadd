@@ -66,8 +66,11 @@ aspect InstantiationRewrite {
                     if (aEmpty && bEmpty) {
                         System.out.println("Empty constructor collision avoided");
                     }
-                    else {
+                    else if (a.equalSignature(b)) {
                         System.out.println("Constructor collision on " + a.dumpString());
+                    }
+                    else {
+                        System.out.println("Constructor merging on " + a.dumpString());
                     }
                 }
                 else if (a.getClass().isInstance(b) && a.equalSignature(b)) {
@@ -88,13 +91,10 @@ aspect InstantiationRewrite {
             //System.out.println("ext tree:\n" + ext.showParentsAndSelf());
             // fiks 'inline' rename..
             // sjekk kollisjon av signaturer
-            //System.out.println("enter signatureCollides");
+            ext.renameTypes(dummy.getInstDecl().getRenamedClasses());
             getClassDecl().signaturesCollides(ext);
-            //System.out.println("exit signatureCollides");
-            HashMap<String,String> renamedTypes = dummy.getInstDecl().getRenamedClasses();
             for (BodyDecl bd : ext.getBodyDecls()) {
                 addDecl(bd);
-                bd.renameTypes(renamedTypes);
             }            
         } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
     }
@@ -153,6 +153,8 @@ aspect InstantiationRewrite {
     // så vil det kunne bli en erstatning av seg selv. Altså en del av Adds klassen kan
     // utilsiktet og uten advarsel overskrive seg selv. Kan fikses med å bruke én gjennom-
     // løping og sets som Eivind foreslo.
+
+    //eq PTClassAddsDecl.isObject() = false;
 
     public Program ASTNode.getProgram() {
         ASTNode parent = getParent();

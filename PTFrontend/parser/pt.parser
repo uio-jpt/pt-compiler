@@ -61,8 +61,9 @@ ClassDecl adds_class =
     {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :};
 
 ExprStmt explicit_merged_constructor_invocation =
-    SUPER LBRACK IDENTIFIER RBRACK LPAREN argument_list.l? RPAREN SEMICOLON 
-    {: SuperConstructorAccess c = new SuperConstructorAccess("super", l);
+    SUPER LBRACK IDENTIFIER.a RBRACK LPAREN argument_list.l? RPAREN SEMICOLON 
+    {: PTMergedSuperConstructorAccess c = new PTMergedSuperConstructorAccess("super", l, a);
+       //System.out.println("Fikk eksplitt merged constructor!");
        c.setStart(SUPER.getStart());
        c.setEnd(RPAREN.getEnd());
        return new ExprStmt(c); :}

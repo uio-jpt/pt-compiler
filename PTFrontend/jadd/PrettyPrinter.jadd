@@ -7,9 +7,18 @@ aspect PrettyPrint {
     eq PTInstDecl.dumpString() = getClass().getName() + " [" + getID() + "]";
     eq PTDummyClass.dumpString() = getClass().getName() + " [" + getOrgID() + " => " + getID() + "]";
     eq PTDummyRename.dumpString() = getClass().getName() + " [" + getOrgID() + " -> " + getID() + "]";
+    eq PTMergedSuperConstructorAccess.dumpString() = getClass().getName() + " [" + getSuperClassID() + "]";
+
+    eq PTMergedSuperConstructorAccess.name() = "super[" + getSuperClassID() + "]";
 
     eq PTPackage.addsIndentationLevel() = true;
     eq PTTemplate.addsIndentationLevel() = true;
+
+    /*
+    public void PTMergedSuperConstructorAccess.toString(StringBuffer sb) {
+        sb.append(indent());
+        sb.append(name());
+        */
 
     public void PTCompilationUnit.toString(StringBuffer sb) {
         super.toString(sb);
