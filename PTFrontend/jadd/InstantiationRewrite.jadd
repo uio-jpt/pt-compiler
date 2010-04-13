@@ -1,22 +1,12 @@
 aspect InstantiationRewrite {
 
-    private boolean PTDecl.isRewritten = false;
+    protected boolean PTDecl.isRewritten = false;
     private boolean PTInstDecl.isRewritten = false;
 
     rewrite PTInstDecl {
         when (this.isRewritten == false)
         to PTInstDecl {
-            HashMap<String,String> renamedClasses = getRenamedClasses();
-            LinkedList<ClassDecl> templateClasses = getTemplate().getClassList();
-            for (ClassDecl templateClass: templateClasses) {
-                String templateClassID = templateClass.getID();
-
-                if (!renamedClasses.containsKey(templateClassID)) {
-                    PTDummyClass dummy;                                
-                    dummy = new PTDummyClass(templateClassID,templateClassID, new List());
-                    addPTDummyClass(dummy);
-                } 
-            }
+            addMissingDummyClassNodes();
             this.isRewritten = true;
             return this;
         }
@@ -25,177 +15,19 @@ aspect InstantiationRewrite {
     rewrite PTDecl {
         when ( this.isRewritten == false)
         to PTDecl {
-            // get list of tuples instantiating new classes
-            // for each tuple:
-            // if length == 1: normal copy
-            // else : check ok merge first, then copy all.
-            HashMap<String,LinkedList<PTDummyClass>> nameAndDummies = getClassNamesWithDummyList();
-            for(String name: nameAndDummies.keySet()) {
-                LinkedList<PTDummyClass> dummies = nameAndDummies.get(name);
-
-                //error("merging not implemented");
-                PTClassDecl mergedClass = normalClassInsertion(dummies.poll());
-                while(dummies.size() > 0) {
-                    mergedClass.extendWithClassAndRename(dummies.poll());
-                }
-            }
+            createEmptyMissingAddClasses();
+            extendAddClassesWithInstantiatons();
             this.isRewritten = true;
             return this;
         }
     }
 
-    public void PTClassDecl.extendWithClass(ClassDecl extension) {
-        try {
-            ClassDecl ext = extension.fullCopy();
-            for (BodyDecl bd : ext.getBodyDecls()) {
-                addDecl(bd);
-            }            
-        } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
-    }
-
-    //public HashMap<> ClassDecl.ht = new HashMap<>();
-
-    public boolean ClassDecl.signaturesCollides(ClassDecl other) {
-        for (BodyDecl a : getBodyDecls()) {
-            for (BodyDecl b : other.getBodyDecls()) {
-                if (a instanceof ConstructorDecl && b instanceof ConstructorDecl) { 
-                    ConstructorDecl ac = (ConstructorDecl) a;
-                    ConstructorDecl bc = (ConstructorDecl) b;
-                    boolean aEmpty = (ac.getNumParameter()==0 && ac.getBlock().getNumStmt() == 0);
-                    boolean bEmpty = (bc.getNumParameter()==0 && bc.getBlock().getNumStmt() == 0);
-                    if (aEmpty && bEmpty) {
-                        System.out.println("Empty constructor collision avoided");
-                    }
-                    else if (a.equalSignature(b)) {
-                        System.out.println("Constructor collision on " + a.dumpString());
-                    }
-                    else {
-                        System.out.println("Constructor merging on " + a.dumpString());
-                    }
-                }
-                else if (a.getClass().isInstance(b) && a.equalSignature(b)) {
-                    a.error("Collision with " + b.dumpString()); 
-                    b.error("Collision with " + a.dumpString()); 
-                    //error("Collision on " + a.dumpString());
-                    //error("Collision on " + b.dumpString());
-                    //System.out.println("Collision on " + a.dumpString());
-                }
-            }
-        }
-        return false;
-    }
-
-    public void PTClassDecl.extendWithClassAndRename(PTDummyClass dummy) {
-        try {
-            ClassDecl ext = dummy.getOriginator().fullCopy();
-            //System.out.println("ext tree:\n" + ext.showParentsAndSelf());
-            // fiks 'inline' rename..
-            // sjekk kollisjon av signaturer
-            ext.renameTypes(dummy.getInstDecl().getRenamedClasses());
-            getClassDecl().signaturesCollides(ext);
-            for (BodyDecl bd : ext.getBodyDecls()) {
-                addDecl(bd);
-            }            
-        } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
-    }
-    
-    
-    public void PTClassDecl.addDecl(BodyDecl decl) {
-        ClassDecl target = getClassDecl();
-        // special case with an empty constructor with no parameters and no code.
-        // TODO: sjekk om det fortatt lages tomme konstruktører
-        if (decl instanceof ConstructorDecl) { 
-            ConstructorDecl cd = (ConstructorDecl) decl;
-            if (cd.getNumParameter()==0 && cd.getBlock().getNumStmt() == 0) return;
+    rewrite PTClassAddsDecl {
+        when (getPTDecl().isRewritten)
+        to PTClassDecl {
+            PTClassDecl newClassDecl = new PTClassDecl(getClassDecl());
+            return newClassDecl;
         }
 
-        for (BodyDecl bd : target.getBodyDecls()) {
-            if (bd.getClass().isInstance(decl) && decl.equalSignature(bd)) {
-            //if (decl.equalSignature(bd)) {
-                //error("overwriting 
-                bd.replaceSelfWith(decl);
-                return;
-            }
-        }
-        target.addBodyDecl(decl);
     }
-
-    public void ASTNode.replaceSelfWith(ASTNode replacement) {
-        ASTNode parent = getParent();
-        int i = parent.getIndexOfChild(this);
-        parent.setChild(replacement, i);
-    }
-
-
-    public String ASTNode.scopeSignature() { throw new RuntimeException("No scopeSignature for Class " + getClass().getName()); }
-    public String FieldDeclaration.scopeSignature() { return getID(); } // nok med ID som navn siden vi også sjekker på klassetype
-    public String ConstructorDecl.scopeSignature() { return descName(); }
-    public String MethodDecl.scopeSignature() {
-        String _static = getModifiers().isStatic() ? "static" : "instance";
-        return _static + "_" + descName();
-    }
-    public String MemberClassDecl.scopeSignature() { return getClassDecl().getID(); }
-
-    public boolean ASTNode.equalSignature(ASTNode other) {
-        boolean res = this.scopeSignature().equals(other.scopeSignature());
-        //System.out.println(this.dumpTreeNoRewrite() + "\n::vs::\n" + other.dumpTreeNoRewrite() + "\n====> " + res);
-        //System.out.println(this.scopeSignature() + " ::vs:: " + other.scopeSignature() + " => " + res);
-        return res;
-    }
-
-    // TODO:
-    // Her på scopeSignature() mangler det nok en del spesialiseringer.
-    // Mer presist navn på 'scopeSignature()'?
-    // Les mer her: http://java.sun.com/docs/books/jls/second_edition/html/names.doc.html#33757
-
-    // BUG:
-    // Siden dette blir gjort 'iterativt', altså mulig erstatning for hver ny gjennomløping,
-    // så vil det kunne bli en erstatning av seg selv. Altså en del av Adds klassen kan
-    // utilsiktet og uten advarsel overskrive seg selv. Kan fikses med å bruke én gjennom-
-    // løping og sets som Eivind foreslo.
-
-    //eq PTClassAddsDecl.isObject() = false;
-
-    public Program ASTNode.getProgram() {
-        ASTNode parent = getParent();
-        while (!(parent instanceof Program)) {
-            parent = parent.getParent();
-        }
-        return (Program)parent;
-    }
-
-    // Debug funksjonalitet for aa vise hvor man er i treet.
-    // Kan godt flyttes til en annen plass.
-    public String ASTNode.showParentsAndSelf() {
-        LinkedList<ASTNode> parents = new LinkedList<ASTNode>();
-        StringBuilder sb = new StringBuilder();
-        ASTNode parent = getParent();
-        parents.add(this);
-        while (parent != null) {
-            parents.add(parent);
-            parent = parent.getParent();
-        }
-        for (int i=0; parents.size()>0; i+=2) {
-            for (int k=0; k<i; k++) { sb.append(" "); }
-            sb.append( parents.removeLast().dumpString()  + "\n");
-        }
-        return sb.toString();
-    }
-
-    // Kan sikkert generaliseres saa lenge parent er en List..
-    // Det litt usikre er hvorfor noyaktig man maa ta flushCaches paa parent
-    // til listen... Det blir vel forsaavidt det ytterste scopet fjerningen
-    // paavirker.
-    public void PTClassAddsDecl.removeSelf() {
-        //System.out.println(showParentsAndSelf());
-
-        AST.List parentList = (AST.List)getParent();
-        parentList.removeChild(parentList.getIndexOfChild(this));
-        //System.out.println("det nye treet .. :\n" + parentList.dumpTreeNoRewrite());
-        //System.out.println("flushing caches");
-        //parentList.getProgram().flushCaches();
-        parentList.getParent().flushCaches(); // maa flushe PTPackage, ellers nullpointerexception senere
-        //System.out.println("done flushing caches");
-    }
-    
 }

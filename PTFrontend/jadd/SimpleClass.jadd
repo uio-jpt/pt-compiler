@@ -3,8 +3,41 @@ aspect SimpleClass {
     syn LinkedList<ClassDecl> PTDecl.getClassList() {
         LinkedList<ClassDecl> classList = new LinkedList<ClassDecl>();
         for (SimpleClass decl : getSimpleClassList()) 
-            if (decl instanceof PTClassDecl)
+            if (!decl.isAddsClass())
                 classList.add(decl.getClassDecl());
         return classList;
     }
+
+    public void SimpleClass.extendWithClassAndRename(PTDummyClass dummy) {
+        try {
+            ClassDecl ext = dummy.getOriginator().fullCopy();
+            ext.renameTypes(dummy.getInstDecl().getRenamedClasses());
+            getClassDecl().signaturesCollides(ext);
+            for (BodyDecl bd : ext.getBodyDecls()) {
+                addDecl(bd);
+            }            
+        } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
+    }
+    
+    
+    public void SimpleClass.addDecl(BodyDecl decl) {
+        ClassDecl target = getClassDecl();
+        // special case with an empty constructor with no parameters and no code.
+        // TODO: sjekk om det fortatt lages tomme konstruktører
+        if (decl instanceof ConstructorDecl) { 
+            ConstructorDecl cd = (ConstructorDecl) decl;
+            if (cd.getNumParameter()==0 && cd.getBlock().getNumStmt() == 0) return;
+        }
+
+        for (BodyDecl bd : target.getBodyDecls()) {
+            if (bd.getClass().isInstance(decl) && decl.equalSignature(bd)) {
+            //if (decl.equalSignature(bd)) {
+                //error("overwriting 
+                bd.replaceSelfWith(decl);
+                return;
+            }
+        }
+        target.addBodyDecl(decl);
+    }
+    
 }

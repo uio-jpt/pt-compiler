@@ -1,14 +1,37 @@
 aspect PTDecl {
-    public PTClassDecl PTDecl.normalClassInsertion(PTDummyClass dummy) {
-        ClassDecl temp = dummy.getOriginator().fullCopy();
-        PTClassDecl newClass = new PTClassDecl(temp);
-        addSimpleClass(newClass);
-        newClass.renameTypes(dummy.getInstDecl().getRenamedClasses());
-        PTClassAddsDecl extension = lookupAddClass(newClass.getID());
-        if (extension != null) {
-            newClass.extendWithClass(extension.getClassDecl());
-            extension.removeSelf();
+
+    public void PTDecl.extendAddClassesWithInstantiatons() {
+        HashMap<String,LinkedList<PTDummyClass>> nameAndDummies =
+            getClassNamesWithDummyList();
+        for (SimpleClass decl : getSimpleClassList()) {
+            String id = decl.getID();
+            if (nameAndDummies.containsKey(id)) {
+                if (decl.isAddsClass()) {
+                    for (PTDummyClass ext : nameAndDummies.get(id))
+                        decl.extendWithClassAndRename(ext);
+                } else {
+                    error(decl.getID() + " is not an adds class.. but got additions.");
+                }
+            } else if (decl.isAddsClass()) {
+                error(decl.getID() + "is an add class, source not found!");
+            }
         }
-        return newClass;
-    }
+    }        
+
+    public void PTDecl.createEmptyMissingAddClasses() {
+        HashSet<String> addClasses = getAdditionClassNamesSet();
+        HashMap<String,LinkedList<PTDummyClass>> nameAndDummies =
+            getClassNamesWithDummyList();
+        Set<String> missingAddsClass = new HashSet<String>(nameAndDummies.keySet());
+        missingAddsClass.removeAll(addClasses);
+
+        for (String name : missingAddsClass) {
+            ClassDecl cls = new ClassDecl(new Modifiers(), name,
+                                          new Opt(), new List(),
+                                          new List<BodyDecl>());
+            PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
+            addSimpleClass(addClass);
+        }
+    }        
+    
 }

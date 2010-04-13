@@ -7,7 +7,13 @@ aspect SimpleClass {
 
     coll LinkedList<PTClassAddsDecl> PTDecl.getAdditionClassList() [new LinkedList<PTClassAddsDecl>()]
         with add root PTDecl;
+    coll HashSet<String> PTDecl.getAdditionClassNamesSet() [new HashSet<String>()]
+        with add root PTDecl;
+    
     PTClassAddsDecl contributes this to PTDecl.getAdditionClassList() for getPTDecl();
-    syn String PTClassDecl.getID() = getClassDecl().getID();
-    syn String PTClassAddsDecl.getID() = getClassDecl().getID();    
+    PTClassAddsDecl contributes getID() to PTDecl.getAdditionClassNamesSet() for getPTDecl();
+    syn String SimpleClass.getID() = getClassDecl().getID();
+
+    syn boolean SimpleClass.isAddsClass() = false;
+    eq PTClassAddsDecl.isAddsClass() = true;
 }
