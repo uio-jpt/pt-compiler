@@ -1,0 +1,14 @@
+aspect PTInstDecl {
+    public void PTInstDecl.addMissingDummyClassNodes() {
+        HashMap<String,String> renamedClasses = getRenamedClasses();
+        LinkedList<ClassDecl> templateClasses = getTemplate().getClassList();
+        for (ClassDecl templateClass: templateClasses) {
+            String templateClassID = templateClass.getID();
+            if (!renamedClasses.containsKey(templateClassID)) {
+                PTDummyClass dummy;                                
+                dummy = new PTDummyClass(templateClassID,templateClassID, new List());
+                addPTDummyClass(dummy);
+            } 
+        }
+    }        
+}

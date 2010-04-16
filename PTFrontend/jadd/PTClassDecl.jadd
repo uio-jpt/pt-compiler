@@ -1,0 +1,10 @@
+aspect PTClassDecl {
+    public void PTClassDecl.extendWithClass(ClassDecl extension) {
+        try {
+            ClassDecl ext = extension.fullCopy();
+            for (BodyDecl bd : ext.getBodyDecls()) {
+                addDecl(bd);
+            }            
+        } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
+    }
+}

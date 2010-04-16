@@ -1,0 +1,83 @@
+aspect JastAddAspectRefinements {
+    
+    public boolean ClassDecl.signaturesCollides(ClassDecl other) {
+        for (BodyDecl a : getBodyDecls()) {
+            for (BodyDecl b : other.getBodyDecls()) {
+                if (a instanceof ConstructorDecl && b instanceof ConstructorDecl) { 
+                    ConstructorDecl ac = (ConstructorDecl) a;
+                    ConstructorDecl bc = (ConstructorDecl) b;
+                    boolean aEmpty = (ac.getNumParameter()==0 && ac.getBlock().getNumStmt() == 0);
+                    boolean bEmpty = (bc.getNumParameter()==0 && bc.getBlock().getNumStmt() == 0);
+                    if (aEmpty && bEmpty) {
+                        System.out.println("Empty constructor collision avoided");
+                    }
+                    else if (a.equalSignature(b)) {
+                        System.out.println("Constructor collision on " + a.dumpString());
+                    }
+                    else {
+                        System.out.println("Constructor merging on " + a.dumpString());
+                    }
+                }
+                else if (a.getClass().isInstance(b) && a.equalSignature(b)) {
+                    a.error("Collision with " + b.dumpString()); 
+                    b.error("Collision with " + a.dumpString()); 
+                }
+            }
+        }
+        return false;
+    }
+
+    public void ASTNode.replaceSelfWith(ASTNode replacement) {
+        ASTNode parent = getParent();
+        int i = parent.getIndexOfChild(this);
+        parent.setChild(replacement, i);
+    }
+
+    // TODO:
+    // Her på scopeSignature() mangler det nok en del spesialiseringer.
+    // Mer presist navn på 'scopeSignature()'?
+    // Les mer her: http://java.sun.com/docs/books/jls/second_edition/html/names.doc.html#33757
+    public String ASTNode.scopeSignature() { throw new RuntimeException("No scopeSignature for Class " + getClass().getName()); }
+    public String FieldDeclaration.scopeSignature() { return getID(); } // nok med ID som navn siden vi også sjekker på klassetype
+    public String ConstructorDecl.scopeSignature() { return descName(); }
+    public String MethodDecl.scopeSignature() {
+        String _static = getModifiers().isStatic() ? "static" : "instance";
+        return _static + "_" + descName();
+    }
+    public String MemberClassDecl.scopeSignature() { return getClassDecl().getID(); }
+
+    public boolean ASTNode.equalSignature(ASTNode other) {
+        boolean res = this.scopeSignature().equals(other.scopeSignature());
+        //System.out.println(this.dumpTreeNoRewrite() + "\n::vs::\n" + other.dumpTreeNoRewrite() + "\n====> " + res);
+        //System.out.println(this.scopeSignature() + " ::vs:: " + other.scopeSignature() + " => " + res);
+        return res;
+    }
+
+
+    public Program ASTNode.getProgram() {
+        ASTNode parent = getParent();
+        while (!(parent instanceof Program)) {
+            parent = parent.getParent();
+        }
+        return (Program)parent;
+    }
+
+    // Debug funksjonalitet for aa vise hvor man er i treet.
+    // Kan godt flyttes til en annen plass.
+    public String ASTNode.showParentsAndSelf() {
+        LinkedList<ASTNode> parents = new LinkedList<ASTNode>();
+        StringBuilder sb = new StringBuilder();
+        ASTNode parent = getParent();
+        parents.add(this);
+        while (parent != null) {
+            parents.add(parent);
+            parent = parent.getParent();
+        }
+        for (int i=0; parents.size()>0; i+=2) {
+            for (int k=0; k<i; k++) { sb.append(" "); }
+            sb.append( parents.removeLast().dumpString()  + "\n");
+        }
+        return sb.toString();
+    }
+    
+}    
