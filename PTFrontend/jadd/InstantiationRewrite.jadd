@@ -28,6 +28,5 @@ aspect InstantiationRewrite {
             PTClassDecl newClassDecl = new PTClassDecl(getClassDecl());
             return newClassDecl;
         }
-
     }
 }

@@ -33,5 +33,4 @@ aspect PTDecl {
             addSimpleClass(addClass);
         }
     }        
-    
 }

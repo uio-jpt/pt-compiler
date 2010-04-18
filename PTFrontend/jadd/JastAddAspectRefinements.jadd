@@ -42,7 +42,7 @@ aspect JastAddAspectRefinements {
     public String ConstructorDecl.scopeSignature() { return descName(); }
     public String MethodDecl.scopeSignature() {
         String _static = getModifiers().isStatic() ? "static" : "instance";
-        return _static + "_" + descName();
+        return _static + "_" + getID() + descName();
     }
     public String MemberClassDecl.scopeSignature() { return getClassDecl().getID(); }
 

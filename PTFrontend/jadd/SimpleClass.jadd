@@ -11,33 +11,66 @@ aspect SimpleClass {
     public void SimpleClass.extendWithClassAndRename(PTDummyClass dummy) {
         try {
             ClassDecl ext = dummy.getOriginator().fullCopy();
+            String sourceClassName = ext.getID();
             ext.renameTypes(dummy.getInstDecl().getRenamedClasses());
             getClassDecl().signaturesCollides(ext);
             for (BodyDecl bd : ext.getBodyDecls()) {
-                addDecl(bd);
+                addDecl(sourceClassName, bd);
             }            
         } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
     }
     
     
-    public void SimpleClass.addDecl(BodyDecl decl) {
+    public void SimpleClass.addDecl(String sourceClassName, BodyDecl decl) {
         ClassDecl target = getClassDecl();
         // special case with an empty constructor with no parameters and no code.
         // TODO: sjekk om det fortatt lages tomme konstruktører
         if (decl instanceof ConstructorDecl) { 
             ConstructorDecl cd = (ConstructorDecl) decl;
-            if (cd.getNumParameter()==0 && cd.getBlock().getNumStmt() == 0) return;
+            if (cd.getNumParameter() == 0 && cd.getBlock().getNumStmt() == 0) {
+                return;
+            } else {
+                /*
+                MethodDecl method_declaration =
+                method_header.m method_body.b              {: m.setBlockOpt(b); return m; :}
+                ;
+
+                MethodDecl method_header =
+                modifiers.m? type.t IDENTIFIER LPAREN formal_parameter_list.l? RPAREN dims.d? throws.tl?
+                {: return new MethodDecl(new Modifiers(m), t.addArrayDims(d), IDENTIFIER, l, tl, new Opt()); :}
+                | modifiers.m? VOID   IDENTIFIER LPAREN formal_parameter_list.l? RPAREN throws.tl?
+                {: return new MethodDecl(new Modifiers(m), new PrimitiveTypeAccess("void"), IDENTIFIER, l, tl, new Opt()); :}
+                ;
+                 
+                ConstructorDecl constructor_declaration =
+                modifiers.m? IDENTIFIER LPAREN formal_parameter_list.pl? RPAREN throws.tl?
+                LBRACE explicit_constructor_invocation.c? block_statements.l? RBRACE
+                {: Block b = new Block(l); l.setStart(LBRACE.getStart() + 1); b.setStart(LBRACE.getStart()); b.setEnd(RBRACE.getEnd());
+                return new ConstructorDecl(new Modifiers(m), IDENTIFIER, pl, tl, c, b); :}
+                 */
+                try {
+                    MethodDecl md = new MethodDecl(cd.getModifiers(), new TypeAccess(target.getID()), "super" + sourceClassName, cd.getParameterList(), new List(), new Opt());
+                    md.setBlock(cd.getBlock());
+                    md.getBlock().addStmt(new ReturnStmt(new ThisAccess()));
+                    md.setParent(target.getBodyDecls());
+                    md.IDstart = cd.IDstart; // give the generated method the same location as the constructor
+                    md.IDend = cd.IDend;
+                    decl = md;
+                    //System.out.println("Rewriting " + cd.dumpString() + " to " + md.dumpString());
+                }
+                catch (Exception e) {
+                    cd.error("Could not rewrite constructor " + cd.dumpString() + " to method during class merging.");
+                }
+            }
         }
 
         for (BodyDecl bd : target.getBodyDecls()) {
             if (bd.getClass().isInstance(decl) && decl.equalSignature(bd)) {
-            //if (decl.equalSignature(bd)) {
-                //error("overwriting 
-                bd.replaceSelfWith(decl);
+                decl.error("Tried to replace " + bd.dumpString() + " with " + decl.dumpString());
+                //bd.replaceSelfWith(decl);
                 return;
             }
         }
         target.addBodyDecl(decl);
     }
-    
 }

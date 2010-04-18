@@ -1,37 +1,31 @@
 template T1 { // PTTemplate (PTDecl)
     class A {
         int x;
-        /*
-        float localA;
-        A(float y) {
-            super();
-            localA = y;
+        double aa;
+        A(double a) {
+            aa = a;
         }
-        */
+        A(boolean noConflict) {
+        }
     }
     class B {
-        int x2;
-        /*
-        float localA;
-        A(float y) {
-            super();
-            localA = y;
+        String b;
+        B(String bb) {
+            b = bb;
         }
-        */
+        B(boolean noConflict) {
+        }
+        int x2;
     }
 }
 
-package PackageTest1 { //PTPackage (PTDecl)
+package PackageTest1 {
     inst T1 with A => Y, B => Y;
-    class X { Integer a;}
-    class Z extends X {
-        Z() {
-            //            super(123.12);
-            //super[A](12.13);
-            //int x = 10;
-        }
-    }
     class Y adds {
+        Y() {
+            super[A](123.12);
+            // super[B]("hei"); //TODO: fiks støtte for flere.
+        }
         int ksdjf;
     }
  }

@@ -7,43 +7,50 @@
  * All rights reserved.
  */
 package testutils;
+
 import AST.*;
 
 public class JavaPrettyPrinter extends Frontend {
-  public static void main(String args[]) {
-    if(!compile(args))
-      System.exit(1);
-      ClassDecl cd;
-      MethodDecl md;
-      //md.getModifiers().
-      //md.getModifiers().isStatic();
 
-      //cd.getB
-      //cd.get
-  }
-
-  public static boolean compile(String args[]) {
-      System.out.println("JavaPrettyPrinter.java:");
-    return new JavaPrettyPrinter().process(
-        args,
-        new BytecodeParser(),
-        new JavaParser() {
-          public CompilationUnit parse(java.io.InputStream is, String fileName) throws java.io.IOException, beaver.Parser.Exception {
-            return new parser.JavaParser().parse(is, fileName);
-          }
+    public static void main(String args[]) {
+        if (!compile(args)) {
+            System.exit(1);
         }
-    );
-  }
-  protected void processErrors(java.util.Collection errors, CompilationUnit unit) {
-      super.processErrors(errors, unit);
-      System.out.println(unit.toString());
-      System.out.println(unit.dumpTreeNoRewrite());
-  }
-  protected void processNoErrors(CompilationUnit unit) {
-    System.out.println(unit.toString());
-      System.out.println(unit.dumpTreeNoRewrite());
-  }
+    }
 
-  protected String name() { return "Java1.4Frontend + Backend + Java5Extensions Dumptree"; }
-  protected String version() { return "R20071015"; }
+    public static boolean compile(String args[]) {
+        System.out.println("JavaPrettyPrinter.java:");
+        return new JavaPrettyPrinter().process(
+                args,
+                new BytecodeParser(),
+                new JavaParser() {
+
+                    public CompilationUnit parse(java.io.InputStream is, String fileName) throws java.io.IOException, beaver.Parser.Exception {
+                        return new parser.JavaParser().parse(is, fileName);
+                    }
+                });
+    }
+
+    protected void processErrors(java.util.Collection errors, CompilationUnit unit) {
+        //System.out.println(unit.dumpTreeNoRewrite());
+        System.out.println(unit.toString());
+        super.processErrors(errors, unit);
+    }
+
+    protected void processWarnings(java.util.Collection warnings, CompilationUnit unit) {
+        super.processWarnings(warnings, unit);
+    }
+
+    protected void processNoErrors(CompilationUnit unit) {
+        //System.out.println(unit.dumpTreeNoRewrite());
+        System.out.println(unit.toString());
+    }
+
+    protected String name() {
+        return "Java1.4Frontend + Backend + Java5Extensions Dumptree";
+    }
+
+    protected String version() {
+        return "R20071015";
+    }
 }

@@ -3,7 +3,7 @@ aspect PTClassDecl {
         try {
             ClassDecl ext = extension.fullCopy();
             for (BodyDecl bd : ext.getBodyDecls()) {
-                addDecl(bd);
+                addDecl(ext.getID(), bd);
             }            
         } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
     }
