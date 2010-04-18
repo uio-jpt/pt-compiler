@@ -13,7 +13,7 @@ aspect PTDecl {
                     error(decl.getID() + " is not an adds class.. but got additions.");
                 }
             } else if (decl.isAddsClass()) {
-                error(decl.getID() + "is an add class, source not found!");
+                decl.error(decl.getID() + " is an add class, source not found!");
             }
         }
     }        

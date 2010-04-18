@@ -11,17 +11,25 @@ aspect SimpleClass {
     public void SimpleClass.extendWithClassAndRename(PTDummyClass dummy) {
         try {
             ClassDecl ext = dummy.getOriginator().fullCopy();
+
+            // Dette og en del av koden i addDecl kunne godt vært faktorert ut til noe mer fornuftigt
+            String orgSuperClass = null;
+            if (ext.hasSuperClassAccess()) {
+                if (TypeAccess.class.isInstance(ext.getSuperClassAccess())) {
+                    TypeAccess ta = (TypeAccess) ext.getSuperClassAccess();
+                    orgSuperClass = ta.getID();
+                }
+            }
             String sourceClassName = ext.getID();
             ext.renameTypes(dummy.getInstDecl().getRenamedClasses());
             getClassDecl().signaturesCollides(ext);
             for (BodyDecl bd : ext.getBodyDecls()) {
-                addDecl(sourceClassName, bd);
+                addDecl(sourceClassName, orgSuperClass, bd);
             }            
         } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
     }
     
-    
-    public void SimpleClass.addDecl(String sourceClassName, BodyDecl decl) {
+    public void SimpleClass.addDecl(String sourceClassName, String orgSuperClass, BodyDecl decl) {
         ClassDecl target = getClassDecl();
         // special case with an empty constructor with no parameters and no code.
         // TODO: sjekk om det fortatt lages tomme konstruktører
@@ -50,7 +58,23 @@ aspect SimpleClass {
                  */
                 try {
                     MethodDecl md = new MethodDecl(cd.getModifiers(), new TypeAccess(target.getID()), "super" + sourceClassName, cd.getParameterList(), new List(), new Opt());
-                    md.setBlock(cd.getBlock());
+                    md.setBlock(new Block(new List<Stmt>()));
+                    if (cd.hasConstructorInvocation() && orgSuperClass!=null) {
+                        // rewrite "super(x,y,z)" to "superA(x,y,z)" where A is the original superclass
+                        try {
+                            ExprStmt s = (ExprStmt) cd.getConstructorInvocation();
+                            SuperConstructorAccess sa = (SuperConstructorAccess) s.getExpr();
+                            MethodAccess oldConstructorInvocationAsMethod = new MethodAccess("super" + orgSuperClass, sa.getArgList());
+                            oldConstructorInvocationAsMethod.IDstart = sa.IDstart;
+                            oldConstructorInvocationAsMethod.IDend = sa.IDend;
+                            md.getBlock().addStmt(new ExprStmt(oldConstructorInvocationAsMethod));
+                        } catch (Exception e) {
+                            cd.getConstructorInvocation().error("Could not rewrite constructor invocation to method: " + e);
+                        }
+                    }
+                    for (Stmt s : cd.getBlock().getStmtList()) {
+                        md.getBlock().addStmt(s);
+                    }
                     md.getBlock().addStmt(new ReturnStmt(new ThisAccess()));
                     md.setParent(target.getBodyDecls());
                     md.IDstart = cd.IDstart; // give the generated method the same location as the constructor
