@@ -7,7 +7,9 @@ aspect LookupType {
     eq PTDecl.getSimpleClass(int i).lookupType(String packageName, String typeName) {
         //System.out.println(String.format("%s: looking up %s.%s", getID(), packageName, typeName));
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
-        for (TypeDecl type: getClassList()) {
+        //        for (TypeDecl type: getClassList()) {
+        for (SimpleClass cls : getSimpleClassList()) {
+            TypeDecl type = cls.getClassDecl();
             if (type.fullName().equals(fullName)) {
                 return type;
             }
