@@ -1,13 +1,5 @@
 aspect SimpleClass {
 
-    syn LinkedList<ClassDecl> PTDecl.getClassList() {
-        LinkedList<ClassDecl> classList = new LinkedList<ClassDecl>();
-        for (SimpleClass decl : getSimpleClassList()) 
-            if (!decl.isAddsClass())
-                classList.add(decl.getClassDecl());
-        return classList;
-    }
-
     public void SimpleClass.extendWithClassAndRename(PTDummyClass dummy) {
         try {
             ClassDecl ext = dummy.getOriginator().fullCopy();
