@@ -15,10 +15,10 @@ aspect InstantiationRewrite {
     rewrite PTDecl {
         when ( this.isRewritten == false)
         to PTDecl {
-            this.isRewritten = true;            
             createEmptyMissingAddClasses();
             extendAddClassesWithInstantiatons();
             updateAddsSuperClasses();
+            this.isRewritten = true;                        
             return this;
         }
     }
