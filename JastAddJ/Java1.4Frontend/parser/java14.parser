@@ -212,6 +212,7 @@ ConstructorDecl constructor_declaration =
     {: Block b = new Block(l); l.setStart(LBRACE.getStart() + 1); b.setStart(LBRACE.getStart()); b.setEnd(RBRACE.getEnd());
        return new ConstructorDecl(new Modifiers(m), IDENTIFIER, pl, tl, c, b); :}
  ;
+
 ExprStmt explicit_constructor_invocation =
     THIS LPAREN argument_list.l? RPAREN SEMICOLON 
     {: ConstructorAccess c = new ConstructorAccess("this", l);
@@ -233,7 +234,6 @@ ExprStmt explicit_constructor_invocation =
        c.setStart(SUPER.getStart());
        c.setEnd(RPAREN.getEnd());
        return new ExprStmt(n.qualifiesAccess(c)); :}
-  | explicit_merged_constructor_invocation.e {: return e; :}
   ;
 
 InterfaceDecl interface_declaration =
@@ -578,7 +578,6 @@ Access method_invocation =
         m.setStart(IDENTIFIER.getStart());
         m.setEnd(RPAREN.getEnd());
         return n.qualifiesAccess(s).qualifiesAccess(m); :}
-   | explicit_merged_method_invocation.e {: return e; :}
    ;
 Access array_access =
     name.n LBRACK expression.e RBRACK                 {: ArrayAccess a = new ArrayAccess(e);

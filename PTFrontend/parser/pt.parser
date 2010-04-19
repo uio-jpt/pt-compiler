@@ -9,6 +9,12 @@ PTDecl pt_declaration =
 | pt_package.p
   {: return p; :}
 ;
+ExprStmt explicit_constructor_invocation = 
+   explicit_merged_constructor_invocation.e {: return e; :}
+   ;
+
+Access method_invocation =  explicit_merged_method_invocation.e {: return e; :};
+   
 
 PTDecl pt_template =
  TEMPLATE IDENTIFIER LBRACE pt_inst_decl.pt_inst* pt_simple_declaration.pt_class* RBRACE
