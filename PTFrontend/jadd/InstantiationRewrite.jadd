@@ -15,9 +15,10 @@ aspect InstantiationRewrite {
     rewrite PTDecl {
         when ( this.isRewritten == false)
         to PTDecl {
+            this.isRewritten = true;            
             createEmptyMissingAddClasses();
             extendAddClassesWithInstantiatons();
-            this.isRewritten = true;
+            updateAddsSuperClasses();
             return this;
         }
     }
@@ -26,6 +27,7 @@ aspect InstantiationRewrite {
         when (getPTDecl().isRewritten)
         to PTClassDecl {
             PTClassDecl newClassDecl = new PTClassDecl(getClassDecl());
+            getPTDecl().flushCollectionCache();
             return newClassDecl;
         }
     }

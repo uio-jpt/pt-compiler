@@ -32,5 +32,12 @@ aspect PTDecl {
             PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
             addSimpleClass(addClass);
         }
-    }        
+    }
+
+    public void PTDecl.updateAddsSuperClasses() {
+        HashMap<String,LinkedList<PTDummyClass>>  namesToDummyList = getClassNamesWithDummyList();
+        for (PTClassAddsDecl decl : getAdditionClassList()) {
+            decl.updateSuperName(namesToDummyList.get(decl.getID()));
+        }
+    }
 }

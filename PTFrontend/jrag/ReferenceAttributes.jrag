@@ -20,7 +20,7 @@ aspect ReferenceAttributes {
         HashMap<String,String> renamedClasses = new HashMap<String,String>();
         for (PTDummyClass dummy: getPTDummyClassList()) 
             renamedClasses.put(dummy.getOrgID(),dummy.getID());
-        return renamedClasses;
+        return renamedClasses; 
     }
 
     syn HashMap<String,LinkedList<PTDummyClass>> PTDecl.getClassNamesWithDummyList() {

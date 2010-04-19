@@ -5,13 +5,7 @@ aspect SimpleClass {
             ClassDecl ext = dummy.getOriginator().fullCopy();
 
             // Dette og en del av koden i addDecl kunne godt vært faktorert ut til noe mer fornuftigt
-            String orgSuperClass = null;
-            if (ext.hasSuperClassAccess()) {
-                if (TypeAccess.class.isInstance(ext.getSuperClassAccess())) {
-                    TypeAccess ta = (TypeAccess) ext.getSuperClassAccess();
-                    orgSuperClass = ta.getID();
-                }
-            }
+            String orgSuperClass = ext.getSuperClassName();
             String sourceClassName = ext.getID();
             ext.renameTypes(dummy.getInstDecl().getRenamedClasses());
             getClassDecl().signaturesCollides(ext);

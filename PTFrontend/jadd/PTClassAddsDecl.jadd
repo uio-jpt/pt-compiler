@@ -4,4 +4,24 @@ aspect PTClassAddsDecl {
     public void PTClassAddsDecl.collectErrors () {
         // Does not errorcheck a addClass node.
     }
+
+    public void PTClassAddsDecl.updateSuperName(LinkedList<PTDummyClass> dummies) {
+        String name = null;
+        for (PTDummyClass dummy : dummies) {
+            String dummySuperName = dummy.getRenamedSuperclassName();
+            if (dummySuperName != null) {
+                if (name == null)
+                    name = dummySuperName;
+                else if (dummySuperName.equals(name)) {
+                    // all ok
+                } else {
+                    error(String.format("Merge error for %s. superklasses %s and %s must be merged. ",
+                                         getID(), name, dummySuperName));
+                }
+            }
+        }
+        if (name != null) {
+            getClassDecl().setSuperClassAccess(new TypeAccess(name));
+        }
+    }
 }
