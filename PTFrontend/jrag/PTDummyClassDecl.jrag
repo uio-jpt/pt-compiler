@@ -1,0 +1,13 @@
+aspect PTDummyClass {
+
+    syn String PTDummyClass.getRenamedSuperclassName() {
+        HashMap<String,String> renamedClasses = getInstDecl().getRenamedClasses();
+        ClassDecl orginator = getOriginator();
+        String oldSuperName = orginator.getSuperClassName();
+        if (oldSuperName == null)
+            return null;
+        else if (!renamedClasses.containsKey(oldSuperName))
+            error("Should this happen error TODO");
+        return renamedClasses.get(oldSuperName);
+    }
+}

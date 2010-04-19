@@ -1,0 +1,13 @@
+aspect JastAddAspectRefinements {
+
+    syn String ClassDecl.getSuperClassName() {
+        if (hasSuperClassAccess()) {
+            if (TypeAccess.class.isInstance(getSuperClassAccess())) {
+                TypeAccess ta = (TypeAccess) getSuperClassAccess();
+                return ta.getID();
+            }
+        }
+        return null;
+    }
+
+}
