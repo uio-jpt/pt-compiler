@@ -1,32 +1,23 @@
 aspect RenameDefinitions {
     public void ClassDecl.renameDefinitions(HashMap<String,String> namesMap) {
         HashMap <String,MethodDecl>methods = methodsSignatureMap();
-        Iterator fieldsIterator = fieldsIterator();
+        HashMap <String,SimpleSet> fields = memberFieldsMap();
 
         for (MethodDecl decl : methods.values()) {
             if (namesMap.containsKey(decl.getID())) {
                 String newID = namesMap.get(decl.getID());
                 decl.setID(newID);
-                System.out.println("renamed method to " + newID);
             }
         }
 
-        // while (fieldsIterator.hasNext()) {
-        //     FieldDeclaration fieldDecl = (FieldDeclaration)fieldsIterator.next();
-        //     System.out.println("var: "+fieldDecl.getID());            
-        // }
-
-        // for (Iterator iter = methods.keySet().iterator(); iter.hasNext() ;) {
-        //     String key = (String) iter.next();
-        //     SimpleSet values = (SimpleSet) variables.get(key);
-            
-        //     System.out.println("method: got key " + key);
-        // }
-
-        // for (Iterator iter = variables.keySet().iterator(); iter.hasNext() ;) {
-        //     String key = (String) iter.next();
-        //     System.out.println("variables: got key " + key);
-        // }
-        System.out.println("renaming done ...");
+        for (SimpleSet simpleSet : fields.values()) {
+            for (Iterator iter = simpleSet.iterator(); iter.hasNext();) {
+                FieldDeclaration fieldDecl = (FieldDeclaration) iter.next();
+                if (namesMap.containsKey(fieldDecl.getID())) {
+                    String newID = namesMap.get(fieldDecl.getID());
+                    fieldDecl.setID(newID);
+                }
+            }
+        }
     }
 }

@@ -10,7 +10,7 @@ template T1 {
 }
 
 package PackageTest1 {
-    inst T1 with A => Z(twoTimer -> b), B => Z ;
+    inst T1 with A => Z(twoTimer -> b), B => Z(twoTimer -> x) ;
  }
 
 
