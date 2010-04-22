@@ -6,8 +6,8 @@ aspect InstantiationRewrite {
     rewrite PTInstDecl {
         when (this.isRewritten == false)
         to PTInstDecl {
-            addMissingDummyClassNodes();
             this.isRewritten = true;
+            addMissingDummyClassNodes();
             return this;
         }
     }

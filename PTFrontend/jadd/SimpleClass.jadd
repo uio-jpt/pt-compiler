@@ -1,5 +1,12 @@
 aspect SimpleClass {
 
+    public HashMap<String,String> PTDummyClass.getRenamedDefinitionsMap() {
+        HashMap<String,String> map = new HashMap<String,String>();
+        for (PTDummyRename entry : getPTDummyRenameList()) 
+            map.put(entry.getOrgID(), entry.getID());
+        return map;
+    }
+    
     public void SimpleClass.extendWithClassAndRename(PTDummyClass dummy) {
         try {
             ClassDecl ext = dummy.getOriginator().fullCopy();
@@ -8,6 +15,7 @@ aspect SimpleClass {
             String orgSuperClass = ext.getSuperClassName();
             String sourceClassName = ext.getID();
             ext.renameTypes(dummy.getInstDecl().getRenamedClasses());
+            ext.renameDefinitions(dummy.getRenamedDefinitionsMap());
             getClassDecl().signaturesCollides(ext);
             for (BodyDecl bd : ext.getBodyDecls()) {
                 addDecl(sourceClassName, orgSuperClass, bd);
