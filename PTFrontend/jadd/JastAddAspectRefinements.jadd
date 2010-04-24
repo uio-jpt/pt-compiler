@@ -1,4 +1,32 @@
 aspect JastAddAspectRefinements {
+
+    public MethodDecl ConstructorDecl.toMethodDecl(String returnType, String methodName, String orgSuperClass) {
+        /* Rewrite a whole constructor declaration to a method.
+           Will also rewrite constructor invocations to method invocations based on orgSuperClass.
+        */
+        MethodDecl md = new MethodDecl(getModifiers(), new TypeAccess(returnType), methodName, getParameterList(), new List(), new Opt());
+        md.setBlock(new Block(new List<Stmt>()));
+        if (hasConstructorInvocation() && orgSuperClass != null) {
+            // rewrite "super(x,y,z)" to "superA(x,y,z)" where A is the original superclass
+            try {
+                ExprStmt s = (ExprStmt) getConstructorInvocation();
+                SuperConstructorAccess sa = (SuperConstructorAccess) s.getExpr();
+                MethodAccess oldConstructorInvocationAsMethod = new MethodAccess("super" + orgSuperClass, sa.getArgList());
+                oldConstructorInvocationAsMethod.IDstart = sa.IDstart;
+                oldConstructorInvocationAsMethod.IDend = sa.IDend;
+                md.getBlock().addStmt(new ExprStmt(oldConstructorInvocationAsMethod));
+            } catch (Exception e) {
+                getConstructorInvocation().error("Could not rewrite constructor invocation to method: " + e);
+            }
+        }
+        for (Stmt s : getBlock().getStmtList()) {
+            md.getBlock().addStmt(s);
+        }
+        md.getBlock().addStmt(new ReturnStmt(new ThisAccess()));
+        md.IDstart = IDstart; // give the generated method the same location as the constructor
+        md.IDend = IDend;
+        return md;
+    }
     
     public boolean ClassDecl.signaturesCollides(ClassDecl other) {
         for (BodyDecl a : getBodyDecls()) {

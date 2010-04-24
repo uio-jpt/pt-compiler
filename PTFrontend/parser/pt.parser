@@ -9,6 +9,7 @@ PTDecl pt_declaration =
 | pt_package.p
   {: return p; :}
 ;
+
 ExprStmt explicit_constructor_invocation = 
    explicit_merged_constructor_invocation.e {: return e; :}
    ;
@@ -80,8 +81,8 @@ Access explicit_merged_method_invocation =
      {: SuperAccess s = new SuperAccess("super");
         s.setStart(SUPER.getStart());
         s.setEnd(SUPER.getEnd());
-        MethodAccess m = new MethodAccess(IDENTIFIER, l);
-        m.setStart(IDENTIFIER.getStart());
+        PTMergedMethodAccess m = new PTMergedMethodAccess(name, l, IDENTIFIER);
+        m.setStart(SUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return s.qualifiesAccess(m); :}
     ;
