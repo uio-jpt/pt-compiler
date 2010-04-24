@@ -8,14 +8,7 @@ PTDecl pt_declaration =
   {: return t; :}
 | pt_package.p
   {: return p; :}
-;
-
-ExprStmt explicit_constructor_invocation = 
-   explicit_merged_constructor_invocation.e {: return e; :}
-   ;
-
-Access method_invocation =  explicit_merged_method_invocation.e {: return e; :};
-   
+;   
 
 PTDecl pt_template =
  TEMPLATE IDENTIFIER LBRACE pt_inst_decl.pt_inst* pt_simple_declaration.pt_class* RBRACE
@@ -65,24 +58,23 @@ List dummy_inst_tuple_rename_list =
 
 ClassDecl adds_class = 
   CLASS IDENTIFIER ADDS class_body.b
-    {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :};
+    {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}
+  ;
 
-ExprStmt explicit_merged_constructor_invocation =
-    SUPER LBRACK IDENTIFIER.a RBRACK LPAREN argument_list.l? RPAREN SEMICOLON 
-    {: PTMergedSuperConstructorAccess c = new PTMergedSuperConstructorAccess("super", l, a);
-       //System.out.println("Fikk eksplitt merged constructor!");
-       c.setStart(SUPER.getStart());
-       c.setEnd(RPAREN.getEnd());
-       return new ExprStmt(c); :}
-    ;
+Access method_invocation =  explicit_merged_method_invocation.e {: return e; :};
 
 Access explicit_merged_method_invocation =
-     SUPER LBRACK IDENTIFIER RBRACK DOT name LPAREN argument_list.l? RPAREN
-     {: SuperAccess s = new SuperAccess("super");
-        s.setStart(SUPER.getStart());
-        s.setEnd(SUPER.getEnd());
-        PTMergedMethodAccess m = new PTMergedMethodAccess(name, l, IDENTIFIER);
+     SUPER LBRACK IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
+     {: String mName = (String)methodName.value;
+        boolean constructorCall = mName.equals("") ? true : false;
+        if (mName.equals("")) mName = "super" + superClassName;
+        PTMergedMethodAccess m = new PTMergedMethodAccess(mName, args, superClassName, constructorCall);
         m.setStart(SUPER.getStart());
         m.setEnd(RPAREN.getEnd());
-        return s.qualifiesAccess(m); :}
+        return m; :}
+    ;
+
+Symbol merged_method_name =
+      DOT IDENTIFIER {: return new Symbol(IDENTIFIER); :}
+    | {: return new Symbol(new Symbol("")); :}
     ;

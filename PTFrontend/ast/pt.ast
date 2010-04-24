@@ -16,6 +16,7 @@ PTDummyClass ::= <OrgID> <ID> PTDummyRename*;
 PTDummyRename ::= <OrgID> <ID>;    // with A => X   (someMethod -> newMethod)
                                    //      DmyClass  PTDummyRename
 
-PTMergedSuperConstructorAccess : SuperConstructorAccess ::= <SuperClassID>;
+//PTConstructorDecl : ConstructorDecl ::= ConstructorInvocation:Stmt*;
+//PTMergedSuperConstructorAccess : SuperConstructorAccess ::= <SuperClassID>;
 
-PTMergedMethodAccess : MethodAccess ::= <SuperClassID>;
+PTMergedMethodAccess : MethodAccess ::= <SuperClassID> <ConstructorCall:Boolean>;
