@@ -7,6 +7,7 @@ aspect RenameDefinitions {
             if (namesMap.containsKey(decl.getID())) {
                 String newID = namesMap.get(decl.getID());
                 decl.setID(newID);
+                decl.wasExplicitlyRenamed = true;
             }
         }
 
@@ -16,6 +17,7 @@ aspect RenameDefinitions {
                 if (namesMap.containsKey(fieldDecl.getID())) {
                     String newID = namesMap.get(fieldDecl.getID());
                     fieldDecl.setID(newID);
+                    fieldDecl.wasExplicitlyRenamed = true;
                 }
             }
         }

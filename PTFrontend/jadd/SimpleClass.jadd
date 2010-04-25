@@ -19,7 +19,7 @@ aspect SimpleClass {
             getClassDecl().signaturesCollides(ext);
             for (BodyDecl bd : ext.getBodyDecls()) {
                 addDecl(sourceClassName, orgSuperClass, bd);
-            }            
+            }
         } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
     }
     
@@ -45,9 +45,21 @@ aspect SimpleClass {
 
         for (BodyDecl bd : target.getBodyDecls()) {
             if (bd.getClass().isInstance(decl) && decl.equalSignature(bd)) {
-                decl.error("Tried to replace " + bd.dumpString() + " with " + decl.dumpString());
-                //bd.replaceSelfWith(decl);
-                return;
+                if (bd.originallyFromAddsClass==true && decl.wasExplicitlyRenamed ==false && decl instanceof MethodDecl) {
+                    MethodDecl md = (MethodDecl)decl;
+                    md.setID("super" + sourceClassName + "_" + md.getID());
+                    md.wasAutoRenamed = true;
+                    target.addBodyDecl(md);
+                    return;
+                }
+                else if (decl.wasExplicitlyRenamed==true) {
+                    decl.error(decl.dumpString() + " was explicitly renamed, but collided with " + bd.dumpString());
+                    return;
+                }
+                else {
+                    decl.error("Tried to replace " + bd.dumpString() + " with " + decl.dumpString());
+                    return;
+                }
             }
         }
         target.addBodyDecl(decl);

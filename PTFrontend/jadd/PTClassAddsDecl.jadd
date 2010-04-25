@@ -5,6 +5,39 @@ aspect PTClassAddsDecl {
         // Does not errorcheck a addClass node.
     }
 
+    public boolean ASTNode.hasParentClass(Class c) {
+        ASTNode p = getParent();
+        while (p!= null) {
+            if (c.isInstance(p)) return true;
+            p = p.getParent();
+        }
+        return false;
+    }
+
+    public ASTNode ASTNode.getParentClass(Class c) {
+        ASTNode p = getParent();
+        while (p != null) {
+            if (c.isInstance(p)) return p;
+            p = p.getParent();
+        }
+        return null;
+    }
+
+    public void PTMergedMethodAccess.collectErrors() {
+        if (getConstructorCall() && !hasParentClass(ConstructorDecl.class)) {
+            error("Merged super constructor call only allowed inside a constructor declaration.");
+        }
+        else if (!getConstructorCall() && hasParentClass(ConstructorDecl.class)) {
+            error("Merged super call " + name() + " not allowed inside constructor declaration.");
+        }
+        else if (!getConstructorCall() && hasParentClass(MethodDecl.class)) {
+            MethodDecl md = (MethodDecl)getParentClass(MethodDecl.class);
+            if (!md.getID().equals(getID())) {
+                error("Merged super call " + name() + " cannot be called from method " + md.getID());
+            }
+        }
+    }
+
     public void PTClassAddsDecl.updateSuperName(LinkedList<PTDummyClass> dummies) {
         String name = null;
         for (PTDummyClass dummy : dummies) {
