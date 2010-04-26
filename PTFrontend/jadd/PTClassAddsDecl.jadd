@@ -38,6 +38,7 @@ aspect PTClassAddsDecl {
         }
     }
 
+    // TODO inner if test is a tautology
     public void PTClassAddsDecl.updateSuperName(LinkedList<PTDummyClass> dummies) {
         String name = null;
         for (PTDummyClass dummy : dummies) {

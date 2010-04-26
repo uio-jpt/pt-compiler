@@ -107,5 +107,8 @@ aspect JastAddAspectRefinements {
         }
         return sb.toString();
     }
-    
+
+    syn String BodyDecl.getName() = null;
+    eq MethodDecl.getName() = getID();
+    //    eq FieldDeclaration.getName() = getID();
 }    

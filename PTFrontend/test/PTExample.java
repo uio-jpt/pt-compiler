@@ -15,14 +15,10 @@ package PackageTest1 {
     class Z adds {
         Z() {
             super[A]("hei");
-            super[B]("hei");
-            super[B].f();
+            super[B](2);
         }
         int f() {
-            super[B]("hei");
-            super[A].f("hei");
-            super[B].g("hei");
-            return 123;
+            return super[A].f() + super[B].f();
         }
     }
  }

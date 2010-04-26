@@ -7,10 +7,10 @@ Fixes TODO:
 
 Merging:
 
-* Gitt kollisjon mellom variable og ikke-virtuelle metoder:
-  - kreve renaming av minst en.
-  - lese av navnRenaminger fra instdecl
+sjekk etter merge kollisjon på signatur nivå. (per i dag på navn nivå)
 
-* Kollisjon mellom virtuelle-metoder:
-  - renaming eller en adds-refinment klasse som kan kalle begge
-  super-metodene. (se merging and virtual methods)
+renaming pga merge_conflikt: ha med templatnavn.
+
+if merging occurs, demand own constructor (allowed to call
+super[className] in the beginning).
+

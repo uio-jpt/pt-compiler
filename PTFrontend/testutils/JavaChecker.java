@@ -17,6 +17,8 @@ public class JavaChecker extends Frontend {
 //    ASTNode an;
 //    an.get
 //    PTInstDecl pi;
+    PTDecl p;
+    PTClassAddsDecl ad;
 
   }
 

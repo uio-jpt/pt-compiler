@@ -7,8 +7,14 @@ aspect PTDecl {
             String id = decl.getID();
             if (nameAndDummies.containsKey(id)) {
                 if (decl.isAddsClass()) {
-                    for (PTDummyClass ext : nameAndDummies.get(id))
-                        decl.extendWithClassAndRename(ext);
+                    if (nameAndDummies.get(id).size() > 1) {
+                        System.out.println(id + " is a merged class");
+                        decl.performMerging(nameAndDummies.get(id));
+                    } else {
+                        HashSet<String> noConflicts = new HashSet<String>();
+                        PTDummyClass ext = nameAndDummies.get(id).getFirst();
+                        decl.extendWithClassAndRename(ext, noConflicts);                        
+                    }
                 } else {
                     error(decl.getID() + " is not an adds class.. but got additions.");
                 }
