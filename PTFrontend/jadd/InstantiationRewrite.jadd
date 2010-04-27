@@ -2,9 +2,6 @@ aspect InstantiationRewrite {
 
     protected boolean PTDecl.isRewritten = false;
     private boolean PTInstDecl.isRewritten = false;
-    public boolean BodyDecl.originallyFromAddsClass = false;
-    public boolean BodyDecl.wasExplicitlyRenamed = false;
-    public boolean BodyDecl.wasAutoRenamed = false;
 
     rewrite PTInstDecl {
         when (this.isRewritten == false)
@@ -19,11 +16,6 @@ aspect InstantiationRewrite {
         when ( this.isRewritten == false)
         to PTDecl {
             createEmptyMissingAddClasses();
-            for (SimpleClass s : getSimpleClassList()) {
-                for (BodyDecl b : s.getClassDecl().getBodyDeclList()) {
-                    b.originallyFromAddsClass = true;
-                }
-            }
             extendAddClassesWithInstantiatons();
             updateAddsSuperClasses();
             this.isRewritten = true;                        

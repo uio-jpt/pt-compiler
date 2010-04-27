@@ -1,28 +1,5 @@
 aspect PTDecl {
 
-    public void PTDecl.extendAddClassesWithInstantiatons() {
-        HashMap<String,LinkedList<PTDummyClass>> nameAndDummies =
-            getClassNamesWithDummyList();
-        for (SimpleClass decl : getSimpleClassList()) {
-            String id = decl.getID();
-            if (nameAndDummies.containsKey(id)) {
-                if (decl.isAddsClass()) {
-                    if (nameAndDummies.get(id).size() > 1) {
-                        System.out.println(id + " is a merged class");
-                        decl.performMerging(nameAndDummies.get(id));
-                    } else {
-                        HashSet<String> noConflicts = new HashSet<String>();
-                        PTDummyClass ext = nameAndDummies.get(id).getFirst();
-                        decl.extendWithClassAndRename(ext, noConflicts);                        
-                    }
-                } else {
-                    error(decl.getID() + " is not an adds class.. but got additions.");
-                }
-            } else if (decl.isAddsClass()) {
-                decl.error(decl.getID() + " is an add class, source not found!");
-            }
-        }
-    }        
 
     public void PTDecl.createEmptyMissingAddClasses() {
         HashSet<String> addClasses = getAdditionClassNamesSet();

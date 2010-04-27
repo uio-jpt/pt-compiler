@@ -1,5 +1,8 @@
 aspect Merging {
 
+    syn boolean BodyDecl.isNotEmptyConstructor() = true;
+    eq ConstructorDecl.isNotEmptyConstructor() = getNumParameter() != 0 || getBlock().getNumStmt() != 0;
+
     syn HashSet<String> ClassDecl.getBodyDeclMethodNames() {
         HashSet <String> names = new HashSet<String>();
 
@@ -29,8 +32,8 @@ aspect Merging {
         return getOriginator().getDefinitionsRenamed(getExplicitlyRenamedDefinitions());
     }
 
-    syn HashMap<String,String> PTDummyClass.getRenamedDefinitionsMap(HashSet<String> conflicts) {
-        HashMap<String,String> newDefinitions = getExplicitlyRenamedDefinitions();
+    syn HashMap<String,String> PTDummyClass.getRenamedConflictsMap(HashSet<String> conflicts) {
+        HashMap<String,String> newDefinitions = new HashMap<String,String>();
         for (String conflictDef : conflicts) {
             String origClassName = getOrgID();
             // TODO template name here

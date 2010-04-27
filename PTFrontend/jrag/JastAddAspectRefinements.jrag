@@ -10,4 +10,11 @@ aspect JastAddAspectRefinements {
         return null;
     }
 
+    syn LinkedList<ConstructorDecl> ClassDecl.getConstructorDeclList() {
+        LinkedList<ConstructorDecl> constructors = new LinkedList<ConstructorDecl>();
+        for (BodyDecl decl : getBodyDeclList()) 
+            if (decl instanceof ConstructorDecl)
+                constructors.add((ConstructorDecl)decl);
+        return constructors;
+    }                                 
 }

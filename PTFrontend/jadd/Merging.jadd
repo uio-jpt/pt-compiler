@@ -1,25 +1,70 @@
 aspect Merging {
-    public void SimpleClass.performMerging(LinkedList<PTDummyClass> dummies) {
+
+    public void PTDecl.extendAddClassesWithInstantiatons() {
+        HashMap<String,LinkedList<PTDummyClass>> nameAndDummies =
+            getClassNamesWithDummyList();
+        for (SimpleClass decl : getSimpleClassList()) {
+            if (decl.isExtensible(nameAndDummies))
+                decl.initiateExtension(nameAndDummies);
+        }
+    }
+
+    public void SimpleClass.initiateExtension(HashMap<String,LinkedList<PTDummyClass>> nameAndDummies) {
+        LinkedList<PTDummyClass> dummies = nameAndDummies.get(getID());
+        if (dummies.size() > 1) {
+            attemptMerging(dummies);
+        } else {
+            PTDummyClass instantiator = dummies.getFirst();
+            attemptInstantiation(instantiator);                        
+        }
+    }
+    
+    public boolean SimpleClass.isExtensible(HashMap<String,LinkedList<PTDummyClass>> nameAndDummies) {
+        if (nameAndDummies.containsKey(getID())) {
+            if (isAddsClass()) {
+                return true;
+            } else {
+                error(getID() + " is not an adds class.. but got additions.");
+            }
+        } else if (isAddsClass()) {
+            error(getID() + " is an add class, source not found!");
+        }
+        return false;
+    }
+                            
+
+    public boolean SimpleClass.mergingIsPossible(HashSet<String> conflicts) {
+        boolean addsResolvesConflicts = assertAddsResolvesConflict(conflicts);
+        boolean addsHasOwnConstructor = assertAddsHasOwnConstructor();
+        return addsResolvesConflicts && addsHasOwnConstructor;
+    }
+
+    public void SimpleClass.attemptMerging(LinkedList<PTDummyClass> dummies) {
         HashSet<String> conflicts = getConflicts(dummies);
         
-        for (String conf : conflicts)
-            System.out.println(getID() + " conflict: " + conf);
-        if (assertAddsResolvesConflict(conflicts))
-            for (PTDummyClass ext : dummies) 
-                extendWithClassAndRename(ext,conflicts);
+        if (mergingIsPossible(conflicts)) {
+            LinkedList<ClassDecl> instantiators = copyAndRenameForMerging(dummies,conflicts);
+            for (ClassDecl instantiator : instantiators) 
+                addDecls(instantiator);            
+        }
     }
 
     public boolean SimpleClass.assertAddsResolvesConflict(HashSet<String> conflicts) {
         HashSet<String> addRefinements = getClassDecl().getBodyDeclMethodNames();
         for (String conflictingName : conflicts) {
-            if (addRefinements.contains(conflictingName)) {
-                System.out.println(conflictingName + " is resolved in adds class.. ");
-            } else {
+            if (!addRefinements.contains(conflictingName)) {
                 error(conflictingName + " is not resolved.. ");
                 return false;
             }
         }
         return true;
+    }
+
+    /* TODO empty constructors are auto-generated so this is a tautology
+       maybe stop auto generation? not sure...
+       aspect ImplicitConstructor -> LookupConstructor.jrag ... */
+    public boolean SimpleClass.assertAddsHasOwnConstructor() {
+        return getClassDecl().getConstructorDeclList().size() > 0;
     }
 
     // TOOD use google collections set operations
@@ -39,63 +84,68 @@ aspect Merging {
         
     }
 
-    public void SimpleClass.extendWithClassAndRename(PTDummyClass dummy, HashSet<String> conflicts) {
+    //TODO abort on error
+    public void SimpleClass.attemptInstantiation(PTDummyClass instantiator) {
         try {
-            ClassDecl ext = dummy.getOriginator().fullCopy();
-
-            // Dette og en del av koden i addDecl kunne godt vært faktorert ut til noe mer fornuftigt
-            String orgSuperClass = ext.getSuperClassName();
-            String sourceClassName = ext.getID();
-            ext.renameTypes(dummy.getInstDecl().getRenamedClasses());
-            
-            ext.renameDefinitions(dummy.getRenamedDefinitionsMap(conflicts));
+            ClassDecl ext = normalCopyAndRename(instantiator);
             getClassDecl().signaturesCollides(ext);
-            for (BodyDecl bd : ext.getBodyDecls()) {
-                addDecl(sourceClassName, orgSuperClass, bd);
-            }
+            addDecls(ext);
         } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
     }
+
+    public ClassDecl SimpleClass.normalCopyAndRename(PTDummyClass instantiator) {
+        ClassDecl ext = instantiator.getOriginator().fullCopy();
+        ext.renameTypes(instantiator.getInstDecl().getRenamedClasses());
+        ext.renameDefinitions(instantiator.getExplicitlyRenamedDefinitions());
+        return ext;
+    }
+
+
+    public LinkedList<ClassDecl> SimpleClass.copyAndRenameForMerging(LinkedList<PTDummyClass> dummies,
+                                                                     HashSet<String> conflicts) {
+        LinkedList<ClassDecl> copiesToBeMerged = new LinkedList<ClassDecl>();
+        for (PTDummyClass instantiator : dummies) {
+            ClassDecl ext = normalCopyAndRename(instantiator);
+            ext.resolveConflicts(instantiator,conflicts);
+            ext.renameConstructors(instantiator);
+            // TODO should this be here?
+            //            getClassDecl().signaturesCollides(ext);
+            copiesToBeMerged.add(ext);
+        }
+        return copiesToBeMerged;
+    }
     
-    public void SimpleClass.addDecl(String sourceClassName, String orgSuperClass, BodyDecl decl) {
+    public void SimpleClass.addDecls(ClassDecl source) {
         ClassDecl target = getClassDecl();
-        // special case with an empty constructor with no parameters and no code.
-        // TODO: sjekk om det fortatt lages tomme konstruktører
-        if (decl instanceof ConstructorDecl) { 
-            ConstructorDecl cd = (ConstructorDecl) decl;
-            if (cd.getNumParameter() == 0 && cd.getBlock().getNumStmt() == 0) {
-                return;
-            } else {
+        for (BodyDecl decl : source.getBodyDecls()) {
+            if (decl.isNotEmptyConstructor())
+                target.addBodyDecl(decl);            
+        }
+    }
+    
+    public void ClassDecl.resolveConflicts(PTDummyClass instantiator, HashSet<String> conflicts) {
+        HashMap<String,String> resolvedConflict = instantiator.getRenamedConflictsMap(conflicts);
+        renameDefinitions(resolvedConflict);
+    }
+
+ 
+    /*  TODO not very pretty */
+    public void ClassDecl.renameConstructors(PTDummyClass instantiator) {
+        int i = -1;
+        for (BodyDecl decl : getBodyDeclList()) {
+            i++;
+            if (decl.isNotEmptyConstructor() && decl instanceof ConstructorDecl) { 
+                ConstructorDecl cd = (ConstructorDecl) decl;
                 try {
-                   decl = cd.toMethodDecl(target.getID(), "super" + sourceClassName, orgSuperClass);
-                   target.addBodyDecl(decl);
+                   decl = cd.toMethodDecl(instantiator.getID(), "super" + instantiator.getOrgID(), getSuperClassName());
+                   setBodyDecl(decl, i);
                    return;
                 }
                 catch (Exception e) {
                     cd.error("Could not rewrite constructor " + cd.dumpString() + " to method during class merging.");
                 }
             }
-        }
-
-        for (BodyDecl bd : target.getBodyDecls()) {
-            if (bd.getClass().isInstance(decl) && decl.equalSignature(bd)) {
-                if (bd.originallyFromAddsClass==true && decl.wasExplicitlyRenamed ==false && decl instanceof MethodDecl) {
-                    MethodDecl md = (MethodDecl)decl;
-                    md.setID("super" + sourceClassName + "_" + md.getID());
-                    md.wasAutoRenamed = true;
-                    target.addBodyDecl(md);
-                    return;
-                }
-                else if (decl.wasExplicitlyRenamed==true) {
-                    decl.error(decl.dumpString() + " was explicitly renamed, but collided with " + bd.dumpString());
-                    return;
-                }
-                else {
-                    decl.error("Tried to replace " + bd.dumpString() + " with " + decl.dumpString());
-                    return;
-                }
-            }
-        }
-        target.addBodyDecl(decl);
-    }
     
+        }
+    }
 }
