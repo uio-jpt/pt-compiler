@@ -1,0 +1,4 @@
+
+package SimplePackage {
+    inst SimpleTemplate;
+}
