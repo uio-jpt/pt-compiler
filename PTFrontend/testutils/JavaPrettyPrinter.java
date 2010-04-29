@@ -9,22 +9,42 @@
 package testutils;
 
 import AST.*;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 public class JavaPrettyPrinter extends Frontend {
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws java.io.IOException, beaver.Parser.Exception {
         if (!compile(args)) {
             System.exit(1);
         }
     }
 
-    public static boolean compile(String args[]) {
-        System.out.println("JavaPrettyPrinter.java:");
+    private static String srcString = "";
+    private static String testName = "";
+
+    public static boolean compileString(String testName, String srcString) {
+        JavaPrettyPrinter.srcString = srcString;
+        JavaPrettyPrinter.testName = testName;
+        String[] args = {"test/PTExample.java"};
         return new JavaPrettyPrinter().process(
                 args,
                 new BytecodeParser(),
                 new JavaParser() {
+                    public CompilationUnit parse(java.io.InputStream is, String fileName) throws java.io.IOException, beaver.Parser.Exception {
+                        InputStream is2 = new ByteArrayInputStream(JavaPrettyPrinter.srcString.getBytes("UTF-8"));
+                        return new parser.JavaParser().parse(is2, JavaPrettyPrinter.testName);
+                    }
+                });
+    }
 
+    public static boolean compile(String args[]) throws java.io.IOException, beaver.Parser.Exception {
+        System.out.println("JavaPrettyPrinter.java:");
+        //return compileString("shouldFail", "template T { class A extends B { int a;}} package P { inst T with A=>X; class X adds { int x; }}");
+        return new JavaPrettyPrinter().process(
+                args,
+                new BytecodeParser(),
+                new JavaParser() {
                     public CompilationUnit parse(java.io.InputStream is, String fileName) throws java.io.IOException, beaver.Parser.Exception {
                         return new parser.JavaParser().parse(is, fileName);
                     }
