@@ -40,6 +40,12 @@
     <pathelement location="." /> 
   </path>
 
+  <target name="test" depends="build">
+    <java classname="testutils.Tester" classpathref="path-run">
+      <arg value="test/"/>
+    </java>
+  </target>
+
   <target name="run" depends="build">
     <java classname="testutils.JavaPrettyPrinter" classpathref="path-run">
       <arg value="test/PTExample.java"/>
