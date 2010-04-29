@@ -52,7 +52,7 @@ List dummy_inst_tuple_rename_list_opt =
 
 List dummy_inst_tuple_rename_list =
       dummy_inst_tuple_rename_list.l 
-      IDENTIFIER.a SIMPLERIGHTARROW IDENTIFIER.b {: return l.add(new PTDummyRename(a, b)); :}
+      COMMA IDENTIFIER.a SIMPLERIGHTARROW IDENTIFIER.b {: return l.add(new PTDummyRename(a, b)); :}
     | IDENTIFIER.a SIMPLERIGHTARROW IDENTIFIER.b {: return new List().add(new PTDummyRename(a, b)); :}
     ;
 

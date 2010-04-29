@@ -27,24 +27,12 @@ aspect JastAddAspectRefinements {
         md.IDend = IDend;
         return md;
     }
-    
+
+    /* TODO egl: oppdater med resten ..*/
     public boolean ClassDecl.signaturesCollides(ClassDecl other) {
         for (BodyDecl a : getBodyDecls()) {
             for (BodyDecl b : other.getBodyDecls()) {
                 if (a instanceof ConstructorDecl && b instanceof ConstructorDecl) { 
-                    ConstructorDecl ac = (ConstructorDecl) a;
-                    ConstructorDecl bc = (ConstructorDecl) b;
-                    boolean aEmpty = (ac.getNumParameter()==0 && ac.getBlock().getNumStmt() == 0);
-                    boolean bEmpty = (bc.getNumParameter()==0 && bc.getBlock().getNumStmt() == 0);
-                    if (aEmpty && bEmpty) {
-                        System.out.println("Empty constructor collision avoided");
-                    }
-                    else if (a.equalSignature(b)) {
-                        System.out.println("Constructor collision on " + a.dumpString());
-                    }
-                    else {
-                        System.out.println("Constructor merging on " + a.dumpString());
-                    }
                 }
                 else if (a.getClass().isInstance(b) && a.equalSignature(b)) {
                     a.error("Collision with " + b.dumpString()); 
