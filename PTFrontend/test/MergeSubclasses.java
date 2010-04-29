@@ -17,5 +17,5 @@ template SimpleTemplate {
 }
 
 package AddPackage {
-    inst SimpleTemplate with A => SuperM, B => superM, SubA => M, SubB => M;
+    inst SimpleTemplate with A => SuperM, B => SuperM, SubA => M, SubB => M;
 }
