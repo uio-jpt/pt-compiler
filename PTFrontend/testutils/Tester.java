@@ -2,6 +2,7 @@ package testutils;
 
 import AST.*;
 import java.io.File;
+import java.util.LinkedList;
 
 public class Tester extends Frontend {
 
@@ -49,6 +50,7 @@ public class Tester extends Frontend {
     public static int total = 0;
     public static int totalFail = 0;
     public static int totalOK = 0;
+    public static LinkedList<String> notPassed = new LinkedList<String>();
 
     public static void doFile(String fileName) {
         total+=1;
@@ -59,6 +61,7 @@ public class Tester extends Frontend {
             String desiredResult = shouldBeOk==true ? "passed" : "failed";
             String result  = shouldBeOk!=true ? "passed" : "failed";
             System.out.println("Test for filename '"+fileName+"' ("+total+") should have " + desiredResult + ", but " + result);
+            notPassed.add(fileName);
         }
         else { totalOK +=1; }
     }
@@ -81,6 +84,12 @@ public class Tester extends Frontend {
             doDir(f);
         }
         if (totalOK == total) { System.out.println("*** All "+total+" tests passed."); }
-        else { System.out.println(String.format("*** %d of %d tests passed, %d failed.", totalOK, total, totalFail)); }
+        else {
+            System.out.println(String.format("\n*** %d of %d tests passed, %d failed.", totalOK, total, totalFail));
+            System.out.println("The following files did not pass as expected:");
+            for (String f : notPassed) {
+                System.out.println("    " + f);
+            }
+        }
     }
 }
