@@ -31,11 +31,11 @@ public class Tester extends Frontend {
     protected void processErrors(java.util.Collection errors, CompilationUnit unit) {
         //System.out.println(unit.dumpTreeNoRewrite());
         //System.out.println(unit.toString());
-        super.processErrors(errors, unit);
+        if (Tester.shouldBeOk || Tester.isSingle) super.processErrors(errors, unit);
     }
 
     protected void processWarnings(java.util.Collection warnings, CompilationUnit unit) {
-        super.processWarnings(warnings, unit);
+        if (Tester.shouldBeOk || Tester.isSingle) super.processWarnings(warnings, unit);
     }
 
     protected void processNoErrors(CompilationUnit unit) {
@@ -47,15 +47,19 @@ public class Tester extends Frontend {
 
     }*/
 
+    public static boolean stopFirst = false;
+    public static boolean isSingle = false;
     public static int total = 0;
     public static int totalFail = 0;
     public static int totalOK = 0;
+    public static boolean shouldBeOk;
     public static LinkedList<String> notPassed = new LinkedList<String>();
 
     public static void doFile(String fileName) {
+        if (stopFirst && totalFail>0) return;
         total+=1;
+        shouldBeOk = !fileName.contains("_fail");
         boolean ok = Tester.compile(fileName);
-        boolean shouldBeOk = !fileName.contains("_fail");
         if (shouldBeOk != ok) {
             totalFail+=1;
             String desiredResult = shouldBeOk==true ? "passed" : "failed";
@@ -75,12 +79,17 @@ public class Tester extends Frontend {
                 doFile(dir + fileName);
             }
         } else if (f.isFile()) {
+            isSingle = true;
             doFile(dir);
         }
     }
 
     public static void main(String[] args) {
         for (String f : args) {
+            if (f.equals("--stopfirst")) {
+                stopFirst = true;
+                continue;
+            }
             doDir(f);
         }
         if (totalOK == total) { System.out.println("*** All "+total+" tests passed."); }
@@ -88,7 +97,7 @@ public class Tester extends Frontend {
             System.out.println(String.format("\n*** %d of %d tests passed, %d failed.", totalOK, total, totalFail));
             System.out.println("The following files did not pass as expected:");
             for (String f : notPassed) {
-                System.out.println("    " + f);
+                System.out.println("    ant testsingle -Dname=" + f);
             }
         }
     }

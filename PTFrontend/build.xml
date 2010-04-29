@@ -40,9 +40,22 @@
     <pathelement location="." /> 
   </path>
 
-  <target name="test" depends="build">
+  <target name="testall" depends="build">
     <java classname="testutils.Tester" classpathref="path-run">
       <arg value="test/"/>
+    </java>
+  </target>
+
+  <target name="teststopfirst" depends="build">
+    <java classname="testutils.Tester" classpathref="path-run">
+      <arg value="--stopfirst"/>
+      <arg value="test/"/>
+    </java>
+  </target>
+
+  <target name="testsingle" depends="build">
+    <java classname="testutils.Tester" classpathref="path-run">
+        <arg value="${name}"/>
     </java>
   </target>
 
