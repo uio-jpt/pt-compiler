@@ -14,8 +14,16 @@ package AddPackage {
     inst SimpleTemplate with A => M, B => M;
 
     class M adds {
-        int NOTGETX() {
-            return 666;
+        int getX() {
+            // legal and required
+            return super[A].getX() + super[B].getX();
         }
+
+        int getY() {
+            // error is here
+            return super[A].getX() + super[B].getX();
+        }
+        
+        
     }
 }

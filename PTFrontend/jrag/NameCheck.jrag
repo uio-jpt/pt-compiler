@@ -16,7 +16,32 @@ aspect NameCheck {
         }
     }
 
+    public void PTMergedConstructorAccess.isCalledFromConstructor() {
+        if (getConstructorDecl() == null)
+            error("A merged constructor may only be called from a constructor.");
+    }
 
+    public void PTMergedMethodAccess.isCalledFromOverridingMethod() {
+        String methodName;
+        String errorMsg = "A merged method may only be called from its overriding method.";
+        MethodDecl methodDecl = ((MethodDecl)getParentClass(MethodDecl.class));
+        if (methodDecl == null)
+            error(errorMsg);
+
+        methodName = methodDecl.getID();
+        if (!methodName.equals(getID())) 
+            error(errorMsg);
+    }
+
+    public void PTMergedMethodAccess.collectErrors() {
+        super.collectErrors();
+        isCalledFromOverridingMethod();
+    }
+    
+    public void PTMergedConstructorAccess.collectErrors() {
+        super.collectErrors();
+        isCalledFromConstructor();
+    }    
     public void ConstructorDecl.collectErrors() {
         super.collectErrors();
         callsMergedConstructorsCheck();
