@@ -44,4 +44,33 @@ aspect ReferenceAttributes {
         }
         return nameAndDummies;
     }
+
+    eq PTMergedMethodAccess.name() = "super[" + getSuperClassID() + "]." + getID();
+    eq PTMergedConstructorAccess.name() = "super[" + getSuperClassID() + "]";
+
+    /*    
+    coll LinkedList<PTMergedConstructor> ClassDecl.getMergedConstructors() [new LinkedList<PTMergedConstructor>()]
+        with add root ClassDecl;
+    PTMergedConstructor contributes this to ClassDecl.getMergedConstructors() for getClassDecl();
+    */
+
+    syn HashSet<String> ConstructorDecl.getMergedClassesWithConstructors() =
+        getClassDecl().getMergedClassesWithConstructors();
+
+    syn ClassDecl BodyDecl.getClassDecl() = ((ClassDecl)getParentClass(ClassDecl.class));
+
+    coll HashSet<String> ClassDecl.getMergedClassesWithConstructors() [new HashSet<String>()]
+        with add root ClassDecl;
+    PTMergedConstructor contributes getSuperClassID() to ClassDecl.getMergedClassesWithConstructors() for getClassDecl();    
+    
+    coll HashSet<String> ConstructorDecl.getMergedSuperCallNames() [new HashSet<String>()]
+        with add root ClassDecl;
+    PTMergedConstructorAccess contributes getSuperClassID() to ConstructorDecl.getMergedSuperCallNames()
+        for getConstructorDecl();
+
+    syn ConstructorDecl PTMergedConstructorAccess.getConstructorDecl() = ((ConstructorDecl)
+                                                                     getParentClass(ConstructorDecl.class));
+    
+    syn String PTMergedConstructor.getName() = String.format("super[%s]",getID());
+    
 }

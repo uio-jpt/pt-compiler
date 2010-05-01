@@ -7,12 +7,11 @@ Fixes TODO:
 
 Merging:
 
-* sjekk etter merge kollisjon på signatur nivå. (per i dag på navn nivå)
 * merge renaming; ha med template navn og orgKlassenavn for spesifitet.
 * konsistens med navn på merga metoder/konstruktører og kall på dem.
-* sjekke på at merga metoder/konstruktører bare kan kalles fra
-* "riktig" sted.
+* sjekke på at merga metoder/konstruktører bare kan kalles fra "riktig" sted.
 * greppe source etter TODO
-* bruk av signatureCollides i copyAndRenameForMerging
 * veldig mye annet småplukk.
 
+Til diskusjon/ettertanke:
+* sjekk etter merge kollisjon på signatur nivå. (per i dag på navn nivå)

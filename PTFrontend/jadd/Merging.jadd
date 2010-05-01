@@ -31,7 +31,6 @@ aspect Merging {
         }
         return false;
     }
-                            
 
     public boolean SimpleClass.mergingIsPossible(HashSet<String> conflicts) {
         boolean addsResolvesConflicts = assertAddsResolvesConflict(conflicts);
@@ -88,7 +87,6 @@ aspect Merging {
     public void SimpleClass.attemptInstantiation(PTDummyClass instantiator) {
         try {
             ClassDecl ext = normalCopyAndRename(instantiator);
-            getClassDecl().signaturesCollides(ext);
             addDecls(ext);
         } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
     }
@@ -108,8 +106,6 @@ aspect Merging {
             ClassDecl ext = normalCopyAndRename(instantiator);
             ext.resolveConflicts(instantiator,conflicts);
             ext.renameConstructors(instantiator);
-            // TODO should this be here?
-            //            getClassDecl().signaturesCollides(ext);
             copiesToBeMerged.add(ext);
         }
         return copiesToBeMerged;
@@ -137,7 +133,7 @@ aspect Merging {
             if (decl.isNotEmptyConstructor() && decl instanceof ConstructorDecl) { 
                 ConstructorDecl cd = (ConstructorDecl) decl;
                 try {
-                   decl = cd.toMethodDecl(instantiator.getID(), "super" + instantiator.getOrgID(), getSuperClassName());
+                   decl = cd.toMethodDecl(instantiator.getID(), instantiator.getOrgID(), getSuperClassName());
                    setBodyDecl(decl, i);
                    return;
                 }
@@ -145,7 +141,39 @@ aspect Merging {
                     cd.error("Could not rewrite constructor " + cd.dumpString() + " to method during class merging.");
                 }
             }
-    
         }
     }
+
+    /* TODO
+    *  Should have void returntype.
+    *  cleanup!*/
+    public MethodDecl ConstructorDecl.toMethodDecl(String returnType, String methodName, String orgSuperClass) {
+        /* Rewrite a whole constructor declaration to a method.
+           Will also rewrite constructor invocations to method invocations based on orgSuperClass.
+        */
+        String modifiedMethodName = String.format("super[%s]",methodName);
+        MethodDecl md = new PTMergedConstructor(getModifiers(), new TypeAccess(returnType), modifiedMethodName , getParameterList(), new List(), new Opt(), methodName);
+        md.setBlock(new Block(new List<Stmt>()));
+        if (hasConstructorInvocation() && orgSuperClass != null) {
+            // rewrite "super(x,y,z)" to "superA(x,y,z)" where A is the original superclass
+            try {
+                ExprStmt s = (ExprStmt) getConstructorInvocation();
+                SuperConstructorAccess sa = (SuperConstructorAccess) s.getExpr();
+                MethodAccess oldConstructorInvocationAsMethod = new MethodAccess("super[" + orgSuperClass+"]", sa.getArgList());
+                oldConstructorInvocationAsMethod.IDstart = sa.IDstart;
+                oldConstructorInvocationAsMethod.IDend = sa.IDend;
+                md.getBlock().addStmt(new ExprStmt(oldConstructorInvocationAsMethod));
+            } catch (Exception e) {
+                getConstructorInvocation().error("Could not rewrite constructor invocation to method: " + e);
+            }
+        }
+        for (Stmt s : getBlock().getStmtList()) {
+            md.getBlock().addStmt(s);
+        }
+        md.getBlock().addStmt(new ReturnStmt(new ThisAccess()));
+        md.IDstart = IDstart; // give the generated method the same location as the constructor
+        md.IDend = IDend;
+        return md;
+    }
+
 }

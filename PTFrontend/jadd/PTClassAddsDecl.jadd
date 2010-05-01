@@ -23,6 +23,7 @@ aspect PTClassAddsDecl {
         return null;
     }
 
+    /*    
     public void PTMergedMethodAccess.collectErrors() {
         if (getConstructorCall() && !hasParentClass(ConstructorDecl.class)) {
             error("Merged super constructor call only allowed inside a constructor declaration.");
@@ -37,7 +38,8 @@ aspect PTClassAddsDecl {
             }
         }
     }
-
+    */
+    
     // TODO inner if test is a tautology
     public void PTClassAddsDecl.updateSuperName(LinkedList<PTDummyClass> dummies) {
         String name = null;

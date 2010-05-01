@@ -2,11 +2,11 @@
 template SimpleTemplate {
 
     class A {
-        int getX() { return 533; }
+        int k;
     }
 
     class B {
-        int getX() { return 133; }        
+        int j;
     }
 }
 
@@ -15,8 +15,9 @@ package AddPackage {
     inst SimpleTemplate with A => M, B => M;
 
     class M adds {
-        int NOTGETX() {
-            return 666;
+        M(int k, int j) {
+            super[A](k);
+            super[B](j);
         }
     }
 }

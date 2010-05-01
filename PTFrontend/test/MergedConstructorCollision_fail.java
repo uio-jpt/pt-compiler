@@ -21,7 +21,8 @@ package AddPackage {
     inst SimpleTemplate with A => M, B => M;
 
     class M adds { 
-
+        // M should have at least one merge constructor that
+        // calls each constructor each merged constructor.
         int k;        
     }
 }

@@ -5,4 +5,20 @@ aspect NameCheck {
         if (getTemplate() == null)
             error("PTTemplate " + getID() + " not found in compilation unit.");
     }
+
+    public void ConstructorDecl.callsMergedConstructorsCheck() {
+        HashSet<String> mustBeCalled = getMergedClassesWithConstructors();
+        HashSet<String> actuallyCalled = getMergedSuperCallNames();
+        HashSet<String> missing = new HashSet<String>(mustBeCalled);
+        missing.removeAll(actuallyCalled);
+        for (String name : missing) {
+            error("Missing merged constructor call to mergee class: " + name);
+        }
+    }
+
+
+    public void ConstructorDecl.collectErrors() {
+        super.collectErrors();
+        callsMergedConstructorsCheck();
+    }
 }

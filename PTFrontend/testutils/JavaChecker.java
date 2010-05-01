@@ -18,7 +18,11 @@ public class JavaChecker extends Frontend {
 //    an.get
 //    PTInstDecl pi;
     //new parser.JavaParser().pa
+    PTMergedConstructorAccess p = null;
+    p.getParentClass(ClassDecl.class);
 
+    PTMergedConstructor mc;
+    
   }
 
   public static boolean compile(String args[]) {
