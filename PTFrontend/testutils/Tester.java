@@ -10,7 +10,7 @@ public class Tester extends Frontend {
         String[] args = {fileName};
         boolean res =  false;
         try {
-            res = new Tester().process(
+            res = new Tester().PTProcess(
                 args,
                 new BytecodeParser(),
                 new JavaParser() {
