@@ -8,6 +8,9 @@ aspect Merging {
 
         for (BodyDecl decl : getBodyDeclList()) {
             String name = decl.getName();
+            if (decl instanceof MethodDecl) {
+                name = ((MethodDecl)decl).signature();
+            }
             if (name != null) {
                 names.add(name);
             }
@@ -35,6 +38,10 @@ aspect Merging {
     syn HashMap<String,String> PTDummyClass.getRenamedConflictsMap(HashSet<String> conflicts) {
         HashMap<String,String> newDefinitions = new HashMap<String,String>();
         for (String conflictDef : conflicts) {
+            if (conflictDef.contains("(")) {
+                String s[] = conflictDef.split("\\(");
+                conflictDef = s[0];
+            }
             String origClassName = getOrgID();
             // TODO template name here
             newDefinitions.put(conflictDef, String.format("super[%s].%s",

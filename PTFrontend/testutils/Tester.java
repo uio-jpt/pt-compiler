@@ -39,14 +39,15 @@ public class Tester extends Frontend {
     }
 
     protected void processNoErrors(CompilationUnit unit) {
-        //System.out.println(unit.dumpTreeNoRewrite());
-        //System.out.println(unit.toString());
+        if (Tester.verbose) System.out.println(unit.dumpTreeNoRewrite());
+        if (Tester.verbose) System.out.println(unit.toString());
     }
 
     /*Tester() {
 
     }*/
 
+    public static boolean verbose = false;
     public static boolean stopFirst = false;
     public static boolean isSingle = false;
     public static int total = 0;
@@ -88,6 +89,10 @@ public class Tester extends Frontend {
         for (String f : args) {
             if (f.equals("--stopfirst")) {
                 stopFirst = true;
+                continue;
+            }
+            if (f.contains("--verbose")) {
+                verbose = true;
                 continue;
             }
             doDir(f);
