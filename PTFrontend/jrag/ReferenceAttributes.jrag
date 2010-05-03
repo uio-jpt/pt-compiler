@@ -27,6 +27,7 @@ aspect ReferenceAttributes {
         PTDecl template = getTemplate();
         if (template == null) {
             error("Nonexisting template " + getID());
+            return true;
         }
         return template.isRewritten;
     }

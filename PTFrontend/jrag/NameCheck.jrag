@@ -46,4 +46,28 @@ aspect NameCheck {
         super.collectErrors();
         callsMergedConstructorsCheck();
     }
+
+    public void PTDecl.collectErrors() {
+        super.collectErrors();
+        noCircularInstantiation();
+    }
+
+    public void PTDecl.noCircularInstantiation() {
+        HashSet<String> instantiatiorChain = getInstantiatorChain();
+        if (instantiatiorChain.contains(getID())) {
+            error("has a circular instantiation chain.");
+        }
+    }
+
+    syn HashSet<String> PTDecl.getInstantiatorChain() circular [new HashSet<String>()] {
+        HashSet<String> result = new HashSet<String>();
+        for (PTInstDecl instDecl : getPTInstDecls()) {
+            result.add(instDecl.getID());
+            PTTemplate template = instDecl.getTemplate();
+            if (template != null)
+                result.addAll(template.getInstantiatorChain());
+        }
+        return result;
+    }
+
 }
