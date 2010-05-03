@@ -23,6 +23,22 @@ aspect ReferenceAttributes {
         return renamedClasses; 
     }
 
+    syn boolean PTInstDecl.templateIsRewritten() {
+        PTDecl template = getTemplate();
+        if (template == null) {
+            error("Nonexisting template " + getID());
+        }
+        return template.isRewritten;
+    }
+    
+    syn boolean PTDecl.dependenciesAreRewritten() {
+        for (PTInstDecl templateInst : getPTInstDecls()) {
+            if (!templateInst.isRewritten)
+                return false;
+        }
+        return true;
+    }
+
     syn HashMap<String,LinkedList<PTDummyClass>> PTDecl.getClassNamesWithDummyList() {
         HashMap<String,LinkedList<PTDummyClass>> nameAndDummies =
             new HashMap<String,LinkedList<PTDummyClass>>();

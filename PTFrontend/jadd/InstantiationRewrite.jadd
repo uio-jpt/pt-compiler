@@ -1,10 +1,10 @@
 aspect InstantiationRewrite {
 
     protected boolean PTDecl.isRewritten = false;
-    private boolean PTInstDecl.isRewritten = false;
+    protected boolean PTInstDecl.isRewritten = false;
 
     rewrite PTInstDecl {
-        when (this.isRewritten == false)
+        when (this.isRewritten == false && templateIsRewritten())
         to PTInstDecl {
             this.isRewritten = true;
             addMissingDummyClassNodes();
@@ -13,7 +13,7 @@ aspect InstantiationRewrite {
     }
             
     rewrite PTDecl {
-        when ( this.isRewritten == false)
+        when ( this.isRewritten == false && dependenciesAreRewritten())
         to PTDecl {
             createEmptyMissingAddClasses();
             extendAddClassesWithInstantiatons();
