@@ -15,3 +15,9 @@ Merging:
 
 Til diskusjon/ettertanke:
 * sjekk etter merge kollisjon på signatur nivå. (per i dag på navn nivå)
+
+PTDummyRename:
+    Skal man tillate dette (?):
+    inst T with A => X, B => X (getX() -> getY());
+    inst T with A => X, B => X (getX(*) -> getY(*));
+    inst T with A => X, B => X (getX(int) -> getY(int));
