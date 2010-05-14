@@ -13,11 +13,10 @@ PTInstDecl ::= <ID> PTDummyClass*; // inst T with A => X;
 
 PTDummyClass ::= <OrgID> <ID> PTDummyRename*;
 
-PTDummyRename ::= <OrgID> <ID>;    // with A => X   (someMethod -> newMethod)
-                                   //      DmyClass  PTDummyRename
-
-//PTConstructorDecl : ConstructorDecl ::= ConstructorInvocation:Stmt*;
-//PTMergedSuperConstructorAccess : SuperConstructorAccess ::= <SuperClassID>;
+abstract PTDummyRename ::= <OrgID> <ID>;
+PTMethodRename : PTDummyRename ::= <OrgID> <ID> Access*;
+PTMethodRenameAll : PTDummyRename;
+PTFieldRename : PTDummyRename;    
 
 PTMergedMethodAccess : MethodAccess ::= <SuperClassID>;
 PTMergedConstructorAccess : MethodAccess ::= <SuperClassID>;

@@ -5,7 +5,7 @@ template T {
 }
 
 package P {
-    inst T with A => X, B => X(getX -> getY);
+    inst T with A => X, B => X(getX() -> getY);
 
     class X adds { 
     }

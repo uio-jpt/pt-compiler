@@ -6,7 +6,8 @@ aspect PrettyPrint {
     eq PTClassDecl.dumpString() = getClass().getName() + " [" + getID() + "]";
     eq PTInstDecl.dumpString() = getClass().getName() + " [" + getID() + "]";
     eq PTDummyClass.dumpString() = getClass().getName() + " [" + getOrgID() + " => " + getID() + "]";
-    eq PTDummyRename.dumpString() = getClass().getName() + " [" + getOrgID() + " -> " + getID() + "]";
+    eq PTMethodRename.dumpString() = getClass().getName() + " [" + getSignature() + " -> " + getID() + "]";
+    eq PTFieldRename.dumpString() = getClass().getName() + " [" + getOrgID() + " -> " + getID() + "]";    
 
     eq PTPackage.addsIndentationLevel() = true;
     eq PTTemplate.addsIndentationLevel() = true;
@@ -31,7 +32,7 @@ aspect PrettyPrint {
     }
 
     public void PTDummyRename.toString(StringBuffer sb) {
-        sb.append(getOrgID() + " -> " + getID());
+        sb.append(getSignature() + " -> " + getID());
     }
 
     public void List.toString(StringBuffer sb, String ifNotEmptyStart, String ifNotEmptyEnd, String separator) {

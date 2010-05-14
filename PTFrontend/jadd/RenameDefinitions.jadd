@@ -4,8 +4,9 @@ aspect RenameDefinitions {
         HashMap <String,SimpleSet> fields = memberFieldsMap();
 
         for (MethodDecl decl : methods.values()) {
-            if (namesMap.containsKey(decl.getID())) {
-                String newID = namesMap.get(decl.getID());
+            if (namesMap.containsKey(decl.signature())) {
+                String newID = namesMap.get(decl.signature());
+                newID = newID.split("\\(")[0];
                 decl.setID(newID);
             }
         }

@@ -52,9 +52,27 @@ List dummy_inst_tuple_rename_list_opt =
 
 List dummy_inst_tuple_rename_list =
       dummy_inst_tuple_rename_list.l 
-      COMMA IDENTIFIER.a SIMPLERIGHTARROW IDENTIFIER.b {: return l.add(new PTDummyRename(a, b)); :}
-    | IDENTIFIER.a SIMPLERIGHTARROW IDENTIFIER.b {: return new List().add(new PTDummyRename(a, b)); :}
+      COMMA definition_renaming.dr {: return l.add(dr); :}
+    | definition_renaming.dr {: return new List().add(dr); :}
     ;
+
+List def_opt_rename_params =
+      def_rename_params_list.l {: return l; :}
+    | {: return new List(); :}
+    ;
+
+List def_rename_params_list =
+      def_rename_params_list.l 
+      COMMA type.t {: return l.add(t); :}
+    | type.t {: return new List().add(t); :}
+    ;
+    
+
+PTDummyRename definition_renaming =
+        IDENTIFIER.a SIMPLERIGHTARROW IDENTIFIER.b {: return new PTFieldRename(a,b); :}
+      | IDENTIFIER.a ASTERISK_PAR  SIMPLERIGHTARROW IDENTIFIER.b {: return new PTMethodRenameAll(a,b); :}        
+      | IDENTIFIER.a LPAREN def_opt_rename_params.pl RPAREN  SIMPLERIGHTARROW IDENTIFIER.b {: return new PTMethodRename(a,b,pl); :}
+;
 
 ClassDecl adds_class = 
   CLASS IDENTIFIER ADDS class_body.b

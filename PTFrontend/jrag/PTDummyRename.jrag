@@ -1,0 +1,63 @@
+aspect PTDummyRename {
+
+    inh ClassDecl PTDummyRename.getOriginatorClass();
+    eq PTDummyClass.getPTDummyRename(int i).getOriginatorClass() = getOriginator();
+    
+    eq PTMethodRename.getAccess(int i).lookupType(String name) {
+        return getOriginatorClass().lookupType(name);
+    }
+
+    eq PTMethodRename.getAccess(int i).nameType() = NameType.TYPE_NAME;
+
+    syn String PTDummyRename.getSignature();
+
+    eq PTMethodRename.getSignature() {
+        StringBuffer sig = new StringBuffer(getOrgID() + "(" );
+        Iterator iter = getAccessList().iterator();
+        while (iter.hasNext()) {
+            sig.append(iter.next());
+            if (iter.hasNext())
+                sig.append(", ");
+        }
+        sig.append(")");
+        return sig.toString();
+    }
+
+    eq PTMethodRenameAll.getSignature() = getOrgID() + "(*)";
+
+    eq PTFieldRename.getSignature() = getOrgID();
+
+
+    public void PTMethodRename.nameCheck() {
+        if (!getOriginatorClass().methodsSignatureMap().containsKey(getSignature()))
+            error("Method with signature " + getSignature() + " not found in originating class " +
+                  getOriginatorClass().getID() + ".");
+    }
+
+    public void PTMethodRenameAll.nameCheck() {
+        if (!getOriginatorClass().methodNames().contains(getOrgID()))
+            error("No method with name " + getOrgID() + " found in originating class " +
+                  getOriginatorClass().getID() + ".");
+    }
+    
+
+    public void PTFieldRename.nameCheck() {
+        if (!getOriginatorClass().memberFieldsMap().containsKey(getSignature()))
+            error("Field " + getSignature() + " not found in originating class " +
+                  getOriginatorClass().getID() + ".");
+
+    }
+
+    public void PTDummyRename.addSelfTo(HashMap<String,String> renameMap) {
+        renameMap.put(getSignature(), getID());
+    }
+
+    public void PTMethodRenameAll.addSelfTo(HashMap<String,String> renameMap) {
+        String methodName = getOrgID();
+        for (String originalSignature : getOriginatorClass().methodSignatures())
+            if (originalSignature.startsWith(methodName))
+                renameMap.put(originalSignature, getID());
+    }
+    
+
+}

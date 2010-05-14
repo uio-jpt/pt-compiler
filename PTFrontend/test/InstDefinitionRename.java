@@ -1,0 +1,20 @@
+template SimpleTemplate {
+    
+    class A {
+        int k;
+
+        A getA(int k) {
+            return new A();
+        }
+
+        A getA() {
+            return null;
+        }
+    }
+}
+
+package SimplePackage {
+    inst SimpleTemplate with A => A (getA(int) -> getB,
+                                     getA() -> test,
+                                     k -> x);
+}

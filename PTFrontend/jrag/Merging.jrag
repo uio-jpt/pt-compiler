@@ -3,18 +3,30 @@ aspect Merging {
     syn boolean BodyDecl.isNotEmptyConstructor() = true;
     eq ConstructorDecl.isNotEmptyConstructor() = getNumParameter() != 0 || getBlock().getNumStmt() != 0;
 
-    syn HashSet<String> ClassDecl.getBodyDeclMethodNames() {
-        HashSet <String> names = new HashSet<String>();
+    syn HashSet<String> ClassDecl.methodSignatures() {
+        java.util.Set signatures = localMethodsSignatureMap().keySet();
+        return new HashSet<String>(signatures);
+    }
 
-        for (BodyDecl decl : getBodyDeclList()) {
-            String name = decl.getName();
-            if (decl instanceof MethodDecl) {
-                name = ((MethodDecl)decl).signature();
-            }
-            if (name != null) {
-                names.add(name);
-            }
+    syn HashSet<String> ClassDecl.fieldNames() {
+        java.util.Set names = localFieldsMap().keySet();
+        return new HashSet<String>(names);
+    }
+
+    syn HashSet<String> ClassDecl.methodNames() {
+        HashSet<String> methodNames = new HashSet<String>();
+        for (String methodSignature : methodSignatures()) {
+            String methodName = methodSignature.split("\\(")[0];
+            methodNames.add(methodName);
         }
+        return methodNames;
+    }
+
+    // field names counts as signatures ...
+    syn HashSet<String> ClassDecl.getDefinitionSignatures() {
+        HashSet <String> names = new HashSet<String>();
+        names.addAll(methodSignatures());
+        names.addAll(fieldNames());
         return names;
     }
     
@@ -22,16 +34,9 @@ aspect Merging {
     syn HashSet<String> ClassDecl.getDefinitionsRenamed(HashMap<String,String> namesMap) {
         HashSet <String> definitionNames = new HashSet<String>();
 
-        for (String name : getBodyDeclMethodNames()) {
-            String baseName = name;
-            if (name.contains("(")) {
-                String s[] = name.split("\\(");
-                baseName = s[0];
-            }
+        for (String name : getDefinitionSignatures()) {
             if (namesMap.containsKey(name))
                 name = namesMap.get(name);
-            if (namesMap.containsKey(baseName))
-                name = namesMap.get(baseName);
             definitionNames.add(name);
         }
         return definitionNames;
@@ -45,12 +50,7 @@ aspect Merging {
     syn HashMap<String,String> PTDummyClass.getRenamedConflictsMap(HashSet<String> conflicts) {
         HashMap<String,String> newDefinitions = new HashMap<String,String>();
         for (String conflictDef : conflicts) {
-            if (conflictDef.contains("(")) {
-                String s[] = conflictDef.split("\\(");
-                conflictDef = s[0];
-            }
             String origClassName = getOrgID();
-            // TODO template name here
             newDefinitions.put(conflictDef, String.format("super[%s].%s",
                                                           origClassName,conflictDef));
         }
@@ -61,7 +61,9 @@ aspect Merging {
     syn HashMap<String,String> PTDummyClass.getExplicitlyRenamedDefinitions() {
         HashMap<String,String> map = new HashMap<String,String>();
         for (PTDummyRename entry : getPTDummyRenameList())
-            map.put(entry.getOrgID(), entry.getID());
+            entry.addSelfTo(map);
         return map;
     }
+
+    
 }

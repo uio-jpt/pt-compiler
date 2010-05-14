@@ -1,5 +1,5 @@
 template SimpleTemplate {
-
+    
     class A {
         int k;
 
@@ -9,6 +9,6 @@ template SimpleTemplate {
     }
 }
 
-package AddPackage {
-    inst SimpleTemplate with A => X (k -> newK, getA() -> getX);
+package SimplePackage {
+    inst SimpleTemplate with A => A (getA() -> getB);
 }

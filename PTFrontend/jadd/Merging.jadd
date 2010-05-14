@@ -49,7 +49,7 @@ aspect Merging {
     }
 
     public boolean SimpleClass.assertAddsResolvesConflict(HashSet<String> conflicts) {
-        HashSet<String> addRefinements = getClassDecl().getBodyDeclMethodNames();
+        HashSet<String> addRefinements = getClassDecl().getDefinitionSignatures();
         for (String conflictingName : conflicts) {
             if (!addRefinements.contains(conflictingName)) {
                 error(conflictingName + " is not resolved.. ");
