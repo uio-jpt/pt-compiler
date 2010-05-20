@@ -12,30 +12,28 @@ import AST.*;
 import java.util.*;
 import java.io.*;
 
-public class JavaDumpTree extends Frontend {
+import testutils.javaparser.PTJavaParser;
+
+public class JavaDumpTree extends PTFrontend {
   public static void main(String args[]) {
     compile(args);
   }
-  
+
+    public JavaDumpTree(String[] args, JavaParser parser) {
+        super(args, parser);
+    }
+    
+
   public static boolean compile(String args[]) {
-    return new JavaDumpTree().process(
-        args,
-        new BytecodeParser(),
-        new JavaParser() {
-          parser.JavaParser parser = new parser.JavaParser();
-          public CompilationUnit parse(java.io.InputStream is, String fileName) throws java.io.IOException, beaver.Parser.Exception {
-            return parser.parse(is, fileName);
-          }
+      try {
+            JavaParser javaParser = new PTJavaParser();
+            JavaDumpTree tester = new JavaDumpTree(args,javaParser);
+            return tester.process();
         }
-    );
-  }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
 
-  protected void processErrors(Collection errors, CompilationUnit unit) {
-    super.processErrors(errors, unit);
-    System.out.println(unit.dumpTreeNoRewrite());
-  }
-
-  protected void processNoErrors(CompilationUnit unit) {
-    System.out.println(unit.dumpTreeNoRewrite());
   }
 }

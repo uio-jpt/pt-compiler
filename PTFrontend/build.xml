@@ -63,7 +63,7 @@
   <!-- compile sources -->
   <target name="build" depends="gen">
     <mkdir dir="${build}" />
-    <javac destdir="${build}" classpathref="classpath.dependencies">
+    <javac destdir="${build}" classpathref="classpath.dependencies" debug="true" >
       <src path="${src.gen}:${src.testutils}" />
     </javac>
   </target>
@@ -75,15 +75,14 @@
   </target>
 
   <target name="teststopfirst" depends="build">
-    <java classname="testutils.Tester">
-      <classpath refid="${lib}:${build}" />
+    <java classname="testutils.Tester" classpathref="classpath.runtest">
       <arg value="--stopfirst"/>
       <arg value="test/"/>
     </java>
   </target>
 
   <target name="testsingle" depends="build">
-    <java classname="testutils.Tester" classpath="${lib}:${build}">
+    <java classname="testutils.Tester" classpathref="classpath.runtest">
         <arg value="${opt}" />
         <arg value="${name}"/>
     </java>

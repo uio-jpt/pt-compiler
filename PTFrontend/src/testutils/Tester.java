@@ -8,111 +8,98 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 
+public class Tester extends PTFrontend {
 
+	public Tester(String[] args, JavaParser parser) {
+		super(args, parser);
+	}
 
-public class Tester extends Frontend {
+	protected void processErrors(java.util.Collection errors,
+			CompilationUnit unit) {
+		// System.out.println(unit.dumpTreeNoRewrite());
+		// System.out.println(unit.toString());
+		if (Tester.shouldBeOk || Tester.isSingle)
+			super.processErrors(errors, unit);
+	}
 
-    public static boolean compile(String fileName) {
-        String[] args = {fileName};
-        boolean res =  false;
-        try {
-            res = new Tester().PTProcess(
-                args,
-                new BytecodeParser(),
-                new JavaParser() {
+	protected void processWarnings(java.util.Collection warnings,
+			CompilationUnit unit) {
+		if (Tester.shouldBeOk || Tester.isSingle)
+			super.processWarnings(warnings, unit);
+	}
 
-                    public CompilationUnit parse(java.io.InputStream is, String fileName) throws java.io.IOException, beaver.Parser.Exception {
-                        return new parser.JavaParser().parse(is, fileName);
-                    }
-                });
-        }
-        catch (Exception e) {
-            System.out.println("filename was: " + fileName);
-            e.printStackTrace();
-            return false;
-        }
-        return res;
+	protected void processNoErrors(CompilationUnit unit) {
+		if (Tester.verbose)
+			System.out.println(unit.dumpTreeNoRewrite());
+		if (Tester.verbose)
+			System.out.println(unit.toString());
+	}
 
-    }
+	public static boolean verbose = false;
+	public static boolean stopFirst = false;
+	public static boolean isSingle = false;
+	public static int total = 0;
+	public static int totalFail = 0;
+	public static int totalOK = 0;
+	public static boolean shouldBeOk;
+	public static LinkedList<String> notPassed = new LinkedList<String>();
 
-    protected void processErrors(java.util.Collection errors, CompilationUnit unit) {
-        //System.out.println(unit.dumpTreeNoRewrite());
-        //System.out.println(unit.toString());
-        if (Tester.shouldBeOk || Tester.isSingle) super.processErrors(errors, unit);
-    }
+	public static void doFile(String fileName) {
+		if (stopFirst && totalFail > 0)
+			return;
+		total += 1;
+		shouldBeOk = !fileName.contains("_fail");
+		boolean ok = Tester.compile(fileName);
+		if (shouldBeOk != ok) {
+			totalFail += 1;
+			String desiredResult = shouldBeOk == true ? "passed" : "failed";
+			String result = shouldBeOk != true ? "passed" : "failed";
+			System.out.println("Test for filename '" + fileName + "' (" + total
+					+ ") should have " + desiredResult + ", but " + result);
+			notPassed.add(fileName);
+		} else {
+			totalOK += 1;
+		}
+	}
 
-    protected void processWarnings(java.util.Collection warnings, CompilationUnit unit) {
-        if (Tester.shouldBeOk || Tester.isSingle) super.processWarnings(warnings, unit);
-    }
+	public static void doDir(String dir) {
+		File f = new File(dir);
 
-    protected void processNoErrors(CompilationUnit unit) {
-        if (Tester.verbose) System.out.println(unit.dumpTreeNoRewrite());
-        if (Tester.verbose) System.out.println(unit.toString());
-    }
+		if (f.isDirectory()) {
+			String[] p = { "java" };
+			Collection<File> files = FileUtils.listFiles(f, p, true);
+			for (File file : files) {
+				String fileName = file.getAbsolutePath();
+				doFile(fileName);
+			}
+		} else if (f.isFile()) {
+			isSingle = true;
+			doFile(dir);
+		}
+	}
 
-    /*Tester() {
-
-    }*/
-
-    public static boolean verbose = false;
-    public static boolean stopFirst = false;
-    public static boolean isSingle = false;
-    public static int total = 0;
-    public static int totalFail = 0;
-    public static int totalOK = 0;
-    public static boolean shouldBeOk;
-    public static LinkedList<String> notPassed = new LinkedList<String>();
-
-    public static void doFile(String fileName) {
-        if (stopFirst && totalFail>0) return;
-        total+=1;
-        shouldBeOk = !fileName.contains("_fail");
-        boolean ok = Tester.compile(fileName);
-        if (shouldBeOk != ok) {
-            totalFail+=1;
-            String desiredResult = shouldBeOk==true ? "passed" : "failed";
-            String result  = shouldBeOk!=true ? "passed" : "failed";
-            System.out.println("Test for filename '"+fileName+"' ("+total+") should have " + desiredResult + ", but " + result);
-            notPassed.add(fileName);
-        }
-        else { totalOK +=1; }
-    }
-
-    public static void doDir(String dir) {
-        File f = new File(dir);
-
-        if (f.isDirectory()) {
-             String[] p = {"java"};
-            Collection<File> files = FileUtils.listFiles(f, p, true);
-            for (File file : files) {
-                String fileName = file.getAbsolutePath();
-                doFile(fileName);
-            }
-        } else if (f.isFile()) {
-            isSingle = true;
-            doFile(dir);
-        }
-    }
-
-    public static void main(String[] args) {
-        for (String f : args) {
-            if (f.equals("--stopfirst")) {
-                stopFirst = true;
-                continue;
-            }
-            if (f.contains("--verbose")) {
-                verbose = true;
-                continue;
-            }
-            doDir(f);
-        }
-        if (totalOK == total) { System.out.println("*** All "+total+" tests passed."); }
-        else {
-            System.out.println(String.format("\n*** %d of %d tests passed, %d failed.", totalOK, total, totalFail));
-            System.out.println("The following files did not pass as expected:");
-            for (String f : notPassed) {
-                System.out.println("    ant testsingle -Dname=" + f);
-            }
-        }
-    }
+	public static void main(String[] args) {
+		for (String f : args) {
+			if (f.equals("--stopfirst")) {
+				stopFirst = true;
+				continue;
+			}
+			if (f.contains("--verbose")) {
+				verbose = true;
+				continue;
+			}
+			doDir(f);
+		}
+		if (totalOK == total) {
+			System.out.println("*** All " + total + " tests passed.");
+		} else {
+			System.out.println(String.format(
+					"\n*** %d of %d tests passed, %d failed.", totalOK, total,
+					totalFail));
+			System.out.println("The following files did not pass as expected:");
+			for (String f : notPassed) {
+				System.out.println("    ant testsingle -Dname=" + f);
+			}
+		}
+	}
 }

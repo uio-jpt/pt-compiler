@@ -7,35 +7,17 @@
  * All rights reserved.
  */
 package testutils;
+import testutils.javaparser.PTJavaParser;
 import AST.*;
 
-public class JavaChecker extends Frontend {
+public class JavaChecker extends PTFrontend {
   public static void main(String args[]) {
     compile(args);
-    //PTCompilationUnit cu;
-    //cu.collectErrors();
-//    ASTNode an;
-//    an.get
-//    PTInstDecl pi;
-    //new parser.JavaParser().pa
-    PTMergedConstructorAccess p = null;
-    p.getParentClass(ClassDecl.class);
-
-    PTMergedConstructor mc;
-    
   }
 
-  public static boolean compile(String args[]) {
-    return new JavaChecker().process(
-        args,
-        new BytecodeParser(),
-        new JavaParser() {
-          public CompilationUnit parse(java.io.InputStream is, String fileName) throws java.io.IOException, beaver.Parser.Exception {
-            return new parser.JavaParser().parse(is, fileName);
-          }
-        }
-    );
-  }
+    public JavaChecker(String[] args, JavaParser parser) {
+        super(args, parser);
+    }
 
   protected String name() { return "Java1.4Frontend + Java1.5Extensions"; }
   protected String version() { return "R20071015"; }
