@@ -2,8 +2,11 @@ package testutils;
 
 import AST.*;
 import java.io.File;
+import java.util.Collection;
 import java.util.LinkedList;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 
 
 
@@ -76,11 +79,13 @@ public class Tester extends Frontend {
 
     public static void doDir(String dir) {
         File f = new File(dir);
+
         if (f.isDirectory()) {
-            File[] files = f.listFiles(new FileEndingFilter("java"));
-            for (int i = 0; i < files.length; i++) {
-                String fileName = files[i].getName();
-                doFile(dir + fileName);
+             String[] p = {"java"};
+            Collection<File> files = FileUtils.listFiles(f, p, true);
+            for (File file : files) {
+                String fileName = file.getAbsolutePath();
+                doFile(fileName);
             }
         } else if (f.isFile()) {
             isSingle = true;

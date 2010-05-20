@@ -83,8 +83,7 @@
   </target>
 
   <target name="testsingle" depends="build">
-    <java classname="testutils.Tester">
-      <classpath refid="${lib}:${build}" />
+    <java classname="testutils.Tester" classpath="${lib}:${build}">
         <arg value="${opt}" />
         <arg value="${name}"/>
     </java>
@@ -134,6 +133,13 @@
 
   <target name="scanner">
     <mkdir dir="${src.gen.scanner}"/>
+    <copy todir="${src.gen.scanner}" preservelastmodified="true">
+      <fileset dir="${src}/scanner">
+        <include name="*.flex"/>
+      </fileset>
+    </copy>
+    
+    
     <!-- compose the scanner -->
     <concat destfile="${src.gen.scanner}/JavaScanner.flex" binary="true" force="false">
       <filelist dir="${Java1.4Frontend}/scanner">
@@ -165,7 +171,7 @@
         <file name="Separators.flex"/>
         <file name="Operators.flex"/>
       </filelist>
-      <filelist dir="${src.scanner}">
+      <filelist dir="${src.gen.scanner}">
         <file name="Keywords.flex"/>
       </filelist>                        
       <filelist dir="${Java1.5Frontend}">
