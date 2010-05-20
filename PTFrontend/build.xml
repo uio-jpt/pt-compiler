@@ -18,6 +18,19 @@
   <!-- location of Java1.5Backend -->
   <property name="Java1.5Backend" value="../JastAddJ/Java1.5Backend"/>
 
+  <property name="src" location="src"/>
+  <property name="src.gen" location="src-gen"/>
+  <property name="src.testutils" location="${src}/testutils"/>
+  <property name="build" location="build"/>
+  <property name="lib" location="utils"/>
+  <property name="src.gen.scanner" location="${src.gen}/scanner" />
+  <property name="src.gen.scanner.filename" location="${src.gen.scanner}/JavaScanner.flex" />
+  <property name="src.gen.parser" location="${src.gen}/parser" />
+  <property name="src.gen.parser.filename_lalr" location="${src.gen.parser}/JavaParser.all" />
+  <property name="src.gen.parser.filename" location="${src.gen.parser}/JavaParser.beaver" />
+  <property name="src.gen.beaver" location="${src.gen}/beaver" />
+
+  
   <!-- "package" is the directory where generated files will be stored -->
   <property name="package" value="AST"/>
 
@@ -31,37 +44,53 @@
   <!-- "jastadd" is an ant task class in jastadd2.jar -->
   <taskdef name="jastadd" classname="jastadd.JastAddTask" classpath="${tools}/jastadd2.jar"/>
 
+<path id="classpath.dependencies">
+  <fileset dir="${lib}">
+    <include name="*.jar"/>
+  </fileset>
+  <fileset dir="${tools}">
+    <include name="*.jar"/>
+  </fileset>
+  <pathelement location="src.testutils" />
+</path>
+
+<path id="classpath.runtest">
+  <pathelement location="${build}" />
+  <path refid="classpath.dependencies" />
+</path>
+  
+
   <!-- compile sources -->
   <target name="build" depends="gen">
-    <javac debug="true" nowarn="true" srcdir="." includes="**/*.java" excludes="test/**" classpath="."/>
+    <mkdir dir="${build}" />
+    <javac destdir="${build}" classpathref="classpath.dependencies">
+      <src path="${src.gen}:${src.testutils}" />
+    </javac>
   </target>
 
-  <path id="path-run">
-    <pathelement location="." /> 
-  </path>
-
   <target name="testall" depends="build">
-    <java classname="testutils.Tester" classpathref="path-run">
+    <java classname="testutils.Tester" classpathref="classpath.runtest">
       <arg value="test/"/>
     </java>
   </target>
 
   <target name="teststopfirst" depends="build">
-    <java classname="testutils.Tester" classpathref="path-run">
+    <java classname="testutils.Tester">
+      <classpath refid="${lib}:${build}" />
       <arg value="--stopfirst"/>
       <arg value="test/"/>
     </java>
   </target>
 
   <target name="testsingle" depends="build">
-    <java classname="testutils.Tester" classpathref="path-run">
+    <java classname="testutils.Tester" classpath="${lib}:${build}">
         <arg value="${opt}" />
         <arg value="${name}"/>
     </java>
   </target>
 
   <target name="compilepackage" depends="build">
-    <java classname="testutils.CompilePackage" classpathref="path-run">
+    <java classname="testutils.CompilePackage" classpathref="classpath.runtest">
         <arg value="${opt}" />
         <arg value="${name}"/>
     </java>
@@ -69,7 +98,7 @@
 
 
   <target name="run" depends="build">
-    <java classname="testutils.JavaPrettyPrinter" classpathref="path-run">
+    <java classname="testutils.JavaPrettyPrinter" classpathref="classpath.runtest">
       <arg value="test/PTExample.java"/>
     </java>
   </target>
@@ -77,8 +106,9 @@
 
   <!-- generate compiler source files and compile sources -->
   <target name="gen" depends="scanner,parser">
+    <mkdir dir="${src.gen}/${package}" />
     <!-- create AST node types and weave aspect modules -->
-    <jastadd package="${package}" rewrite="true" beaver="true" novisitcheck="true" noCacheCycle="true" outdir="${basedir}" debug="false">
+    <jastadd package="${package}" rewrite="true" beaver="true" novisitcheck="true" noCacheCycle="true" outdir="${src.gen}" debug="false">
       <fileset dir="${Java1.4Frontend}">
         <include name="**/*.ast"/>
         <include name="**/*.jrag"/>
@@ -102,14 +132,14 @@
         <include name="**/*.jrag"/>
         <include name="**/*.jadd"/>
       </fileset>
-      <fileset dir=".">
+      <fileset dir="${src}">
         <include name="ast/**/*.ast"/>
         <include name="jrag/**/*.jrag"/>
         <include name="jadd/**/*.jadd"/>
       </fileset>
     </jastadd>
     <!-- copy library files-->
-    <copy todir="beaver" preservelastmodified="true">
+    <copy todir="${src.gen.beaver}" preservelastmodified="true">
       <fileset dir="${Java1.4Frontend}/beaver">
         <include name="**/*.java"/>
       </fileset>
@@ -117,9 +147,16 @@
   </target>
 
   <target name="scanner">
-    <mkdir dir="scanner"/>
+    <mkdir dir="${src.gen.scanner}"/>
+    <copy todir="${src.gen.scanner}" preservelastmodified="true">
+      <fileset dir="${src}/scanner">
+        <include name="*.flex"/>
+      </fileset>
+    </copy>
+    
+    
     <!-- compose the scanner -->
-    <concat destfile="scanner/JavaScanner.flex" binary="true" force="false">
+    <concat destfile="${src.gen.scanner}/JavaScanner.flex" binary="true" force="false">
       <filelist dir="${Java1.4Frontend}/scanner">
         <file name="preamble.flex"/>
         <file name="macros.flex"/>
@@ -149,7 +186,7 @@
         <file name="Separators.flex"/>
         <file name="Operators.flex"/>
       </filelist>
-      <filelist dir="${PTFrontend}/scanner">
+      <filelist dir="${src.gen.scanner}">
         <file name="Keywords.flex"/>
       </filelist>                        
       <filelist dir="${Java1.5Frontend}">
@@ -162,14 +199,14 @@
       </filelist>
     </concat>
     <!-- generate the scanner -->
-    <jflex file="scanner/JavaScanner.flex" outdir="scanner" nobak="yes"/>
-    <copy todir="scanner" file="${Java1.4Frontend}/scanner/Unicode.java" preservelastmodified="true"/>
+    <jflex file="${src.gen.scanner.filename}" outdir="${src.gen.scanner}" nobak="yes"/>
+    <copy todir="${src.gen.scanner}" file="${Java1.4Frontend}/scanner/Unicode.java" preservelastmodified="true"/>
   </target>
 
   <target name="parser">
-    <mkdir dir="parser"/>
+    <mkdir dir="${src.gen.parser}"/>
     <!-- generate the parser phase 1, create a full .lalr specification from fragments-->
-    <concat destfile="parser/JavaParser.all" binary="true" force="false">
+    <concat destfile="${src.gen.parser.filename_lalr}" binary="true" force="false">
       <filelist dir="${Java1.4Frontend}">
         <file name="parser/preamble.parser"/>
         <file name="parser/java14.parser"/>
@@ -184,36 +221,26 @@
     </concat>
     <!-- generate the parser phase 2, translating .lalr to .beaver -->
     <java classpath="${tools}/JastAddParser.jar:${tools}/beaver-rt.jar" classname="Main" fork="true">
-      <arg line="parser/JavaParser.all parser/JavaParser.beaver"/>
+      <arg line="${src.gen.parser.filename_lalr} ${src.gen.parser.filename}" />
     </java>
     <!-- generate the parser phase 3, translating .beaver to .java -->
-    <beaver file="parser/JavaParser.beaver" terminalNames="yes" compress="yes" useSwitch="yes"/>
+    <beaver file="${src.gen.parser.filename}" terminalNames="yes" compress="yes" useSwitch="yes"/>
   </target>
 
   <!-- remove generated source files and .class files -->
   <target name="clean" depends="cleanGen">
     <!-- delete all .class files recursively -->
-    <delete>
-      <fileset dir="." includes="**/*.class"/>
-    </delete>
-    <delete file="JavaCompiler.jar"/>
+    <delete dir="${build}"/>    
   </target>
 
   <!-- remove generated source files and .class files -->
   <target name="cleanGen">
-    <delete dir="${package}"/>
-    <delete dir="beaver"/>
-    <delete>
-      <fileset dir="scanner" includes="JavaScanner.flex"/>
-      <fileset dir="scanner" includes="JavaScanner.java"/>
-      <fileset dir="scanner" includes="Unicode.java"/>
-      <fileset dir="parser" includes="JavaParser.java"/>
-      <fileset dir="parser" includes="JavaParser.beaver"/>
-      <fileset dir="parser" includes="JavaParser.all"/>
-    </delete>
+    <delete dir="${src.gen}"/>
+
   </target>
 
   <!-- build binaries -->
+  <!-- 
   <target name="jar" depends="build">
     <jar destfile="JavaCompiler.jar" basedir="." includes="**/*.class" excludes="test/**">
       <manifest>
@@ -221,6 +248,7 @@
       </manifest>
     </jar>
   </target>
+ -->    
 
 </project>
 
