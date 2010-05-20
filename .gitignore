@@ -18,3 +18,6 @@ manifest.mf
 build
 PTFrontend/nbbuild.xml
 Sandbox
+META-INF
+JastAddJRefactoring
+

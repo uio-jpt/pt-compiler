@@ -60,6 +60,14 @@
     </java>
   </target>
 
+  <target name="compilepackage" depends="build">
+    <java classname="testutils.CompilePackage" classpathref="path-run">
+        <arg value="${opt}" />
+        <arg value="${name}"/>
+    </java>
+  </target>
+
+
   <target name="run" depends="build">
     <java classname="testutils.JavaPrettyPrinter" classpathref="path-run">
       <arg value="test/PTExample.java"/>

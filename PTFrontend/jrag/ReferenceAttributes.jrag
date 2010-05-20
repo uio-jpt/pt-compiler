@@ -4,9 +4,27 @@ aspect ReferenceAttributes {
     syn PTTemplate PTDummyClass.getTemplate() = getInstDecl().getTemplate();
     inh PTTemplate PTInstDecl.getTemplate(String name);
     inh PTInstDecl PTDummyClass.getInstDecl();
+    inh PTTemplate CompilationUnit.lookupTemplateGlobal(String name);
+
     eq PTInstDecl.getPTDummyClass(int i).getInstDecl() = this;
 
     eq PTCompilationUnit.getPTDecl(int i).getTemplate(String name) {
+        PTTemplate res = lookupTemplateLocal(name);
+        if (res==null) return lookupTemplateGlobal(name);
+        else return res;
+    }
+
+    eq Program.getCompilationUnit(int i).lookupTemplateGlobal(String name) {
+        for (CompilationUnit cu : getCompilationUnits()) {
+            if (cu.lookupTemplateLocal(name)!=null)
+                return cu.lookupTemplateLocal(name);
+        }
+        return null;
+    }
+
+    syn PTTemplate CompilationUnit.lookupTemplateLocal(String name) = null;
+
+    eq PTCompilationUnit.lookupTemplateLocal(String name) {
         for (PTDecl decl: getPTDecls()) {
             PTTemplate template = decl.lookupTemplate(name);
             if (template != null) {

@@ -21,6 +21,7 @@ public class Tester extends Frontend {
                 });
         }
         catch (Exception e) {
+            System.out.println("filename was: " + fileName);
             e.printStackTrace();
             return false;
         }
