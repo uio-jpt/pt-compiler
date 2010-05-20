@@ -1,8 +1,5 @@
-scanner
-parser
-beaver
-AST
-*.class
+src-gen
+build
 *~
 \#*
 .\#*
@@ -10,7 +7,6 @@ AST
 out
 *.iml
 .classpath
-bin
 *.swp
 *.tmp
 nbproject
