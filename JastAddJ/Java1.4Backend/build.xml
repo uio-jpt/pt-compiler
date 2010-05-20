@@ -146,7 +146,7 @@
   </jar>
 </target>
 
-<target name="bootstrap" depends="jar" >
+<target name="bootstrap" depends="jar">
   <fileset dir="." id="source.files">
     <!-- include generated source file -->
     <include name="JavaCompiler.java"/>
@@ -159,7 +159,7 @@
   <java jar="JavaCompiler.jar">
     <arg line="-classpath . ${sources}"/>
   </java>
-  <jar destfile="JavaCompiler-bootstrapped.jar" basedir="." includes="**/*.class" excludes="test/**">
+  <jar  destfile="JavaCompiler-bootstrapped.jar" basedir="." includes="**/*.class" excludes="test/**">
     <manifest>
       <attribute name="Main-Class" value="JavaCompiler"/>
     </manifest>
