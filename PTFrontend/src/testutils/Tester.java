@@ -31,7 +31,7 @@ public class Tester extends PTFrontend {
 			CompilationUnit unit) {
 		// System.out.println(unit.dumpTreeNoRewrite());
 		// System.out.println(unit.toString());
-		if (Tester.shouldBeOk || Tester.isSingle)
+		if (Tester.shouldBeOk || Tester.isSingle || Tester.verbose)
 			super.processErrors(errors, unit);
 	}
 
@@ -57,7 +57,29 @@ public class Tester extends PTFrontend {
 	public static boolean shouldBeOk;
 	public static LinkedList<String> notPassed = new LinkedList<String>();
 
-	public static void doFile(String fileName) {
+	public static void doDir(String dir) {
+		File f = new File(dir);
+
+		if (f.isDirectory()) {
+			String[] p = { "java" };
+			Collection<File> files = FileUtils.listFiles(f, p, true);
+			for (File file : files) {
+				String fileName = file.getAbsolutePath();
+				doFile(fileName);
+			}
+			String[] pt = { "ptjava" };
+			Collection<File> ptfiles = FileUtils.listFiles(f, pt, true);
+			Map<String,LinkedList<String>> filesInFolder = createFolderMap(ptfiles);
+			for (String folder : filesInFolder.keySet()) {				
+                            doFiles(folder,filesInFolder.get(folder));
+			}
+		} else if (f.isFile()) {
+			isSingle = true;
+			doFile(dir);
+		}
+	}
+
+    public static void doFile(String fileName) {
 		if (stopFirst && totalFail > 0)
 			return;
 		total += 1;
@@ -75,35 +97,17 @@ public class Tester extends PTFrontend {
 		}
 	}
 
-	public static void doDir(String dir) {
-		File f = new File(dir);
-
-		if (f.isDirectory()) {
-			String[] p = { "java" };
-			Collection<File> files = FileUtils.listFiles(f, p, true);
-			for (File file : files) {
-				String fileName = file.getAbsolutePath();
-				doFile(fileName);
-			}
-			String[] pt = { "ptjava" };
-			Collection<File> ptfiles = FileUtils.listFiles(f, pt, true);
-			Map<String,LinkedList<String>> filesInFolder = createFolderMap(ptfiles);
-			for (String folder : filesInFolder.keySet()) {				
-				doFiles(filesInFolder.get(folder));
-			}
-		} else if (f.isFile()) {
-			isSingle = true;
-			doFile(dir);
-		}
-	}
-
-	private static void doFiles(Collection<String> files) {
+	public static void doFiles(String folder, Collection<String> files) {
 		total += 1;
+		shouldBeOk = !folder.endsWith("_fail");
 		boolean ok = Tester.compile(files.toArray(new String[files.size()]));
-		if (!ok) {
-			totalFail += 1;
-			String desiredResult = "passed";
-			String result = "failed";
+		if (shouldBeOk != ok) {
+			String desiredResult = shouldBeOk == true ? "passed" : "failed";
+			String result = shouldBeOk != true ? "passed" : "failed";
+			System.out.println("Test for files in folder '" + folder + "' (" + total
+					+ ") should have " + desiredResult + ", but " + result);
+			notPassed.add(folder);
+			totalFail += 1;			
 			System.out.println("Test for filename folder[TODO]'" + "' (" + total
 					+ ") should have " + desiredResult + ", but " + result);
 			notPassed.add("folder" + files.hashCode());

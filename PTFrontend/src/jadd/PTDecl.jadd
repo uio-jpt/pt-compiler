@@ -20,7 +20,9 @@ aspect PTDecl {
     public void PTDecl.updateAddsSuperClasses() {
         HashMap<String,LinkedList<PTDummyClass>>  namesToDummyList = getClassNamesWithDummyList();
         for (PTClassAddsDecl decl : getAdditionClassList()) {
-            decl.updateSuperName(namesToDummyList.get(decl.getID()));
+            if (namesToDummyList.containsKey(decl.getID()))
+                // error check elsewhere
+                decl.updateSuperName(namesToDummyList.get(decl.getID()));
         }
     }
 }
