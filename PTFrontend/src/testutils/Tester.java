@@ -1,13 +1,26 @@
 package testutils;
 
-import AST.*;
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 
+import AST.CompilationUnit;
+import AST.JavaParser;
+
+
+/** Has ugly proof of concept code to test all files ending with .ptjava in the same folder together.
+ *   
+ * 
+ * @author eivindgl
+ *
+ */
 public class Tester extends PTFrontend {
 
 	public Tester(String[] args, JavaParser parser) {
@@ -72,13 +85,49 @@ public class Tester extends PTFrontend {
 				String fileName = file.getAbsolutePath();
 				doFile(fileName);
 			}
+			String[] pt = { "ptjava" };
+			Collection<File> ptfiles = FileUtils.listFiles(f, pt, true);
+			Map<String,LinkedList<String>> filesInFolder = createFolderMap(ptfiles);
+			for (String folder : filesInFolder.keySet()) {				
+				doFiles(filesInFolder.get(folder));
+			}
 		} else if (f.isFile()) {
 			isSingle = true;
 			doFile(dir);
 		}
 	}
 
+	private static void doFiles(Collection<String> files) {
+		total += 1;
+		boolean ok = Tester.compile(files.toArray(new String[files.size()]));
+		if (!ok) {
+			totalFail += 1;
+			String desiredResult = "passed";
+			String result = "failed";
+			System.out.println("Test for filename folder[TODO]'" + "' (" + total
+					+ ") should have " + desiredResult + ", but " + result);
+			notPassed.add("folder" + files.hashCode());
+		} else {
+			totalOK += 1;
+		}
+	}
+
+	private static Map<String, LinkedList<String>> createFolderMap(
+			Collection<File> ptfiles) {
+		Map<String, LinkedList<String>> folderMap = new HashMap<String, LinkedList<String>>();
+		for (File file : ptfiles) {
+			String absPath = file.getAbsolutePath();
+			String folder = file.getParent();
+			if (!folderMap.containsKey(folder)) {
+				folderMap.put(folder,new LinkedList<String>());
+			}
+			folderMap.get(folder).add(absPath);
+		}
+		return folderMap;
+	}
+
 	public static void main(String[] args) {
+		
 		for (String f : args) {
 			if (f.equals("--stopfirst")) {
 				stopFirst = true;

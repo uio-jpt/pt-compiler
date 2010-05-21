@@ -12,7 +12,7 @@ template SimpleTemplate {
 package AddPackage {
     inst SimpleTemplate;
 
-    class XC adds {
+    class A adds {
         int x;
     }
     
