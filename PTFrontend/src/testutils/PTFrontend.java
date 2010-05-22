@@ -3,31 +3,35 @@ import AST.*;
 
 import java.util.*;
 import java.io.File;
+import java.io.FilenameFilter;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 
 import testutils.javaparser.PTJavaParser;
 
 public class PTFrontend {
 	
-    public static boolean compile(String[] args) {
-	    try {
-	       
-	        JavaParser javaParser = new PTJavaParser();
-	        Tester tester = new Tester(args,javaParser);
-	        return tester.process();
-	    }
-	    catch (Exception e) {
-	        e.printStackTrace();
-	        return false;
-	    }
-	}
-    
-    public static boolean compile(String filename) {
-    	String[] filenames = {filename};
-    	return compile(filenames);
-    }
-
 	protected Program program;
     Collection files;
+	private StringBuffer normalMsgs;
+	private StringBuffer errorMsgs;
+	private StringBuffer warningMsgs;
+    
+    public static Collection<File> getFilesInFolderAndSubFolders(File file, String extension) {
+    	String[] p = { extension };
+		return FileUtils.listFiles(file, p, true);
+    }
+    
+    protected static File[] getFileNamesInFolder(String inputFolder, String extension) {
+		File folder = new File(inputFolder);
+		if (folder.isDirectory()) {
+			return folder.listFiles((FilenameFilter)new SuffixFileFilter(extension));
+		} else {
+			throw new IllegalArgumentException(inputFolder
+					+ " is not a directory.");
+		}
+	}
 
     public PTFrontend() {
         program = new Program();
@@ -52,6 +56,9 @@ public class PTFrontend {
     public void init(String[] args, BytecodeReader reader, JavaParser parser) {
         program.initBytecodeReader(reader);
         program.initJavaParser(parser);
+        warningMsgs = new StringBuffer();
+        errorMsgs = new StringBuffer();
+        normalMsgs = new StringBuffer();
         initOptions();
         processArgs(args);
         files = program.options().files();
@@ -128,17 +135,28 @@ public class PTFrontend {
     }
 
     protected void processErrors(Collection errors, CompilationUnit unit) {
-        System.out.println("Errors:");
+        errorMsgs.append("Errors:\n");
         for(Iterator iter2 = errors.iterator(); iter2.hasNext(); ) {
-            System.out.println(iter2.next());
+            errorMsgs.append(iter2.next());
         }
     }
     protected void processWarnings(Collection warnings, CompilationUnit unit) {
         for(Iterator iter2 = warnings.iterator(); iter2.hasNext(); ) {
-            System.out.println(iter2.next());
+            warningMsgs.append(iter2.next());
         }
     }
-   
+    
+    String getErrorMsgs(){
+    	return errorMsgs.toString();
+    }
+    
+    String getWarningMsgs() {
+    	return warningMsgs.toString();
+    }
+    
+    String getNormalMsgs() {
+    	return normalMsgs.toString();
+    }
 
     protected void printUsage() {
         printVersion();
@@ -229,8 +247,8 @@ public class PTFrontend {
 	
 
 	protected void processNoErrors(CompilationUnit unit) {
-	    System.out.println(unit.dumpTreeNoRewrite());
-	    System.out.println(unit.toString());
+	    normalMsgs.append(unit.dumpTreeNoRewrite());
+	    normalMsgs.append(unit.toString());
 	}
 }
 

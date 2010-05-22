@@ -2,157 +2,154 @@ package testutils;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-
 import AST.CompilationUnit;
-import AST.JavaParser;
+import jargs.gnu.CmdLineParser;
 
+public class Tester {
 
-/** Has ugly proof of concept code to test all files ending with .ptjava in the same folder together.
- *   
- * 
- * @author eivindgl
- *
- */
-public class Tester extends PTFrontend {
-
-	public Tester(String[] args, JavaParser parser) {
-		super(args, parser);
-	}
-
-	protected void processErrors(java.util.Collection errors,
-			CompilationUnit unit) {
-		// System.out.println(unit.dumpTreeNoRewrite());
-		// System.out.println(unit.toString());
-		if (Tester.shouldBeOk || Tester.isSingle || Tester.verbose)
-			super.processErrors(errors, unit);
-	}
-
-	protected void processWarnings(java.util.Collection warnings,
-			CompilationUnit unit) {
-		if (Tester.shouldBeOk || Tester.isSingle)
-			super.processWarnings(warnings, unit);
-	}
-
-	protected void processNoErrors(CompilationUnit unit) {
-		if (Tester.verbose)
-			System.out.println(unit.dumpTreeNoRewrite());
-		if (Tester.verbose)
-			System.out.println(unit.toString());
-	}
-
-	public static boolean verbose = false;
-	public static boolean stopFirst = false;
-	public static boolean isSingle = false;
-	public static int total = 0;
-	public static int totalFail = 0;
-	public static int totalOK = 0;
-	public static boolean shouldBeOk;
-	public static LinkedList<String> notPassed = new LinkedList<String>();
-
-	public static void doDir(String dir) {
-		File f = new File(dir);
-
-		if (f.isDirectory()) {
-			String[] p = { "java" };
-			Collection<File> files = FileUtils.listFiles(f, p, true);
-			for (File file : files) {
-				String fileName = file.getAbsolutePath();
-				doFile(fileName);
-			}
-			String[] pt = { "ptjava" };
-			Collection<File> ptfiles = FileUtils.listFiles(f, pt, true);
-			Map<String,LinkedList<String>> filesInFolder = createFolderMap(ptfiles);
-			for (String folder : filesInFolder.keySet()) {				
-                            doFiles(folder,filesInFolder.get(folder));
-			}
-		} else if (f.isFile()) {
-			isSingle = true;
-			doFile(dir);
-		}
-	}
-
-    public static void doFile(String fileName) {
-		if (stopFirst && totalFail > 0)
-			return;
-		total += 1;
-		shouldBeOk = !fileName.contains("_fail");
-		boolean ok = Tester.compile(fileName);
-		if (shouldBeOk != ok) {
-			totalFail += 1;
-			String desiredResult = shouldBeOk == true ? "passed" : "failed";
-			String result = shouldBeOk != true ? "passed" : "failed";
-			System.out.println("Test for filename '" + fileName + "' (" + total
-					+ ") should have " + desiredResult + ", but " + result);
-			notPassed.add(fileName);
-		} else {
-			totalOK += 1;
-		}
-	}
-
-	public static void doFiles(String folder, Collection<String> files) {
-		total += 1;
-		shouldBeOk = !folder.endsWith("_fail");
-		boolean ok = Tester.compile(files.toArray(new String[files.size()]));
-		if (shouldBeOk != ok) {
-			String desiredResult = shouldBeOk == true ? "passed" : "failed";
-			String result = shouldBeOk != true ? "passed" : "failed";
-			System.out.println("Test for files in folder '" + folder + "' (" + total
-					+ ") should have " + desiredResult + ", but " + result);
-			notPassed.add(folder);
-			totalFail += 1;			
-			System.out.println("Test for filename folder[TODO]'" + "' (" + total
-					+ ") should have " + desiredResult + ", but " + result);
-			notPassed.add("folder" + files.hashCode());
-		} else {
-			totalOK += 1;
-		}
-	}
-
-	private static Map<String, LinkedList<String>> createFolderMap(
-			Collection<File> ptfiles) {
-		Map<String, LinkedList<String>> folderMap = new HashMap<String, LinkedList<String>>();
-		for (File file : ptfiles) {
-			String absPath = file.getAbsolutePath();
-			String folder = file.getParent();
-			if (!folderMap.containsKey(folder)) {
-				folderMap.put(folder,new LinkedList<String>());
-			}
-			folderMap.get(folder).add(absPath);
-		}
-		return folderMap;
-	}
+	private boolean verbose;
+	private boolean stopFirst;
+	private int totalFail;
+	private int totalOK;
+	private List<String> notPassed;
+	private String[] filenames;
 
 	public static void main(String[] args) {
-		
-		for (String f : args) {
-			if (f.equals("--stopfirst")) {
-				stopFirst = true;
-				continue;
-			}
-			if (f.contains("--verbose")) {
-				verbose = true;
-				continue;
-			}
-			doDir(f);
+		Tester tester = parseArgsAndInstantiate(args);
+		try {
+			tester.runtests();
+		} catch (IllegalArgumentException e) {
+			System.out.println("Error: " + e.getMessage());
+			return;
+		} catch (StopFirstException e) {
+			// no error
 		}
-		if (totalOK == total) {
-			System.out.println("*** All " + total + " tests passed.");
+		System.out.println(tester.getSummary());
+	}
+
+	private void runtests() {
+		for (String filename : filenames) {
+			processFilename(filename);
+		}
+	}
+
+	public void processFilename(String filename) {
+		FileIO testFile = new FileIO(filename);
+
+		if (testFile.isDirectory()) {
+			performSingleFilesTests(testFile);
+			performMultipleFilesTest(testFile);
+		} else if (testFile.isFile()) {
+			verbose = true;
+			runTest(filename);
 		} else {
-			System.out.println(String.format(
-					"\n*** %d of %d tests passed, %d failed.", totalOK, total,
-					totalFail));
-			System.out.println("The following files did not pass as expected:");
+			throw new IllegalArgumentException(filename
+					+ " is not a legal path. ");
+		}
+	}
+
+	private void performSingleFilesTests(FileIO f) {
+		Collection<File> files = f.getFilesInFolderAndSubFolders("java");
+		for (File file : files) {
+			String fileName = file.getAbsolutePath();
+			runTest(fileName);
+		}
+	}
+
+	private void performMultipleFilesTest(FileIO f) {
+		Map<String, LinkedList<String>> filesInFolder = f
+				.createFolderMap("ptjava");
+		for (String folderName : filesInFolder.keySet()) {
+			runTest(folderName, filesInFolder.get(folderName));
+		}
+	}
+
+	private void runTest(String folderName, LinkedList<String> filenames) {
+		runTest(new RunTest(folderName, filenames));
+	}
+
+	private void runTest(String filename) {
+		runTest(new RunTest(filename));
+	}
+
+	private void runTest(RunTest test) {
+		if (test.didNotRunAsExpected()) {
+			printDebugIfVerbose(test);
+			totalFail += 1;
+			notPassed.add(test.getTestname());
+			System.out.println(test.getReport());
+			if (stopFirst)
+				throw new StopFirstException();
+		} else {
+			totalOK += 1;
+			printNormalDataIfVerbose(test);
+		}
+	}
+
+	private void printNormalDataIfVerbose(RunTest test) {
+		if (verbose) {
+			System.out.println(test.getNormalMsgs());
+		}
+	}
+
+	private void printDebugIfVerbose(RunTest test) {
+		if (verbose) {
+			System.out.println(test.getWarningMsgs());
+			System.out.println(test.getErrorMsgs());
+		}
+	}
+
+	private int getTotal() {
+		return totalFail + totalOK;
+	}
+
+	public Tester(boolean isVerbose, boolean isStopFirst, String[] filenames) {
+		verbose = isVerbose;
+		stopFirst = stopFirst;
+		this.filenames = filenames;
+		notPassed = new LinkedList<String>();
+		totalFail = 0;
+		totalOK = 0;
+	}
+
+	private String getSummary() {
+		StringBuffer sb = new StringBuffer();
+		if (totalFail == 0) {
+			sb.append("*** All " + getTotal() + " tests passed.\n");
+		} else {
+			sb.append(String.format(
+					"\n*** %d of %d tests passed, %d failed.\n", totalOK,
+					getTotal(), totalFail));
+			sb.append("The following files did not pass as expected:\n");
 			for (String f : notPassed) {
-				System.out.println("    ant testsingle -Dname=" + f);
+				sb.append("    ant testsingle -Dname=" + f + ".\n");
 			}
 		}
+		return sb.toString();
+	}
+
+	private static Tester parseArgsAndInstantiate(String[] args) {
+		CmdLineParser parser = new CmdLineParser();
+		CmdLineParser.Option verbose = parser.addBooleanOption("verbose");
+		CmdLineParser.Option stopFirst = parser.addBooleanOption("stopFirst");
+	
+		try {
+			parser.parse(args);
+		} catch (Exception e) {
+			System.err.println("Unknown args");
+			System.exit(1);
+		}
+		boolean isVerbose = (Boolean) parser.getOptionValue(verbose,
+				Boolean.FALSE);
+		boolean isStopFirst = (Boolean) parser.getOptionValue(stopFirst,
+				Boolean.FALSE);
+	
+		String[] filenames = parser.getRemainingArgs();
+		Tester tester = new Tester(isVerbose, isStopFirst, filenames);
+		return tester;
 	}
 }

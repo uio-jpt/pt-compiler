@@ -83,7 +83,7 @@
 
   <target name="testsingle" depends="build">
     <java classname="testutils.Tester" classpathref="classpath.runtest">
-        <arg value="${opt}" />
+      <!--        <arg value="${opt}" /> -->
         <arg value="${name}"/>
     </java>
   </target>
