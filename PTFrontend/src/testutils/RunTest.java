@@ -1,17 +1,7 @@
 package testutils;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-
-import AST.CompilationUnit;
+import testutils.javaparser.PTJavaParser;
 import AST.JavaParser;
 
 /**

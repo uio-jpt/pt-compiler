@@ -1,6 +1,5 @@
 package testutils.javaparser;
 
-import beaver.Parser;
 import AST.*;
 import java.io.*;
 
