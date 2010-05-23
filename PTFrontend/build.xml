@@ -8,238 +8,245 @@
 -->
 <project name="JavaExtension" default="run">
 
-  <property name="PTFrontend" value="."/>  
-  <!-- location of Java1.4Frontend -->
-  <property name="Java1.4Frontend" value="../JastAddJ/Java1.4Frontend"/>
-  <!-- location of Java1.4Backend -->
-  <property name="Java1.4Backend" value="../JastAddJ/Java1.4Backend"/>
-  <!-- location of Java1.5Frontend -->
-  <property name="Java1.5Frontend" value="../JastAddJ/Java1.5Frontend"/>
-  <!-- location of Java1.5Backend -->
-  <property name="Java1.5Backend" value="../JastAddJ/Java1.5Backend"/>
+    <property name="PTFrontend" value="."/>
+    <!-- location of Java1.4Frontend -->
+    <property name="Java1.4Frontend" value="../JastAddJ/Java1.4Frontend"/>
+    <!-- location of Java1.4Backend -->
+    <property name="Java1.4Backend" value="../JastAddJ/Java1.4Backend"/>
+    <!-- location of Java1.5Frontend -->
+    <property name="Java1.5Frontend" value="../JastAddJ/Java1.5Frontend"/>
+    <!-- location of Java1.5Backend -->
+    <property name="Java1.5Backend" value="../JastAddJ/Java1.5Backend"/>
 
-  <property name="src" location="src"/>
-  <property name="src.gen" location="src-gen"/>
-  <property name="src.testutils" location="${src}/testutils"/>
-  <property name="build" location="build"/>
-  <property name="lib" location="utils"/>
-  <property name="src.gen.scanner" location="${src.gen}/scanner" />
-  <property name="src.gen.scanner.filename" location="${src.gen.scanner}/JavaScanner.flex" />
-  <property name="src.gen.parser" location="${src.gen}/parser" />
-  <property name="src.gen.parser.filename_lalr" location="${src.gen.parser}/JavaParser.all" />
-  <property name="src.gen.parser.filename" location="${src.gen.parser}/JavaParser.beaver" />
-  <property name="src.gen.beaver" location="${src.gen}/beaver" />
-
-  
-  <!-- "package" is the directory where generated files will be stored -->
-  <property name="package" value="AST"/>
-
-  <!-- "tools" is the directory where generators and libraries are located. -->
-  <property name="tools" value="${Java1.4Frontend}/tools"/>
-  
-  <!-- "jflex" is an ant task class for the scanner generator in JFlex.jar -->
-  <taskdef name="jflex" classname="JFlex.anttask.JFlexTask" classpath="${tools}/JFlex.jar"/>
-  <!-- "beaver" is an ant task class for the parser generator in beaver.jar -->
-  <taskdef name="beaver" classname="beaver.comp.run.AntTask" classpath="${tools}/beaver.jar"/>
-  <!-- "jastadd" is an ant task class in jastadd2.jar -->
-  <taskdef name="jastadd" classname="jastadd.JastAddTask" classpath="${tools}/jastadd2.jar"/>
-
-<path id="classpath.dependencies">
-  <fileset dir="${lib}">
-    <include name="*.jar"/>
-  </fileset>
-  <fileset dir="${tools}">
-    <include name="*.jar"/>
-  </fileset>
-  <pathelement location="src.testutils" />
-</path>
-
-<path id="classpath.runtest">
-  <pathelement location="${build}" />
-  <path refid="classpath.dependencies" />
-</path>
-  
-
-  <!-- compile sources -->
-  <target name="build" depends="gen">
-    <mkdir dir="${build}" />
-    <javac destdir="${build}" classpathref="classpath.dependencies" debug="true" >
-      <src path="${src.gen}:${src.testutils}" />
-    </javac>
-  </target>
-
-  <target name="testall" depends="build">
-    <java classname="testutils.Tester" classpathref="classpath.runtest">
-      <arg value="test/"/>
-    </java>
-  </target>
-
-  <target name="teststopfirst" depends="build">
-    <java classname="testutils.Tester" classpathref="classpath.runtest">
-      <arg value="--stopfirst"/>
-      <arg value="test/"/>
-    </java>
-  </target>
-
-  <target name="testsingle" depends="build">
-    <java classname="testutils.Tester" classpathref="classpath.runtest">
-      <!--        <arg value="${opt}" /> -->
-        <arg value="${name}"/>
-    </java>
-  </target>
-
-  <target name="compilepackage" depends="build">
-    <java classname="testutils.CompilePackage" classpathref="classpath.runtest">
-        <arg value="${opt}" />
-        <arg value="${name}"/>
-    </java>
-  </target>
+    <property name="src" location="src"/>
+    <property name="src.gen" location="src-gen"/>
+    <property name="src.testutils" location="${src}/testutils"/>
+    <property name="build" location="build"/>
+    <property name="lib" location="utils"/>
+    <property name="src.gen.scanner" location="${src.gen}/scanner" />
+    <property name="src.gen.scanner.filename" location="${src.gen.scanner}/JavaScanner.flex" />
+    <property name="src.gen.parser" location="${src.gen}/parser" />
+    <property name="src.gen.parser.filename_lalr" location="${src.gen.parser}/JavaParser.all" />
+    <property name="src.gen.parser.filename" location="${src.gen.parser}/JavaParser.beaver" />
+    <property name="src.gen.beaver" location="${src.gen}/beaver" />
 
 
-  <target name="run" depends="build">
-    <java classname="testutils.JavaPrettyPrinter" classpathref="classpath.runtest">
-      <arg value="test/PTExample.java"/>
-    </java>
-  </target>
+    <!-- "package" is the directory where generated files will be stored -->
+    <property name="package" value="AST"/>
+
+    <!-- "tools" is the directory where generators and libraries are located. -->
+    <property name="tools" value="${Java1.4Frontend}/tools"/>
+
+    <!-- "jflex" is an ant task class for the scanner generator in JFlex.jar -->
+    <taskdef name="jflex" classname="JFlex.anttask.JFlexTask" classpath="${tools}/JFlex.jar"/>
+    <!-- "beaver" is an ant task class for the parser generator in beaver.jar -->
+    <taskdef name="beaver" classname="beaver.comp.run.AntTask" classpath="${tools}/beaver.jar"/>
+    <!-- "jastadd" is an ant task class in jastadd2.jar -->
+    <taskdef name="jastadd" classname="jastadd.JastAddTask" classpath="${tools}/jastadd2.jar"/>
+
+    <path id="classpath.dependencies">
+        <fileset dir="${lib}">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${tools}">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement location="src.testutils" />
+    </path>
+
+    <path id="classpath.runtest">
+    <pathelement location="${build}" />
+    <path refid="classpath.dependencies" />
+    </path>
 
 
-  <!-- generate compiler source files and compile sources -->
-  <target name="gen" depends="scanner,parser">
-    <mkdir dir="${src.gen}/${package}" />
-    <!-- create AST node types and weave aspect modules -->
-    <jastadd package="${package}" rewrite="true" beaver="true" novisitcheck="true" noCacheCycle="true" outdir="${src.gen}" debug="false">
-      <fileset dir="${Java1.4Frontend}">
-        <include name="**/*.ast"/>
-        <include name="**/*.jrag"/>
-        <include name="**/*.jadd"/> 
-        <exclude name="BytecodeAttributes.jrag"/>
-        <exclude name="BytecodeDescriptor.jrag"/>
-        <exclude name="BytecodeReader.jrag"/>
-      </fileset>
-      <fileset dir="${Java1.4Backend}">
-        <include name="**/*.ast"/>
-        <include name="**/*.jrag"/>
-        <include name="**/*.jadd"/>
-      </fileset>
-      <fileset dir="${Java1.5Frontend}">
-        <include name="**/*.ast"/>
-        <include name="**/*.jrag"/>
-        <include name="**/*.jadd"/>
-      </fileset>
-      <fileset dir="${Java1.5Backend}">
-        <include name="**/*.ast"/>
-        <include name="**/*.jrag"/>
-        <include name="**/*.jadd"/>
-      </fileset>
-      <fileset dir="${src}">
-        <include name="ast/**/*.ast"/>
-        <include name="jrag/**/*.jrag"/>
-        <include name="jadd/**/*.jadd"/>
-      </fileset>
-    </jastadd>
-    <!-- copy library files-->
-    <copy todir="${src.gen.beaver}" preservelastmodified="true">
-      <fileset dir="${Java1.4Frontend}/beaver">
-        <include name="**/*.java"/>
-      </fileset>
-    </copy>
-  </target>
+    <!-- compile sources -->
+    <target name="build" depends="gen">
+        <mkdir dir="${build}" />
+        <javac destdir="${build}" classpathref="classpath.dependencies" debug="true" >
+            <src path="${src.gen}:${src.testutils}" />
+        </javac>
+    </target>
 
-  <target name="scanner">
-    <mkdir dir="${src.gen.scanner}"/>
-    <copy todir="${src.gen.scanner}" preservelastmodified="true">
-      <fileset dir="${src}/scanner">
-        <include name="*.flex"/>
-      </fileset>
-    </copy>
-    
-    
-    <!-- compose the scanner -->
-    <concat destfile="${src.gen.scanner}/JavaScanner.flex" binary="true" force="false">
-      <filelist dir="${Java1.4Frontend}/scanner">
-        <file name="preamble.flex"/>
-        <file name="macros.flex"/>
-      </filelist>
-      <filelist dir="${Java1.5Frontend}">
-        <file name="java15macros.flex"/>
-      </filelist>
+    <target name="testall" depends="build">
+        <java classname="testutils.Tester" classpathref="classpath.runtest">
+            <arg value="test/"/>
+        </java>
+    </target>
 
-      <filelist dir="${Java1.4Frontend}/scanner">
-        <file name="rules_preamble.flex"/>
-        <file name="WhiteSpace.flex"/>
-        <file name="Comments.flex"/>
-        <file name="Keywords.flex"/>
-      </filelist>
+    <target name="profile_testall" depends="build">
+        <java fork="true" classname="testutils.Tester" classpathref="classpath.runtest">
+            <jvmarg value="-javaagent:${lib}/profile.jar" />
+            <arg value="test/"/>
+        </java>
+    </target>
 
-      <filelist dir="${Java1.5Frontend}">
-        <file name="java15keywords.flex"/>
-      </filelist>
-      <filelist dir="${Java1.4Frontend}/scanner">
-        <file name="Literals.flex"/>
-      </filelist>
+    <target name="teststopfirst" depends="build">
+        <java classname="testutils.Tester" classpathref="classpath.runtest">
+            <arg value="--stopfirst"/>
+            <arg value="test/"/>
+        </java>
+    </target>
 
-      <filelist dir="${Java1.5Frontend}">
-        <file name="java15literals.flex"/>
-      </filelist>
-      <filelist dir="${Java1.4Frontend}/scanner">
-        <file name="Separators.flex"/>
-        <file name="Operators.flex"/>
-      </filelist>
-      <filelist dir="${src.gen.scanner}">
-        <file name="Keywords.flex"/>
-      </filelist>                        
-      <filelist dir="${Java1.5Frontend}">
-        <file name="java15operators.flex"/>
-        <file name="java15identifiers.flex"/>
-      </filelist>
+    <target name="testsingle" depends="build">
+        <java classname="testutils.Tester" classpathref="classpath.runtest">
+            <arg value="${opt}" /> <!-- må ha denne med for verbose -->
+            <arg value="${name}"/>
+        </java>
+    </target>
 
-      <filelist dir="${Java1.4Frontend}/scanner">
-        <file name="postamble.flex"/>
-      </filelist>
-    </concat>
-    <!-- generate the scanner -->
-    <jflex file="${src.gen.scanner.filename}" outdir="${src.gen.scanner}" nobak="yes"/>
-    <copy todir="${src.gen.scanner}" file="${Java1.4Frontend}/scanner/Unicode.java" preservelastmodified="true"/>
-  </target>
+    <target name="compilepackage" depends="build">
+        <java classname="testutils.CompilePackage" classpathref="classpath.runtest">
+            <arg value="${opt}" />
+            <arg value="${name}"/>
+        </java>
+    </target>
 
-  <target name="parser">
-    <mkdir dir="${src.gen.parser}"/>
-    <!-- generate the parser phase 1, create a full .lalr specification from fragments-->
-    <concat destfile="${src.gen.parser.filename_lalr}" binary="true" force="false">
-      <filelist dir="${Java1.4Frontend}">
-        <file name="parser/preamble.parser"/>
-        <file name="parser/java14.parser"/>
-        <file name="parser/errorrecovery.parser"/>
-      </filelist>
-      <fileset dir="${Java1.5Frontend}">
-        <include name="*.parser"/>
-      </fileset>
-      <fileset dir=".">
-        <include name="**/*.parser"/>
-      </fileset>
-    </concat>
-    <!-- generate the parser phase 2, translating .lalr to .beaver -->
-    <java classpath="${tools}/JastAddParser.jar:${tools}/beaver-rt.jar" classname="Main" fork="true">
-      <arg line="${src.gen.parser.filename_lalr} ${src.gen.parser.filename}" />
-    </java>
-    <!-- generate the parser phase 3, translating .beaver to .java -->
-    <beaver file="${src.gen.parser.filename}" terminalNames="yes" compress="yes" useSwitch="yes"/>
-  </target>
 
-  <!-- remove generated source files and .class files -->
-  <target name="clean" depends="cleanGen">
-    <!-- delete all .class files recursively -->
-    <delete dir="${build}"/>    
-  </target>
+    <target name="run" depends="build">
+        <java classname="testutils.JavaPrettyPrinter" classpathref="classpath.runtest">
+            <arg value="test/PTExample.java"/>
+        </java>
+    </target>
 
-  <!-- remove generated source files and .class files -->
-  <target name="cleanGen">
-    <delete dir="${src.gen}"/>
 
-  </target>
+    <!-- generate compiler source files and compile sources -->
+    <target name="gen" depends="scanner,parser">
+        <mkdir dir="${src.gen}/${package}" />
+        <!-- create AST node types and weave aspect modules -->
+        <jastadd package="${package}" rewrite="true" beaver="true" novisitcheck="true" noCacheCycle="true" outdir="${src.gen}" debug="false">
+            <fileset dir="${Java1.4Frontend}">
+                <include name="**/*.ast"/>
+                <include name="**/*.jrag"/>
+                <include name="**/*.jadd"/>
+                <exclude name="BytecodeAttributes.jrag"/>
+                <exclude name="BytecodeDescriptor.jrag"/>
+                <exclude name="BytecodeReader.jrag"/>
+            </fileset>
+            <fileset dir="${Java1.4Backend}">
+                <include name="**/*.ast"/>
+                <include name="**/*.jrag"/>
+                <include name="**/*.jadd"/>
+            </fileset>
+            <fileset dir="${Java1.5Frontend}">
+                <include name="**/*.ast"/>
+                <include name="**/*.jrag"/>
+                <include name="**/*.jadd"/>
+            </fileset>
+            <fileset dir="${Java1.5Backend}">
+                <include name="**/*.ast"/>
+                <include name="**/*.jrag"/>
+                <include name="**/*.jadd"/>
+            </fileset>
+            <fileset dir="${src}">
+                <include name="ast/**/*.ast"/>
+                <include name="jrag/**/*.jrag"/>
+                <include name="jadd/**/*.jadd"/>
+            </fileset>
+        </jastadd>
+        <!-- copy library files-->
+        <copy todir="${src.gen.beaver}" preservelastmodified="true">
+            <fileset dir="${Java1.4Frontend}/beaver">
+                <include name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
 
-  <!-- build binaries -->
-  <!-- 
+    <target name="scanner">
+        <mkdir dir="${src.gen.scanner}"/>
+        <copy todir="${src.gen.scanner}" preservelastmodified="true">
+            <fileset dir="${src}/scanner">
+                <include name="*.flex"/>
+            </fileset>
+        </copy>
+
+
+        <!-- compose the scanner -->
+        <concat destfile="${src.gen.scanner}/JavaScanner.flex" binary="true" force="false">
+            <filelist dir="${Java1.4Frontend}/scanner">
+                <file name="preamble.flex"/>
+                <file name="macros.flex"/>
+            </filelist>
+            <filelist dir="${Java1.5Frontend}">
+                <file name="java15macros.flex"/>
+            </filelist>
+
+            <filelist dir="${Java1.4Frontend}/scanner">
+                <file name="rules_preamble.flex"/>
+                <file name="WhiteSpace.flex"/>
+                <file name="Comments.flex"/>
+                <file name="Keywords.flex"/>
+            </filelist>
+
+            <filelist dir="${Java1.5Frontend}">
+                <file name="java15keywords.flex"/>
+            </filelist>
+            <filelist dir="${Java1.4Frontend}/scanner">
+                <file name="Literals.flex"/>
+            </filelist>
+
+            <filelist dir="${Java1.5Frontend}">
+                <file name="java15literals.flex"/>
+            </filelist>
+            <filelist dir="${Java1.4Frontend}/scanner">
+                <file name="Separators.flex"/>
+                <file name="Operators.flex"/>
+            </filelist>
+            <filelist dir="${src.gen.scanner}">
+                <file name="Keywords.flex"/>
+            </filelist>
+            <filelist dir="${Java1.5Frontend}">
+                <file name="java15operators.flex"/>
+                <file name="java15identifiers.flex"/>
+            </filelist>
+
+            <filelist dir="${Java1.4Frontend}/scanner">
+                <file name="postamble.flex"/>
+            </filelist>
+        </concat>
+        <!-- generate the scanner -->
+        <jflex file="${src.gen.scanner.filename}" outdir="${src.gen.scanner}" nobak="yes"/>
+        <copy todir="${src.gen.scanner}" file="${Java1.4Frontend}/scanner/Unicode.java" preservelastmodified="true"/>
+    </target>
+
+    <target name="parser">
+        <mkdir dir="${src.gen.parser}"/>
+        <!-- generate the parser phase 1, create a full .lalr specification from fragments-->
+        <concat destfile="${src.gen.parser.filename_lalr}" binary="true" force="false">
+            <filelist dir="${Java1.4Frontend}">
+                <file name="parser/preamble.parser"/>
+                <file name="parser/java14.parser"/>
+                <file name="parser/errorrecovery.parser"/>
+            </filelist>
+            <fileset dir="${Java1.5Frontend}">
+                <include name="*.parser"/>
+            </fileset>
+            <fileset dir=".">
+                <include name="**/*.parser"/>
+            </fileset>
+        </concat>
+        <!-- generate the parser phase 2, translating .lalr to .beaver -->
+        <java classpath="${tools}/JastAddParser.jar:${tools}/beaver-rt.jar" classname="Main" fork="true">
+            <arg line="${src.gen.parser.filename_lalr} ${src.gen.parser.filename}" />
+        </java>
+        <!-- generate the parser phase 3, translating .beaver to .java -->
+        <beaver file="${src.gen.parser.filename}" terminalNames="yes" compress="yes" useSwitch="yes"/>
+    </target>
+
+    <!-- remove generated source files and .class files -->
+    <target name="clean" depends="cleanGen">
+        <!-- delete all .class files recursively -->
+        <delete dir="${build}"/>
+    </target>
+
+    <!-- remove generated source files and .class files -->
+    <target name="cleanGen">
+        <delete dir="${src.gen}"/>
+
+    </target>
+
+    <!-- build binaries -->
+  <!--
   <target name="jar" depends="build">
     <jar destfile="JavaCompiler.jar" basedir="." includes="**/*.class" excludes="test/**">
       <manifest>
@@ -247,7 +254,7 @@
       </manifest>
     </jar>
   </target>
- -->    
+ -->
 
 </project>
 

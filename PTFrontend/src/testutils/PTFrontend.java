@@ -134,17 +134,7 @@ public class PTFrontend {
         program.options().addOptions(args);
     }
 
-    protected void processErrors(Collection errors, CompilationUnit unit) {
-        errorMsgs.append("Errors:\n");
-        for(Iterator iter2 = errors.iterator(); iter2.hasNext(); ) {
-            errorMsgs.append(iter2.next());
-        }
-    }
-    protected void processWarnings(Collection warnings, CompilationUnit unit) {
-        for(Iterator iter2 = warnings.iterator(); iter2.hasNext(); ) {
-            warningMsgs.append(iter2.next());
-        }
-    }
+    
     
     String getErrorMsgs(){
     	return errorMsgs.toString();
@@ -189,9 +179,22 @@ public class PTFrontend {
         return "R20070504";
     }
 
-	protected void processNoErrors(CompilationUnit unit) {
-	    normalMsgs.append(unit.dumpTreeNoRewrite());
-	    normalMsgs.append(unit.toString());
-	}
+    protected void processErrors(Collection errors, CompilationUnit unit) {
+        errorMsgs.append("Errors:\n");
+        for(Iterator iter2 = errors.iterator(); iter2.hasNext(); ) {
+            errorMsgs.append(iter2.next());
+        }
+    }
+    
+    protected void processWarnings(Collection warnings, CompilationUnit unit) {
+        for(Iterator iter2 = warnings.iterator(); iter2.hasNext(); ) {
+            warningMsgs.append(iter2.next());
+        }
+    }
+
+    protected void processNoErrors(CompilationUnit unit) {
+        normalMsgs.append(unit.dumpTreeNoRewrite());
+        normalMsgs.append(unit.toString());
+    }
 }
 
