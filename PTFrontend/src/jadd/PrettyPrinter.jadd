@@ -69,4 +69,21 @@ aspect PrettyPrint {
         }
         s.append(indent() + "}");
     }
+
+    public String ASTNode.showParentsAndSelf() {
+        LinkedList<ASTNode> parents = new LinkedList<ASTNode>();
+        StringBuilder sb = new StringBuilder();
+        ASTNode parent = getParent();
+        parents.add(this);
+        while (parent != null) {
+            parents.add(parent);
+            parent = parent.getParent();
+        }
+        for (int i=0; parents.size()>0; i+=2) {
+            for (int k=0; k<i; k++) { sb.append(" "); }
+            sb.append( parents.removeLast().dumpString()  + "\n");
+        }
+        return sb.toString();
+    }
+
 }

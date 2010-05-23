@@ -14,24 +14,6 @@ aspect JastAddAspectRefinements {
         return (Program)parent;
     }
 
-    // Debug funksjonalitet for aa vise hvor man er i treet.
-    // Kan godt flyttes til en annen plass.
-    public String ASTNode.showParentsAndSelf() {
-        LinkedList<ASTNode> parents = new LinkedList<ASTNode>();
-        StringBuilder sb = new StringBuilder();
-        ASTNode parent = getParent();
-        parents.add(this);
-        while (parent != null) {
-            parents.add(parent);
-            parent = parent.getParent();
-        }
-        for (int i=0; parents.size()>0; i+=2) {
-            for (int k=0; k<i; k++) { sb.append(" "); }
-            sb.append( parents.removeLast().dumpString()  + "\n");
-        }
-        return sb.toString();
-    }
-
     syn String BodyDecl.getName() = null;
     eq MethodDecl.getName() = getID();
     //    eq FieldDeclaration.getName() = getID();
