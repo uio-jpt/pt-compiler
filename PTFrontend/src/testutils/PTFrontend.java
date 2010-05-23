@@ -189,63 +189,6 @@ public class PTFrontend {
         return "R20070504";
     }
 
-    public boolean PTProcess(String[] args, BytecodeReader reader, JavaParser parser) {
-        program.initBytecodeReader(reader);
-        program.initJavaParser(parser);
-
-        initOptions();
-        processArgs(args);
-
-        Collection files = program.options().files();
-
-        if(program.options().hasOption("-version")) {
-            printVersion();
-            return false;
-        }
-        if(program.options().hasOption("-help") || files.isEmpty()) {
-            printUsage();
-            return false;
-        }
-
-        try {
-            for(Iterator iter = files.iterator(); iter.hasNext(); ) {
-                String name = (String)iter.next();
-                if(!new File(name).exists())
-                    System.out.println("WARNING: file \"" + name + "\" does not exist");
-                program.addSourceFile(name);
-            }
-
-            for(Iterator iter = program.compilationUnitIterator(); iter.hasNext(); ) {
-                CompilationUnit unit = (CompilationUnit)iter.next();
-                if(unit.fromSource()) {
-                    Collection errors = unit.parseErrors();
-                    Collection warnings = new LinkedList();
-                    // compute static semantic errors when there are no parse errors or 
-                    // the recover from parse errors option is specified
-                    if(errors.isEmpty() || program.options().hasOption("-recover"))
-                        unit.errorCheck(errors, warnings);
-                    if(!errors.isEmpty()) {
-                        processErrors(errors, unit);
-                        return false;
-                    }
-                    else {
-                        processWarnings(warnings, unit);
-                        processNoErrors(unit);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-	
-
-	
-
 	protected void processNoErrors(CompilationUnit unit) {
 	    normalMsgs.append(unit.dumpTreeNoRewrite());
 	    normalMsgs.append(unit.toString());

@@ -109,7 +109,7 @@ public class Tester {
 
 	public Tester(boolean isVerbose, boolean isStopFirst, String[] filenames) {
 		verbose = isVerbose;
-		stopFirst = stopFirst;
+		stopFirst = isStopFirst;
 		this.filenames = filenames;
 		notPassed = new LinkedList<String>();
 		totalFail = 0;
