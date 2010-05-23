@@ -40,7 +40,8 @@
   <target name="compilefolder" depends="build">
     <java classname="testutils.PTToJavaPackage" classpathref="classpath.runtest">
         <arg value="--sourceFolder=${sourceFolder}"/>
-        <arg value="--outputFolder=${outputFolder}"/>        
+        <arg value="--outputFolder=${outputFolder}"/>
+        <arg value="--buildXMLPath=txt/generic-build.xml"/>                
     </java>
   </target>
 

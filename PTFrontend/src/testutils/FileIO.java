@@ -60,4 +60,8 @@ public class FileIO extends File {
 			System.exit(1); // TODO something clever
 		}
 	}
+
+	public String readFile() throws IOException {
+		return FileUtils.readFileToString(this);
+	}
 }

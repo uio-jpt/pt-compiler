@@ -1,0 +1,25 @@
+<project name="PROJECTNAME" default="jar">
+
+  <property name="dir.src" value="src"/>
+  <property name="dir.build" value="build"/>
+  <property name="dir.classes" value="${dir.build}/classes"/>  
+  <property name="dir.jar" value="${dir.build}/jar"/>
+
+  <target name="build">
+    <mkdir dir="${dir.classes}" />
+    <javac destdir="${dir.classes}" classpath="${dir.src}:." debug="true" >
+      <src path="${dir.src}" />
+    </javac>
+  </target>
+
+  <target name="clean">
+    <delete dir="${dir.build}"/>
+  </target>
+
+  <target name="jar" depends="build">
+    <mkdir dir="${dir.jar}" />
+    <jar destfile="${dir.jar}/${ant.project.name}.jar" basedir="${dir.classes}">
+    </jar>
+  </target>
+</project>
+
