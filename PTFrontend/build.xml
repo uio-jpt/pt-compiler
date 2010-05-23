@@ -37,6 +37,14 @@
     <!-- "tools" is the directory where generators and libraries are located. -->
     <property name="tools" value="${Java1.4Frontend}/tools"/>
 
+  <target name="compilefolder" depends="build">
+    <java classname="testutils.PTToJavaPackage" classpathref="classpath.runtest">
+        <arg value="--sourceFolder=${sourceFolder}"/>
+        <arg value="--outputFolder=${outputFolder}"/>        
+    </java>
+  </target>
+
+
     <!-- "jflex" is an ant task class for the scanner generator in JFlex.jar -->
     <taskdef name="jflex" classname="JFlex.anttask.JFlexTask" classpath="${tools}/JFlex.jar"/>
     <!-- "beaver" is an ant task class for the parser generator in beaver.jar -->

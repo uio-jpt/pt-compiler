@@ -192,9 +192,19 @@ public class PTFrontend {
         }
     }
 
-    protected void processNoErrors(CompilationUnit unit) {
-        normalMsgs.append(unit.dumpTreeNoRewrite());
-        normalMsgs.append(unit.toString());
-    }
+	protected void processNoErrors(CompilationUnit unit) {
+	    normalMsgs.append(unit.dumpTreeNoRewrite());
+	    normalMsgs.append(unit.toString());
+	}
+
+	public void dumpData() {
+		System.out.println("\n\nNormal messages:");
+		System.out.println(normalMsgs);
+		System.out.println("\n\nWarning messages:");
+		System.out.println(warningMsgs);
+		System.out.println("\n\nError messages:");
+		System.out.println(errorMsgs);
+		
+	}
 }
 

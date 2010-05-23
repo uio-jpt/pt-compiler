@@ -4,14 +4,6 @@ import java.util.List;
 import testutils.javaparser.PTJavaParser;
 import AST.JavaParser;
 
-/**
- * Has ugly proof of concept code to test all files ending with .ptjava in the
- * same folder together.
- * 
- * 
- * @author eivindgl
- * 
- */
 public class RunTest extends PTFrontend {
 
 	private boolean shouldBeOk, hasRun, ranOk;
