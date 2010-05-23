@@ -7,20 +7,13 @@ aspect LookupType {
     eq PTDecl.getSimpleClass(int i).lookupType(String packageName, String typeName) {
         //System.out.println(String.format("%s: looking up %s.%s", getID(), packageName, typeName));
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
-        //        for (TypeDecl type: getClassList()) {
         for (SimpleClass cls : getSimpleClassList()) {
             TypeDecl type = cls.getClassDecl();
             if (type.fullName().equals(fullName)) {
                 return type;
             }
         }
-        TypeDecl t = lookupType(packageName, typeName);
-        // denne er litt lettvint for å støtte f.eks. String og ikke bare java.lang.String
-        // burde finne bedre fiks
-        if (t==null && packageName.equals("")) {
-            return lookupType("java.lang", typeName);
-        }
-        return t;
+        return lookupType(packageName, typeName);
     }
 
 
@@ -55,17 +48,6 @@ aspect LookupType {
             if (decl.getID().equals(name))
                 return SimpleSet.emptySet.add(decl);
         TypeDecl t = lookupType("", name);
-        // denne er litt lettvint for å støtte f.eks. String og ikke bare java.lang.String
-        // burde finne bedre fiks
-        if (t==null) {
-            t = lookupType("java.lang", name);
-            if (t==null)
-                return SimpleSet.emptySet;
-            else
-                return SimpleSet.emptySet.add(t);
-        }
-        else {
-            return SimpleSet.emptySet.add(t);
-        }
+        if (t!=null) return SimpleSet.emptySet.add(t);
     }
 }
