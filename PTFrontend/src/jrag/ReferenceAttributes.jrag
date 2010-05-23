@@ -8,6 +8,8 @@ aspect ReferenceAttributes {
 
     eq PTInstDecl.getPTDummyClass(int i).getInstDecl() = this;
 
+
+
     eq PTCompilationUnit.getPTDecl(int i).getTemplate(String name) {
         PTTemplate res = lookupTemplateLocal(name);
         if (res==null) return lookupTemplateGlobal(name);
@@ -102,6 +104,13 @@ aspect ReferenceAttributes {
         with add root ClassDecl;
     PTMergedConstructorAccess contributes getSuperClassID() to ConstructorDecl.getMergedSuperCallNames()
         for getConstructorDecl();
+
+    coll Collection<PTPackage> CompilationUnit.getPTPackages() [new HashSet<PTPackage>()]
+        with add root CompilationUnit;
+    PTPackage contributes this to CompilationUnit.getPTPackages() for getCompilationUnit();
+
+    inh CompilationUnit PTDecl.getCompilationUnit();
+    eq PTCompilationUnit.getPTDecl(int i).getCompilationUnit() = this;
 
     syn ConstructorDecl PTMergedConstructorAccess.getConstructorDecl() = ((ConstructorDecl)
                                                                      getParentClass(ConstructorDecl.class));

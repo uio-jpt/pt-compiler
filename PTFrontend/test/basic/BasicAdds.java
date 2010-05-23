@@ -7,13 +7,20 @@ template SimpleTemplate {
             return new A();
         }
     }
+
+    class B {
+        int k;
+    }
 }
 
 package AddPackage {
-    inst SimpleTemplate;
+    inst SimpleTemplate with A => Xylofon, B => Coil;
 
-    class A adds {
+    class Xylofon adds {
         int x;
     }
     
+    class Coil adds {
+        int kkkk;
+    }
 }
