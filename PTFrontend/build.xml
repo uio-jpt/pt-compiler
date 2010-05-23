@@ -77,7 +77,14 @@
     <target name="profile_testall" depends="build">
         <java fork="true" classname="testutils.Tester" classpathref="classpath.runtest">
             <jvmarg value="-javaagent:${lib}/profile.jar" />
+            <jvmarg value="-Dprofile.properties=${lib}/p.profile" />
             <arg value="test/"/>
+        </java>
+    </target>
+
+    <target name="profile_view">
+        <java fork="true" jar="${lib}/jipViewer.jar">
+            <arg value="./profile.xml" />
         </java>
     </target>
 
