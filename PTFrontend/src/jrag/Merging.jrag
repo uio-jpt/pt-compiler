@@ -51,8 +51,8 @@ aspect Merging {
         HashMap<String,String> newDefinitions = new HashMap<String,String>();
         for (String conflictDef : conflicts) {
             String origClassName = getOrgID();
-            newDefinitions.put(conflictDef, String.format("super[%s].%s",
-                                                          origClassName,conflictDef));
+            newDefinitions.put(conflictDef, String.format("super[%s.%s].%s",
+                                                          getTemplate().getID(), origClassName,conflictDef));
         }
         return newDefinitions;
     }

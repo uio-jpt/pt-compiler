@@ -85,7 +85,16 @@ Access method_invocation =  explicit_merged_method_invocation.e {: return e; :}
 Access explicit_merged_method_invocation =
      SUPER LBRACK IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
      {:
-        PTMergedMethodAccess m = new PTMergedMethodAccess(methodName, args, superClassName);
+        PTMergedMethodAccess m = new PTMergedMethodAccess(methodName, args, superClassName, "");
+        m.setStart(SUPER.getStart());
+        m.setEnd(RPAREN.getEnd());
+        return m; :}
+    ;
+
+Access explicit_merged_method_invocation =
+     SUPER LBRACK IDENTIFIER.templateName DOT IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
+     {:
+        PTMergedMethodAccess m = new PTMergedMethodAccess(methodName, args, superClassName, templateName);
         m.setStart(SUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m; :}

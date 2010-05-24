@@ -82,7 +82,40 @@ aspect ReferenceAttributes {
         return nameAndDummies;
     }
 
-    eq PTMergedMethodAccess.name() = "super[" + getSuperClassID() + "]." + getID();
+    inh String PTMergedMethodAccess.getTemplateName(String methodName, String superClassName);
+
+    eq Program.getChild().getTemplateName(String methodName, String superClassName) { throw new RuntimeException("getTemplateName called in context of " + getClass().getName()); }
+
+    eq PTDecl.getSimpleClass(int i).getTemplateName(String methodName, String superClassName) {
+        LinkedList<String> templates = new LinkedList<String>();
+        for (PTInstDecl p : getPTInstDeclList()) {
+            for (PTDummyClass pd : p.getPTDummyClassList()) {
+                if (pd.getOrgID().equals(superClassName) && pd.getOriginator().methodNames().contains(methodName)) {
+                    templates.add(p.getID());
+                }
+            }
+        }
+        if (templates.size()==1) {
+            return templates.poll();
+        }
+        else {
+            error(String.format("Ambiguous super call on method 'super[%s].%s', templates matching was " + templates.toString(), superClassName, methodName));
+            return "UnknownTemplate";
+        }
+    }
+
+    public String PTMergedMethodAccess.getDefaultTemplateID(String methodName, String superClassName) {
+        return getTemplateName(methodName, superClassName);
+    }
+
+    public String PTMergedMethodAccess.getTemplateID() {
+        if (!getGivenTemplateID().equals("")) return getGivenTemplateID();
+        else return getDefaultTemplateID(getID(), getSuperClassID());
+        //return "";
+    }
+
+    eq PTMergedMethodAccess.name() = "super[" + getTemplateID() + "." + getSuperClassID() + "]." + getID();
+
     eq PTMergedConstructorAccess.name() = "super[" + getSuperClassID() + "]";
 
     /*    

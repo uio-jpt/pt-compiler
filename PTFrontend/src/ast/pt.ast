@@ -16,9 +16,9 @@ PTDummyClass ::= <OrgID> <ID> PTDummyRename*;
 abstract PTDummyRename ::= <OrgID> <ID>;
 PTMethodRename : PTDummyRename ::= <OrgID> <ID> Access*;
 PTMethodRenameAll : PTDummyRename;
-PTFieldRename : PTDummyRename;    
+PTFieldRename : PTDummyRename;
 
-PTMergedMethodAccess : MethodAccess ::= <SuperClassID>;
+PTMergedMethodAccess : MethodAccess ::= <SuperClassID> <GivenTemplateID>;
 PTMergedConstructorAccess : MethodAccess ::= <SuperClassID>;
 
 PTMergedConstructor : MethodDecl ::= <SuperClassID>;
