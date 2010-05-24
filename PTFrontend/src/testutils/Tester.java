@@ -92,7 +92,17 @@ public class Tester {
 
 	private void printNormalDataIfVerbose(RunTest test) {
 		if (verbose) {
-			System.out.println(test.getNormalMsgs());
+			String normalMsgs = test.getNormalMsgs();
+			if (!normalMsgs.isEmpty())
+				System.out.println("verbose normal:\n" + normalMsgs);
+			
+			String warningMsgs = test.getWarningMsgs();
+			if (!warningMsgs.isEmpty())
+				System.out.println("verbose warning:\n" + warningMsgs);
+			
+			String errorMsgs = test.getErrorMsgs();
+			if (!errorMsgs.isEmpty())
+				System.out.println("verbose error:\n" + errorMsgs);
 		}
 	}
 
@@ -126,7 +136,7 @@ public class Tester {
 					getTotal(), totalFail));
 			sb.append("The following files did not pass as expected:\n");
 			for (String f : notPassed) {
-				sb.append("    ant testsingle -Dname=" + f + ".\n");
+				sb.append("    ant testsingle -Dname=" + f + "\n");
 			}
 		}
 		return sb.toString();
@@ -136,7 +146,7 @@ public class Tester {
 		CmdLineParser parser = new CmdLineParser();
 		CmdLineParser.Option verbose = parser.addBooleanOption("verbose");
 		CmdLineParser.Option stopFirst = parser.addBooleanOption("stopFirst");
-	
+
 		try {
 			parser.parse(args);
 		} catch (Exception e) {
@@ -147,7 +157,7 @@ public class Tester {
 				Boolean.FALSE);
 		boolean isStopFirst = (Boolean) parser.getOptionValue(stopFirst,
 				Boolean.FALSE);
-	
+
 		String[] filenames = parser.getRemainingArgs();
 		Tester tester = new Tester(isVerbose, isStopFirst, filenames);
 		return tester;

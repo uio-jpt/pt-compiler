@@ -1,0 +1,281 @@
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/projects/!svn/ver/8397/trunk/JastAddJ/Java1.4Frontend
+END
+PrimitiveTypes.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/PrimitiveTypes.jrag
+END
+DeclareBeforeUse.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/DeclareBeforeUse.jrag
+END
+.project
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/projects/!svn/ver/2042/trunk/JastAddJ/Java1.4Frontend/.project
+END
+ExceptionHandling.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/ExceptionHandling.jrag
+END
+AnonymousClasses.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/projects/!svn/ver/6642/trunk/JastAddJ/Java1.4Frontend/AnonymousClasses.jrag
+END
+ConstantExpression.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/projects/!svn/ver/5288/trunk/JastAddJ/Java1.4Frontend/ConstantExpression.jrag
+END
+Options.jadd
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/projects/!svn/ver/5600/trunk/JastAddJ/Java1.4Frontend/Options.jadd
+END
+LookupType.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/projects/!svn/ver/5248/trunk/JastAddJ/Java1.4Frontend/LookupType.jrag
+END
+build.xml
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/projects/!svn/ver/4230/trunk/JastAddJ/Java1.4Frontend/build.xml
+END
+SyntacticClassification.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/SyntacticClassification.jrag
+END
+NameCheck.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/NameCheck.jrag
+END
+.classpath
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/projects/!svn/ver/3807/trunk/JastAddJ/Java1.4Frontend/.classpath
+END
+TypeHierarchyCheck.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/TypeHierarchyCheck.jrag
+END
+TypeCheck.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/TypeCheck.jrag
+END
+LookupConstructor.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/projects/!svn/ver/6642/trunk/JastAddJ/Java1.4Frontend/LookupConstructor.jrag
+END
+DefiniteAssignment.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/projects/!svn/ver/8397/trunk/JastAddJ/Java1.4Frontend/DefiniteAssignment.jrag
+END
+BytecodeReader.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/projects/!svn/ver/5589/trunk/JastAddJ/Java1.4Frontend/BytecodeReader.jrag
+END
+UnreachableStatements.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/UnreachableStatements.jrag
+END
+PrettyPrint.jadd
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/projects/!svn/ver/5758/trunk/JastAddJ/Java1.4Frontend/PrettyPrint.jadd
+END
+TypeAnalysis.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/projects/!svn/ver/5360/trunk/JastAddJ/Java1.4Frontend/TypeAnalysis.jrag
+END
+ErrorCheck.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/projects/!svn/ver/6006/trunk/JastAddJ/Java1.4Frontend/ErrorCheck.jrag
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/projects/!svn/ver/2024/trunk/JastAddJ/Java1.4Frontend/Makefile
+END
+VariableDeclaration.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/projects/!svn/ver/6170/trunk/JastAddJ/Java1.4Frontend/VariableDeclaration.jrag
+END
+BytecodeDescriptor.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/projects/!svn/ver/5939/trunk/JastAddJ/Java1.4Frontend/BytecodeDescriptor.jrag
+END
+BoundNames.ast
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/projects/!svn/ver/5248/trunk/JastAddJ/Java1.4Frontend/BoundNames.ast
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/LICENSE
+END
+Arrays.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/Arrays.jrag
+END
+AccessControl.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/AccessControl.jrag
+END
+BranchTarget.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/BranchTarget.jrag
+END
+JavaChecker.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/JavaChecker.java
+END
+BytecodeAttributes.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/BytecodeAttributes.jrag
+END
+BytecodeCONSTANT.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/projects/!svn/ver/5248/trunk/JastAddJ/Java1.4Frontend/BytecodeCONSTANT.jrag
+END
+LookupMethod.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/LookupMethod.jrag
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/projects/!svn/ver/4018/trunk/JastAddJ/Java1.4Frontend/README
+END
+DataStructures.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/DataStructures.jrag
+END
+NodeConstructors.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/NodeConstructors.jrag
+END
+LookupVariable.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/projects/!svn/ver/5777/trunk/JastAddJ/Java1.4Frontend/LookupVariable.jrag
+END
+ResolveAmbiguousNames.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/projects/!svn/ver/6170/trunk/JastAddJ/Java1.4Frontend/ResolveAmbiguousNames.jrag
+END
+Modifiers.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/projects/!svn/ver/7018/trunk/JastAddJ/Java1.4Frontend/Modifiers.jrag
+END
+ClassPath.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/projects/!svn/ver/6444/trunk/JastAddJ/Java1.4Frontend/ClassPath.jrag
+END
+FrontendMain.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/projects/!svn/ver/5600/trunk/JastAddJ/Java1.4Frontend/FrontendMain.jrag
+END
+JavaDumpTree.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/JavaDumpTree.java
+END
+java.ast
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/projects/!svn/ver/4230/trunk/JastAddJ/Java1.4Frontend/java.ast
+END
+QualifiedNames.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/projects/!svn/ver/5769/trunk/JastAddJ/Java1.4Frontend/QualifiedNames.jrag
+END
+JavaPrettyPrinter.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/projects/!svn/ver/5111/trunk/JastAddJ/Java1.4Frontend/JavaPrettyPrinter.java
+END
+BoundNames.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/projects/!svn/ver/5600/trunk/JastAddJ/Java1.4Frontend/BoundNames.jrag
+END

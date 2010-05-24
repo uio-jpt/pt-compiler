@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/projects/!svn/ver/7019/trunk/JastAddJ/Java1.5Backend
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/projects/!svn/ver/5115/trunk/JastAddJ/Java1.5Backend/LICENSE
+END
+EnhancedForCodegen.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/projects/!svn/ver/5115/trunk/JastAddJ/Java1.5Backend/EnhancedForCodegen.jrag
+END
+AnnotationsCodegen.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/projects/!svn/ver/7019/trunk/JastAddJ/Java1.5Backend/AnnotationsCodegen.jrag
+END
+AutoBoxingCodegen.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/projects/!svn/ver/6317/trunk/JastAddJ/Java1.5Backend/AutoBoxingCodegen.jrag
+END
+GenericsCodegen.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/projects/!svn/ver/6317/trunk/JastAddJ/Java1.5Backend/GenericsCodegen.jrag
+END
+Version.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/projects/!svn/ver/6317/trunk/JastAddJ/Java1.5Backend/Version.jrag
+END
+EnclosingMethodAttribute.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/projects/!svn/ver/6317/trunk/JastAddJ/Java1.5Backend/EnclosingMethodAttribute.jrag
+END
+VariableArityParametersCodegen.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/projects/!svn/ver/6317/trunk/JastAddJ/Java1.5Backend/VariableArityParametersCodegen.jrag
+END
+JavaCompiler.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/projects/!svn/ver/5233/trunk/JastAddJ/Java1.5Backend/JavaCompiler.java
+END
+StaticImportsCodegen.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/projects/!svn/ver/6317/trunk/JastAddJ/Java1.5Backend/StaticImportsCodegen.jrag
+END
+EnumsCodegen.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/projects/!svn/ver/5115/trunk/JastAddJ/Java1.5Backend/EnumsCodegen.jrag
+END
+build.xml
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/projects/!svn/ver/6317/trunk/JastAddJ/Java1.5Backend/build.xml
+END

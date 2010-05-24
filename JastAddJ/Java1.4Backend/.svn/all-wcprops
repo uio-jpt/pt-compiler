@@ -1,0 +1,119 @@
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/projects/!svn/ver/7479/trunk/JastAddJ/Java1.4Backend
+END
+JVMBytecodes.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/projects/!svn/ver/5114/trunk/JastAddJ/Java1.4Backend/JVMBytecodes.jrag
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/projects/!svn/ver/5114/trunk/JastAddJ/Java1.4Backend/LICENSE
+END
+CreateBCode.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/projects/!svn/ver/5589/trunk/JastAddJ/Java1.4Backend/CreateBCode.jrag
+END
+.project
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/projects/!svn/ver/4540/trunk/JastAddJ/Java1.4Backend/.project
+END
+JVMBytecodesDebug.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/projects/!svn/ver/5114/trunk/JastAddJ/Java1.4Backend/JVMBytecodesDebug.jrag
+END
+ConstantPoolNames.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/projects/!svn/ver/5589/trunk/JastAddJ/Java1.4Backend/ConstantPoolNames.jrag
+END
+LocalNum.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/projects/!svn/ver/5204/trunk/JastAddJ/Java1.4Backend/LocalNum.jrag
+END
+JavaCompiler.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/projects/!svn/ver/5589/trunk/JastAddJ/Java1.4Backend/JavaCompiler.java
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/projects/!svn/ver/4018/trunk/JastAddJ/Java1.4Backend/README
+END
+build.xml
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/projects/!svn/ver/4032/trunk/JastAddJ/Java1.4Backend/build.xml
+END
+.classpath
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/projects/!svn/ver/2379/trunk/JastAddJ/Java1.4Backend/.classpath
+END
+GenerateClassfile.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/projects/!svn/ver/5589/trunk/JastAddJ/Java1.4Backend/GenerateClassfile.jrag
+END
+ConstantPool.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/projects/!svn/ver/5114/trunk/JastAddJ/Java1.4Backend/ConstantPool.jrag
+END
+CodeGeneration.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/projects/!svn/ver/5861/trunk/JastAddJ/Java1.4Backend/CodeGeneration.jrag
+END
+Attributes.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/projects/!svn/ver/5939/trunk/JastAddJ/Java1.4Backend/Attributes.jrag
+END
+Java2Rewrites.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/projects/!svn/ver/5114/trunk/JastAddJ/Java1.4Backend/Java2Rewrites.jrag
+END
+InnerClasses.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/projects/!svn/ver/7479/trunk/JastAddJ/Java1.4Backend/InnerClasses.jrag
+END
+Transformations.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/projects/!svn/ver/5861/trunk/JastAddJ/Java1.4Backend/Transformations.jrag
+END
+Flags.jrag
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/projects/!svn/ver/5114/trunk/JastAddJ/Java1.4Backend/Flags.jrag
+END

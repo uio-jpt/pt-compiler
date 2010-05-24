@@ -1,21 +1,20 @@
+/*
+ * The JastAdd Extensible Java Compiler (http://jastadd.org) is covered
+ * by the modified BSD License. You should have received a copy of the
+ * modified BSD license with this compiler.
+ * 
+ * Copyright (c) 2005-2008, Torbjorn Ekman
+ * All rights reserved.
+ */
 
-import java.util.*;import java.util.HashSet;import java.util.LinkedHashSet;import java.io.FileNotFoundException;import java.io.File;import beaver.*;import java.util.ArrayList;import java.util.zip.*;import java.io.*;
-
-public class Frontend extends java.lang.Object {
-    // Declared in FrontendMain.jrag at line 12
-
+aspect FrontendMain {
+  public class Frontend {
     protected Program program;
-
-    // Declared in FrontendMain.jrag at line 14
-
 
     protected Frontend() {
       program = new Program();
       program.state().reset();
     }
-
-    // Declared in FrontendMain.jrag at line 19
-
 
     public boolean process(String[] args, BytecodeReader reader, JavaParser parser) {
       program.initBytecodeReader(reader);
@@ -69,9 +68,6 @@ public class Frontend extends java.lang.Object {
       return true;
     }
 
-    // Declared in FrontendMain.jrag at line 71
-
-
     protected void initOptions() {
       Options options = program.options();
       options.initOptions();
@@ -96,15 +92,9 @@ public class Frontend extends java.lang.Object {
       options.addKeyOption("-J-Xmx128M");
       options.addKeyOption("-recover");
     }
-
-    // Declared in FrontendMain.jrag at line 95
-
     protected void processArgs(String[] args) {
       program.options().addOptions(args);
     }
-
-    // Declared in FrontendMain.jrag at line 99
-
 
     protected void processErrors(Collection errors, CompilationUnit unit) {
       System.out.println("Errors:");
@@ -112,22 +102,13 @@ public class Frontend extends java.lang.Object {
         System.out.println(iter2.next());
       }
     }
-
-    // Declared in FrontendMain.jrag at line 105
-
     protected void processWarnings(Collection warnings, CompilationUnit unit) {
       for(Iterator iter2 = warnings.iterator(); iter2.hasNext(); ) {
         System.out.println(iter2.next());
       }
     }
-
-    // Declared in FrontendMain.jrag at line 110
-
     protected void processNoErrors(CompilationUnit unit) {
     }
-
-    // Declared in FrontendMain.jrag at line 113
-
 
     protected void printUsage() {
       printVersion();
@@ -145,32 +126,19 @@ public class Frontend extends java.lang.Object {
           );
     }
 
-    // Declared in FrontendMain.jrag at line 129
-
-
     protected void printVersion() {
       System.out.println(name() + " " + url() + " Version " + version());
     }
 
-    // Declared in FrontendMain.jrag at line 133
-
-
     protected String name() {
       return "Java1.4Frontend";
     }
-
-    // Declared in FrontendMain.jrag at line 136
-
     protected String url() {
       return "(http://jastadd.cs.lth.se)";
     }
 
-    // Declared in FrontendMain.jrag at line 140
-
-
     protected String version() {
       return "R20070504";
     }
-
-
+  }
 }
