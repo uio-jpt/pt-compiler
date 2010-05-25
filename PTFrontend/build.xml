@@ -8,20 +8,12 @@
 -->
 <project name="JavaExtension" default="run">
 
-    <property name="PTFrontend" value="."/>
-    <!-- location of Java1.4Frontend -->
-    <property name="Java1.4Frontend" value="../JastAddJ/Java1.4Frontend"/>
-    <!-- location of Java1.4Backend -->
-    <property name="Java1.4Backend" value="../JastAddJ/Java1.4Backend"/>
-    <!-- location of Java1.5Frontend -->
-    <property name="Java1.5Frontend" value="../JastAddJ/Java1.5Frontend"/>
-    <!-- location of Java1.5Backend -->
-    <property name="Java1.5Backend" value="../JastAddJ/Java1.5Backend"/>
-
     <property name="src" location="src"/>
     <property name="src.gen" location="src-gen"/>
     <property name="src.testutils" location="${src}/testutils"/>
     <property name="build" location="build"/>
+    <property name="build.classes" location="${build}/classes"/>
+    <property name="build.jar" location="${build}/jar"/>        
     <property name="lib" location="utils"/>
     <property name="src.gen.scanner" location="${src.gen}/scanner" />
     <property name="src.gen.scanner.filename" location="${src.gen.scanner}/JavaScanner.flex" />
@@ -29,6 +21,13 @@
     <property name="src.gen.parser.filename_lalr" location="${src.gen.parser}/JavaParser.all" />
     <property name="src.gen.parser.filename" location="${src.gen.parser}/JavaParser.beaver" />
     <property name="src.gen.beaver" location="${src.gen}/beaver" />
+    <property name="src.testutils" location="${src.gen}/testutils"/>    
+    <property name="generic-build.xml" location="txt/generic-build.xml" />    
+    <property name="PTFrontend" value="."/>
+    <property name="Java1.4Frontend" value="../JastAddJ/Java1.4Frontend"/>
+    <property name="Java1.4Backend" value="../JastAddJ/Java1.4Backend"/>
+    <property name="Java1.5Frontend" value="../JastAddJ/Java1.5Frontend"/>
+    <property name="Java1.5Backend" value="../JastAddJ/Java1.5Backend"/>
 
 
     <!-- "package" is the directory where generated files will be stored -->
@@ -36,6 +35,59 @@
 
     <!-- "tools" is the directory where generators and libraries are located. -->
     <property name="tools" value="${Java1.4Frontend}/tools"/>
+
+    <path id="classpath.dependencies">
+        <fileset dir="${lib}">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${tools}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="classpath.runtest">
+      <pathelement location="${build.classes}" />
+      <path refid="classpath.dependencies" />
+    </path>
+
+    <path id="classpath.jartest">
+      <fileset dir="${build.jar}">
+        <include name="PTCompiler.jar"/>
+      </fileset>
+      <fileset dir="${lib}">
+        <include name="*.jar"/>
+      </fileset>
+    </path>
+
+    <path id="classpath.jartest2">
+      <fileset dir="${lib}">
+        <include name="*.jar"/>
+      </fileset>
+    </path>
+    
+  <target name="run" depends="jar" description="run the project">    
+     <java classname="testutils.PTToJavaPackage" failonerror="true" fork="true">
+       <classpath refid="classpath.jartest"/>
+        <arg value="--sourceFolder=${sourceFolder}"/>
+        <arg value="--outputFolder=${outputFolder}"/>
+        <arg value="--buildXMLPath=${generic-build.xml}"/>                
+     </java>    
+  </target>
+
+  <target name="jar" depends="build">
+    <mkdir dir="${build.jar}"/>
+    
+    <manifestclasspath property="classpath.jar" jarfile="${build.jar}PTCompiler.jar">
+      <classpath refid="classpath.jartest2"/>
+    </manifestclasspath>
+    
+    <jar destfile="${build.jar}/PTCompiler.jar" basedir="${build.classes}">
+      <manifest>
+        <attribute name="Main-Class" value="testutils.PTToJavaPackage"/>
+        <attribute name="Class-Path" value="${classpath.jar}"/>        
+      </manifest>
+    </jar>
+  </target>
 
   <target name="compilefolder" depends="build">
     <java classname="testutils.PTToJavaPackage" classpathref="classpath.runtest">
@@ -45,36 +97,20 @@
     </java>
   </target>
 
-
-    <!-- "jflex" is an ant task class for the scanner generator in JFlex.jar -->
-    <taskdef name="jflex" classname="JFlex.anttask.JFlexTask" classpath="${tools}/JFlex.jar"/>
-    <!-- "beaver" is an ant task class for the parser generator in beaver.jar -->
-    <taskdef name="beaver" classname="beaver.comp.run.AntTask" classpath="${tools}/beaver.jar"/>
-    <!-- "jastadd" is an ant task class in jastadd2.jar -->
-    <taskdef name="jastadd" classname="jastadd.JastAddTask" classpath="${tools}/jastadd2.jar"/>
-
-    <path id="classpath.dependencies">
-        <fileset dir="${lib}">
-            <include name="*.jar"/>
-        </fileset>
-        <fileset dir="${tools}">
-            <include name="*.jar"/>
-        </fileset>
-        <pathelement location="src.testutils" />
-    </path>
-
-    <path id="classpath.runtest">
-    <pathelement location="${build}" />
-    <path refid="classpath.dependencies" />
-    </path>
-
-
-    <!-- compile sources -->
-    <target name="build" depends="gen">
-        <mkdir dir="${build}" />
-        <javac destdir="${build}" classpathref="classpath.dependencies" debug="true" >
-            <src path="${src.gen}:${src.testutils}" />
-        </javac>
+    <!-- fix to avoid recompilation of testutils.
+         http://ant.apache.org/faq.html#always-recompiles
+         another fix would be to do javac basedir onlyinclude=src or something like that.
+    -->
+    <target name="PTGen" depends="gen">
+      <mkdir dir="${src.gen.testutils}" />
+      <copy todir="${src.gen.testutils}">
+        <fileset dir="${src.testutils}" />
+      </copy>
+    </target>
+    
+    <target name="build" depends="PTGen">
+        <mkdir dir="${build.classes}" />
+        <javac srcdir="${src.gen}" destdir="${build.classes}" classpathref="classpath.dependencies" debug="true" />
     </target>
 
     <target name="testall" depends="build">
@@ -118,13 +154,27 @@
         </java>
     </target>
 
-
-    <target name="run" depends="build">
-        <java classname="testutils.JavaPrettyPrinter" classpathref="classpath.runtest">
-            <arg value="test/PTExample.java"/>
-        </java>
+    <!-- remove generated source files and .class files -->
+    <target name="clean" depends="cleanGen">
+        <!-- delete all .class files recursively -->
+        <delete dir="${build}"/>
     </target>
 
+    <!-- remove generated source files and .class files -->
+    <target name="cleanGen">
+        <delete dir="${src.gen}"/>
+
+    </target>
+
+  <!--
+      JASTADD SPECIFIC
+  -->
+    <!-- "jflex" is an ant task class for the scanner generator in JFlex.jar -->
+    <taskdef name="jflex" classname="JFlex.anttask.JFlexTask" classpath="${tools}/JFlex.jar"/>
+    <!-- "beaver" is an ant task class for the parser generator in beaver.jar -->
+    <taskdef name="beaver" classname="beaver.comp.run.AntTask" classpath="${tools}/beaver.jar"/>
+    <!-- "jastadd" is an ant task class in jastadd2.jar -->
+    <taskdef name="jastadd" classname="jastadd.JastAddTask" classpath="${tools}/jastadd2.jar"/>
 
     <!-- generate compiler source files and compile sources -->
     <target name="gen" depends="scanner,parser">
@@ -249,28 +299,6 @@
         <beaver file="${src.gen.parser.filename}" terminalNames="yes" compress="yes" useSwitch="yes"/>
     </target>
 
-    <!-- remove generated source files and .class files -->
-    <target name="clean" depends="cleanGen">
-        <!-- delete all .class files recursively -->
-        <delete dir="${build}"/>
-    </target>
-
-    <!-- remove generated source files and .class files -->
-    <target name="cleanGen">
-        <delete dir="${src.gen}"/>
-
-    </target>
-
-    <!-- build binaries -->
-  <!--
-  <target name="jar" depends="build">
-    <jar destfile="JavaCompiler.jar" basedir="." includes="**/*.class" excludes="test/**">
-      <manifest>
-        <attribute name="Main-Class" value="JavaCompiler"/>
-      </manifest>
-    </jar>
-  </target>
- -->
-
+    
 </project>
 
