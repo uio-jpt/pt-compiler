@@ -20,11 +20,22 @@ public class PTToJavaPackage {
 		PTToJavaPackage controller = parseArgsAndInstantiate(args);
 		controller.checkArgs();
 		controller.buildAST();
+		if (controller.noErrors()) {
 		controller.writePackages();
 		controller.writeBuildXML();
-		System.out.println(new File(".").getAbsolutePath());
+		} else {
+			controller.printErrorReport();
+		}
 	}
 
+	private boolean noErrors() {
+		return compilerInterface.getErrorMsgs().isEmpty();
+	}
+
+	private void printErrorReport() {
+		System.out.println("Error: " + compilerInterface.getErrorMsgs());
+	}
+		
 	private void writeBuildXML() {
 		FileIO buildFile = outputBaseFolder.createExtendedPath("build.xml");
 		String buildFileText = genericBuildFile.replaceFirst("PROJECTNAME",
@@ -34,7 +45,8 @@ public class PTToJavaPackage {
 
 	/** TODO cleanup */
 	private void checkArgs() {
-		printArgsIfVerbose();
+		verbose("SourceFolderName: " + sourceFolderName);
+		verbose("OutputFolderName: " + outputFolderName);
 		if (sourceFolderName == null || outputFolderName == null)
 			throw new IllegalArgumentException(
 					"Missing sourceFolder or outputFolder");
@@ -62,34 +74,29 @@ public class PTToJavaPackage {
 		}
 		if (!outputSrcFolder.exists())
 			outputSrcFolder.mkdir();
-		if (verbose)
+		verbose("Printing all [" + inputfileNames.length
+					+ "] inputfiles.");
 			for (String filename : inputfileNames)
-				System.out.println("inputfilename: " + filename);
-	}
-
-	private void printArgsIfVerbose() {
-		if (verbose) {
-			System.out.println("SourceFolderName: " + sourceFolderName);
-			System.out.println("OutputFolderName: " + outputFolderName);
-		}
-
+				verbose("inputfilename: " + filename);
 	}
 
 	private void buildAST() {
 		compilerInterface = new CompileToPackage(inputfileNames);
 		boolean result = compilerInterface.process();
-		if (verbose)
-			System.out.println("Compilation done "
-					+ (result ? "without" : "with") + " errors.");
+		verbose("Compilation done "
+				+ (result ? "without" : "with") + " errors.");
 	}
 
 	private void writePackages() {
+		verbose("Writing packages to disk");
 		for (String packageName : compilerInterface.getPackageNames()) {
 			FileIO packageFolder = outputSrcFolder
 					.createExtendedPath(packageName);
 			packageFolder.mkdir();
+			verbose(String.format("\tWriting package [%s] to disk\n", packageName));
 			for (String classname : compilerInterface
 					.getClassnames(packageName)) {
+				verbose(String.format("\tWriting class [%s] to disk\n", classname));
 				FileIO classFile = packageFolder.createExtendedPath(classname
 						+ ".java");
 				String source = String.format("package %s;\n\n", packageName);
@@ -99,6 +106,11 @@ public class PTToJavaPackage {
 				classFile.write(source);
 			}
 		}
+	}
+
+	private void verbose(String string) {
+		if(verbose)
+			System.out.println("Verbose: " + string);
 	}
 
 	private static PTToJavaPackage parseArgsAndInstantiate(String[] args) {
@@ -127,6 +139,7 @@ public class PTToJavaPackage {
 				.getOptionValue(genericBuildXMLPathOpt);
 		PTToJavaPackage controller = new PTToJavaPackage(sourceFolder,
 				outputFolder, verbose);
+		controller.verbose("Verbose flag turned on.");
 		controller.readBuildXML(generixBuildXMLPath);
 		return controller;
 	}

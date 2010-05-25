@@ -1,7 +1,8 @@
+
 template Graph {
 
     class Node {
-        //        Edge theEdge;
+        Edge edges; // should be a list
     }
 
     class Edge {
