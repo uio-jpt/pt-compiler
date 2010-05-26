@@ -1,8 +1,10 @@
+import java.util.List;
+import java.util.*;
 
 template Graph {
 
     class Node {
-        Edge edges; // should be a list
+        List<Edge> edges;
     }
 
     class Edge {

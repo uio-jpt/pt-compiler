@@ -42,7 +42,6 @@ aspect Merging {
         return definitionNames;
     }
     
-    
     syn HashSet<String> PTDummyClass.getDefinitionsRenamed() {
         return getOriginator().getDefinitionsRenamed(getExplicitlyRenamedDefinitions());
     }

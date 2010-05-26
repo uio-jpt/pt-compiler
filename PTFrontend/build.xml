@@ -6,7 +6,7 @@
     gen             - generates java files
     genClean        - removes all generated files and their class files
 -->
-<project name="JavaExtension" default="run">
+<project name="JavaExtension" default="jar">
 
     <property name="src" location="src"/>
     <property name="src.gen" location="src-gen"/>
@@ -14,6 +14,7 @@
     <property name="build" location="build"/>
     <property name="build.classes" location="${build}/classes"/>
     <property name="build.jar" location="${build}/jar"/>
+    <property name="build.jar.filename" location="${build.jar}/PTCompiler.jar"/>    
     <property name="build.launcher" location="${build}/ptcompiler"/>    
     
     <property name="lib" location="utils"/>
@@ -24,7 +25,8 @@
     <property name="src.gen.parser.filename" location="${src.gen.parser}/JavaParser.beaver" />
     <property name="src.gen.beaver" location="${src.gen}/beaver" />
     <property name="src.gen.testutils" location="${src.gen}/testutils"/>
-    <property name="txt" location="txt" />    
+    <property name="resources" location="resources" />    
+    <property name="txt" location="${resources}/txt" />    
     <property name="txt.generic-build.xml" location="${txt}/generic-build.xml" />
     <property name="txt.generic-launcher" location="${txt}/PTCompiler.py" />
     <property name="PTFrontend" value="."/>
@@ -54,68 +56,31 @@
       <path refid="classpath.dependencies" />
     </path>
 
-    <path id="classpath.jartest">
-      <fileset dir="${build.jar}">
-        <include name="PTCompiler.jar"/>
-      </fileset>
-      <fileset dir="${lib}">
-        <include name="*.jar"/>
-      </fileset>
-    </path>
-
-    <path id="classpath.jartest2">
-      <fileset dir="${lib}">
-        <include name="*.jar"/>
-      </fileset>
-    </path>
-    
-  <target name="run" depends="jar" description="run the project">    
-     <java classname="testutils.PTToJavaPackage" failonerror="true" fork="true">
-       <classpath refid="classpath.jartest"/>
-        <arg value="--sourceFolder=${sourceFolder}"/>
-        <arg value="--outputFolder=${outputFolder}"/>
-        <arg value="--buildXMLPath=${txt.generic-build.xml}"/>                
-     </java>    
-  </target>
-
-  <target name="generateLauncher" depends="jar">
-    <java classname="testutils.GenerateLauncher" failonerror="true">
-       <classpath refid="classpath.jartest"/>
-       <arg value="${txt.generic-launcher}" />
-       <arg value="${build.launcher}" />
-    </java>
-    <echo>
-      Launcher written to ${build.launcher}
-
-      On Unix systems:
-          Copy launcher to a folder in path. (for example $HOME/bin)
-          Use launcher as normal program.
-          $ ptcompiler "pt-source-folder" ["java-package-output-folder"]
-      On Windows systems:
-          Equal? (TODO)
-    </echo>
-  </target>
-
   <target name="jar" depends="build">
     <mkdir dir="${build.jar}"/>
-    <manifestclasspath property="classpath.jar" jarfile="${build.jar}PTCompiler.jar">
-      <classpath refid="classpath.jartest2"/>
-    </manifestclasspath>
-    
-    <jar destfile="${build.jar}/PTCompiler.jar" basedir="${build.classes}">
+    <jar destfile="${build.jar.filename}" basedir="${build.classes}">
+      <zipfileset src="${lib}/commons-io-1.4.jar" />
+      <zipfileset src="${lib}/jargs.jar" />
+      <fileset dir="${resources}" />
       <manifest>
         <attribute name="Main-Class" value="testutils.PTToJavaPackage"/>
-        <attribute name="Class-Path" value="${classpath.jar}"/>        
       </manifest>
     </jar>
-  </target>
+    <echo>
+      Jar file ${build.jar.filename} created.
+      The jar file is self contained and may be moved around.
+      usage examples:
 
-  <target name="compilefolder" depends="build">
-    <java classname="testutils.PTToJavaPackage" classpathref="classpath.runtest">
-        <arg value="--sourceFolder=${sourceFolder}"/>
-        <arg value="--outputFolder=${outputFolder}"/>
-        <arg value="--buildXMLPath=txt/generic-build.xml"/>                
-    </java>
+      # outputfolder defaults to {inputfolder}_output
+      # in this case it's resources/sample_projects/test-pt_output
+      $ java -jar ${build.jar.filename} resources/sample_projects/test-pt
+
+      # same as above, with verbose flag on.
+      $ java -jar ${build.jar.filename} -v resources/sample_projects/test-pt
+
+      # outputfolder specified
+      $ java -jar ${build.jar.filename}/ resources/sample_projects/test-pt -o /tmp/pt-out
+    </echo>
   </target>
 
     <!-- fix to avoid recompilation of testutils.

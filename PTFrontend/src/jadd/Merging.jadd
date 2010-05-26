@@ -9,6 +9,18 @@ aspect Merging {
         }
     }
 
+    public void PTDecl.copyImportDecls() {
+	CompilationUnit ownCU = getCompilationUnit();
+    	for (PTInstDecl instDecl : getPTInstDecls()) {
+            PTTemplate originator = instDecl.getTemplate();
+            CompilationUnit cunit = originator.getCompilationUnit();
+            for (ImportDecl id : cunit.getImportDeclList()) {
+                ImportDecl copy = (ImportDecl)id.copy();
+                ownCU.addImportDecl(copy);
+            }
+        } 
+    }
+
     public void SimpleClass.initiateExtension(HashMap<String,LinkedList<PTDummyClass>> nameAndDummies) {
         LinkedList<PTDummyClass> dummies = nameAndDummies.get(getID());
         if (dummies.size() > 1) {

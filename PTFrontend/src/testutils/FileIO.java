@@ -17,11 +17,11 @@ public class FileIO extends File {
 		super(filename);
 	}
 
-	public String[] getFilesAsAbsolutePaths(String extension) {
+	public String[] getFilePaths(String extension) {
 		ArrayList<String> filenames = new ArrayList<String>();
 		Collection<File> files = getFilesInFolderAndSubFolders(extension);
 		for (File file : files) 
-			filenames.add(file.getAbsolutePath());
+			filenames.add(file.getPath());
 		return filenames.toArray(new String[filenames.size()]);
 	}
 
@@ -51,10 +51,9 @@ public class FileIO extends File {
 		return new FileIO(path);
 	}
 
-	public void write(String classData) {
+	public void write(String data) {
 		try {
-			System.out.println("Writing " + getAbsolutePath());
-			FileUtils.writeStringToFile(this, classData);
+			FileUtils.writeStringToFile(this, data);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1); // TODO something clever

@@ -8,4 +8,7 @@ $ cd pt-compiler/PTFrontend
 $ ant testrun
 
 eventuelt:
-$ ant compilefolder -DsourceFolder=debug/test-pt -DoutputFolder=debug/test-output
+$ ant jar
+# lager en jar fil i build/jar, som inneholder alle avhengigheter.
+$ java -jar build/jar/PTCompiler.jar <inputfolder> [-o
+outputfolder=<folder_name>] [-v | --verbose]
