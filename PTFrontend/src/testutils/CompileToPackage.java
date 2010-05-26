@@ -22,16 +22,24 @@ public class CompileToPackage extends PTFrontend {
 
 	private Map<String,List<String>> packageNameToClassNames;
 	private Map<String, String> source;
+	private List<String> sourceWithErrors;
 
 	/** Use default JavaParser */
 	public CompileToPackage(String[] filenames) {
 		super(filenames, new PTJavaParser());
 		packageNameToClassNames = new HashMap<String, List<String>>();
 		source = new HashMap<String, String>();
+		sourceWithErrors = new LinkedList<String>();
 	}
 
 	public Iterable<String> getPackageNames() {
 		return packageNameToClassNames.keySet();
+	}
+	
+	@Override
+	protected void processErrors(Collection errors, CompilationUnit unit) {
+		super.processErrors(errors, unit);
+		sourceWithErrors.add(unit.toString());
 	}
 
 	@Override
@@ -46,9 +54,6 @@ public class CompileToPackage extends PTFrontend {
 			}
 			packageNameToClassNames.put(p.getID(),classNames);
 		}
-		
-		
-		
 	}
 
 	private void addSource(String packagename, String classname, String classSource) {
@@ -65,5 +70,9 @@ public class CompileToPackage extends PTFrontend {
 
 	public String getClassData(String packageName, String classname) {
 		return source.get(createKey(packageName,classname));
+	}
+
+	public List<String> getSourceWithErrors() {
+		return sourceWithErrors;
 	}
 }

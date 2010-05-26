@@ -33,6 +33,9 @@ public class PTToJavaPackage {
 	}
 
 	private void printErrorReport() {
+		for (String errorSource : compilerInterface.getSourceWithErrors()) {
+			System.out.println(errorSource);
+		}
 		System.out.println("Error: " + compilerInterface.getErrorMsgs());
 	}
 		
