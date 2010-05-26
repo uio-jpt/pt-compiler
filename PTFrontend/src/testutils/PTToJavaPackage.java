@@ -32,6 +32,7 @@ public class PTToJavaPackage {
 			if (controller.noErrors()) {
 				controller.writePackages();
 				controller.writeBuildXML();
+				System.out.println("Compilation completed. Java package(s) written to " + controller.outputFolderName);
 			} else {
 				controller.printErrorReport();
 			}
@@ -179,7 +180,7 @@ public class PTToJavaPackage {
 		String[] remainingArgs = parser.getRemainingArgs();
 		if (remainingArgs.length == 0)
 			throw new FatalErrorException("couldn't find an input file.");
-		String sourceFolder = remainingArgs[0];
+		String sourceFolder = new File(remainingArgs[0]).getPath();
 		String outputFolder = (String) parser.getOptionValue(
 				outputFolderOption, sourceFolder + "_output");
 		PTToJavaPackage controller = new PTToJavaPackage(sourceFolder,
