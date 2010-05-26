@@ -1,23 +1,22 @@
-build: ant build
-run test: ant run
-
-----
-
 Fixes TODO:
 
-Merging:
-
-* merge renaming; ha med template navn og orgKlassenavn for spesifitet.
-* konsistens med navn på merga metoder/konstruktører og kall på dem.
-* sjekke på at merga metoder/konstruktører bare kan kalles fra "riktig" sted.
 * greppe source etter TODO
+
 * veldig mye annet småplukk.
 
-Til diskusjon/ettertanke:
-* sjekk etter merge kollisjon på signatur nivå. (per i dag på navn nivå)
+* forsøke å gjøre processen som starter med InstantiationRewrite.jadd
+  mer lesbar og gjerne mer oppstykket ved hjelp av jastadd
+  collections.
 
-PTDummyRename:
-    Skal man tillate dette (?):
-    inst T with A => X, B => X (getX() -> getY());
-    inst T with A => X, B => X (getX(*) -> getY(*));
-    inst T with A => X, B => X (getX(int) -> getY(int));
+* Bruke google collections multimap istedenfor
+  HashMap<String,List<Type>>.
+* Bruke google collection immutable set og tilhørende Sets
+  operasjoner.
+
+* Se på import decls for merga klasser, her er det mulig med
+  konflikter. Eksempelvis, klasse A importerer java.util.List, mens
+  klasse B importerer AST.List. I mergeklassen av A og B, her kalt C,
+  vil da begge variantene importeres og resultere i en konflikt.
+
+* Classpath option til PT-Kompilatoren. JastAddJ støtter dette, så det
+  er en enkel fiks.

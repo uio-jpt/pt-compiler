@@ -13,7 +13,11 @@ aspect Merging {
 	CompilationUnit ownCU = getCompilationUnit();
     	for (PTInstDecl instDecl : getPTInstDecls()) {
             PTTemplate originator = instDecl.getTemplate();
+            if (originator == null)
+                continue; // error cought elsewhere
             CompilationUnit cunit = originator.getCompilationUnit();
+            if (cunit == ownCU) 
+            	continue;
             for (ImportDecl id : cunit.getImportDeclList()) {
                 ImportDecl copy = (ImportDecl)id.copy();
                 ownCU.addImportDecl(copy);
