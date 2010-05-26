@@ -79,7 +79,7 @@
   </target>
 
   <target name="generateLauncher" depends="jar">
-    <java classname="testutils.GenerateLauncher">
+    <java classname="testutils.GenerateLauncher" failonerror="true">
        <classpath refid="classpath.jartest"/>
        <arg value="${txt.generic-launcher}" />
        <arg value="${build.launcher}" />
