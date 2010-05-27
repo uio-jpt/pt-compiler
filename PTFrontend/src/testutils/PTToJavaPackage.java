@@ -32,7 +32,9 @@ public class PTToJavaPackage {
 			if (controller.noErrors()) {
 				controller.writePackages();
 				controller.writeBuildXML();
-				System.out.println("Compilation completed. Java package(s) written to " + controller.outputFolderName);
+				System.out
+						.println("Compilation completed. Java package(s) written to "
+								+ controller.outputFolderName);
 			} else {
 				controller.printErrorReport();
 			}
@@ -145,9 +147,8 @@ public class PTToJavaPackage {
 						.format("\tWriting class [%s] to disk", classname));
 				FileIO classFile = packageFolder.createExtendedPath(classname
 						+ ".java");
-				String source = String.format("package %s;\n\n", packageName);
-				source += compilerInterface
-						.getClassData(packageName, classname);
+				String source = compilerInterface.getClassData(packageName,
+						classname);
 				source += "\n";
 				classFile.write(source);
 			}

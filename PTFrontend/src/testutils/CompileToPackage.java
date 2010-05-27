@@ -12,6 +12,7 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import testutils.javaparser.PTJavaParser;
 import AST.ClassDecl;
 import AST.CompilationUnit;
+import AST.ImportDecl;
 import AST.JavaParser;
 import AST.PTCompilationUnit;
 import AST.PTDecl;
@@ -50,7 +51,12 @@ public class CompileToPackage extends PTFrontend {
 			List<String> classNames = new LinkedList<String>();
 			for (ClassDecl c : p.getClassList()) {
 				classNames.add(c.getID());
-				addSource(p.getID(), c.getID(), c.toString());
+				StringBuffer source = new StringBuffer();
+				source.append(String.format("package %s;\n\n",p.getID()));
+				for (ImportDecl id : unit.getImportDeclList())
+					source.append(id.toString() + "\n");
+				source.append(c.toString() + "\n");
+				addSource(p.getID(), c.getID(), source.toString());
 			}
 			packageNameToClassNames.put(p.getID(),classNames);
 		}
