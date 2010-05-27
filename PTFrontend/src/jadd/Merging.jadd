@@ -14,13 +14,15 @@ aspect Merging {
     	for (PTInstDecl instDecl : getPTInstDecls()) {
             PTTemplate originator = instDecl.getTemplate();
             if (originator == null)
-                continue; // error cought elsewhere
+                continue; // error caught elsewhere
             CompilationUnit cunit = originator.getCompilationUnit();
             if (cunit == ownCU) 
             	continue;
             for (ImportDecl id : cunit.getImportDeclList()) {
-                ImportDecl copy = (ImportDecl)id.copy();
-                ownCU.addImportDecl(copy);
+                if (!hasImportDecl(id.toString())) {
+                    ImportDecl copy = (ImportDecl)id.copy();
+                    ownCU.addImportDecl(copy);
+                }
             }
         } 
     }

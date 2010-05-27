@@ -5,6 +5,23 @@ aspect ReferenceAttributes {
     inh PTTemplate PTInstDecl.getTemplate(String name);
     inh PTInstDecl PTDummyClass.getInstDecl();
     inh PTTemplate CompilationUnit.lookupTemplateGlobal(String name);
+    inh PTDecl PTDecl.lookupPTDecl(String name);
+    inh boolean PTDecl.hasImportDecl(String name);
+
+
+    eq PTCompilationUnit.getPTDecl(int i).hasImportDecl(String name) {
+        for (ImportDecl decl : getImportDeclList())
+            if (name.equals(decl.toString()))
+                return true;
+        return false;
+    }
+    
+    eq PTCompilationUnit.getPTDecl(int i).lookupPTDecl(String name) {
+        for (PTDecl decl : getPTDeclList())
+            if (name.equals(decl.getID()))
+                return decl;
+        return null;
+    }
 
     eq PTInstDecl.getPTDummyClass(int i).getInstDecl() = this;
 

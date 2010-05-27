@@ -19,4 +19,4 @@ JastAddJRefactoring
 .project
 profile.txt
 profile.xml
-
+*.class
