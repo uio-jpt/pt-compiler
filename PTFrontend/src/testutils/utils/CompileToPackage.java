@@ -1,23 +1,16 @@
-package testutils;
+package testutils.utils;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.filefilter.SuffixFileFilter;
-
 import testutils.javaparser.PTJavaParser;
 import AST.ClassDecl;
 import AST.CompilationUnit;
 import AST.ImportDecl;
-import AST.JavaParser;
-import AST.PTCompilationUnit;
-import AST.PTDecl;
 import AST.PTPackage;
-import AST.SimpleClass;
 
 public class CompileToPackage extends PTFrontend {
 

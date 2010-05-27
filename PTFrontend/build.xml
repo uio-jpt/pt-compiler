@@ -17,7 +17,8 @@
     <property name="build.jar.filename" location="${build.jar}/PTCompiler.jar"/>    
     <property name="build.launcher" location="${build}/ptcompiler"/>    
     
-    <property name="lib" location="utils"/>
+    <property name="lib" location="lib"/>
+    <property name="debug" location="debug"/>    
     <property name="src.gen.scanner" location="${src.gen}/scanner" />
     <property name="src.gen.scanner.filename" location="${src.gen.scanner}/JavaScanner.flex" />
     <property name="src.gen.parser" location="${src.gen}/parser" />
@@ -100,7 +101,7 @@
     </target>
 
     <target name="testall" depends="build">
-        <java classname="testutils.Tester" classpathref="classpath.runtest">
+        <java classname="testutils.tester.TestScenario" classpathref="classpath.runtest">
             <arg value="--testSingleFiles"/>          
             <arg value="test/single_file"/>
             <arg value="--testFolderAsUnit"/>                      
@@ -108,8 +109,21 @@
         </java>
     </target>
 
+    <target name="testcompile" depends="build">
+      <mkdir dir="${debug}" />
+      <java classname="testutils.tester.TestScenario" classpathref="classpath.runtest">
+            <arg value="--testSingleFiles"/>          
+            <arg value="test/single_file"/>
+            <arg value="--testFolderAsUnit"/>                      
+            <arg value="test/multiple_files"/>
+            <arg value="--compileTestsFolder"/>
+            <arg value="${debug}"/>               
+        </java>
+    </target>
+    
+
     <target name="profile_testall" depends="build">
-        <java fork="true" classname="testutils.Tester" classpathref="classpath.runtest">
+        <java fork="true" classname="testutils.tester.TestScenario" classpathref="classpath.runtest">
             <jvmarg value="-javaagent:${lib}/profile.jar" />
             <jvmarg value="-Dprofile.properties=${lib}/p.profile" />
             <arg value="test/"/>
@@ -123,14 +137,14 @@
     </target>
 
     <target name="teststopfirst" depends="build">
-        <java classname="testutils.Tester" classpathref="classpath.runtest">
+        <java classname="testutils.tester.TestScenario" classpathref="classpath.runtest">
             <arg value="--stopfirst"/>
             <arg value="test/"/>
         </java>
     </target>
 
     <target name="testsingle" depends="build">
-        <java classname="testutils.Tester" classpathref="classpath.runtest">
+        <java classname="testutils.tester.TestScenario" classpathref="classpath.runtest">
             <arg value="--verbose" /> <!-- må ha denne med for verbose -->
             <arg value="${name}"/>
         </java>
@@ -147,6 +161,7 @@
     <target name="clean" depends="cleanGen">
         <!-- delete all .class files recursively -->
         <delete dir="${build}"/>
+        <delete dir="${debug}"/>
     </target>
 
     <!-- remove generated source files and .class files -->

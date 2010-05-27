@@ -1,4 +1,4 @@
-package testutils;
+package testutils.exceptions;
 
 public class FatalErrorException extends RuntimeException {
 
