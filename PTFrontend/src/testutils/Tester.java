@@ -10,10 +10,10 @@ import AST.CompilationUnit;
 import jargs.gnu.CmdLineParser;
 
 /**
- * TODO
- * Koden her har sklidd litt ut. bør deles opp i et par klasser til...
+ * TODO Koden her har sklidd litt ut. bør deles opp i et par klasser til...
+ * 
  * @author eivindgl
- *
+ * 
  */
 public class Tester {
 
@@ -42,27 +42,36 @@ public class Tester {
 
 	private void runtests() {
 		if (isSingle) {
-			verbose = true;
-			runTest(singleFilename);
-		} else {
-			performSingleFilesTests();
-			performMultipleFilesTest();
+			File f = new File(singleFilename);
+			if (f.isDirectory())
+				multipleFileFolder = singleFilename;
+			else
+				singleFileFolder = singleFilename;
 		}
+		performSingleFilesTests();
+		performMultipleFilesTest();
 	}
 
 	private void performSingleFilesTests() {
+		if (singleFileFolder == null) return;
 		FileIO f = new FileIO(singleFileFolder);
-		if (!f.isDirectory())
+		if (!f.isDirectory()) {
+			if (f.isFile()) {
+				runTest(singleFileFolder);
+				return;
+			}
 			throw new IllegalArgumentException(singleFileFolder
 					+ " is not a directory.");
+		}
 		Collection<File> files = f.getFilesInFolderAndSubFolders("java");
 		for (File file : files) {
-			String fileName = file.getAbsolutePath();
+			String fileName = file.getPath();
 			runTest(fileName);
 		}
 	}
 
 	private void performMultipleFilesTest() {
+		if (multipleFileFolder == null) return;
 		System.out.println("multiple: " + multipleFileFolder);
 		FileIO f = new FileIO(multipleFileFolder);
 		if (!f.isDirectory())
@@ -124,21 +133,27 @@ public class Tester {
 		return totalFail + totalOK;
 	}
 
+	public Tester() {
+		notPassed = new LinkedList<String>();
+		totalFail = 0;
+		totalOK = 0;
+	}
+
 	public Tester(boolean isVerbose, boolean isStopFirst,
 			String singleFileFolder, String multipleFileFolder) {
+		this();
 		verbose = isVerbose;
 		stopFirst = isStopFirst;
 		this.singleFileFolder = singleFileFolder;
 		this.multipleFileFolder = multipleFileFolder;
-		notPassed = new LinkedList<String>();
-		totalFail = 0;
-		totalOK = 0;
 		isSingle = false;
 	}
 
 	public Tester(String filename) {
+		this();
 		isSingle = true;
 		singleFilename = filename;
+		verbose = true;
 	}
 
 	private String getSummary() {
@@ -178,15 +193,19 @@ public class Tester {
 				Boolean.FALSE);
 
 		Tester tester;
-		if (true) {
-			String singleFileFolder = (String) parser
-					.getOptionValue(testSingleDirOption, 0);
-			String multipleFilesFolder = (String) parser
-					.getOptionValue(testMultipleDirOption, 0);
+		String singleFileFolder = (String) parser
+				.getOptionValue(testSingleDirOption);
+		String multipleFilesFolder = (String) parser
+				.getOptionValue(testMultipleDirOption);
+
+		if (singleFileFolder != null || multipleFilesFolder != null)
 			tester = new Tester(isVerbose, isStopFirst, singleFileFolder,
 					multipleFilesFolder);
-		} else {
+		else {
 			String[] filenames = parser.getRemainingArgs();
+			if (filenames.length != 1)
+				throw new IllegalArgumentException(
+						"Must test a single file or (singleFileFolderOption and/or multipleFileFolderOption). None given. TODO nicer output..");
 			tester = new Tester(filenames[0]);
 		}
 		return tester;
