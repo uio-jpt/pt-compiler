@@ -101,7 +101,10 @@
 
     <target name="testall" depends="build">
         <java classname="testutils.Tester" classpathref="classpath.runtest">
-            <arg value="test/"/>
+            <arg value="--testSingleFiles"/>          
+            <arg value="test/single_file"/>
+            <arg value="--testFolderAsUnit"/>                      
+            <arg value="test/multiple_files"/>
         </java>
     </target>
 

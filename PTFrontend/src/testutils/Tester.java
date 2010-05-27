@@ -9,6 +9,12 @@ import java.util.Map;
 import AST.CompilationUnit;
 import jargs.gnu.CmdLineParser;
 
+/**
+ * TODO
+ * Koden her har sklidd litt ut. bør deles opp i et par klasser til...
+ * @author eivindgl
+ *
+ */
 public class Tester {
 
 	private boolean verbose;
@@ -16,7 +22,10 @@ public class Tester {
 	private int totalFail;
 	private int totalOK;
 	private List<String> notPassed;
-	private String[] filenames;
+	private String singleFileFolder;
+	private String multipleFileFolder;
+	private boolean isSingle;
+	private String singleFilename;
 
 	public static void main(String[] args) {
 		Tester tester = parseArgsAndInstantiate(args);
@@ -32,27 +41,20 @@ public class Tester {
 	}
 
 	private void runtests() {
-		for (String filename : filenames) {
-			processFilename(filename);
-		}
-	}
-
-	public void processFilename(String filename) {
-		FileIO testFile = new FileIO(filename);
-
-		if (testFile.isDirectory()) {
-			performSingleFilesTests(testFile);
-			performMultipleFilesTest(testFile);
-		} else if (testFile.isFile()) {
+		if (isSingle) {
 			verbose = true;
-			runTest(filename);
+			runTest(singleFilename);
 		} else {
-			throw new IllegalArgumentException(filename
-					+ " is not a legal path. ");
+			performSingleFilesTests();
+			performMultipleFilesTest();
 		}
 	}
 
-	private void performSingleFilesTests(FileIO f) {
+	private void performSingleFilesTests() {
+		FileIO f = new FileIO(singleFileFolder);
+		if (!f.isDirectory())
+			throw new IllegalArgumentException(singleFileFolder
+					+ " is not a directory.");
 		Collection<File> files = f.getFilesInFolderAndSubFolders("java");
 		for (File file : files) {
 			String fileName = file.getAbsolutePath();
@@ -60,9 +62,14 @@ public class Tester {
 		}
 	}
 
-	private void performMultipleFilesTest(FileIO f) {
+	private void performMultipleFilesTest() {
+		System.out.println("multiple: " + multipleFileFolder);
+		FileIO f = new FileIO(multipleFileFolder);
+		if (!f.isDirectory())
+			throw new IllegalArgumentException(multipleFileFolder
+					+ " is not a directory.");
 		Map<String, LinkedList<String>> filesInFolder = f
-				.createFolderMap("ptjava");
+				.createFolderMap("java");
 		for (String folderName : filesInFolder.keySet()) {
 			runTest(folderName, filesInFolder.get(folderName));
 		}
@@ -95,11 +102,11 @@ public class Tester {
 			String normalMsgs = test.getNormalMsgs();
 			if (!normalMsgs.isEmpty())
 				System.out.println("verbose normal:\n" + normalMsgs);
-			
+
 			String warningMsgs = test.getWarningMsgs();
 			if (!warningMsgs.isEmpty())
 				System.out.println("verbose warning:\n" + warningMsgs);
-			
+
 			String errorMsgs = test.getErrorMsgs();
 			if (!errorMsgs.isEmpty())
 				System.out.println("verbose error:\n" + errorMsgs);
@@ -117,13 +124,21 @@ public class Tester {
 		return totalFail + totalOK;
 	}
 
-	public Tester(boolean isVerbose, boolean isStopFirst, String[] filenames) {
+	public Tester(boolean isVerbose, boolean isStopFirst,
+			String singleFileFolder, String multipleFileFolder) {
 		verbose = isVerbose;
 		stopFirst = isStopFirst;
-		this.filenames = filenames;
+		this.singleFileFolder = singleFileFolder;
+		this.multipleFileFolder = multipleFileFolder;
 		notPassed = new LinkedList<String>();
 		totalFail = 0;
 		totalOK = 0;
+		isSingle = false;
+	}
+
+	public Tester(String filename) {
+		isSingle = true;
+		singleFilename = filename;
 	}
 
 	private String getSummary() {
@@ -146,6 +161,10 @@ public class Tester {
 		CmdLineParser parser = new CmdLineParser();
 		CmdLineParser.Option verbose = parser.addBooleanOption("verbose");
 		CmdLineParser.Option stopFirst = parser.addBooleanOption("stopFirst");
+		CmdLineParser.Option testSingleDirOption = parser
+				.addStringOption("testSingleFiles");
+		CmdLineParser.Option testMultipleDirOption = parser
+				.addStringOption("testFolderAsUnit");
 
 		try {
 			parser.parse(args);
@@ -158,8 +177,18 @@ public class Tester {
 		boolean isStopFirst = (Boolean) parser.getOptionValue(stopFirst,
 				Boolean.FALSE);
 
-		String[] filenames = parser.getRemainingArgs();
-		Tester tester = new Tester(isVerbose, isStopFirst, filenames);
+		Tester tester;
+		if (true) {
+			String singleFileFolder = (String) parser
+					.getOptionValue(testSingleDirOption, 0);
+			String multipleFilesFolder = (String) parser
+					.getOptionValue(testMultipleDirOption, 0);
+			tester = new Tester(isVerbose, isStopFirst, singleFileFolder,
+					multipleFilesFolder);
+		} else {
+			String[] filenames = parser.getRemainingArgs();
+			tester = new Tester(filenames[0]);
+		}
 		return tester;
 	}
 }
