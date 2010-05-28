@@ -1,22 +1,16 @@
-package testutils;
+package testutils.utils;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.filefilter.SuffixFileFilter;
-
 import testutils.javaparser.PTJavaParser;
 import AST.ClassDecl;
 import AST.CompilationUnit;
-import AST.JavaParser;
-import AST.PTCompilationUnit;
-import AST.PTDecl;
+import AST.ImportDecl;
 import AST.PTPackage;
-import AST.SimpleClass;
 
 public class CompileToPackage extends PTFrontend {
 
@@ -50,7 +44,12 @@ public class CompileToPackage extends PTFrontend {
 			List<String> classNames = new LinkedList<String>();
 			for (ClassDecl c : p.getClassList()) {
 				classNames.add(c.getID());
-				addSource(p.getID(), c.getID(), c.toString());
+				StringBuffer source = new StringBuffer();
+				source.append(String.format("package %s;\n\n",p.getID()));
+				for (ImportDecl id : unit.getImportDeclList())
+					source.append(id.toString() + "\n");
+				source.append(c.toString() + "\n");
+				addSource(p.getID(), c.getID(), source.toString());
 			}
 			packageNameToClassNames.put(p.getID(),classNames);
 		}

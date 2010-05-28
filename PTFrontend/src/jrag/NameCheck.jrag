@@ -6,6 +6,11 @@ aspect NameCheck {
             error("PTTemplate " + getID() + " not found in compilation unit.");
     }
 
+    public void PTDecl.nameCheck() {
+        if (lookupPTDecl(getID()) != this)
+            error("Template or Package with name " + getID() + " is multiply declared in compilation unit.");
+    }
+
     public void ConstructorDecl.callsMergedConstructorsCheck() {
         HashSet<String> mustBeCalled = getMergedClassesWithConstructors();
         HashSet<String> actuallyCalled = getMergedSuperCallNames();

@@ -3,80 +3,39 @@ package testutils;
 import jargs.gnu.CmdLineParser;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.security.CodeSource;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
-import org.apache.commons.io.IOUtils;
+import testutils.exceptions.CompileErrorException;
+import testutils.exceptions.FatalErrorException;
+import testutils.utils.FileIO;
 
 public class PTToJavaPackage {
-	private static final String GENERIC_BUILD_XML_LOCATION = "txt/generic-build.xml";
+
 	private String sourceFolderName;
 	private String outputFolderName;
 	private boolean verbose;
-	private FileIO sourceFolder;
-	private String[] inputfileNames;
-	private FileIO outputSrcFolder;
-	private CompileToPackage compilerInterface;
-	private FileIO outputBaseFolder;
-	private String genericBuildFile;
+	private String[] inputfilenames; 
+	private GenerateJava compiler;
 
 	public static void main(String[] args) {
 		try {
 			PTToJavaPackage controller = parseArgsAndInstantiate(args);
-			controller.checkArgs();
-			controller.buildAST();
-			if (controller.noErrors()) {
-				controller.writePackages();
-				controller.writeBuildXML();
-				System.out.println("Compilation completed. Java package(s) written to " + controller.outputFolderName);
-			} else {
-				controller.printErrorReport();
-			}
+			controller.readSourceFolder();
+			controller.compileAndWrite();
+			System.out
+					.println("Compilation completed. Java package(s) written to "
+							+ controller.outputFolderName);
 		} catch (FatalErrorException e) {
 			System.out.println("Fatal error:");
 			System.out.println(e.getMessage());
+		} catch (CompileErrorException e) {
+			System.out.println("Compilation had errors.");
 		}
 	}
 
-	private boolean noErrors() {
-		return compilerInterface.getErrorMsgs().isEmpty();
-	}
-
-	private void printErrorReport() {
-		StringBuilder sb = new StringBuilder();
-		for (String errorSource : compilerInterface.getSourceWithErrors()) {
-			sb.append(errorSource + "\n");
-		}
-		sb.append("Error: " + compilerInterface.getErrorMsgs());
-		error(sb.toString());
-	}
-
-	private void writeBuildXML() {
-		File jarPath = getJarPath();
-		genericBuildFile = readGenericBuildFile(jarPath);
-		FileIO buildFile = outputBaseFolder.createExtendedPath("build.xml");
-		String buildFileText = genericBuildFile.replaceFirst("PROJECTNAME",
-				outputBaseFolder.getName());
-		buildFile.write(buildFileText);
-	}
-
-	private String readGenericBuildFile(File jarPath) {
-		StringWriter writer = new StringWriter();
-		try {
-			JarFile jar = new JarFile(jarPath);
-			ZipEntry entry = jar.getEntry(GENERIC_BUILD_XML_LOCATION);
-			InputStream stream = jar.getInputStream(entry);
-			IOUtils.copy(stream, writer);
-		} catch (IOException e) {
-			error(String.format(
-					"Couldn't read file %s from jarfile at path: %s",
-					GENERIC_BUILD_XML_LOCATION, jarPath));
-		}
-		return writer.toString();
+	private void compileAndWrite() {
+		compiler = new GenerateJava(inputfilenames, outputFolderName);
+		compiler.compile();
+		compiler.write();
 	}
 
 	private void error(String message) {
@@ -84,74 +43,22 @@ public class PTToJavaPackage {
 
 	}
 
-	private File getJarPath() {
-		CodeSource codeSource = PTToJavaPackage.class.getProtectionDomain()
-				.getCodeSource();
-		String jarPath = codeSource.getLocation().getPath();
-		return new File(jarPath);
-	}
-
-	/** TODO cleanup */
-	private void checkArgs() {
-		verbose("SourceFolderName: " + sourceFolderName);
-		verbose("OutputFolderName: " + outputFolderName);
-		if (sourceFolderName == null || outputFolderName == null)
-			error("Missing sourceFolder or outputFolder");
-		sourceFolder = new FileIO(sourceFolderName);
+	private void readSourceFolder() {
+		FileIO sourceFolder;
+		try {
+			sourceFolder = new FileIO(sourceFolderName);
+			verbose("SourceFolderName: " + sourceFolderName);
+		} catch (NullPointerException e) {
+			sourceFolder = null;
+			error("Missing sourceFolder");
+		}
 		if (!sourceFolder.isDirectory())
 			error(String.format("Source folder directory '%s' not found.",
 					sourceFolderName));
-		inputfileNames = sourceFolder.getFilePaths("java");
-		outputBaseFolder = new FileIO(outputFolderName);
-		outputSrcFolder = outputBaseFolder.createExtendedPath("src");
-		if (outputSrcFolder.exists()) {
-			if (!outputSrcFolder.isDirectory())
-				throw new IllegalArgumentException(String.format(
-						"Destination path '%s' exists and is not a directory.",
-						outputFolderName));
-		} else {
-			boolean outputFolderCreated = outputSrcFolder.mkdirs();
-			if (!outputFolderCreated)
-				error(String
-						.format(
-								"Destination path '%s' did not exist and couldn't be created.",
-								outputFolderName));
-		}
-		if (!outputSrcFolder.exists())
-			outputSrcFolder.mkdir();
-		verbose("Printing all [" + inputfileNames.length + "] inputfilenames.");
-		for (String filename : inputfileNames)
+		inputfilenames = sourceFolder.getFilePaths("java");
+		verbose("Printing all [" + inputfilenames.length + "] inputfilenames.");
+		for (String filename : inputfilenames)
 			verbose("\tinputfilename: " + filename);
-	}
-
-	private void buildAST() {
-		compilerInterface = new CompileToPackage(inputfileNames);
-		boolean result = compilerInterface.process();
-		verbose("Compilation done " + (result ? "without" : "with")
-				+ " errors.");
-	}
-
-	private void writePackages() {
-		verbose("Writing packages to disk");
-		for (String packageName : compilerInterface.getPackageNames()) {
-			FileIO packageFolder = outputSrcFolder
-					.createExtendedPath(packageName);
-			packageFolder.mkdir();
-			verbose(String
-					.format("\tWriting package [%s] to disk", packageName));
-			for (String classname : compilerInterface
-					.getClassnames(packageName)) {
-				verbose(String
-						.format("\tWriting class [%s] to disk", classname));
-				FileIO classFile = packageFolder.createExtendedPath(classname
-						+ ".java");
-				String source = String.format("package %s;\n\n", packageName);
-				source += compilerInterface
-						.getClassData(packageName, classname);
-				source += "\n";
-				classFile.write(source);
-			}
-		}
 	}
 
 	private void verbose(String string) {

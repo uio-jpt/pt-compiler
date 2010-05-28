@@ -1,4 +1,4 @@
-package testutils;
+package testutils.utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -62,5 +61,14 @@ public class FileIO extends File {
 
 	public String readFile() throws IOException {
 		return FileUtils.readFileToString(this);
+	}
+
+	public FileIO skipExtension() {
+		String path = getPath();
+		int splitIndex = path.lastIndexOf(".");
+		if (splitIndex > 0) {
+			path = path.substring(0,splitIndex);
+		}
+		return new FileIO(path);
 	}
 }

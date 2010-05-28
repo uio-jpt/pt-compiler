@@ -1,4 +1,4 @@
-package testutils;
+package testutils.utils;
 import AST.*;
 
 import java.util.*;
@@ -136,15 +136,15 @@ public class PTFrontend {
 
     
     
-    String getErrorMsgs(){
+    public String getErrorMsgs(){
     	return errorMsgs.toString();
     }
     
-    String getWarningMsgs() {
+    public String getWarningMsgs() {
     	return warningMsgs.toString();
     }
     
-    String getNormalMsgs() {
+    public String getNormalMsgs() {
     	return normalMsgs.toString();
     }
 
