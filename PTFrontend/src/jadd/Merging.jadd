@@ -85,16 +85,17 @@ aspect Merging {
     // TOOD use google collections set operations
     public HashSet<String> SimpleClass.getConflicts(LinkedList<PTDummyClass> dummies) {
         HashSet<String>  collisions = new HashSet<String>();
-        HashSet<String> allDefinisions = new HashSet<String>();
+        HashSet<String> allDefinitions = getClassDecl().getDefinitionSignatures();
         
         for (PTDummyClass dummy : dummies) {
             HashSet<String> instanceDecls = dummy.getDefinitionsRenamed();
             HashSet<String> localCollisions = new HashSet<String>(instanceDecls);
-            localCollisions.retainAll(allDefinisions);
+            localCollisions.retainAll(allDefinitions);
             instanceDecls.removeAll(localCollisions);
-            allDefinisions.addAll(instanceDecls);
+            allDefinitions.addAll(instanceDecls);
             collisions.addAll(localCollisions);
         }
+        //System.out.println("collisions: " + collisions);
         return collisions;
         
     }
@@ -102,15 +103,15 @@ aspect Merging {
     //TODO abort on error
     public void SimpleClass.attemptInstantiation(PTDummyClass instantiator) {
         try {
-            ClassDecl ext = normalCopyAndRename(instantiator);
+            ClassDecl ext = instantiator.getInstantiatedClass();
             addDecls(ext);
         } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
     }
 
-    public ClassDecl SimpleClass.normalCopyAndRename(PTDummyClass instantiator) {
-        ClassDecl ext = instantiator.getOriginator().fullCopy();
-        ext.renameTypes(instantiator.getInstDecl().getRenamedClasses());
-        ext.renameDefinitions(instantiator.getExplicitlyRenamedDefinitions());
+    public ClassDecl PTDummyClass.getInstantiatedClass() {
+        ClassDecl ext = getOriginator().fullCopy();
+        ext.renameTypes(getInstDecl().getRenamedClasses());
+        ext.renameDefinitions(getExplicitlyRenamedDefinitions());
         return ext;
     }
 
@@ -119,7 +120,7 @@ aspect Merging {
                                                                      HashSet<String> conflicts) {
         LinkedList<ClassDecl> copiesToBeMerged = new LinkedList<ClassDecl>();
         for (PTDummyClass instantiator : dummies) {
-            ClassDecl ext = normalCopyAndRename(instantiator);
+            ClassDecl ext = instantiator.getInstantiatedClass();
             ext.resolveConflicts(instantiator,conflicts);
             ext.renameConstructors(instantiator);
             copiesToBeMerged.add(ext);
@@ -137,6 +138,8 @@ aspect Merging {
     
     public void ClassDecl.resolveConflicts(PTDummyClass instantiator, HashSet<String> conflicts) {
         HashMap<String,String> resolvedConflict = instantiator.getRenamedConflictsMap(conflicts);
+        //System.out.println("conflicts: " + conflicts);
+        //System.out.println("resolved: " + resolvedConflict);
         renameDefinitions(resolvedConflict);
     }
 
