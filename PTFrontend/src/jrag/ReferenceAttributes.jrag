@@ -107,7 +107,7 @@ aspect ReferenceAttributes {
         LinkedList<String> templates = new LinkedList<String>();
         for (PTInstDecl p : getPTInstDeclList()) {
             for (PTDummyClass pd : p.getPTDummyClassList()) {
-                if (pd.getOrgID().equals(superClassName) && pd.getOriginator().methodNames().contains(methodName)) {
+                if (pd.getOrgID().equals(superClassName) && pd.getInstantiatedClass().methodNames().contains(methodName)) {
                     templates.add(p.getID());
                 }
             }

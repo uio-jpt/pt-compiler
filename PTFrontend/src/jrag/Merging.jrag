@@ -39,6 +39,7 @@ aspect Merging {
                 name = namesMap.get(name);
             definitionNames.add(name);
         }
+        //System.out.println("definitions renamed: " + definitionNames);
         return definitionNames;
     }
     
