@@ -131,9 +131,21 @@ aspect ReferenceAttributes {
         //return "";
     }
 
-    eq PTMergedMethodAccess.name() = "super[" + getTemplateID() + "." + getSuperClassID() + "]." + getID();
+    eq PTMergedMethodAccess.name() {
+        if (getParentClass(PTPackage.class) == null) {
+            return "super[" + getTemplateID() + "." + getSuperClassID() + "]." + getID();
+        } else {
+            return "super_" + getTemplateID() + "_" + getSuperClassID() + "_" + getID();
+        }
+    }
 
-    eq PTMergedConstructorAccess.name() = "super[" + getSuperClassID() + "]";
+    eq PTMergedConstructorAccess.name()  {
+        if (getParentClass(PTPackage.class) == null) {
+            return "super[" + getSuperClassID() + "]";
+        } else {
+            return "super_" + getSuperClassID();
+        }
+    }
 
     /*    
     coll LinkedList<PTMergedConstructor> ClassDecl.getMergedConstructors() [new LinkedList<PTMergedConstructor>()]

@@ -19,7 +19,9 @@ aspect InstantiationRewrite {
             extendAddClassesWithInstantiatons();
             updateAddsSuperClasses();
             copyImportDecls();
-            this.isRewritten = true;                        
+            this.isRewritten = true;
+            flushCaches();            
+            makePTPackageNamesCompilable();
             return this;
         }
     }
