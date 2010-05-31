@@ -24,11 +24,11 @@ $ cd pt-compiler/PTFrontend
 #
 # outputfolder defaults to {inputfolder}_output
 # in this case it's resources/sample_projects/test-pt_output
-$ java -jar $PTPATH resources/sample_projects/test-pt
+$ java -jar build/jar/PTCompiler.jar resources/sample_projects/test-pt
 #
 # same as above, with verbose flag on.
-$ java -jar $PTPATH -v resources/sample_projects/test-pt
+$ java -jar build/jar/PTCompiler.jar -v resources/sample_projects/test-pt
 #
 # outputfolder specified
-$ java -jar $PTPATH resources/sample_projects/test-pt -o /tmp/pt-out
+$ java -jar build/jar/PTCompiler.jar resources/sample_projects/test-pt -o /tmp/pt-out
 
