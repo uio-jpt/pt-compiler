@@ -9,6 +9,7 @@ import java.security.CodeSource;
 import java.util.Scanner;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 
 import org.apache.commons.io.IOUtils;
 
@@ -18,7 +19,7 @@ import testutils.exceptions.FatalErrorException;
 public class GenericBuildXML {
 
 	private static final String GENERIC_BUILD_XML_LOCATION = "txt/generic-build.xml";
-	
+
 	private static String readGenericBuildFile(File jarPath) {
 		StringWriter writer = new StringWriter();
 		try {
@@ -26,24 +27,24 @@ public class GenericBuildXML {
 			ZipEntry entry = jar.getEntry(GENERIC_BUILD_XML_LOCATION);
 			InputStream stream = jar.getInputStream(entry);
 			IOUtils.copy(stream, writer);
-		} catch (IOException e) {
-			throw new FatalErrorException(String.format(
-					"Couldn't read file %s from jarfile at path: %s",
-					GENERIC_BUILD_XML_LOCATION, jarPath));
-		} catch (NullPointerException e) {
+		} catch (ZipException e) {
 			// happens when run from classfiles and not jar file
 			Scanner f;
 			try {
-				f = new Scanner(new File ("resources/txt/generic-build.xml"));
+				f = new Scanner(new File("resources/txt/generic-build.xml"));
 			} catch (FileNotFoundException e1) {
 				f = null;
 				throw new FatalErrorException("generic-build.xml not found.");
 			}
 			StringBuffer sb = new StringBuffer();
-			while( f.hasNextLine() ) {
+			while (f.hasNextLine()) {
 				sb.append(f.nextLine() + "\n");
 			}
 			return sb.toString();
+		} catch (IOException e) {
+			throw new FatalErrorException(String.format(
+					"Couldn't read file %s from jarfile at path: %s",
+					GENERIC_BUILD_XML_LOCATION, jarPath));
 		}
 		return writer.toString();
 	}

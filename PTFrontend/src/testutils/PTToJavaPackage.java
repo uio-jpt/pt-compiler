@@ -13,23 +13,29 @@ public class PTToJavaPackage {
 	private String sourceFolderName;
 	private String outputFolderName;
 	private boolean verbose;
-	private String[] inputfilenames; 
+	private String[] inputfilenames;
 	private GenerateJava compiler;
 
 	public static void main(String[] args) {
+		PTToJavaPackage controller = parseArgsAndInstantiate(args);
+		controller.run();
+	}
+
+	private void run() {
 		try {
-			PTToJavaPackage controller = parseArgsAndInstantiate(args);
-			controller.readSourceFolder();
-			controller.compileAndWrite();
+			readSourceFolder();
+			compileAndWrite();
 			System.out
 					.println("Compilation completed. Java package(s) written to "
-							+ controller.outputFolderName);
+							+ outputFolderName);
 		} catch (FatalErrorException e) {
 			System.out.println("Fatal error:");
 			System.out.println(e.getMessage());
 		} catch (CompileErrorException e) {
+			System.out.println(e.getMessage());
 			System.out.println("Compilation had errors.");
 		}
+
 	}
 
 	private void compileAndWrite() {

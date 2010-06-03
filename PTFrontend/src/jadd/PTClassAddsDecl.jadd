@@ -23,24 +23,6 @@ aspect PTClassAddsDecl {
         return null;
     }
 
-    /*    
-    public void PTMergedMethodAccess.collectErrors() {
-        if (getConstructorCall() && !hasParentClass(ConstructorDecl.class)) {
-            error("Merged super constructor call only allowed inside a constructor declaration.");
-        }
-        else if (!getConstructorCall() && hasParentClass(ConstructorDecl.class)) {
-            error("Merged super call " + name() + " not allowed inside constructor declaration.");
-        }
-        else if (!getConstructorCall() && hasParentClass(MethodDecl.class)) {
-            MethodDecl md = (MethodDecl)getParentClass(MethodDecl.class);
-            if (!md.getID().equals(getID())) {
-                error("Merged super call " + name() + " cannot be called from method " + md.getID());
-            }
-        }
-    }
-    */
-    
-    // TODO inner if test is a tautology
     public void PTClassAddsDecl.updateSuperName(LinkedList<PTDummyClass> dummies) {
         String name = null;
         for (PTDummyClass dummy : dummies) {
@@ -51,7 +33,7 @@ aspect PTClassAddsDecl {
                 else if (dummySuperName.equals(name)) {
                     // all ok
                 } else {
-                    error(String.format("Merge error for %s. superklasses %s and %s must be merged. ",
+                    error(String.format("Merge error for %s. superklasses %s and %s must be merged.\n",
                                          getID(), name, dummySuperName));
                 }
             }

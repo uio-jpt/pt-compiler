@@ -3,12 +3,12 @@ aspect NameCheck {
     /** Checks that instantiation refers to actual template */
     public void PTInstDecl.nameCheck() {
         if (getTemplate() == null)
-            error("PTTemplate " + getID() + " not found in compilation unit.");
+            error("PTTemplate " + getID() + " not found in compilation unit.\n");
     }
 
     public void PTDecl.nameCheck() {
         if (lookupPTDecl(getID()) != this)
-            error("Template or Package with name " + getID() + " is multiply declared in compilation unit.");
+            error("Template or Package with name " + getID() + " is multiply declared in compilation unit.\n");
     }
 
     public void ConstructorDecl.callsMergedConstructorsCheck() {
@@ -17,25 +17,25 @@ aspect NameCheck {
         HashSet<String> missing = new HashSet<String>(mustBeCalled);
         missing.removeAll(actuallyCalled);
         for (String name : missing) {
-            error("Missing merged constructor call to mergee class: " + name);
+            error("Missing merged constructor call to mergee class: " + name + "\n");
         }
     }
 
     public void PTMergedConstructorAccess.isCalledFromConstructor() {
         if (getConstructorDecl() == null)
-            error("A merged constructor may only be called from a constructor.");
+            error("A merged constructor may only be called from a constructor.\n");
     }
 
     public void PTMergedMethodAccess.isCalledFromOverridingMethod() {
         String methodName;
-        String errorMsg = "A merged method may only be called from its overriding method.";
+        String errorMsg = "A merged method may only be called from its overriding method.\n";
         MethodDecl methodDecl = ((MethodDecl)getParentClass(MethodDecl.class));
         if (methodDecl == null)
-            error(errorMsg);
+            error(errorMsg + "\n");
 
         methodName = methodDecl.getID();
         if (!methodName.equals(getID())) 
-            error(errorMsg);
+            error(errorMsg + "\n");
     }
 
     public void PTMergedMethodAccess.collectErrors() {
@@ -60,7 +60,7 @@ aspect NameCheck {
     public void PTDecl.noCircularInstantiation() {
         HashSet<String> instantiatiorChain = getInstantiatorChain();
         if (instantiatiorChain.contains(getID())) {
-            error("has a circular instantiation chain.");
+            error("has a circular instantiation chain.\n");
         }
     }
 
