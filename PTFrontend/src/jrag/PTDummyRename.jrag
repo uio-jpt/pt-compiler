@@ -31,20 +31,20 @@ aspect PTDummyRename {
     public void PTMethodRename.nameCheck() {
         if (!getOriginatorClass().methodsSignatureMap().containsKey(getSignature()))
             error("Method with signature " + getSignature() + " not found in originating class " +
-                  getOriginatorClass().getID() + ".");
+                  getOriginatorClass().getID() + ".\n");
     }
 
     public void PTMethodRenameAll.nameCheck() {
         if (!getOriginatorClass().methodNames().contains(getOrgID()))
             error("No method with name " + getOrgID() + " found in originating class " +
-                  getOriginatorClass().getID() + ".");
+                  getOriginatorClass().getID() + ".\n");
     }
     
 
     public void PTFieldRename.nameCheck() {
         if (!getOriginatorClass().memberFieldsMap().containsKey(getSignature()))
             error("Field " + getSignature() + " not found in originating class " +
-                  getOriginatorClass().getID() + ".");
+                  getOriginatorClass().getID() + ".\n");
 
     }
 

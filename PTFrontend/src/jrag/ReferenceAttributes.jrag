@@ -63,7 +63,7 @@ aspect ReferenceAttributes {
     syn boolean PTInstDecl.templateIsRewritten() {
         PTDecl template = getTemplate();
         if (template == null) {
-            error("Nonexisting template " + getID());
+            error("Nonexisting template " + getID() + "\n");
             return true;
         }
         return template.isRewritten;

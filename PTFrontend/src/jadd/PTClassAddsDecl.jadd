@@ -33,7 +33,7 @@ aspect PTClassAddsDecl {
                 else if (dummySuperName.equals(name)) {
                     // all ok
                 } else {
-                    error(String.format("Merge error for %s. superklasses %s and %s must be merged. ",
+                    error(String.format("Merge error for %s. superklasses %s and %s must be merged.\n",
                                          getID(), name, dummySuperName));
                 }
             }

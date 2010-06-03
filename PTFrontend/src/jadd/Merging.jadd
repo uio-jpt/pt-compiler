@@ -42,10 +42,10 @@ aspect Merging {
             if (isAddsClass()) {
                 return true;
             } else {
-                error("Class " + getID() + " has dual roles. It's both defined as an inpedendent class and as a template class instantiation.");
+                error("Class " + getID() + " has dual roles. It's both defined as an inpedendent class and as a template class instantiation.\n");
             }
         } else if (isAddsClass()) {
-            error(getID() + " is an add class, template source class not found!");
+            error(getID() + " is an add class, template source class not found!\n");
         }
         return false;
     }
@@ -70,7 +70,7 @@ aspect Merging {
         HashSet<String> addRefinements = getClassDecl().getDefinitionSignatures();
         for (String conflictingName : conflicts) {
             if (!addRefinements.contains(conflictingName)) {
-                error(conflictingName + "is an unresolved conflict during merging. ");
+                error(conflictingName + "is an unresolved conflict during merging.\n");
                 return false;
             }
         }
@@ -159,7 +159,7 @@ aspect Merging {
                    return;
                 }
                 catch (Exception e) {
-                    cd.error("Could not rewrite constructor " + cd.dumpString() + " to method during class merging.");
+                    cd.error("Could not rewrite constructor " + cd.dumpString() + " to method during class merging.\n");
                 }
             }
         }
@@ -185,7 +185,7 @@ aspect Merging {
                 oldConstructorInvocationAsMethod.IDend = sa.IDend;
                 md.getBlock().addStmt(new ExprStmt(oldConstructorInvocationAsMethod));
             } catch (Exception e) {
-                getConstructorInvocation().error("Could not rewrite constructor invocation to method: " + e);
+                getConstructorInvocation().error("Could not rewrite constructor invocation to method: " + e + "\n");
             }
         }
         for (Stmt s : getBlock().getStmtList()) {

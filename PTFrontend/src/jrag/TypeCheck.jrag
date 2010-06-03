@@ -2,7 +2,7 @@ aspect TypeCheck {
     
     public void PTDummyClass.typeCheck() {
         if (getOriginator()==null) { 
-            error("Unable to find class " + getOrgID() + " in template " + getTemplate().getID());
+            error("Unable to find class " + getOrgID() + " in template " + getTemplate().getID() + "\n");
         }
     }
 
