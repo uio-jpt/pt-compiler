@@ -42,10 +42,10 @@ aspect Merging {
             if (isAddsClass()) {
                 return true;
             } else {
-                error(getID() + " is not an adds class.. but got additions.");
+                error("Class " + getID() + " has dual roles. It's both defined as an inpedendent class and as a template class instantiation.");
             }
         } else if (isAddsClass()) {
-            error(getID() + " is an add class, source not found!");
+            error(getID() + " is an add class, template source class not found!");
         }
         return false;
     }
@@ -70,7 +70,7 @@ aspect Merging {
         HashSet<String> addRefinements = getClassDecl().getDefinitionSignatures();
         for (String conflictingName : conflicts) {
             if (!addRefinements.contains(conflictingName)) {
-                error(conflictingName + " is not resolved.. ");
+                error(conflictingName + "is an unresolved conflict during merging. ");
                 return false;
             }
         }
