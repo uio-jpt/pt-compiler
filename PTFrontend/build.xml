@@ -291,7 +291,8 @@
     <java classpath="${tools}/JastAddParser.jar:${tools}/beaver-rt.jar" classname="Main" fork="true">
 
       <jvmarg value="${heap-max}" />      
-      <arg line="${src.gen.parser.filename_lalr} ${src.gen.parser.filename}" />
+      <arg value="${src.gen.parser.filename_lalr}" />
+      <arg value="${src.gen.parser.filename}" />
     </java>
     <!-- generate the parser phase 3, translating .beaver to .java -->
     <beaver file="${src.gen.parser.filename}" terminalNames="yes" compress="yes" useSwitch="yes"/>

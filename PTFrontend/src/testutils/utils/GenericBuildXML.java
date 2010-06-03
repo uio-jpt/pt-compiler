@@ -18,7 +18,7 @@ import testutils.exceptions.FatalErrorException;
 
 public class GenericBuildXML {
 
-	private static final String GENERIC_BUILD_XML_LOCATION = "txt/generic-build.xml";
+	private static final String GENERIC_BUILD_XML_LOCATION = "txt" + File.separator + "generic-build.xml";
 
 	private static String readGenericBuildFile(File jarPath) {
 		StringWriter writer = new StringWriter();
