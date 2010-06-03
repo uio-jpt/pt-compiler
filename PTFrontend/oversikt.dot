@@ -1,0 +1,63 @@
+digraph G {
+
+    /* bruk 
+        $ dot oversikt.dot -Tpdf -o oversikt.pdf
+       for å lage
+       eller f.eks. ZGRViewer.
+    */
+    rankdir=LR;
+
+   ptdecl [label="rewrite ptdecl (templat eller pakke)"];
+   ptdecl -> createEmptyMissingAddClasses;
+   createEmptyMissingAddClasses -> getAdditionClassNamesSet;
+   createEmptyMissingAddClasses -> getClassNamesWithDummyList;
+   PTClassAddsDecladds [label="PTClassAddsDecl contributes getID() to.. for getPTDecl"];
+   PTClassAddsDecladds -> getAdditionClassNamesSet [style=dotted];
+   getAdditionClassNamesSet [label="getAdditionClassNamesSet \n dvs. de faktisk, eksplisitt definerte adds klassene."];
+   createEmptyMissingAddClasses -> addSimpleClass;
+   addSimpleClass [label="addSimpleClass() { \n legg til de manglende adds klassene.}"];
+
+   getClassNamesWithDummyList [label="getClassNamesWithDummyList\nreturnerer HashMap<String, LinkedList<PTDummyClass>> \nder String er target class, og LinkedList er source class.\nFra inst .. with source => target"];
+
+
+    ptdecl -> extendAddClassesWithInstantiatons;
+    extendAddClassesWithInstantiatons -> isExtensible -> initiateExtension;
+
+    initiateExtension [label="hvis sourceClasses.size() > 1 goto attemptMerging; \n else goto attemptInstantiation;"];
+
+    initiateExtension -> attemptMerging [style=dotted];
+
+    attemptMerging [label="attemptMerging(): \n if mergingIsPossible(getConclicts(sourceClasses)) { \n copyAndRenameForMerging(); \n add-all-declarations()\n; }"];
+
+    attemptMerging -> getConflicts [style=dotted];
+    getConflicts [label="getConclicts():\n finner kollisjoner på signaturer."];
+
+    attemptMerging -> mergingIsPossible [style="dotted"];
+
+    mergingIsPossible [label="mergingIsPossible(conflicts) { \n sjekker at: \n adds klasse ordner opp i doble metodedefinisjoner\n adds klasse har egen konstruktør."];
+
+    attemptMerging -> copyAndRenameForMerging;
+    copyAndRenameForMerging [label="copyAndRenameForMerging { \n for all instantiations: \n x = getInstClass(); \n x.resolveConflicts() \n x.renameConstructors(); }"];
+    
+
+    copyAndRenameForMerging -> resolveConflicts;
+    resolveConflicts -> getRenamedConflictsMap;
+    resolveConflicts [label="resolveConflicts { \n renameDefinitions(instantiator.getRenamedConflictsMap(conflicts)); \n }"];
+    getRenamedConflictsMap [label="getRenamedConflictsMap { \n renamer alle konflikter til super[template.klasse].metodenavn"];
+
+    initiateExtension -> attemptInstantiation [style=dotted];
+
+    attemptInstantiation [label="attemptInstantiation() { \n addDecl(sourceClass.getInstantiatedClass());"];
+
+    ptdecl -> updateAddsSuperClasses;
+
+    updateAddsSuperClasses [label="updateAddsSuperClasses() { \n for hver adds klasse X i inst * => X: \n gi nytt superklassenavn basert på source klassene\n}"];
+
+    updateAddsSuperClasses -> updateSuperName;
+    updateSuperName [label="updateSuperName() { \n sjekk at superklassene til source klassene blir eksplisitt merget,\n og bruk dette navnet som nytt superklassenavn.\n}"];
+
+    getRenamedSuperclassName [label="PTDummyClass.getRenamedSuperclassName() { \n slå opp hva denne sin superklasse blir renavnet til \n }"];
+    updateSuperName -> getRenamedSuperclassName;
+    
+
+}
