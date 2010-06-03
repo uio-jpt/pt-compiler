@@ -43,9 +43,7 @@ aspect LookupType {
     inh SimpleSet PTClassDecl.lookupType(String name);
 
     eq PTDecl.getSimpleClass(int i).lookupType(String name) {
-        flushCollectionCache(); /* ved kopiering inn til package fra template av klasser,
-                                   så ser det ikke ut til at getClassList() collectionen
-                                   ble skikkelig oppdatert. kan kanskje fikses bedre? */
+        //flushCollectionCache();
         for (ClassDecl decl : getClassList())
             if (decl.getID().equals(name))
                 return SimpleSet.emptySet.add(decl);
