@@ -5,10 +5,30 @@ Implementasjonen ligger i mappen PTFrontend.
 
 $ git clone git@github.com:eivindgl/pt-compiler.git
 $ cd pt-compiler/PTFrontend
-$ ant testrun
 
-eventuelt:
+# Kjøring av tester:
+$ ant testall # semantikksjekk
+$ ant testcompile # test kompilering av gyldige passerte tester
+
+# Bygging av kompilator:
 $ ant jar
-# lager en jar fil i build/jar, som inneholder alle avhengigheter.
-$ java -jar build/jar/PTCompiler.jar <inputfolder> [-o
-outputfolder=<folder_name>] [-v | --verbose]
+# jar filen opprettes i mappen PTFrontend/build/jar/
+
+# Kjøring av kompilator
+# generelt slik:
+$ java -jar build/jar/PTCompiler.jar <inputfolder> [-o <folder_name>] [-v]
+  
+# Usage Examples:
+#
+$ cd pt-compiler/PTFrontend
+#
+# outputfolder defaults to {inputfolder}_output
+# in this case it's resources/sample_projects/test-pt_output
+$ java -jar build/jar/PTCompiler.jar resources/sample_projects/test-pt
+#
+# same as above, with verbose flag on.
+$ java -jar build/jar/PTCompiler.jar -v resources/sample_projects/test-pt
+#
+# outputfolder specified
+$ java -jar build/jar/PTCompiler.jar resources/sample_projects/test-pt -o /tmp/pt-out
+
