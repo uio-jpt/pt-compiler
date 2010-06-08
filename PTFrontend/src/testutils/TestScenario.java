@@ -1,12 +1,35 @@
-package testutils.tester;
+package testutils;
 
 import jargs.gnu.CmdLineParser;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
 import testutils.exceptions.FatalErrorException;
+import testutils.tester.CompileSuite;
+import testutils.tester.FileInFolderIsSingleUnitSuite;
+import testutils.tester.FilesInFolderIsUnitSuite;
+import testutils.tester.ReportManager;
+import testutils.tester.SemanticReport;
+import testutils.tester.SimpleReport;
+import testutils.tester.SingleFileNamesSuite;
+import testutils.tester.TestSuiteView;
 
+/**
+ * Runs testfiles in the pt-compiler/PTFrontend/test folder.
+ * 
+ * A test instance is either a file (located in test/single_file) 
+ * or a folder containing multiple interdependent files (located in test/multiple_files).
+ * 
+ * A TestCase is a semantic check or a semantic check and compilation attempt of an instance.
+ * Compilation output is placed in PTFrontend/debug
+ * 
+ * It's possible to run a single TestCase or all TestCases in the test/ folder.
+ * 
+ * See the following build.xml targets: testall, testcompile, testsingle
+ *
+ */
 public class TestScenario {
 
 	private boolean verbose;
@@ -14,7 +37,7 @@ public class TestScenario {
 	private String multipleFileFolder;
 	private List<TestSuiteView> suites;
 	private ReportManager testReports;
-	private String[] singleFileNames;
+	private String[] singleTestNames;
 	private String compileTestsOutputFolder;
 	private boolean compileFlag;
 
@@ -71,8 +94,14 @@ public class TestScenario {
 		if (singleFileFolder != null) {
 			suites.add(new FileInFolderIsSingleUnitSuite(singleFileFolder));
 		}
-		if (singleFileNames.length > 0)
-			suites.add(new SingleFileNamesSuite(singleFileNames));
+		for (int i = 0; i < singleTestNames.length; i++) {
+			String name = singleTestNames[i];
+			File f = new File(name);
+			if (f.isDirectory())
+				suites.add(new FilesInFolderIsUnitSuite(name));
+			else
+				suites.add(new SingleFileNamesSuite(name));
+		}
 	}
 
 	private void runSuites() {
@@ -82,12 +111,12 @@ public class TestScenario {
 	}
 
 	public TestScenario(boolean isVerbose, String singleFileFolder,
-			String multipleFileFolder, String[] singleFilenames,
+			String multipleFileFolder, String[] singleTestNames,
 			String compileTestsOutputFolder) {
 		verbose = isVerbose;
 		this.singleFileFolder = singleFileFolder;
 		this.multipleFileFolder = multipleFileFolder;
-		this.singleFileNames = singleFilenames;
+		this.singleTestNames = singleTestNames;
 		this.compileTestsOutputFolder = compileTestsOutputFolder;
 		if (compileTestsOutputFolder != null)
 			compileFlag = true;
@@ -118,8 +147,8 @@ public class TestScenario {
 				.getOptionValue(testMultipleDirOption);
 		String compileTestsOutputFolder = (String) parser
 				.getOptionValue(compileTestsOutputFolderOption);
-		String[] singleFilenames = parser.getRemainingArgs();
+		String[] singleTestNames = parser.getRemainingArgs();
 		return new TestScenario(isVerbose, singleFileFolder,
-				multipleFilesFolder, singleFilenames, compileTestsOutputFolder);
+				multipleFilesFolder, singleTestNames, compileTestsOutputFolder);
 	}
 }

@@ -1,4 +1,4 @@
-package testutils;
+package testutils.tester;
 
 import testutils.exceptions.CompileErrorException;
 import testutils.exceptions.FatalErrorException;

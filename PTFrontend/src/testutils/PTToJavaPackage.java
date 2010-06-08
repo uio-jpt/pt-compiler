@@ -6,6 +6,7 @@ import java.io.File;
 
 import testutils.exceptions.CompileErrorException;
 import testutils.exceptions.FatalErrorException;
+import testutils.tester.GenerateJava;
 import testutils.utils.FileIO;
 
 public class PTToJavaPackage {
