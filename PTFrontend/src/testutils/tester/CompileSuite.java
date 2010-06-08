@@ -14,7 +14,6 @@ public class CompileSuite implements TestSuiteView {
 		this.compilableTests = compilableTests;
 	}
 
-	@Override
 	public void runSuite(ReportManager testReports) {
 		for (SemanticReport report: compilableTests) {
 			String outputFolderPath = getOutputfolderName(report.getPath());

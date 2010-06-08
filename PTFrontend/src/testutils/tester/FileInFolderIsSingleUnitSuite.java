@@ -10,7 +10,6 @@ public class FileInFolderIsSingleUnitSuite extends FolderTestSuite implements
 		super(foldername);
 	}
 
-	@Override
 	public void runSuite(ReportManager testReports) {
 		Collection<File> files = folder.getFilesInFolderAndSubFolders("java");
 		for (File file : files) {

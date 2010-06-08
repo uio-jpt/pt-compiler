@@ -33,7 +33,7 @@ public class GenerateJava {
 	}
 
 	private boolean hasErrors() {
-		return !compilerInterface.getErrorMsgs().isEmpty();
+		return !compilerInterface.getErrorMsgs().equals("");
 	}
 
 	private void writeBuildXML() {

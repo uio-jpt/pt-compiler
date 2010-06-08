@@ -11,7 +11,6 @@ public class SingleFileNamesSuite implements TestSuiteView {
 		filename = name;
 	}
 
-	@Override
 	public void runSuite(ReportManager testReports) {
 		FileIO f = new FileIO(filename);
 		if (!f.isFile()) {

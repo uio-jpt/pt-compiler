@@ -21,13 +21,13 @@ public class SemanticReport extends SimpleReport {
 	}
 
 	private void printNormalDataIfVerbose() {
-		if (!normalMsgs.isEmpty())
+		if (!normalMsgs.equals(""))
 			System.out.println("verbose normal:\n" + normalMsgs);
 
-		if (!warningMsgs.isEmpty())
+		if (!warningMsgs.equals(""))
 			System.out.println("verbose warning:\n" + warningMsgs);
 
-		if (!errorMsgs.isEmpty())
+		if (!errorMsgs.equals(""))
 			System.out.println("verbose error:\n" + errorMsgs);
 	}
 

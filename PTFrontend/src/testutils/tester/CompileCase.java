@@ -16,7 +16,6 @@ public class CompileCase implements TestCase {
 		this.outputFolderPath = outputFolderPath;
 	}
 
-	@Override
 	public void run(ReportManager testReports) {
 		GenerateJava ptcompiler = new GenerateJava(inputfoldernames, outputFolderPath);
 		ptcompiler.compile();
