@@ -8,17 +8,51 @@ PTDecl pt_declaration =
   {: return t; :}
 | pt_package.p
   {: return p; :}
-;   
+;
 
 PTDecl pt_template =
- TEMPLATE IDENTIFIER LBRACE pt_inst_decl.pt_inst* pt_simple_declaration.pt_class* RBRACE
-          {: return new PTTemplate(IDENTIFIER, pt_inst, pt_class); :}
-;
+ TEMPLATE IDENTIFIER LBRACE inst_or_class_single.l+ RBRACE
+          {:
+                AST.List<SimpleClass> simpleClassList = new AST.List<SimpleClass>();
+                AST.List<PTInstDecl> instDeclList = new AST.List<PTInstDecl>();
+
+                for (int i=0; i<l.getNumChildNoTransform(); i++) {
+                    ASTNode n = l.getChildNoTransform(i);
+                    if (n instanceof PTInstDecl) {
+                        instDeclList.add( (PTInstDecl) n);
+                    }
+                    else {
+                        simpleClassList.add( (SimpleClass) n);
+                    }
+                }
+                return new PTTemplate(IDENTIFIER, instDeclList, simpleClassList);
+          :}
+          ;
 
 PTDecl pt_package =
- PACKAGE IDENTIFIER LBRACE pt_inst_decl.pt_inst+ pt_simple_declaration.pt_class* RBRACE
-          {: return new PTPackage(IDENTIFIER, pt_inst, pt_class); :}
-;
+ PACKAGE IDENTIFIER LBRACE inst_or_class_single.l+ RBRACE
+          {:
+                AST.List<SimpleClass> simpleClassList = new AST.List<SimpleClass>();
+                AST.List<PTInstDecl> instDeclList = new AST.List<PTInstDecl>();
+
+                for (int i=0; i<l.getNumChildNoTransform(); i++) {
+                    ASTNode n = l.getChildNoTransform(i);
+                    if (n instanceof PTInstDecl) {
+                        instDeclList.add( (PTInstDecl) n);
+                    }
+                    else {
+                        simpleClassList.add( (SimpleClass) n);
+                    }
+                }
+                return new PTPackage(IDENTIFIER, instDeclList, simpleClassList);
+          :}
+          ;
+
+ASTNode inst_or_class_single =
+     pt_inst_decl.pt_inst {: return pt_inst; :}
+   | pt_simple_declaration.pt_class {: return pt_class; :}
+   ;
+
 
 SimpleClass pt_simple_declaration =
   class_declaration.cd
