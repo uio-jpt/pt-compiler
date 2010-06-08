@@ -3,7 +3,6 @@ package testutils.tester;
 import java.io.File;
 import java.io.IOException;
 
-import testutils.GenerateJava;
 import testutils.exceptions.CompileErrorException;
 
 public class CompileCase implements TestCase {

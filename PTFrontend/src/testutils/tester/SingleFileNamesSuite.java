@@ -5,21 +5,19 @@ import testutils.utils.FileIO;
 
 public class SingleFileNamesSuite implements TestSuiteView {
 
-	private String[] singleFilenames;
+	private String filename;
 
-	public SingleFileNamesSuite(String[] singleFiles) {
-		this.singleFilenames = singleFiles;
+	public SingleFileNamesSuite(String name) {
+		filename = name;
 	}
 
 	@Override
 	public void runSuite(ReportManager testReports) {
-		for (String filename : singleFilenames) {
-			FileIO f = new FileIO(filename);
-			if (!f.isFile()) {
-				throw new FatalErrorException(filename + " is not a directory.");
-			}
-			TestCase test = new TestRunner(filename);
-			test.run(testReports);
+		FileIO f = new FileIO(filename);
+		if (!f.isFile()) {
+			throw new FatalErrorException(filename + " is not a regular file.");
 		}
+		TestCase test = new TestRunner(filename);
+		test.run(testReports);
 	}
 }

@@ -89,7 +89,7 @@
   </target>
 
   <target name="testall" depends="build" description="Perform semantic checks on all folders in the ./test directory">
-    <java classname="testutils.tester.TestScenario" classpathref="classpath.runtest" fork="true">
+    <java classname="testutils.TestScenario" classpathref="classpath.runtest" fork="true">
 
       <jvmarg value="${heap-max}" />      
       <arg value="--testSingleFiles"/>          
@@ -101,7 +101,7 @@
 
   <target name="testcompile" depends="build" description="Tries to compile all test files that are error free and have a PTPackage.">
     <mkdir dir="${debug}" />
-    <java classname="testutils.tester.TestScenario" classpathref="classpath.runtest" fork="true">      
+    <java classname="testutils.TestScenario" classpathref="classpath.runtest" fork="true">      
 
       <jvmarg value="${heap-max}" />      
 
@@ -116,7 +116,7 @@
   
 
   <target name="profile_testall" depends="build">
-    <java fork="true" classname="testutils.tester.TestScenario" classpathref="classpath.runtest">
+    <java fork="true" classname="testutils.TestScenario" classpathref="classpath.runtest">
       <jvmarg value="-javaagent:${lib}/profile.jar" />
       <jvmarg value="-Dprofile.properties=${lib}/p.profile" />
       <arg value="test/"/>
@@ -141,7 +141,7 @@
   
 
   <target name="testsingle" depends="build">
-    <java classname="testutils.tester.TestScenario" classpathref="classpath.runtest" fork="true">
+    <java classname="testutils.TestScenario" classpathref="classpath.runtest" fork="true">
 
       <jvmarg value="${heap-max}" />      
       <arg value="--verbose" /> <!-- må ha denne med for verbose -->
