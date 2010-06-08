@@ -4,10 +4,10 @@ package testutils.tester;
 public class SemanticReport extends SimpleReport {
 	
 	boolean shouldBeOk;
-	String normalMsgs;
-	String errorMsgs;
-	String warningMsgs;
-	boolean containsPTPackage;
+	public final String normalMsgs;
+	public final String errorMsgs;
+	public final String warningMsgs;
+	public final boolean containsPTPackage;
 
 	public SemanticReport(String name, String[] filenames, boolean shouldBeOk,
 			boolean actual, String normalMsgs, String warningMsgs,
