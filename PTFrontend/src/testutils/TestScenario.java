@@ -69,6 +69,11 @@ public class TestScenario {
 			int passed = testReports.getNumberOfPassedTests();
 			int total = testReports.getNumberOfTestsTotal();
 			int failed = testReports.getNumberOfFailedTests();
+			
+			for (SemanticReport failBlog : testReports.getFailedReports()) {
+				sb.append(failBlog.errorMsgs + "\n");
+			}
+			
 			sb.append(String.format(
 					"\n*** %d of %d tests passed, %d failed.\n", passed, total,
 					failed));
@@ -78,10 +83,12 @@ public class TestScenario {
 						report.getPath());
 				sb.append(output);
 			}
+			
 			for (SemanticReport failBlog : testReports.getFailedReports()) {
 				sb.append("    ant testsingle -Dname=" + failBlog.getPath()
 						+ "\n");
 			}
+			
 		}
 		return sb.toString();
 	}
@@ -124,7 +131,7 @@ public class TestScenario {
 
 	private static TestScenario parseArgsAndInstantiate(String[] args) {
 		CmdLineParser parser = new CmdLineParser();
-		CmdLineParser.Option verbose = parser.addBooleanOption("verbose");
+		CmdLineParser.Option verbose = parser.addBooleanOption('v',"verbose");
 		CmdLineParser.Option testSingleDirOption = parser
 				.addStringOption("testSingleFiles");
 		CmdLineParser.Option testMultipleDirOption = parser
