@@ -34,7 +34,7 @@ aspect Merging {
     syn HashSet<String> ClassDecl.getDefinitionsRenamed(HashMap<String,String> namesMap) {
         HashSet <String> definitionNames = new HashSet<String>();
 
-        for (String name : getDefinitionSignatures()) {
+        for (String name : methodSignatures()) {
             if (namesMap.containsKey(name))
                 name = namesMap.get(name);
             definitionNames.add(name);

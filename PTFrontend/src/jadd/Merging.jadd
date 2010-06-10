@@ -67,10 +67,10 @@ aspect Merging {
     }
 
     public boolean SimpleClass.assertAddsResolvesConflict(HashSet<String> conflicts) {
-        HashSet<String> addRefinements = getClassDecl().getDefinitionSignatures();
+        HashSet<String> addRefinements = getClassDecl().methodSignatures();
         for (String conflictingName : conflicts) {
             if (!addRefinements.contains(conflictingName)) {
-                error(conflictingName + "is an unresolved conflict during merging.\n");
+                error(conflictingName + " is an unresolved conflict during merging.\n");
                 return false;
             }
         }
@@ -87,7 +87,7 @@ aspect Merging {
     // TOOD use google collections set operations
     public HashSet<String> SimpleClass.getConflicts(LinkedList<PTDummyClass> dummies) {
         HashSet<String>  collisions = new HashSet<String>();
-        HashSet<String> allDefinitions = getClassDecl().getDefinitionSignatures();
+        HashSet<String> allDefinitions = getClassDecl().methodSignatures();
         
         for (PTDummyClass dummy : dummies) {
             HashSet<String> instanceDecls = dummy.getDefinitionsRenamed();
