@@ -30,7 +30,7 @@ aspect InstantiationRewrite {
         when (getPTDecl().isRewritten)
         to PTClassDecl {
             PTClassDecl newClassDecl = new PTClassDecl(getClassDecl());
-            //getPTDecl().flushCollectionCache();
+            newClassDecl.hasMulitpleInstantiators = hasMulitpleInstantiators;
             return newClassDecl;
         }
     }

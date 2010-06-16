@@ -29,12 +29,7 @@ aspect Merging {
 
     public void SimpleClass.initiateExtension(HashMap<String,LinkedList<PTDummyClass>> nameAndDummies) {
         LinkedList<PTDummyClass> dummies = nameAndDummies.get(getID());
-        if (dummies.size() > 1) {
-            attemptMerging(dummies);
-        } else {
-            PTDummyClass instantiator = dummies.getFirst();
-            attemptInstantiation(instantiator);                        
-        }
+        attemptMerging(dummies);        
     }
     
     public boolean SimpleClass.isExtensible(HashMap<String,LinkedList<PTDummyClass>> nameAndDummies) {
@@ -58,9 +53,12 @@ aspect Merging {
 
     public void SimpleClass.attemptMerging(LinkedList<PTDummyClass> dummies) {
         HashSet<String> conflicts = getConflicts(dummies);
+        LinkedList<ClassDecl> instantiators = copyAndRenameForMerging(dummies,conflicts);
+
+        if (dummies.size() > 1) 
+            hasMulitpleInstantiators = true;
         
         if (mergingIsPossible(conflicts)) {
-            LinkedList<ClassDecl> instantiators = copyAndRenameForMerging(dummies,conflicts);
             for (ClassDecl instantiator : instantiators) 
                 addDecls(instantiator);            
         }
@@ -100,14 +98,6 @@ aspect Merging {
         //System.out.println("collisions: " + collisions);
         return collisions;
         
-    }
-
-    //TODO abort on error
-    public void SimpleClass.attemptInstantiation(PTDummyClass instantiator) {
-        try {
-            ClassDecl ext = instantiator.getInstantiatedClass();
-            addDecls(ext);
-        } catch (Exception e) { throw new RuntimeException("extendWithClass!: "+e); }
     }
 
     public ClassDecl PTDummyClass.getInstantiatedClass() {

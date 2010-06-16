@@ -12,12 +12,16 @@ aspect NameCheck {
     }
 
     public void ConstructorDecl.callsMergedConstructorsCheck() {
-        HashSet<String> mustBeCalled = getMergedClassesWithConstructors();
-        HashSet<String> actuallyCalled = getMergedSuperCallNames();
-        HashSet<String> missing = new HashSet<String>(mustBeCalled);
-        missing.removeAll(actuallyCalled);
-        for (String name : missing) {
-            error("Missing merged constructor call to mergee class: " + name + "\n");
+        SimpleClass cls = (SimpleClass) getParentClass(SimpleClass.class);
+        System.out.printf("%s has multiple instantiators: %b\n",getID(), cls.hasMulitpleInstantiators);
+        if (cls.hasMulitpleInstantiators) {
+            HashSet<String> mustBeCalled = getMergedClassesWithConstructors();
+            HashSet<String> actuallyCalled = getMergedSuperCallNames();
+            HashSet<String> missing = new HashSet<String>(mustBeCalled);
+            missing.removeAll(actuallyCalled);
+            for (String name : missing) {
+                error("Missing merged constructor call to mergee class: " + name + "\n");
+            }
         }
     }
 
