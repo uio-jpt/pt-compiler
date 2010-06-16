@@ -13,7 +13,6 @@ aspect NameCheck {
 
     public void ConstructorDecl.callsMergedConstructorsCheck() {
         SimpleClass cls = (SimpleClass) getParentClass(SimpleClass.class);
-        System.out.printf("%s has multiple instantiators: %b\n",getID(), cls.hasMulitpleInstantiators);
         if (cls.hasMulitpleInstantiators) {
             HashSet<String> mustBeCalled = getMergedClassesWithConstructors();
             HashSet<String> actuallyCalled = getMergedSuperCallNames();
