@@ -15,6 +15,7 @@ import testutils.tester.SemanticReport;
 import testutils.tester.SimpleReport;
 import testutils.tester.SingleFileNamesSuite;
 import testutils.tester.TestSuiteView;
+import testutils.tester.Log;
 
 /**
  * Runs testfiles in the pt-compiler/PTFrontend/test folder.
@@ -46,8 +47,9 @@ public class TestScenario {
 			TestScenario scenario = parseArgsAndInstantiate(args);
 			scenario.createTestSuites();
 			scenario.runSuites();
-			if (scenario.compileFlag)
+			if (scenario.compileFlag) {
 				scenario.testCompileSelected();
+            }
 			System.out.println(scenario.presentResults());
 		} catch (FatalErrorException e) {
 			System.err.println("Error: " + e.getMessage());
@@ -145,8 +147,9 @@ public class TestScenario {
 			System.err.println("Unknown args");
 			System.exit(1);
 		}
-		boolean isVerbose = (Boolean) parser.getOptionValue(verbose,
-				Boolean.FALSE);
+		boolean isVerbose = (Boolean) parser.getOptionValue(verbose, Boolean.FALSE);
+
+        Log.setVerbose(isVerbose);
 
 		String singleFileFolder = (String) parser
 				.getOptionValue(testSingleDirOption);

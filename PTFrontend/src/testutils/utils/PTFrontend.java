@@ -1,6 +1,6 @@
 package testutils.utils;
 import AST.*;
-
+import testutils.tester.Log;
 import java.util.*;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -179,20 +179,31 @@ public class PTFrontend {
         return "R20070504";
     }
 
-    protected void processErrors(Collection errors, CompilationUnit unit) {
+    protected void processErrors(Collection c, CompilationUnit unit) {
         errorMsgs.append("Errors:\n");
-        for(Iterator iter2 = errors.iterator(); iter2.hasNext(); ) {
-            errorMsgs.append(iter2.next());
+        if (c.iterator().hasNext()) Log.d("PTJ", "Semantic errors:");
+
+        for(Iterator iter2 = c.iterator(); iter2.hasNext(); ) {
+            Problem msg = (Problem) iter2.next();
+            Log.d("PTJ", msg.toString());
+            errorMsgs.append(msg);
         }
+        Log.d("PTJ:AstTree", unit.dumpTreeNoRewrite());
+        Log.d("PTJ:PrettyPrint", unit.toString());
     }
-    
+
     protected void processWarnings(Collection warnings, CompilationUnit unit) {
+        if (warnings.iterator().hasNext()) Log.d("PTJ", "Semantic warnings:");
         for(Iterator iter2 = warnings.iterator(); iter2.hasNext(); ) {
-            warningMsgs.append(iter2.next());
+            Problem msg = (Problem) iter2.next();
+            Log.d("PTJ", msg.toString());
+            warningMsgs.append(msg);
         }
     }
 
 	protected void processNoErrors(CompilationUnit unit) {
+        Log.d("PTJ:AstTree", unit.dumpTreeNoRewrite());
+        Log.d("PTJ:PrettyPrint", unit.toString());
 	    normalMsgs.append(unit.dumpTreeNoRewrite());
 	    normalMsgs.append(unit.toString());
 	}
