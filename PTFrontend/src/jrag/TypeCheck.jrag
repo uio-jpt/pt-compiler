@@ -1,5 +1,8 @@
 aspect TypeCheck {
     
+    eq PTCompilationUnit.getPTDecl(int i).handlesException(TypeDecl exceptionType) =
+      !exceptionType.isUncheckedException();
+
     public void PTDummyClass.typeCheck() {
         if (getOriginator()==null) { 
             error("Unable to find class " + getOrgID() + " in template " + getTemplate().getID() + "\n");
