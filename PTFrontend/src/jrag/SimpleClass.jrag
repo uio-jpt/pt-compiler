@@ -10,6 +10,9 @@ aspect SimpleClass {
     coll HashSet<String> PTDecl.getAdditionClassNamesSet() [new HashSet<String>()]
         with add root PTDecl;
 
+    /* 
+     * Somehow breaks lookupType(String name).. because of lazy type?
+    */
     coll LinkedList<ClassDecl> PTDecl.getClassList() [new LinkedList<ClassDecl>()]
         with add root PTDecl;
 

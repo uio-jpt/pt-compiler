@@ -31,7 +31,6 @@ aspect LookupType {
     syn PTTemplate PTDecl.lookupTemplate(String name) = null;
     eq PTTemplate.lookupTemplate(String name) = name.equals(getID()) ? this : null;
 
-
     syn PTClassAddsDecl PTDecl.lookupAddClass(String name) {
         for (PTClassAddsDecl decl: getAdditionClassList()) {
             if (decl.getID().equals(name))
@@ -40,18 +39,16 @@ aspect LookupType {
         return null;
     }
 
-    inh SimpleSet PTClassDecl.lookupType(String name);
+    inh SimpleSet SimpleClass.lookupType(String name);
 
     eq PTDecl.getSimpleClass(int i).lookupType(String name) {
-        //flushCollectionCache();
-        for (ClassDecl decl : getClassList())
-            if (decl.getID().equals(name))
-                return SimpleSet.emptySet.add(decl);
+        SimpleSet res = null;
+        for (SimpleClass s : getSimpleClassList()) {
+            ClassDecl cd = s.getClassDecl();
+            if (cd.getID().equals(name))
+                return SimpleSet.emptySet.add(cd);
+        }
         TypeDecl t = lookupType("", name);
         if (t!=null) return SimpleSet.emptySet.add(t);
-        /*System.out.println(String.format("looking for %s.. not found!", name));
-        for (ClassDecl decl : getClassList())
-            System.out.println("fant :" + decl.getID());
-        System.out.println(dumpTreeNoRewrite());*/
     }
 }
