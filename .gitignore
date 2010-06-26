@@ -20,3 +20,6 @@ JastAddJRefactoring
 profile.txt
 profile.xml
 *.class
+TAGS
+tags
+debug/
