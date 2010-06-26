@@ -23,3 +23,7 @@ profile.xml
 TAGS
 tags
 debug/
+JastAddJ/Java1.4Frontend/AST
+JastAddJ/Java1.4Frontend/parser
+JastAddJ/Java1.4Frontend/scanner
+
