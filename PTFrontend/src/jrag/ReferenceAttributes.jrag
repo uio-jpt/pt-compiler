@@ -99,6 +99,7 @@ aspect ReferenceAttributes {
         return nameAndDummies;
     }
 
+    /*
     inh String PTMergedMethodAccess.getTemplateName(String methodName, String superClassName);
 
     eq Program.getChild().getTemplateName(String methodName, String superClassName) { throw new RuntimeException("getTemplateName called in context of " + getClass().getName()); }
@@ -120,14 +121,18 @@ aspect ReferenceAttributes {
             return "UnknownTemplate";
         }
     }
+    */
 
+    /*
     public String PTMergedMethodAccess.getDefaultTemplateID(String methodName, String superClassName) {
         return getTemplateName(methodName, superClassName);
     }
+    */
 
     public String PTMergedMethodAccess.getTemplateID() {
         if (!getGivenTemplateID().equals("")) return getGivenTemplateID();
-        else return getDefaultTemplateID(getID(), getSuperClassID());
+        else throw new RuntimeException("Eivind being stupid.. TODO");
+        //        else return getDefaultTemplateID(getID(), getSuperClassID());
         //return "";
     }
 

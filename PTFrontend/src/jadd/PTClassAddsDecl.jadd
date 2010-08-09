@@ -23,23 +23,5 @@ aspect PTClassAddsDecl {
         return null;
     }
 
-    public void PTClassAddsDecl.updateSuperName(LinkedList<PTDummyClass> dummies) {
-        String name = null;
-        for (PTDummyClass dummy : dummies) {
-            String dummySuperName = dummy.getRenamedSuperclassName();
-            if (dummySuperName != null) {
-                if (name == null)
-                    name = dummySuperName;
-                else if (dummySuperName.equals(name)) {
-                    // all ok
-                } else {
-                    error(String.format("Merge error for %s. superklasses %s and %s must be merged.\n",
-                                         getID(), name, dummySuperName));
-                }
-            }
-        }
-        if (name != null) {
-            getClassDecl().setSuperClassAccess(new TypeAccess(name));
-        }
-    }
+   
 }
