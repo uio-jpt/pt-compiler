@@ -1,3 +1,4 @@
+import com.google.common.collect.*;
 aspect JastAddAspectRefinements {
 
     syn String ClassDecl.getSuperClassName() {
@@ -16,5 +17,33 @@ aspect JastAddAspectRefinements {
             if (decl instanceof ConstructorDecl)
                 constructors.add((ConstructorDecl)decl);
         return constructors;
-    }                                 
+    }
+
+    syn Set<String> ClassDecl.methodSignatures() {
+        Set<String> signatures = localMethodsSignatureMap().keySet();
+        return Sets.newHashSet(signatures);
+    }
+
+    syn Set<String> ClassDecl.fieldNames() {
+        Set<String> names = localFieldsMap().keySet();
+		return Sets.newHashSet(names);
+    }
+
+    // TODO use google string operations ...
+    syn Set<String> ClassDecl.methodNames() {
+        Set<String> methodNames = Sets.newHashSet();
+        for (String methodSignature : methodSignatures()) {
+            String methodName = methodSignature.split("\\(")[0];
+            methodNames.add(methodName);
+        }
+        return methodNames;
+    }
+
+    // field names counts as signatures ...
+    syn Set<String> ClassDecl.getDefinitionSignatures() {
+        Set<String> names = Sets.newHashSet();
+        names.addAll(methodSignatures());
+        names.addAll(fieldNames());
+        return names;
+    }
 }

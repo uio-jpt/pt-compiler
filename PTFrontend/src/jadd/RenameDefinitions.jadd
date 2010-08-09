@@ -1,25 +1,4 @@
 aspect RenameDefinitions {
-    public void ClassDecl.renameDefinitions(HashMap<String,String> namesMap) {
-        HashMap <String,MethodDecl>methods = methodsSignatureMap();
-        HashMap <String,SimpleSet> fields = memberFieldsMap();
-
-        for (MethodDecl decl : methods.values()) {
-            if (namesMap.containsKey(decl.signature())) {
-                String newID = namesMap.get(decl.signature());
-                newID = newID.split("\\(")[0];
-                decl.setID(newID);
-            }
-        }
-
-        for (SimpleSet simpleSet : fields.values()) {
-            for (Iterator iter = simpleSet.iterator(); iter.hasNext();) {
-                FieldDeclaration fieldDecl = (FieldDeclaration) iter.next();
-                if (namesMap.containsKey(fieldDecl.getID())) {
-                    String newID = namesMap.get(fieldDecl.getID());
-                    fieldDecl.setID(newID);
-                }
-            }
-        }
-    }
+   
 
 }

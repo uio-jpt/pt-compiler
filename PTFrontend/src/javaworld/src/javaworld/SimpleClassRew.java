@@ -64,11 +64,12 @@ public class SimpleClassRew {
 
 	// TOOD recheck correctness ...
 	public Set<String> getConflicts() {
-		HashSet<String> collisions = Sets.newHashSet();
-		HashSet<String> allDefinitions = decl.getClassDecl().methodSignatures();
+		Set<String> collisions = Sets.newHashSet();
+		Set<String> allDefinitions = decl.getClassDecl().methodSignatures();
 
 		for (PTDummyClass dummy : dummies) {
-			Set<String> instanceDecls = dummy.getDefinitionsRenamed();
+			DummyRew x = new DummyRew(dummy);
+			Set<String> instanceDecls = x.getDefinitionsRenamed();
 			Set<String> localCollisions = Sets.intersection(instanceDecls, allDefinitions);
 			allDefinitions.addAll(instanceDecls);
 			collisions.addAll(localCollisions);
@@ -84,20 +85,14 @@ public class SimpleClassRew {
 	public Collection<ClassDecl> copyAndRenameForMerging() {
 		Collection<ClassDecl> copiesToBeMerged = Lists.newLinkedList();
 		for (PTDummyClass x : dummies) {
-			ClassDecl ext = getRenamedSourceClass(x);
-			ClassDeclRew rew = new ClassDeclRew(ext,conflicts);
-			copiesToBeMerged.add(rew.getRenamed(x));
+			DummyRew dummyr = new DummyRew(x);
+			ClassDeclRew ext = dummyr.getRenamedSourceClass();
+			ext.addConflicts(conflicts);
+			copiesToBeMerged.add(ext.getRenamed(dummyr));
 		}
 		return copiesToBeMerged;
 	}
 
-	// TODO may be moved elsewhere
-	public ClassDecl getRenamedSourceClass(PTDummyClass instantiator) {
-		ClassDecl ext = instantiator.getOriginator().fullCopy();
-		ext.renameTypes(instantiator.getInstDecl().getRenamedClasses());
-		ext.renameDefinitions(instantiator.getExplicitlyRenamedDefinitions());
-		return ext;
-	}
 
 	public void checkIfSane(Multimap<String, PTDummyClass> nameAndDummies) {
 		if (nameAndDummies.containsKey(decl.getID())) {

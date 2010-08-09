@@ -2,68 +2,6 @@ aspect Merging {
 
     syn boolean BodyDecl.isNotEmptyConstructor() = true;
     eq ConstructorDecl.isNotEmptyConstructor() = getNumParameter() != 0 || getBlock().getNumStmt() != 0;
-
-    syn HashSet<String> ClassDecl.methodSignatures() {
-        java.util.Set signatures = localMethodsSignatureMap().keySet();
-        return new HashSet<String>(signatures);
-    }
-
-    syn HashSet<String> ClassDecl.fieldNames() {
-        java.util.Set names = localFieldsMap().keySet();
-        return new HashSet<String>(names);
-    }
-
-    syn HashSet<String> ClassDecl.methodNames() {
-        HashSet<String> methodNames = new HashSet<String>();
-        for (String methodSignature : methodSignatures()) {
-            String methodName = methodSignature.split("\\(")[0];
-            methodNames.add(methodName);
-        }
-        return methodNames;
-    }
-
-    // field names counts as signatures ...
-    syn HashSet<String> ClassDecl.getDefinitionSignatures() {
-        HashSet <String> names = new HashSet<String>();
-        names.addAll(methodSignatures());
-        names.addAll(fieldNames());
-        return names;
-    }
     
-    /* TODO, fields and methods may collide. */
-    syn HashSet<String> ClassDecl.getDefinitionsRenamed(HashMap<String,String> namesMap) {
-        HashSet <String> definitionNames = new HashSet<String>();
-
-        for (String name : methodSignatures()) {
-            if (namesMap.containsKey(name))
-                name = namesMap.get(name);
-            definitionNames.add(name);
-        }
-        //System.out.println("definitions renamed: " + definitionNames);
-        return definitionNames;
-    }
-    
-    syn HashSet<String> PTDummyClass.getDefinitionsRenamed() {
-        return getOriginator().getDefinitionsRenamed(getExplicitlyRenamedDefinitions());
-    }
-
-    syn HashMap<String,String> PTDummyClass.getRenamedConflictsMap(HashSet<String> conflicts) {
-        HashMap<String,String> newDefinitions = new HashMap<String,String>();
-        for (String conflictDef : conflicts) {
-            String origClassName = getOrgID();
-            newDefinitions.put(conflictDef, String.format("super[%s.%s].%s",
-                                                          getTemplate().getID(), origClassName,conflictDef));
-        }
-        return newDefinitions;
-    }
-    // TODO use collections. maybe create a wrapper class for hashmap
-    // for add(PTDummyRename) -> put(getOrgID(), getID())
-    syn HashMap<String,String> PTDummyClass.getExplicitlyRenamedDefinitions() {
-        HashMap<String,String> map = new HashMap<String,String>();
-        for (PTDummyRename entry : getPTDummyRenameList())
-            entry.addSelfTo(map);
-        return map;
-    }
-
     
 }

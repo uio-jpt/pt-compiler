@@ -1,29 +1,34 @@
 package javaworld;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import AST.BodyDecl;
 import AST.ClassDecl;
 import AST.ConstructorDecl;
+import AST.FieldDeclaration;
+import AST.MethodDecl;
 import AST.PTDummyClass;
+import AST.SimpleSet;
+
+import com.google.common.collect.Sets;
 
 public class ClassDeclRew {
 	private final ClassDecl ext;
-	private final Set<String> conflicts;
+	private Set<String> conflicts;
 
-	public ClassDeclRew(ClassDecl ext, Set<String> conflicts) {
+	public ClassDeclRew(ClassDecl ext) {
 		this.ext = ext;
-		this.conflicts = conflicts;
 	}
 
-	public void resolveConflicts(PTDummyClass instantiator) {
-		HashMap<String, String> resolvedConflict = instantiator
+	public void resolveConflicts(DummyRew instantiator) {
+		Map<String, String> resolvedConflict = instantiator
 				.getRenamedConflictsMap(conflicts);
 		// System.out.println("conflicts: " + conflicts);
 		// System.out.println("resolved: " + resolvedConflict);
-		ext.renameDefinitions(resolvedConflict);
+		renameDefinitions(resolvedConflict);
 	}
 
 	/* TODO not very pretty */
@@ -47,10 +52,55 @@ public class ClassDeclRew {
 		}
 	}
 
-	public ClassDecl getRenamed(PTDummyClass x) {
-		resolveConflicts(x);
-		renameConstructors(x);
+	public ClassDecl getRenamed(DummyRew dummyr) {
+		resolveConflicts(dummyr);
+		renameConstructors(dummyr.instantiator);
 		return ext;
 	}
 
+	/* TODO, fields and methods may collide. */
+    Set<String> getDefinitionsRenamed(Map<String,String> namesMap) {
+        Set <String> definitionNames = Sets.newHashSet();
+        for (String name : ext.methodSignatures()) {
+            if (namesMap.containsKey(name))
+                name = namesMap.get(name);
+            definitionNames.add(name);
+        }
+        return definitionNames;
+    }
+    
+    // TODO make pretty
+    public void renameDefinitions(Map<String,String> namesMap) {
+        Map <String,MethodDecl>methods = ext.methodsSignatureMap();
+        Map <String,SimpleSet> fields = ext.memberFieldsMap();
+
+        for (MethodDecl decl : methods.values()) {
+            if (namesMap.containsKey(decl.signature())) {
+                String newID = namesMap.get(decl.signature());
+                newID = newID.split("\\(")[0];
+                decl.setID(newID);
+            }
+        }
+
+        for (SimpleSet simpleSet : fields.values()) {
+            for (Iterator iter = simpleSet.iterator(); iter.hasNext();) {
+                FieldDeclaration fieldDecl = (FieldDeclaration) iter.next();
+                if (namesMap.containsKey(fieldDecl.getID())) {
+                    String newID = namesMap.get(fieldDecl.getID());
+                    fieldDecl.setID(newID);
+                }
+            }
+        }
+    }
+
+	public void renameTypes(HashMap<String, String> renamedClasses) {
+		ext.renameTypes(renamedClasses);
+	}
+
+	public void addConflicts(Set<String> conflicts) {
+		this.conflicts = conflicts;
+	}
+    
+    
+    
 }
