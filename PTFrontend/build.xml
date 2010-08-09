@@ -59,6 +59,7 @@
     <mkdir dir="${build.jar}"/>
     <jar destfile="${build.jar.filename}" basedir="${build.classes}">
       <zipfileset src="${lib}/commons-io-1.4.jar" />
+      <zipfileset src="${lib}/guava-r06.jar" />      
       <zipfileset src="${lib}/jargs.jar" />
       <fileset dir="${resources}" />
       <manifest>
@@ -78,8 +79,12 @@
   -->
   <target name="PTGen" depends="gen">
     <mkdir dir="${src.gen.testutils}" /> <!---->
+    <mkdir dir="${src.gen}/javaworld" /> <!---->    
     <copy todir="${src.gen.testutils}">
       <fileset dir="${src.testutils}" />
+    </copy>      
+    <copy todir="${src.gen}/javaworld">
+      <fileset dir="${src}/javaworld/src" />
     </copy>
   </target>
   

@@ -1,3 +1,4 @@
+import javaworld.InstantiationRewriter;
 aspect InstantiationRewrite {
 
     protected boolean PTDecl.isRewritten = false;
@@ -15,13 +16,9 @@ aspect InstantiationRewrite {
     rewrite PTDecl {
         when ( this.isRewritten == false && dependenciesAreRewritten())
         to PTDecl {
-            createEmptyMissingAddClasses();
-            extendAddClassesWithInstantiatons();
-            updateAddsSuperClasses();
-            copyImportDecls();
-            this.isRewritten = true;
-            flushCaches();            
-            makePTPackageNamesCompilable();
+            InstantiationRewriter x = new InstantiationRewriter(this);            
+            x.run();
+            this.isRewritten = true;            
             return this;
         }
     }

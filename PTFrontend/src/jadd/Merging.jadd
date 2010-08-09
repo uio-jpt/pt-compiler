@@ -1,31 +1,5 @@
 aspect Merging {
 
-    public void PTDecl.extendAddClassesWithInstantiatons() {
-        HashMap<String,LinkedList<PTDummyClass>> nameAndDummies =
-            getClassNamesWithDummyList();
-        for (SimpleClass decl : getSimpleClassList()) {
-            if (decl.isExtensible(nameAndDummies))
-                decl.initiateExtension(nameAndDummies);
-        }
-    }
-
-    public void PTDecl.copyImportDecls() {
-	CompilationUnit ownCU = getCompilationUnit();
-    	for (PTInstDecl instDecl : getPTInstDecls()) {
-            PTTemplate originator = instDecl.getTemplate();
-            if (originator == null)
-                continue; // error caught elsewhere
-            CompilationUnit cunit = originator.getCompilationUnit();
-            if (cunit == ownCU) 
-            	continue;
-            for (ImportDecl id : cunit.getImportDeclList()) {
-                if (!hasImportDecl(id.toString())) {
-                    ImportDecl copy = (ImportDecl)id.copy();
-                    ownCU.addImportDecl(copy);
-                }
-            }
-        } 
-    }
 
     public void SimpleClass.initiateExtension(HashMap<String,LinkedList<PTDummyClass>> nameAndDummies) {
         LinkedList<PTDummyClass> dummies = nameAndDummies.get(getID());
