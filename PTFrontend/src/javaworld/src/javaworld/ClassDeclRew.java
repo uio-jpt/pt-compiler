@@ -13,6 +13,8 @@ import AST.MethodDecl;
 import AST.PTDummyClass;
 import AST.SimpleSet;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.Sets;
 
 public class ClassDeclRew {
@@ -60,13 +62,13 @@ public class ClassDeclRew {
 
 	/* TODO, fields and methods may collide. */
     Set<String> getDefinitionsRenamed(Map<String,String> namesMap) {
-        Set <String> definitionNames = Sets.newHashSet();
+        Builder<String> definitionNames = ImmutableSet.builder();
         for (String name : ext.methodSignatures()) {
             if (namesMap.containsKey(name))
                 name = namesMap.get(name);
             definitionNames.add(name);
         }
-        return definitionNames;
+        return definitionNames.build();
     }
     
     // TODO make pretty

@@ -1,8 +1,6 @@
 package javaworld;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Set;
 
 import AST.BodyDecl;
@@ -10,6 +8,8 @@ import AST.ClassDecl;
 import AST.PTDummyClass;
 import AST.SimpleClass;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
@@ -62,17 +62,18 @@ public class SimpleClassRew {
 		return true;
 	}
 
-	// TOOD recheck correctness ...
+	/** Had a bug with views, switched to immutableSets. Code may be written more concise.
+	 */
 	public Set<String> getConflicts() {
-		Set<String> collisions = Sets.newHashSet();
-		Set<String> allDefinitions = decl.getClassDecl().methodSignatures();
-
+		Set<String> collisions = ImmutableSet.of();
+		Set<String> allDefinitions = ImmutableSet.copyOf((decl.getClassDecl().methodSignatures()));
+		Joiner djoin = Joiner.on(",");
 		for (PTDummyClass dummy : dummies) {
 			DummyRew x = new DummyRew(dummy);
 			Set<String> instanceDecls = x.getDefinitionsRenamed();
 			Set<String> localCollisions = Sets.intersection(instanceDecls, allDefinitions);
-			allDefinitions.addAll(instanceDecls);
-			collisions.addAll(localCollisions);
+			allDefinitions = ImmutableSet.copyOf(Sets.union(allDefinitions, instanceDecls));
+			collisions = ImmutableSet.copyOf(Sets.union(collisions, localCollisions));
 		}
 		return collisions;
 	}

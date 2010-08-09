@@ -79,11 +79,10 @@
   -->
   <target name="PTGen" depends="gen">
     <mkdir dir="${src.gen.testutils}" /> <!---->
-    <mkdir dir="${src.gen}/javaworld" /> <!---->    
     <copy todir="${src.gen.testutils}">
       <fileset dir="${src.testutils}" />
     </copy>      
-    <copy todir="${src.gen}/javaworld">
+    <copy todir="${src.gen}">
       <fileset dir="${src}/javaworld/src" />
     </copy>
   </target>
