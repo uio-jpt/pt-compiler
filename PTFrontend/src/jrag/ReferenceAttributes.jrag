@@ -1,3 +1,4 @@
+import javaworld.PTDeclRew;
 aspect ReferenceAttributes {
 
     syn PTTemplate PTInstDecl.getTemplate() = getTemplate(getID());
@@ -99,41 +100,27 @@ aspect ReferenceAttributes {
         return nameAndDummies;
     }
 
-    /*
+
     inh String PTMergedMethodAccess.getTemplateName(String methodName, String superClassName);
 
     eq Program.getChild().getTemplateName(String methodName, String superClassName) { throw new RuntimeException("getTemplateName called in context of " + getClass().getName()); }
 
     eq PTDecl.getSimpleClass(int i).getTemplateName(String methodName, String superClassName) {
-        LinkedList<String> templates = new LinkedList<String>();
-        for (PTInstDecl p : getPTInstDeclList()) {
-            for (PTDummyClass pd : p.getPTDummyClassList()) {
-                if (pd.getOrgID().equals(superClassName) && pd.getInstantiatedClass().methodNames().contains(methodName)) {
-                    templates.add(p.getID());
-                }
-            }
-        }
-        if (templates.size()==1) {
-            return templates.poll();
-        }
-        else {
-            error(String.format("Ambiguous super call on method 'super[%s].%s', templates matching was " + templates.toString(), superClassName, methodName));
-            return "UnknownTemplate";
-        }
+        PTDeclRew decl = new PTDeclRew(this);
+        return decl.getTemplateName(superClassName, methodName);
     }
-    */
 
-    /*
+
+
     public String PTMergedMethodAccess.getDefaultTemplateID(String methodName, String superClassName) {
         return getTemplateName(methodName, superClassName);
     }
-    */
+
 
     public String PTMergedMethodAccess.getTemplateID() {
         if (!getGivenTemplateID().equals("")) return getGivenTemplateID();
-        else throw new RuntimeException("Eivind being stupid.. TODO");
-        //        else return getDefaultTemplateID(getID(), getSuperClassID());
-        //return "";
+        //        else throw new RuntimeException("Eivind being stupid.. TODO");
+        else return getDefaultTemplateID(getID(), getSuperClassID());
     }
 
     eq PTMergedMethodAccess.name() {

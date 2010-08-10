@@ -28,8 +28,6 @@ public class ClassDeclRew {
 	public void resolveConflicts(DummyRew instantiator) {
 		Map<String, String> resolvedConflict = instantiator
 				.getRenamedConflictsMap(conflicts);
-		// System.out.println("conflicts: " + conflicts);
-		// System.out.println("resolved: " + resolvedConflict);
 		renameDefinitions(resolvedConflict);
 	}
 
@@ -102,7 +100,5 @@ public class ClassDeclRew {
 	public void addConflicts(Set<String> conflicts) {
 		this.conflicts = conflicts;
 	}
-    
-    
     
 }

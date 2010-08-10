@@ -1,5 +1,6 @@
 package javaworld;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -22,6 +23,7 @@ import AST.TypeAccess;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
@@ -45,7 +47,8 @@ public class PTDeclRew {
 
 	public void createEmptyMissingAddClasses() {
 		Set<String> addClasses = target.getAdditionClassNamesSet();
-		Set<String> missingAddsClass = Sets.difference(nameAndDummies.keySet(),addClasses);
+		Set<String> missingAddsClass = Sets.difference(nameAndDummies.keySet(),
+				addClasses);
 
 		for (String name : missingAddsClass) {
 			ClassDecl cls = new ClassDecl(new Modifiers(), name, new Opt(),
@@ -101,23 +104,38 @@ public class PTDeclRew {
 
 	public void updateSuperName(PTClassAddsDecl decl) {
 		HashSet<String> superNames = Sets.newHashSet();
-		for (PTDummyClass dummy : nameAndDummies.get(decl.getID())) 
+		for (PTDummyClass dummy : nameAndDummies.get(decl.getID()))
 			superNames.add(dummy.getRenamedSuperclassName());
 		superNames.remove(null); // classes without superclass
 		if (superNames.size() > 1) {
-			decl.error(String
-				.format("Merge error for %s. superklasses %s must be merged.\n",
-						decl.getID(), Joiner.on(" and ").join(superNames)));
+			decl.error(String.format(
+					"Merge error for %s. superklasses %s must be merged.\n",
+					decl.getID(), Joiner.on(" and ").join(superNames)));
+		} else {
+			try {
+				decl.getClassDecl().setSuperClassAccess(
+						new TypeAccess(Iterables.getOnlyElement(superNames)));
+			} catch (NoSuchElementException e) {
+			} // no superclasses
 		}
-		try {
-			decl.getClassDecl().setSuperClassAccess(new TypeAccess(Iterables.getOnlyElement(superNames)));
-		} catch (NoSuchElementException e) {} // no superclasses
 	}
 
-	/*
-	 * TODO empty constructors are auto-generated so this is a tautology maybe
-	 * stop auto generation? not sure... aspect ImplicitConstructor ->
-	 * LookupConstructor.jrag ...
-	 */
-
+	public String getTemplateName(String superClassName, String methodName) {
+		Collection<String> templates = Lists.newLinkedList();
+		for (PTInstDecl templateInst : target.getPTInstDecls()) {
+			for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
+				DummyRew x = new DummyRew(dummy);
+				if (x.sourceClassHasNameAndMethod(superClassName, methodName))
+					templates.add(templateInst.getTemplate().getID());
+			}
+		}
+		if (templates.size() == 1) {
+			return Iterables.getOnlyElement(templates);
+		} else {
+			target.error(String.format(
+					"Ambiguous super call on method 'super[%s].%s', templates matching was "
+							+ templates.toString(), superClassName, methodName));
+			return "UnknownTemplate";
+		}
+	}
 }

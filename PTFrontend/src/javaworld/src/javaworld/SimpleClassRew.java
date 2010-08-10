@@ -6,6 +6,7 @@ import java.util.Set;
 import AST.BodyDecl;
 import AST.ClassDecl;
 import AST.PTDummyClass;
+import AST.PTInstDecl;
 import AST.SimpleClass;
 
 import com.google.common.base.Joiner;
@@ -18,7 +19,7 @@ public class SimpleClassRew {
 	private final SimpleClass decl;
 	private Collection<PTDummyClass> dummies;
 	private Set<String> conflicts;
-
+	
 	public SimpleClassRew(SimpleClass decl, Multimap<String, PTDummyClass> nameAndDummies) {
 		this.decl = decl;
 		checkIfSane(nameAndDummies); 
@@ -107,4 +108,6 @@ public class SimpleClassRew {
 					+ " is an add class, template source class not found!\n");
 		}
 	}
+	
+	
 }
