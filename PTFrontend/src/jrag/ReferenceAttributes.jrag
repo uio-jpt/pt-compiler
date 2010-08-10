@@ -26,8 +26,6 @@ aspect ReferenceAttributes {
 
     eq PTInstDecl.getPTDummyClass(int i).getInstDecl() = this;
 
-
-
     eq PTCompilationUnit.getPTDecl(int i).getTemplate(String name) {
         PTTemplate res = lookupTemplateLocal(name);
         if (res==null) return lookupTemplateGlobal(name);
@@ -62,44 +60,20 @@ aspect ReferenceAttributes {
     }
 
     syn boolean PTInstDecl.templateIsRewritten() {
-        PTDecl template = getTemplate();
-        if (template == null) {
+        try {
+            return getTemplate().isRewritten;
+        } catch (NullPointerException e) {
             error("Nonexisting template " + getID() + "\n");
             return true;
         }
-        return template.isRewritten;
     }
     
     syn boolean PTDecl.dependenciesAreRewritten() {
-        for (PTInstDecl templateInst : getPTInstDecls()) {
+        for (PTInstDecl templateInst : getPTInstDecls()) 
             if (!templateInst.isRewritten)
                 return false;
-        }
         return true;
     }
-
-    syn HashMap<String,LinkedList<PTDummyClass>> PTDecl.getClassNamesWithDummyList() {
-        HashMap<String,LinkedList<PTDummyClass>> nameAndDummies =
-            new HashMap<String,LinkedList<PTDummyClass>>();
-
-    //          inst .. with source  => target
-    //          inst .. with source2 => target
-    //
-    //          String = target class
-    //          LinkedList = list of source classes
-
-        for (PTInstDecl templateInst : getPTInstDecls()) {
-            for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
-                String name = dummy.getID();
-                if (!nameAndDummies.containsKey(name))
-                    nameAndDummies.put(name,new LinkedList<PTDummyClass>());
-                LinkedList<PTDummyClass> dummies = nameAndDummies.get(name);
-                dummies.add(dummy);
-            }
-        }
-        return nameAndDummies;
-    }
-
 
     inh String PTMergedMethodAccess.getTemplateName(String methodName, String superClassName);
 
@@ -110,40 +84,15 @@ aspect ReferenceAttributes {
         return decl.getTemplateName(superClassName, methodName);
     }
 
-
-
     public String PTMergedMethodAccess.getDefaultTemplateID(String methodName, String superClassName) {
         return getTemplateName(methodName, superClassName);
     }
 
-
     public String PTMergedMethodAccess.getTemplateID() {
         if (!getGivenTemplateID().equals("")) return getGivenTemplateID();
-        //        else throw new RuntimeException("Eivind being stupid.. TODO");
         else return getDefaultTemplateID(getID(), getSuperClassID());
     }
 
-    eq PTMergedMethodAccess.name() {
-        if (getParentClass(PTPackage.class) == null) {
-            return "super[" + getTemplateID() + "." + getSuperClassID() + "]." + getID();
-        } else {
-            return "super_" + getTemplateID() + "_" + getSuperClassID() + "_" + getID();
-        }
-    }
-
-    eq PTMergedConstructorAccess.name()  {
-        if (getParentClass(PTPackage.class) == null) {
-            return "super[" + getSuperClassID() + "]";
-        } else {
-            return "super_" + getSuperClassID();
-        }
-    }
-
-    /*    
-    coll LinkedList<PTMergedConstructor> ClassDecl.getMergedConstructors() [new LinkedList<PTMergedConstructor>()]
-        with add root ClassDecl;
-    PTMergedConstructor contributes this to ClassDecl.getMergedConstructors() for getClassDecl();
-    */
 
     syn HashSet<String> ConstructorDecl.getMergedClassesWithConstructors() =
         getClassDecl().getMergedClassesWithConstructors();
@@ -168,7 +117,4 @@ aspect ReferenceAttributes {
 
     syn ConstructorDecl PTMergedConstructorAccess.getConstructorDecl() = ((ConstructorDecl)
                                                                      getParentClass(ConstructorDecl.class));
-    
-    syn String PTMergedConstructor.getName() = String.format("super[%s]",getID());
-    
 }

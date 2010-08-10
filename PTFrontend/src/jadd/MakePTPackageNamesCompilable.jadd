@@ -1,46 +1,6 @@
 aspect makePTPackageNamesCompilable {
 
-    public void ASTNode.makePTPackageNamesCompilable() {
-        for(int i = 0; i < getNumChild(); i++)
-            getChild(i).makePTPackageNamesCompilable();
-    }
-
-
-    public void CompilationUnit.makePTPackageNamesCompilable() {
-        // stop
-    }
-
-    public void PTTemplate.makePTPackageNamesCompilable() {
-        // stop
-    }
     
-    public void PTCompilationUnit.makePTPackageNamesCompilable() {
-        for (PTDecl p : getPTDeclList()) {
-            p.makePTPackageNamesCompilable();
-        }
-    }
-
-    public void MethodDecl.makePTPackageNamesCompilable() {
-        super.makePTPackageNamesCompilable();
-        String compilableID = makeNameCompilable(getID());
-        setID(compilableID);
-    }
-
-    syn String ASTNode.makeNameCompilable(String name) {
-        if (name.indexOf("]") == -1)
-            return name;
-        String[] s = name.split("\\]");
-        String oldPath = s[0];
-        String methodName = null;
-        if (s.length > 1 && s[1].length() > 0)
-            methodName = s[1].substring(1);
-        String path = oldPath.replaceAll("\\.", "_");
-        path = path.replaceAll("\\[", "_");
-        if (methodName != null)
-            return String.format("%s_%s", path,methodName);
-        else
-            return path;
-    }
 }
 
 

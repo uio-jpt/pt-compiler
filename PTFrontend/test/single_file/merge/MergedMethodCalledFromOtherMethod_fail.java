@@ -16,12 +16,12 @@ package AddPackage {
     class M adds {
         int getX() {
             // legal and required
-            return super[A].getX() + super[B].getX();
+            return tsuper[A].getX() + tsuper[B].getX();
         }
 
         int getY() {
             // error is here
-            return super[A].getX() + super[B].getX();
+            return tsuper[A].getX() + tsuper[B].getX();
         }
         
         

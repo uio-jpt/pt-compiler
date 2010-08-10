@@ -23,13 +23,13 @@ package AddPackage {
     class M adds {
         
         M(int x, int y) {
-            super[A](x);
-            super[B](y);
+            tsuper[A](x);
+            tsuper[B](y);
         }
 
         void errorLiesHere(int x, int y) {
-            super[A](x);
-            super[B](y);
+            tsuper[A](x);
+            tsuper[B](y);
         }
     }
 }

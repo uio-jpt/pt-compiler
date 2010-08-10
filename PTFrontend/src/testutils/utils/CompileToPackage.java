@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import testutils.javaparser.PTJavaParser;
 import AST.ClassDecl;
@@ -67,8 +69,30 @@ public class CompileToPackage extends PTFrontend {
 		return packageNameToClassNames.get(packageName);
 	}
 
-	public String getClassData(String packageName, String classname) {
-		return source.get(createKey(packageName,classname));
+	public String getCompilableClassData(String packageName, String classname) {
+		String ptCode = source.get(createKey(packageName,classname));
+		String javaCode = makeJavaCompilable(ptCode);
+		return javaCode;
+	}
+
+	/**
+	 * Replaces every:
+	 * tsuper[<classname>] with tsuper$<classname>$
+	 * tsuper[<templatename.classname>] with tsuper$<templatename$classname>$
+	 */
+	private String makeJavaCompilable(String ptCode) {
+		String tmp;
+		String regSimple = "tsuper\\[(\\w+)(:?\\.\\w+)?\\]";
+		String regComplex= "tsuper\\[(\\w+)(?:\\.(\\w+))\\]";
+		String replacementSimple = "tsuper\\$$1\\$";
+		String replacementComplex = replacementSimple + "\\$$2\\$";
+
+		Pattern sp = Pattern.compile(regSimple);
+		Pattern cp = Pattern.compile(regComplex);
+		Matcher ms= sp.matcher(ptCode);
+		tmp = ms.replaceAll(ptCode);
+		Matcher mc= cp.matcher(tmp);
+		return mc.replaceAll(tmp);
 	}
 
 	public List<String> getSourceWithErrors() {

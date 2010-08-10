@@ -1,0 +1,14 @@
+import com.google.common.base.CharMatcher;
+
+aspect referenceSpecialNames {
+
+    eq PTMergedMethodAccess.name() {
+        return "tsuper[" + getTemplateID() + "." + getSuperClassID() + "]." + getID();
+    }
+
+    eq PTMergedConstructorAccess.name()  {
+        return "tsuper[" + getSuperClassID() + "]";
+    }
+
+    //    syn String ASTNode.makeNameCompilable(String name) = CharMatcher.anyOf("[].").replaceFrom(name, "$");
+}

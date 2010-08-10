@@ -7,5 +7,11 @@ template T1 {
 }
 
 template T2 {
-    inst T1;
+    inst T1 with A => X;
+
+    class X{
+        X(String s) {
+            tsuper[A](s);
+        }
+    }
 }

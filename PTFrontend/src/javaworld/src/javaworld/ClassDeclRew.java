@@ -15,7 +15,6 @@ import AST.SimpleSet;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
-import com.google.common.collect.Sets;
 
 public class ClassDeclRew {
 	private final ClassDecl ext;
@@ -58,7 +57,6 @@ public class ClassDeclRew {
 		return ext;
 	}
 
-	/* TODO, fields and methods may collide. */
     Set<String> getDefinitionsRenamed(Map<String,String> namesMap) {
         Builder<String> definitionNames = ImmutableSet.builder();
         for (String name : ext.methodSignatures()) {

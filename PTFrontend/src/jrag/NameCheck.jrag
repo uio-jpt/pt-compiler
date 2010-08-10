@@ -13,7 +13,7 @@ aspect NameCheck {
 
     public void ConstructorDecl.callsMergedConstructorsCheck() {
         SimpleClass cls = (SimpleClass) getParentClass(SimpleClass.class);
-        if (cls.hasMulitpleInstantiators) {
+
             HashSet<String> mustBeCalled = getMergedClassesWithConstructors();
             HashSet<String> actuallyCalled = getMergedSuperCallNames();
             HashSet<String> missing = new HashSet<String>(mustBeCalled);
@@ -21,7 +21,7 @@ aspect NameCheck {
             for (String name : missing) {
                 error("Missing merged constructor call to mergee class: " + name + "\n");
             }
-        }
+
     }
 
     public void PTMergedConstructorAccess.isCalledFromConstructor() {

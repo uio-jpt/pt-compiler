@@ -14,7 +14,7 @@ package P {
         int x;
 
         int f() {
-            return super[T1.A].f(); 
+            return tsuper[T1.A].f(); 
         }
     }
 }

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import AST.Access;
 import AST.BodyDecl;
 import AST.ClassDecl;
 import AST.CompilationUnit;
@@ -31,18 +32,16 @@ public class PTDeclRew {
 
 	private final PTDecl target;
 	private Multimap<String, PTDummyClass> nameAndDummies;
+	private boolean beenheredebug;
 
 	public PTDeclRew(PTDecl target) {
 		this.target = target;
+		this.beenheredebug = false;
 		nameAndDummies = getClassNamesWithDummyList();
 	}
 
 	public void flushCaches() {
 		target.flushCaches();
-	}
-
-	public void makePTPackageNamesCompilable() {
-		target.makePTPackageNamesCompilable();
 	}
 
 	public void createEmptyMissingAddClasses() {
@@ -51,8 +50,8 @@ public class PTDeclRew {
 				addClasses);
 
 		for (String name : missingAddsClass) {
-			ClassDecl cls = new ClassDecl(new Modifiers(), name, new Opt(),
-					new List(), new List<BodyDecl>());
+			ClassDecl cls = new ClassDecl(new Modifiers(), name, new Opt<Access>(),
+					new List<Access>(), new List<BodyDecl>());
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			target.addSimpleClass(addClass);
 		}
@@ -73,6 +72,13 @@ public class PTDeclRew {
 		for (SimpleClass decl : target.getSimpleClassList()) {
 			SimpleClassRew rDecl = new SimpleClassRew(decl, nameAndDummies);
 			rDecl.attemptMerging();
+		}
+		if (beenheredebug) return;
+		beenheredebug = true;
+		for (SimpleClass decl : target.getSimpleClassList()) {
+			decl.flushCaches();
+			System.out.println("printing methods for: " + decl.getID());
+			System.out.println("\t"+decl.getClassDecl().methodSignatures().toString() + "\n");
 		}
 	}
 

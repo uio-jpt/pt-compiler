@@ -1,3 +1,0 @@
-aspect SimpleClass {
-    public boolean SimpleClass.hasMulitpleInstantiators = false; 
-}

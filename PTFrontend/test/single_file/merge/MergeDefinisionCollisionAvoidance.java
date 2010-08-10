@@ -15,7 +15,7 @@ package AddPackage {
 
     class M adds {
         int getX() {
-            return super[A].getX() + super[B].getX();
+            return tsuper[A].getX() + tsuper[B].getX();
         }
     }
 }

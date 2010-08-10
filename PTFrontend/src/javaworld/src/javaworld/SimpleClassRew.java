@@ -6,10 +6,8 @@ import java.util.Set;
 import AST.BodyDecl;
 import AST.ClassDecl;
 import AST.PTDummyClass;
-import AST.PTInstDecl;
 import AST.SimpleClass;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -34,9 +32,6 @@ public class SimpleClassRew {
 	public void attemptMerging() {
 		Collection<ClassDecl> instantiators = copyAndRenameForMerging();
 
-		if (dummies.size() > 1)
-			decl.hasMulitpleInstantiators = true; // TODO check where this is read
-
 		if (mergingIsPossible()) {
 			for (ClassDecl instantiator : instantiators)
 				addDecls(instantiator);
@@ -46,6 +41,7 @@ public class SimpleClassRew {
 	public void addDecls(ClassDecl source) {
 		ClassDecl target = decl.getClassDecl();
 		for (BodyDecl bodyDecl : source.getBodyDecls()) {
+			System.out.println(bodyDecl.getName() + " - " + bodyDecl.getClass().getName());
 			if (bodyDecl.isNotEmptyConstructor())
 				target.addBodyDecl(bodyDecl);
 		}
@@ -68,7 +64,6 @@ public class SimpleClassRew {
 	public Set<String> getConflicts() {
 		Set<String> collisions = ImmutableSet.of();
 		Set<String> allDefinitions = ImmutableSet.copyOf((decl.getClassDecl().methodSignatures()));
-		Joiner djoin = Joiner.on(",");
 		for (PTDummyClass dummy : dummies) {
 			DummyRew x = new DummyRew(dummy);
 			Set<String> instanceDecls = x.getDefinitionsRenamed();

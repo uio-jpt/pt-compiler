@@ -16,6 +16,5 @@ public class InstantiationRewriter {
 		target.updateAddsSuperClasses();
 		target.copyImportDecls();
 		target.flushCaches();
-		target.makePTPackageNamesCompilable();
 	}
 }

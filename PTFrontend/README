@@ -4,15 +4,6 @@ Fixes TODO:
 
 * veldig mye annet småplukk.
 
-* forsøke å gjøre processen som starter med InstantiationRewrite.jadd
-  mer lesbar og gjerne mer oppstykket ved hjelp av jastadd
-  collections.
-
-* Bruke google collections multimap istedenfor
-  HashMap<String,List<Type>>.
-* Bruke google collection immutable set og tilhørende Sets
-  operasjoner.
-
 * Se på import decls for merga klasser, her er det mulig med
   konflikter. Eksempelvis, klasse A importerer java.util.List, mens
   klasse B importerer AST.List. I mergeklassen av A og B, her kalt C,
@@ -20,3 +11,5 @@ Fixes TODO:
 
 * Classpath option til PT-Kompilatoren. JastAddJ støtter dette, så det
   er en enkel fiks.
+
+* parserstoette for mergedConstructorAccess med [templatnavn.klassenavn]

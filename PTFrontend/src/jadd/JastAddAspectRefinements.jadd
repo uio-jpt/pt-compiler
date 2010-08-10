@@ -16,5 +16,8 @@ aspect JastAddAspectRefinements {
 
     syn String BodyDecl.getName() = null;
     eq MethodDecl.getName() = getID();
-    //    eq FieldDeclaration.getName() = getID();
+    eq FieldDeclaration.getName() = getID();
+    eq PTMergedConstructor.getName() = getSuperClassID();
+    eq ConstructorDecl.getName() = getID();    
+    
 }    

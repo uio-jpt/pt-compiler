@@ -16,8 +16,8 @@ package AddPackage {
 
     class M adds {
         M(int k, int j) {
-            super[A](k);
-            super[B](j);
+            tsuper[A](k);
+            tsuper[B](j);
         }
     }
 }

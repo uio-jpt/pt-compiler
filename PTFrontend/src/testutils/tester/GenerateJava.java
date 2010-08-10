@@ -56,7 +56,7 @@ public class GenerateJava {
 		for (String classname : compilerInterface.getClassnames(packageName)) {
 			FileIO classFile = packageFolder.createExtendedPath(classname
 					+ ".java");
-			String source = compilerInterface.getClassData(packageName,
+			String source = compilerInterface.getCompilableClassData(packageName,
 					classname);
 			source += "\n";
 			classFile.write(source);

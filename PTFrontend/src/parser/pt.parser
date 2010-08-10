@@ -1,3 +1,5 @@
+/* NB: Remember to clean/rebuild. The parser will behave strange otherwise.
+*/
 CompilationUnit compilation_unit =
 package_declaration.p import_declarations.i? pt_declaration.pt+ {: return new PTCompilationUnit(p.getID(), i, new List<TypeDecl>(), pt); :}
 | import_declarations.i? pt_declaration.pt+ {: return new PTCompilationUnit("", i, new List<TypeDecl>(), pt); :}
@@ -117,32 +119,35 @@ Access method_invocation =  explicit_merged_method_invocation.e {: return e; :}
 | explicit_merged_constructor_invocation.e {: return e; :} ;
 
 Access explicit_merged_method_invocation =
-     SUPER LBRACK IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
+     TSUPER LBRACK IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
      {:
         PTMergedMethodAccess m = new PTMergedMethodAccess(methodName, args, superClassName, "");
-        m.setStart(SUPER.getStart());
+        m.setStart(TSUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m; :}
     ;
 
 Access explicit_merged_method_invocation =
-     SUPER LBRACK IDENTIFIER.templateName DOT IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
+     TSUPER LBRACK IDENTIFIER.templateName DOT IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
      {:
         PTMergedMethodAccess m = new PTMergedMethodAccess(methodName, args, superClassName, templateName);
-        m.setStart(SUPER.getStart());
+        m.setStart(TSUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m; :}
     ;
 
 Access explicit_merged_constructor_invocation =
-     SUPER LBRACK IDENTIFIER.superClassName RBRACK LPAREN argument_list.args? RPAREN
+     TSUPER LBRACK IDENTIFIER.superClassName RBRACK LPAREN argument_list.args? RPAREN
      {: 
-        String mName = "super" + superClassName;
+        String mName = "tsuper" + superClassName;
         PTMergedConstructorAccess m = new PTMergedConstructorAccess(mName, args, superClassName);
-        m.setStart(SUPER.getStart());
+        m.setStart(TSUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m; :}
     ;
+
+    
+    
 
 String merged_method_name =
       DOT IDENTIFIER {: return IDENTIFIER; :}

@@ -1,5 +1,6 @@
 package javaworld;
 
+import AST.Access;
 import AST.Block;
 import AST.ConstructorDecl;
 import AST.ExprStmt;
@@ -32,10 +33,12 @@ public class ConstructorRew {
 		 * rewrite constructor invocations to method invocations based on
 		 * orgSuperClass.
 		 */
-		String modifiedMethodName = String.format("super[%s]", methodName);
+		// TODO TODO
+		System.out.println("making " + methodName + " merged!");
+		String modifiedMethodName = String.format("tsuper[%s]", methodName);
 		MethodDecl md = new PTMergedConstructor(cd.getModifiers(),
 				new TypeAccess(returnType), modifiedMethodName,
-				cd.getParameterList(), new List(), new Opt(), methodName);
+				cd.getParameterList(), new List<Access>(), new Opt<Block>(), methodName);
 		md.setBlock(new Block(new List<Stmt>()));
 		if (cd.hasConstructorInvocation() && orgSuperClass != null) {
 			// rewrite "super(x,y,z)" to "superA(x,y,z)" where A is the original
@@ -45,7 +48,7 @@ public class ConstructorRew {
 				SuperConstructorAccess sa = (SuperConstructorAccess) s
 						.getExpr();
 				MethodAccess oldConstructorInvocationAsMethod = new MethodAccess(
-						"super[" + orgSuperClass + "]", sa.getArgList());
+						"tsuper[" + orgSuperClass + "]", sa.getArgList());
 				oldConstructorInvocationAsMethod.IDstart = sa.IDstart;
 				oldConstructorInvocationAsMethod.IDend = sa.IDend;
 				md.getBlock().addStmt(

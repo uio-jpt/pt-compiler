@@ -1,28 +1,23 @@
 package javaworld;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import AST.ClassDecl;
-import AST.Expr;
 import AST.PTDummyClass;
 import AST.PTDummyRename;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public class DummyRew {
 
 	final PTDummyClass instantiator;
-	private final ClassDeclRew renamedClass;
 	private Map<String, String> renamedDefs;
 
 	public DummyRew(PTDummyClass dummy) {
 		this.instantiator = dummy;
-		renamedClass = getRenamedSourceClass();
 		renamedDefs = getExplicitlyRenamedDefinitions();
 	}
 
@@ -35,8 +30,9 @@ public class DummyRew {
 	Map<String, String> getRenamedConflictsMap(Set<String> conflicts) {
 		HashMap<String, String> newDefinitions = new HashMap<String, String>();
 		for (String conflictDef : conflicts) {
+			System.out.printf("%s has a conflict.\n",conflictDef);
 			String origClassName = instantiator.getOrgID();
-			newDefinitions.put(conflictDef, String.format("super[%s.%s].%s",
+			newDefinitions.put(conflictDef, String.format("tsuper[%s.%s].%s",
 					instantiator.getTemplate().getID(), origClassName,
 					conflictDef));
 		}
