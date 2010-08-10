@@ -118,6 +118,18 @@
       <arg value="--verbose" />
     </java>
   </target>
+
+  <target name="compilesingle" depends="build">
+    <mkdir dir="${debug}" />    
+    <java classname="testutils.TestScenario" classpathref="classpath.runtest" fork="true">
+      <jvmarg value="${heap-max}" />      
+      <arg value="--verbose" />
+      <arg value="${name}"/>
+      <arg value="--compileTestsFolder"/>
+      <arg value="${debug}"/>               
+    </java>
+  </target>
+  
   
 
   <target name="profile_testall" depends="build">

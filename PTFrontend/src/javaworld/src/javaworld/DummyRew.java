@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import AST.ClassDecl;
 import AST.PTDummyClass;
 import AST.PTDummyRename;
@@ -14,37 +16,9 @@ import com.google.common.collect.Sets;
 public class DummyRew {
 
 	final PTDummyClass instantiator;
-	private Map<String, String> renamedDefs;
 
 	public DummyRew(PTDummyClass dummy) {
 		this.instantiator = dummy;
-		renamedDefs = getExplicitlyRenamedDefinitions();
-	}
-
-	Set<String> getDefinitionsRenamed() {
-		ClassDeclRew cls = new ClassDeclRew(instantiator.getOriginator());
-		return cls.getDefinitionsRenamed(renamedDefs);
-
-	}
-
-	Map<String, String> getRenamedConflictsMap(Set<String> conflicts) {
-		HashMap<String, String> newDefinitions = new HashMap<String, String>();
-		for (String conflictDef : conflicts) {
-			System.out.printf("%s has a conflict.\n",conflictDef);
-			String origClassName = instantiator.getOrgID();
-			newDefinitions.put(conflictDef, String.format("tsuper[%s.%s].%s",
-					instantiator.getTemplate().getID(), origClassName,
-					conflictDef));
-		}
-		return newDefinitions;
-	}
-
-	Map<String, String> getExplicitlyRenamedDefinitions() {
-		HashMap<String, String> map = Maps.newHashMap();
-		for (PTDummyRename entry : instantiator.getPTDummyRenameList()) {
-			entry.addSelfTo(map);
-		}
-		return map;
 	}
 
 	public ClassDeclRew getRenamedSourceClass() {
@@ -52,7 +26,17 @@ public class DummyRew {
 		ClassDeclRew x = new ClassDeclRew(ext);
 		x.renameTypes(instantiator.getInstDecl().getRenamedClasses());
 		x.renameDefinitions(getExplicitlyRenamedDefinitions());
+		x.renameConstructors(instantiator);
 		return x;
+	}
+
+	Map<String, String> getExplicitlyRenamedDefinitions() {
+		// TODO addsselfto... move it here!!!
+		HashMap<String, String> map = Maps.newHashMap();
+		for (PTDummyRename entry : instantiator.getPTDummyRenameList()) {
+			entry.addSelfTo(map);
+		}
+		return map;
 	}
 
 	/**
@@ -62,6 +46,7 @@ public class DummyRew {
 	 */
 	public boolean sourceClassHasNameAndMethod(String templateClassname,
 			String methodName) {
+		/*
 		String origID = instantiator.getOrgID();
 		Set<String> methodNames = Sets.newHashSet();
 		for (String x : getDefinitionsRenamed()) {
@@ -71,6 +56,8 @@ public class DummyRew {
 		}
 		return origID.equals(templateClassname)
 				&& methodNames.contains(methodName);
+				*/
+		throw new NotImplementedException();
 	}
 
 }

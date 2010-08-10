@@ -77,22 +77,24 @@ public class CompileToPackage extends PTFrontend {
 
 	/**
 	 * Replaces every:
-	 * tsuper[<classname>] with tsuper$<classname>$
-	 * tsuper[<templatename.classname>] with tsuper$<templatename$classname>$
+	 * tsuper[<classname>]() with tsuper$<classname>$()
+	 * tsuper[<templatename.classname>] with tsuper$<templatename$classname>$()
+	 * tsuper[<classname>].f() with tsuper$<classname>$f()
+	 * tsuper[<templatename.classname>].f() with tsuper$<templatename$classname>$f()
 	 */
 	private String makeJavaCompilable(String ptCode) {
 		String tmp;
-		String regSimple = "tsuper\\[(\\w+)(:?\\.\\w+)?\\]";
-		String regComplex= "tsuper\\[(\\w+)(?:\\.(\\w+))\\]";
+		String regSimple = "tsuper\\[(\\w+)\\]\\.?"; 
+		String regComplex = "tsuper\\[(\\w+)\\.(\\w+)].?";
 		String replacementSimple = "tsuper\\$$1\\$";
-		String replacementComplex = replacementSimple + "\\$$2\\$";
+		String replacementComplex = replacementSimple + "$2\\$";
 
 		Pattern sp = Pattern.compile(regSimple);
 		Pattern cp = Pattern.compile(regComplex);
 		Matcher ms= sp.matcher(ptCode);
-		tmp = ms.replaceAll(ptCode);
+		tmp = ms.replaceAll(replacementSimple);
 		Matcher mc= cp.matcher(tmp);
-		return mc.replaceAll(tmp);
+		return mc.replaceAll(replacementComplex);
 	}
 
 	public List<String> getSourceWithErrors() {

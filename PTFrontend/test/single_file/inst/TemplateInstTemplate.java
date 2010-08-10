@@ -9,7 +9,7 @@ template T1 {
 template T2 {
     inst T1 with A => X;
 
-    class X{
+    class X adds{
         X(String s) {
             tsuper[A](s);
         }

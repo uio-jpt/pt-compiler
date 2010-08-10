@@ -5,6 +5,7 @@ import java.util.Set;
 
 import AST.BodyDecl;
 import AST.ClassDecl;
+import AST.List;
 import AST.PTDummyClass;
 import AST.SimpleClass;
 
@@ -17,37 +18,27 @@ public class SimpleClassRew {
 	private final SimpleClass decl;
 	private Collection<PTDummyClass> dummies;
 	private Set<String> conflicts;
+	private Collection<ClassDeclRew> renamedSources;
 	
 	public SimpleClassRew(SimpleClass decl, Multimap<String, PTDummyClass> nameAndDummies) {
 		this.decl = decl;
 		checkIfSane(nameAndDummies); 
 		dummies = nameAndDummies.get(decl.getID());
+		renamedSources = getRenamedAgnosticInstClasses();
 		conflicts = getConflicts();
 	}
 
-	public boolean mergingIsPossible() {
-		return addsResolvesConflict() && addsHasOwnConstructor();
-	}
-
-	public void attemptMerging() {
-		Collection<ClassDecl> instantiators = copyAndRenameForMerging();
+	public void extendClass() {
+		renameResolvedConflicts();
 
 		if (mergingIsPossible()) {
-			for (ClassDecl instantiator : instantiators)
-				addDecls(instantiator);
+			for (ClassDeclRew source : renamedSources) {
+				addDecls(source.getBodyDecls());
+			}
 		}
 	}
 
-	public void addDecls(ClassDecl source) {
-		ClassDecl target = decl.getClassDecl();
-		for (BodyDecl bodyDecl : source.getBodyDecls()) {
-			System.out.println(bodyDecl.getName() + " - " + bodyDecl.getClass().getName());
-			if (bodyDecl.isNotEmptyConstructor())
-				target.addBodyDecl(bodyDecl);
-		}
-	}
-
-	public boolean addsResolvesConflict() {
+	private boolean addsResolvesConflict() {
 		Set<String> addRefinements = decl.getClassDecl().methodSignatures();
 		for (String conflictingName : conflicts) {
 			if (!addRefinements.contains(conflictingName)) {
@@ -60,13 +51,15 @@ public class SimpleClassRew {
 	}
 
 	/** Had a bug with views, switched to immutableSets. Code may be written more concise.
+	 * Returns intersection of all renamed signatures (fields and methods) from all tsuperclasses.
+	 * 
+	 * (since getConflicts needs all classes renamed. maybe it should use a renamed copy for these purposes.)
 	 */
-	public Set<String> getConflicts() {
+	private Set<String> getConflicts() {
 		Set<String> collisions = ImmutableSet.of();
 		Set<String> allDefinitions = ImmutableSet.copyOf((decl.getClassDecl().methodSignatures()));
-		for (PTDummyClass dummy : dummies) {
-			DummyRew x = new DummyRew(dummy);
-			Set<String> instanceDecls = x.getDefinitionsRenamed();
+		for (ClassDeclRew decl : renamedSources) {
+			Set<String> instanceDecls = decl.getSignatures();
 			Set<String> localCollisions = Sets.intersection(instanceDecls, allDefinitions);
 			allDefinitions = ImmutableSet.copyOf(Sets.union(allDefinitions, instanceDecls));
 			collisions = ImmutableSet.copyOf(Sets.union(collisions, localCollisions));
@@ -74,29 +67,50 @@ public class SimpleClassRew {
 		return collisions;
 	}
 
+	private void renameResolvedConflicts() {
+		for (ClassDeclRew decl : renamedSources) 
+			decl.addConflicts(conflicts);
+	}
+
+
 	// TODO tautology?
-	public boolean addsHasOwnConstructor() {
+	private boolean addsHasOwnConstructor() {
 		return decl.getClassDecl().getConstructorDeclList().size() > 0;
 	}
 
-	public Collection<ClassDecl> copyAndRenameForMerging() {
-		Collection<ClassDecl> copiesToBeMerged = Lists.newLinkedList();
+	private boolean mergingIsPossible() {
+		return addsResolvesConflict() && addsHasOwnConstructor();
+	}
+
+	private void addDecls(List<BodyDecl> bodyDecls) {
+		ClassDecl target = decl.getClassDecl();
+		for (BodyDecl bodyDecl : bodyDecls) {
+			target.addBodyDecl(bodyDecl);
+		}
+	}
+
+	/**
+	 * Renamed classes are not cross checked. 
+	 * If there's a method name conflict that the adds class resolves,
+	 * then the correct renaming of the conflicting classes will be performed later on.
+	 * @return all classes that will be merge into current. 
+	 */
+	private Collection<ClassDeclRew> getRenamedAgnosticInstClasses() {
+		Collection<ClassDeclRew> instClasses = Lists.newLinkedList();
 		for (PTDummyClass x : dummies) {
 			DummyRew dummyr = new DummyRew(x);
 			ClassDeclRew ext = dummyr.getRenamedSourceClass();
-			ext.addConflicts(conflicts);
-			copiesToBeMerged.add(ext.getRenamed(dummyr));
+			instClasses.add(ext);
 		}
-		return copiesToBeMerged;
+		return instClasses;
 	}
 
-
-	public void checkIfSane(Multimap<String, PTDummyClass> nameAndDummies) {
+	private void checkIfSane(Multimap<String, PTDummyClass> nameAndDummies) {
 		if (nameAndDummies.containsKey(decl.getID())) {
 			if (!decl.isAddsClass()) {
 				decl.error("Class "
 						+ decl.getID()
-						+ " has dual roles. It's both defined as an inpedendent class and as a template class instantiation.\n");
+						+ " has dual roles. It's both defined as an inpedendent class and as a template adds class.\n");
 			}
 		} else if (decl.isAddsClass()) {
 			decl.error(decl.getID()

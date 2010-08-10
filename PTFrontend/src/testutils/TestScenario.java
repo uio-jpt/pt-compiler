@@ -127,8 +127,7 @@ public class TestScenario {
 		this.multipleFileFolder = multipleFileFolder;
 		this.singleTestNames = singleTestNames;
 		this.compileTestsOutputFolder = compileTestsOutputFolder;
-		if (compileTestsOutputFolder != null)
-			compileFlag = true;
+		compileFlag = compileTestsOutputFolder != null;
 	}
 
 	private static TestScenario parseArgsAndInstantiate(String[] args) {

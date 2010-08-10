@@ -32,54 +32,14 @@ public class PTDeclRew {
 
 	private final PTDecl target;
 	private Multimap<String, PTDummyClass> nameAndDummies;
-	private boolean beenheredebug;
 
 	public PTDeclRew(PTDecl target) {
 		this.target = target;
-		this.beenheredebug = false;
 		nameAndDummies = getClassNamesWithDummyList();
 	}
 
 	public void flushCaches() {
 		target.flushCaches();
-	}
-
-	public void createEmptyMissingAddClasses() {
-		Set<String> addClasses = target.getAdditionClassNamesSet();
-		Set<String> missingAddsClass = Sets.difference(nameAndDummies.keySet(),
-				addClasses);
-
-		for (String name : missingAddsClass) {
-			ClassDecl cls = new ClassDecl(new Modifiers(), name, new Opt<Access>(),
-					new List<Access>(), new List<BodyDecl>());
-			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
-			target.addSimpleClass(addClass);
-		}
-	}
-
-	Multimap<String, PTDummyClass> getClassNamesWithDummyList() {
-		Multimap<String, PTDummyClass> nameAndDummies = ArrayListMultimap
-				.create();
-		for (PTInstDecl templateInst : target.getPTInstDecls()) {
-			for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
-				nameAndDummies.put(dummy.getID(), dummy);
-			}
-		}
-		return nameAndDummies;
-	}
-
-	public void extendAddClassesWithInstantiatons() {
-		for (SimpleClass decl : target.getSimpleClassList()) {
-			SimpleClassRew rDecl = new SimpleClassRew(decl, nameAndDummies);
-			rDecl.attemptMerging();
-		}
-		if (beenheredebug) return;
-		beenheredebug = true;
-		for (SimpleClass decl : target.getSimpleClassList()) {
-			decl.flushCaches();
-			System.out.println("printing methods for: " + decl.getID());
-			System.out.println("\t"+decl.getClassDecl().methodSignatures().toString() + "\n");
-		}
 	}
 
 	public void updateAddsSuperClasses() {
@@ -121,8 +81,8 @@ public class PTDeclRew {
 			try {
 				decl.getClassDecl().setSuperClassAccess(
 						new TypeAccess(Iterables.getOnlyElement(superNames)));
-			} catch (NoSuchElementException e) {
-			} // no superclasses
+			} catch (NoSuchElementException e) { // no superclasses
+			} 
 		}
 	}
 
@@ -143,5 +103,36 @@ public class PTDeclRew {
 							+ templates.toString(), superClassName, methodName));
 			return "UnknownTemplate";
 		}
+	}
+
+	protected void extendAddClassesWithInstantiatons() {
+		for (SimpleClass decl : target.getSimpleClassList()) {
+			SimpleClassRew rDecl = new SimpleClassRew(decl, nameAndDummies);
+			rDecl.extendClass();
+		}
+	}
+
+	protected void createEmptyMissingAddClasses() {
+		Set<String> addClasses = target.getAdditionClassNamesSet();
+		Set<String> missingAddsClass = Sets.difference(nameAndDummies.keySet(),
+				addClasses);
+	
+		for (String name : missingAddsClass) {
+			ClassDecl cls = new ClassDecl(new Modifiers(), name, new Opt<Access>(),
+					new List<Access>(), new List<BodyDecl>());
+			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
+			target.addSimpleClass(addClass);
+		}
+	}
+
+	private Multimap<String, PTDummyClass> getClassNamesWithDummyList() {
+		Multimap<String, PTDummyClass> nameAndDummies = ArrayListMultimap
+				.create();
+		for (PTInstDecl templateInst : target.getPTInstDecls()) {
+			for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
+				nameAndDummies.put(dummy.getID(), dummy);
+			}
+		}
+		return nameAndDummies;
 	}
 }
