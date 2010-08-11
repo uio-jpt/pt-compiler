@@ -60,4 +60,8 @@ public class DummyRew {
 		throw new NotImplementedException();
 	}
 
+	public String getSourceTemplateName() {
+		return instantiator.getTemplate().getID();
+	}
+
 }

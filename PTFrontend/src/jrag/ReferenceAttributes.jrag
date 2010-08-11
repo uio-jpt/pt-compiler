@@ -1,4 +1,4 @@
-import javaworld.PTDeclRew;
+ import javaworld.PTDeclRew;
 aspect ReferenceAttributes {
     
     syn PTTemplate PTInstDecl.getTemplate() = getTemplate(getID());
@@ -52,8 +52,8 @@ aspect ReferenceAttributes {
         return null;
     }
 
-    syn HashMap<String,String> PTInstDecl.getRenamedClasses() {
-        HashMap<String,String> renamedClasses = new HashMap<String,String>();
+    syn Map<String,String> PTInstDecl.getRenamedClasses() {
+        Map<String,String> renamedClasses = new HashMap<String,String>();
         for (PTDummyClass dummy: getPTDummyClassList()) 
             renamedClasses.put(dummy.getOrgID(),dummy.getID());
         return renamedClasses; 

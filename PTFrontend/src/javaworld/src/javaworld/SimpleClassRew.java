@@ -69,7 +69,7 @@ public class SimpleClassRew {
 
 	private void renameResolvedConflicts() {
 		for (ClassDeclRew decl : renamedSources) 
-			decl.addConflicts(conflicts);
+			decl.renameMatchingMethods(conflicts);
 	}
 
 
@@ -100,6 +100,7 @@ public class SimpleClassRew {
 		for (PTDummyClass x : dummies) {
 			DummyRew dummyr = new DummyRew(x);
 			ClassDeclRew ext = dummyr.getRenamedSourceClass();
+			ext.setSourceTemplateName(dummyr.getSourceTemplateName());
 			instClasses.add(ext);
 		}
 		return instClasses;

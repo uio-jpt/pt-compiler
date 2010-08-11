@@ -18,9 +18,11 @@ import AST.TypeAccess;
 public class ConstructorRew {
 
 	private final ConstructorDecl cd;
+	private final String sourceTemplateName;
 
-	public ConstructorRew(ConstructorDecl cd) {
+	public ConstructorRew(ConstructorDecl cd, String sourceTemplateName) {
 		this.cd = cd;
+		this.sourceTemplateName = sourceTemplateName;
 	}
 
 	/*
@@ -35,7 +37,7 @@ public class ConstructorRew {
 		 */
 		// TODO TODO
 		System.out.println("making " + methodName + " merged!");
-		String modifiedMethodName = String.format("tsuper[%s]", methodName);
+		String modifiedMethodName = String.format("tsuper[%s,%s]",sourceTemplateName, methodName);
 		MethodDecl md = new PTMergedConstructor(cd.getModifiers(),
 				new TypeAccess(returnType), modifiedMethodName,
 				cd.getParameterList(), new List<Access>(), new Opt<Block>(), methodName);
