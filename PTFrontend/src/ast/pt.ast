@@ -21,9 +21,9 @@ PTFieldRename : PTDummyRename;
 abstract PTMethodAccess : MethodAccess;
 
 TemplateMethodAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
-TemplateMethodAccessShort : TemplateMethodAccess ::= <TClassID>;
+TemplateMethodAccessShort : TemplateMethodAccess;
 
 TemplateConstructorAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
-TemplateConstructorAccessShort : TemplateConstructorAccess ::= <TClassID>;
+TemplateConstructorAccessShort : TemplateConstructorAccess;
 
 TemplateConstructor : MethodDecl ::= <TClassID>;

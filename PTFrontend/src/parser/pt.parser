@@ -121,7 +121,7 @@ Access method_invocation =  explicit_merged_method_invocation.e {: return e; :}
 Access explicit_merged_method_invocation =
      TSUPER LBRACK IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
      {:
-        TemplateMethodAccess m = new TemplateMethodAccessShort(methodName, args, superClassName, "Not defined");
+        TemplateMethodAccess m = new TemplateMethodAccessShort(methodName, args, superClassName, "<UNKNOWN>");
         m.setStart(TSUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m; :}
@@ -140,7 +140,7 @@ Access explicit_merged_constructor_invocation =
      TSUPER LBRACK IDENTIFIER.superClassName RBRACK LPAREN argument_list.args? RPAREN
      {: 
         String mName = "tsuper" + superClassName;
-        TemplateConstructorAccessShort m = new TemplateConstructorAccessShort(mName, args, superClassName,"UNKNOWN");
+        TemplateConstructorAccessShort m = new TemplateConstructorAccessShort(mName, args, superClassName,"<UNKNOWN>");
         m.setStart(TSUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m; :}

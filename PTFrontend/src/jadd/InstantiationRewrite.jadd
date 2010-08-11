@@ -1,8 +1,25 @@
 import javaworld.InstantiationRewriter;
+import javaworld.Util;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Iterables;
+
+
 aspect InstantiationRewrite {
 
     protected boolean PTDecl.isRewritten = false;
     protected boolean PTInstDecl.isRewritten = false;
+
+    private Multimap<String,String> ClassDecl.templateClassIDTotemplateID;
+
+    public void ClassDecl.setClassToTemplateMap(Multimap<String,String> x) {
+        templateClassIDTotemplateID = x;
+    }
+
+    public String ClassDecl.lookupTemplateForTClass(String tclassID) {
+        Collection<String> x = templateClassIDTotemplateID.get(tclassID);
+        return Iterables.getOnlyElement(x);
+    }
+        
 
     rewrite PTInstDecl {
         when (this.isRewritten == false && templateIsRewritten())
@@ -34,11 +51,19 @@ aspect InstantiationRewrite {
     rewrite TemplateMethodAccessShort {
         when (hostIsRewritten())
         to TemplateMethodAccess {
+            String templateID = "";
             PTClassDecl host = (PTClassDecl) getParentClass(PTClassDecl.class);
             String methodName = getID();
             List<Expr>  argList = getArgList(); // getArgListNoTransform??
             String tClassID = getTClassID();
-            String templateID = host.determineTemplateID(tClassID);
+            try {
+                templateID = host.determineTemplateID(tClassID);
+            } catch(NoSuchElementException e) {
+                error("Unknown template superclass for " + getID());
+            } catch(IllegalArgumentException e) {
+                error(String.format("Multiple possible templates with class %s for in template method call %s. msg: " + e.getMessage()));
+            }
+            Util.print(String.format("%s: methodName=%s, tClassID=%s, templataeID=%s",getClass().getName(),methodName,tClassID,templateID));            
             return new TemplateMethodAccess(methodName,argList, tClassID,templateID);
         }
     }
@@ -46,11 +71,19 @@ aspect InstantiationRewrite {
     rewrite TemplateConstructorAccessShort {
         when (hostIsRewritten())
         to TemplateConstructorAccess {
+            String templateID = "";
             PTClassDecl host = (PTClassDecl) getParentClass(PTClassDecl.class);
             String methodName = getID();
             List<Expr>  argList = getArgList(); // getArgListNoTransform??
             String tClassID = getTClassID();
-            String templateID = host.determineTemplateID(tClassID);
+            try {
+                templateID = host.determineTemplateID(tClassID);
+            } catch(NoSuchElementException e) {
+                error("Unknown template superclass for " + getID());
+            } catch(IllegalArgumentException e) {
+                error(String.format("Multiple possible templates with class %s for in template constructor call %s. msg: " + e.getMessage()));
+            }
+            Util.print(String.format("%s: methodName=%s, tClassID=%s, templataeID=%s",getClass().getName(),methodName,tClassID,templateID));
             return new TemplateConstructorAccess(methodName,argList, tClassID,templateID);
         }
     }            
@@ -59,6 +92,6 @@ aspect InstantiationRewrite {
     syn boolean PTMethodAccess.hostIsRewritten() = hasParentClass(PTClassDecl.class);
 
     syn String PTClassDecl.determineTemplateID(String tClassID) {
-        return "UNKNOWN123666P";
+        return getClassDecl().lookupTemplateForTClass(tClassID);
     }
 }

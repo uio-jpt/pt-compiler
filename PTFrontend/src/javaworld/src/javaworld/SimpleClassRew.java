@@ -9,7 +9,9 @@ import AST.ConstructorDecl;
 import AST.List;
 import AST.PTDummyClass;
 import AST.SimpleClass;
+import AST.TemplateConstructor;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -20,6 +22,7 @@ public class SimpleClassRew {
 	private Collection<PTDummyClass> dummies;
 	private Set<String> conflicts;
 	private Collection<ClassDeclRew> renamedSources;
+	
 
 	public SimpleClassRew(SimpleClass decl,
 			Multimap<String, PTDummyClass> nameAndDummies) {
@@ -28,11 +31,21 @@ public class SimpleClassRew {
 		dummies = nameAndDummies.get(decl.getID());
 		renamedSources = getRenamedAgnosticInstClasses();
 		conflicts = getConflicts();
+		computeClassToTemplateMultimap();
+	}
+
+	private void computeClassToTemplateMultimap() {
+		Multimap<String, String> classToTemplates = HashMultimap.create();
+		for (PTDummyClass dummy : dummies) {
+			String classID = dummy.getOriginator().getID();
+			String templateID = dummy.getTemplate().getID();
+			classToTemplates.put(classID, templateID);
+		}
+		decl.getClassDecl().setClassToTemplateMap(classToTemplates);
 	}
 
 	public void extendClass() {
 		renameResolvedConflicts();
-		// storeTConstructorSignatures
 
 		if (mergingIsPossible()) {
 			for (ClassDeclRew source : renamedSources) {
@@ -96,6 +109,11 @@ public class SimpleClassRew {
 		for (BodyDecl bodyDecl : bodyDecls) {
 			if (!(bodyDecl instanceof ConstructorDecl)) {
 				target.addBodyDecl(bodyDecl);
+				if (bodyDecl instanceof TemplateConstructor) {
+					TemplateConstructor x = (TemplateConstructor) bodyDecl;
+					Util.print(x.toString());
+					
+				}
 			}
 		}
 	}

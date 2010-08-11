@@ -22,7 +22,7 @@ import AST.SimpleClass;
 import AST.TypeAccess;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -126,8 +126,7 @@ public class PTDeclRew {
 	}
 
 	private Multimap<String, PTDummyClass> getClassNamesWithDummyList() {
-		Multimap<String, PTDummyClass> nameAndDummies = ArrayListMultimap
-				.create();
+		Multimap<String, PTDummyClass> nameAndDummies = HashMultimap.create();
 		for (PTInstDecl templateInst : target.getPTInstDecls()) {
 			for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
 				nameAndDummies.put(dummy.getID(), dummy);

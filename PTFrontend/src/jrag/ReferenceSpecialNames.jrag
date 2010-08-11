@@ -1,14 +1,12 @@
-import com.google.common.base.CharMatcher;
+import javaworld.Util;
 
 aspect referenceSpecialNames {
 
     eq TemplateMethodAccess.name() {
-        return "tsuper[" + getTemplateID() + "." + getTClassID() + "]." + getID();
+        return Util.toName(getTemplateID(),getTClassID(),getID());
     }
 
     eq TemplateConstructorAccess.name()  {
-        return "tsuper[" + getTClassID() + "]";
+        return Util.toName(getTemplateID(),getTClassID());        
     }
-
-    //    syn String ASTNode.makeNameCompilable(String name) = CharMatcher.anyOf("[].").replaceFrom(name, "$");
 }

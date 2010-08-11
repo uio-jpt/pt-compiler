@@ -37,8 +37,7 @@ public class ConstructorRew {
 		 * orgSuperClass.
 		 */
 		// TODO TODO
-		System.out.println("making " + methodName + " merged!");
-		String modifiedMethodName = String.format("tsuper[%s,%s]",sourceTemplateName, methodName);
+		String modifiedMethodName = Util.toName(sourceTemplateName, methodName);
 		MethodDecl md = new TemplateConstructor(cd.getModifiers(),
 				new TypeAccess(returnType), modifiedMethodName,
 				cd.getParameterList(), new List<Access>(), new Opt<Block>(), methodName);
