@@ -75,7 +75,7 @@ aspect ReferenceAttributes {
         return true;
     }
 
-    inh String PTMergedMethodAccess.getTemplateName(String methodName, String superClassName);
+    inh String TemplateMethodAccess.getTemplateName(String methodName, String superClassName);
 
     eq Program.getChild().getTemplateName(String methodName, String superClassName) { throw new RuntimeException("getTemplateName called in context of " + getClass().getName()); }
 
@@ -84,15 +84,9 @@ aspect ReferenceAttributes {
         return decl.getTemplateName(superClassName, methodName);
     }
 
-    public String PTMergedMethodAccess.getDefaultTemplateID(String methodName, String superClassName) {
+    public String TemplateMethodAccess.getDefaultTemplateID(String methodName, String superClassName) {
         return getTemplateName(methodName, superClassName);
     }
-
-    public String PTMergedMethodAccess.getTemplateID() {
-        if (!getGivenTemplateID().equals("")) return getGivenTemplateID();
-        else return getDefaultTemplateID(getID(), getSuperClassID());
-    }
-
 
     syn HashSet<String> ConstructorDecl.getMergedClassesWithConstructors() =
         getClassDecl().getMergedClassesWithConstructors();
@@ -101,11 +95,11 @@ aspect ReferenceAttributes {
 
     coll HashSet<String> ClassDecl.getMergedClassesWithConstructors() [new HashSet<String>()]
         with add root ClassDecl;
-    PTMergedConstructor contributes getSuperClassID() to ClassDecl.getMergedClassesWithConstructors() for getClassDecl();    
+    TemplateConstructor contributes getTClassID() to ClassDecl.getMergedClassesWithConstructors() for getClassDecl();    
     
     coll HashSet<String> ConstructorDecl.getMergedSuperCallNames() [new HashSet<String>()]
         with add root ClassDecl;
-    PTMergedConstructorAccess contributes getSuperClassID() to ConstructorDecl.getMergedSuperCallNames()
+    TemplateConstructorAccess contributes getTClassID() to ConstructorDecl.getMergedSuperCallNames()
         for getConstructorDecl();
 
     coll Collection<PTPackage> CompilationUnit.getPTPackages() [new HashSet<PTPackage>()]
@@ -115,6 +109,6 @@ aspect ReferenceAttributes {
     inh CompilationUnit PTDecl.getCompilationUnit();
     eq PTCompilationUnit.getPTDecl(int i).getCompilationUnit() = this;
 
-    syn ConstructorDecl PTMergedConstructorAccess.getConstructorDecl() = ((ConstructorDecl)
+    syn ConstructorDecl TemplateConstructorAccess.getConstructorDecl() = ((ConstructorDecl)
                                                                      getParentClass(ConstructorDecl.class));
 }

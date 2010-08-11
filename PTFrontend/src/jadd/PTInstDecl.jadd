@@ -1,8 +1,8 @@
 aspect PTInstDecl {
     public void PTInstDecl.addMissingDummyClassNodes() {
         try { 
-            HashMap<String,String> renamedClasses = getRenamedClasses();
-            LinkedList<ClassDecl> templateClasses = getTemplate().getClassList();
+            Map<String,String> renamedClasses = getRenamedClasses();
+            Collection<ClassDecl> templateClasses = getTemplate().getClassList();
             for (ClassDecl templateClass: templateClasses) {
                 String templateClassID = templateClass.getID();
                 if (!renamedClasses.containsKey(templateClassID)) {

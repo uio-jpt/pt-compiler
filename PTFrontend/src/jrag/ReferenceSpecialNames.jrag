@@ -2,12 +2,12 @@ import com.google.common.base.CharMatcher;
 
 aspect referenceSpecialNames {
 
-    eq PTMergedMethodAccess.name() {
-        return "tsuper[" + getTemplateID() + "." + getSuperClassID() + "]." + getID();
+    eq TemplateMethodAccess.name() {
+        return "tsuper[" + getTemplateID() + "." + getTClassID() + "]." + getID();
     }
 
-    eq PTMergedConstructorAccess.name()  {
-        return "tsuper[" + getSuperClassID() + "]";
+    eq TemplateConstructorAccess.name()  {
+        return "tsuper[" + getTClassID() + "]";
     }
 
     //    syn String ASTNode.makeNameCompilable(String name) = CharMatcher.anyOf("[].").replaceFrom(name, "$");

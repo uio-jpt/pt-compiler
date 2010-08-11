@@ -1,6 +1,9 @@
 package javaworld;
 
+import AST.ConstructorDecl;
+import AST.MethodDecl;
 import AST.PTDecl;
+import AST.Stmt;
 
 public class InstantiationRewriter {
 

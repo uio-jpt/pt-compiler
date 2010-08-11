@@ -6175,7 +6175,7 @@ class Events extends Parser.Events {
 					final Symbol _symbol_args = _symbols[offset + 7];
 					final List args = (List) _symbol_args.value;
 					final Symbol RPAREN = _symbols[offset + 8];
-					 PTMergedMethodAccess m = new PTMergedMethodAccess(methodName, args, ((String)superClassName.value));
+					 TemplateMethodAccess m = new TemplateMethodAccess(methodName, args, ((String)superClassName.value));
         m.setStart(SUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m;
@@ -6191,7 +6191,7 @@ class Events extends Parser.Events {
 					final List args = (List) _symbol_args.value;
 					final Symbol RPAREN = _symbols[offset + 7];
 					 String mName = "super" + ((String)superClassName.value);
-        PTMergedConstructorAccess m = new PTMergedConstructorAccess(mName, args, ((String)superClassName.value));
+        TemplateConstructorAccess m = new TemplateConstructorAccess(mName, args, ((String)superClassName.value));
         m.setStart(SUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m;

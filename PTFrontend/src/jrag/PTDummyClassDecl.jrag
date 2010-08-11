@@ -1,7 +1,7 @@
 aspect PTDummyClass {
 
     syn String PTDummyClass.getRenamedSuperclassName() {
-        HashMap<String,String> renamedClasses = getInstDecl().getRenamedClasses();
+        Map<String,String> renamedClasses = getInstDecl().getRenamedClasses();
         ClassDecl orginator = getOriginator();
         String oldSuperName = orginator.getSuperClassName();
         if (oldSuperName == null)

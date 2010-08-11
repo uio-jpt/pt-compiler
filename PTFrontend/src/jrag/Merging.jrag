@@ -1,7 +1,0 @@
-aspect Merging {
-
-    syn boolean BodyDecl.isNotEmptyConstructor() = true;
-    eq ConstructorDecl.isNotEmptyConstructor() = getNumParameter() != 0 || getBlock().getNumStmt() != 0;
-    
-    
-}

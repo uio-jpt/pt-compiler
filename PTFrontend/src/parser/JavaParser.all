@@ -1408,7 +1408,7 @@ Access method_invocation =  explicit_merged_method_invocation.e {: return e; :}
 Access explicit_merged_method_invocation =
      SUPER LBRACK IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
      {:
-        PTMergedMethodAccess m = new PTMergedMethodAccess(methodName, args, superClassName);
+        TemplateMethodAccess m = new TemplateMethodAccess(methodName, args, superClassName);
         m.setStart(SUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m; :}
@@ -1418,7 +1418,7 @@ Access explicit_merged_constructor_invocation =
      SUPER LBRACK IDENTIFIER.superClassName RBRACK LPAREN argument_list.args? RPAREN
      {: 
         String mName = "super" + superClassName;
-        PTMergedConstructorAccess m = new PTMergedConstructorAccess(mName, args, superClassName);
+        TemplateConstructorAccess m = new TemplateConstructorAccess(mName, args, superClassName);
         m.setStart(SUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m; :}

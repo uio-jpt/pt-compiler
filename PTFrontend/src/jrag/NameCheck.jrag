@@ -24,12 +24,12 @@ aspect NameCheck {
 
     }
 
-    public void PTMergedConstructorAccess.isCalledFromConstructor() {
+    public void TemplateConstructorAccess.isCalledFromConstructor() {
         if (getConstructorDecl() == null)
             error("A merged constructor may only be called from a constructor.\n");
     }
 
-    public void PTMergedMethodAccess.isCalledFromOverridingMethod() {
+    public void TemplateMethodAccess.isCalledFromOverridingMethod() {
         String methodName;
         String errorMsg = "A merged method may only be called from its overriding method.\n";
         MethodDecl methodDecl = ((MethodDecl)getParentClass(MethodDecl.class));
@@ -41,12 +41,12 @@ aspect NameCheck {
             error(errorMsg + "\n");
     }
 
-    public void PTMergedMethodAccess.collectErrors() {
+    public void TemplateMethodAccess.collectErrors() {
         super.collectErrors();
         isCalledFromOverridingMethod();
     }
     
-    public void PTMergedConstructorAccess.collectErrors() {
+    public void TemplateConstructorAccess.collectErrors() {
         super.collectErrors();
         isCalledFromConstructor();
     }    

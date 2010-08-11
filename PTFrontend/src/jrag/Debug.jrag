@@ -1,0 +1,14 @@
+aspect Debug {
+    /*
+    syn String BodyDecl.getDebugName() = String.format("<debugName:No rule for class %s>",getClass().getName());
+
+    eq ConstructorDecl.getDebugName() = String.format("<debugName:%s - %s>",getClass().getName(),getID());
+
+    eq FieldDecl.getDebugName() = String.format("<debugName:%s - Skipping names>",getClass().getName());
+
+    eq FieldDeclaration.getDebugName() = String.format("<debugName:%s - %s>",getClass().getName(),getID());    
+
+    eq MethodDecl.getDebugName() = String.format("<debugName:%s - %s>",getClass().getName(),getID());    
+
+    */    
+}

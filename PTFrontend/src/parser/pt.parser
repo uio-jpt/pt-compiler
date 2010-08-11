@@ -121,7 +121,7 @@ Access method_invocation =  explicit_merged_method_invocation.e {: return e; :}
 Access explicit_merged_method_invocation =
      TSUPER LBRACK IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
      {:
-        PTMergedMethodAccess m = new PTMergedMethodAccess(methodName, args, superClassName, "");
+        TemplateMethodAccess m = new TemplateMethodAccessShort(methodName, args, superClassName, "Not defined");
         m.setStart(TSUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m; :}
@@ -130,7 +130,7 @@ Access explicit_merged_method_invocation =
 Access explicit_merged_method_invocation =
      TSUPER LBRACK IDENTIFIER.templateName DOT IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
      {:
-        PTMergedMethodAccess m = new PTMergedMethodAccess(methodName, args, superClassName, templateName);
+        TemplateMethodAccess m = new TemplateMethodAccess(methodName, args, superClassName, templateName);
         m.setStart(TSUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m; :}
@@ -140,14 +140,20 @@ Access explicit_merged_constructor_invocation =
      TSUPER LBRACK IDENTIFIER.superClassName RBRACK LPAREN argument_list.args? RPAREN
      {: 
         String mName = "tsuper" + superClassName;
-        PTMergedConstructorAccess m = new PTMergedConstructorAccess(mName, args, superClassName);
+        TemplateConstructorAccessShort m = new TemplateConstructorAccessShort(mName, args, superClassName,"UNKNOWN");
         m.setStart(TSUPER.getStart());
         m.setEnd(RPAREN.getEnd());
         return m; :}
+|   TSUPER LBRACK IDENTIFIER.templateName DOT IDENTIFIER.superClassName RBRACK LPAREN argument_list.args? RPAREN
+     {: 
+        String mName = "tsuper" + superClassName;
+        TemplateConstructorAccess m = new TemplateConstructorAccess(mName, args, superClassName, templateName);
+        m.setStart(TSUPER.getStart());
+        m.setEnd(RPAREN.getEnd());
+        return m; :}
+        
     ;
 
-    
-    
 
 String merged_method_name =
       DOT IDENTIFIER {: return IDENTIFIER; :}

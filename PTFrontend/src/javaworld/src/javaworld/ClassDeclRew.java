@@ -14,16 +14,19 @@ import AST.MethodDecl;
 import AST.PTDummyClass;
 import AST.SimpleSet;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.ImmutableSet.Builder;
 
 public class ClassDeclRew {
 	private final ClassDecl ext;
-	private String sourceTemplateName;
+	private final String sourceTemplateName;
 
-	public ClassDeclRew(ClassDecl ext) {
+	public ClassDeclRew(ClassDecl ext, String sourceTemplateName) {
+		Preconditions.checkArgument(sourceTemplateName != null);
 		this.ext = ext;
+		this.sourceTemplateName = sourceTemplateName;
 	}
 
 	/* TODO not very pretty */
@@ -70,7 +73,7 @@ public class ClassDeclRew {
 		}
 	}
 
-	public void renameTypes(HashMap<String, String> renamedClasses) {
+	public void renameTypes(Map<String, String> renamedClasses) {
 		ext.renameTypes(renamedClasses);
 	}
 
@@ -83,10 +86,6 @@ public class ClassDeclRew {
 
 	public List<BodyDecl> getBodyDecls() {
 		return ext.getBodyDecls();
-	}
-
-	public void setSourceTemplateName(String sourceTemplateName) {
-		this.sourceTemplateName = sourceTemplateName;
 	}
 
 	// TODO create a common name to tsuper name method

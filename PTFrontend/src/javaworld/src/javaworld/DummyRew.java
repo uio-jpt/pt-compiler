@@ -23,7 +23,7 @@ public class DummyRew {
 
 	public ClassDeclRew getRenamedSourceClass() {
 		ClassDecl ext = instantiator.getOriginator().fullCopy();
-		ClassDeclRew x = new ClassDeclRew(ext);
+		ClassDeclRew x = new ClassDeclRew(ext, getSourceTemplateName());
 		x.renameTypes(instantiator.getInstDecl().getRenamedClasses());
 		x.renameDefinitions(getExplicitlyRenamedDefinitions());
 		x.renameConstructors(instantiator);
@@ -32,7 +32,7 @@ public class DummyRew {
 
 	Map<String, String> getExplicitlyRenamedDefinitions() {
 		// TODO addsselfto... move it here!!!
-		HashMap<String, String> map = Maps.newHashMap();
+		Map<String, String> map = Maps.newHashMap();
 		for (PTDummyRename entry : instantiator.getPTDummyRenameList()) {
 			entry.addSelfTo(map);
 		}
@@ -60,7 +60,7 @@ public class DummyRew {
 		throw new NotImplementedException();
 	}
 
-	public String getSourceTemplateName() {
+	private String getSourceTemplateName() {
 		return instantiator.getTemplate().getID();
 	}
 

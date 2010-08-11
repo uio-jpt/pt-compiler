@@ -18,8 +18,12 @@ PTMethodRename : PTDummyRename ::= <OrgID> <ID> Access*;
 PTMethodRenameAll : PTDummyRename;
 PTFieldRename : PTDummyRename;
 
-PTMergedMethodAccess : MethodAccess ::= <SuperClassID> <GivenTemplateID>;
-PTMergedConstructorAccess : MethodAccess ::= <SuperClassID>;
+abstract PTMethodAccess : MethodAccess;
 
-PTMergedConstructor : MethodDecl ::= <SuperClassID>;
+TemplateMethodAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
+TemplateMethodAccessShort : TemplateMethodAccess ::= <TClassID>;
 
+TemplateConstructorAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
+TemplateConstructorAccessShort : TemplateConstructorAccess ::= <TClassID>;
+
+TemplateConstructor : MethodDecl ::= <TClassID>;

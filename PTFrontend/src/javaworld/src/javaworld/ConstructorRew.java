@@ -8,10 +8,11 @@ import AST.List;
 import AST.MethodAccess;
 import AST.MethodDecl;
 import AST.Opt;
-import AST.PTMergedConstructor;
 import AST.ReturnStmt;
 import AST.Stmt;
 import AST.SuperConstructorAccess;
+import AST.TemplateConstructorAccess;
+import AST.TemplateConstructor;
 import AST.ThisAccess;
 import AST.TypeAccess;
 
@@ -38,7 +39,7 @@ public class ConstructorRew {
 		// TODO TODO
 		System.out.println("making " + methodName + " merged!");
 		String modifiedMethodName = String.format("tsuper[%s,%s]",sourceTemplateName, methodName);
-		MethodDecl md = new PTMergedConstructor(cd.getModifiers(),
+		MethodDecl md = new TemplateConstructor(cd.getModifiers(),
 				new TypeAccess(returnType), modifiedMethodName,
 				cd.getParameterList(), new List<Access>(), new Opt<Block>(), methodName);
 		md.setBlock(new Block(new List<Stmt>()));

@@ -56,16 +56,16 @@ aspect PTDummyRename {
 
     }
 
-    public void PTDummyRename.addSelfTo(HashMap<String,String> renameMap) {
+    public void PTDummyRename.addSelfTo(Map<String,String> renameMap) {
         renameMap.put(getSignature(), getID());
     }
 
-    public void PTMethodRename.addSelfTo(HashMap<String,String> renameMap) {
+    public void PTMethodRename.addSelfTo(Map<String,String> renameMap) {
         renameMap.put(getOldSignature(), getNewSignature());
     }
     
     // TODO error here!
-    public void PTMethodRenameAll.addSelfTo(HashMap<String,String> renameMap) {
+    public void PTMethodRenameAll.addSelfTo(Map<String,String> renameMap) {
         String methodName = getOrgID();
         for (String originalSignature : getOriginatorClass().methodSignatures())
             if (originalSignature.startsWith(methodName))

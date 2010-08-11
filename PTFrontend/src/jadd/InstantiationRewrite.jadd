@@ -30,4 +30,35 @@ aspect InstantiationRewrite {
             return newClassDecl;
         }
     }
+
+    rewrite TemplateMethodAccessShort {
+        when (hostIsRewritten())
+        to TemplateMethodAccess {
+            PTClassDecl host = (PTClassDecl) getParentClass(PTClassDecl.class);
+            String methodName = getID();
+            List<Expr>  argList = getArgList(); // getArgListNoTransform??
+            String tClassID = getTClassID();
+            String templateID = host.determineTemplateID(tClassID);
+            return new TemplateMethodAccess(methodName,argList, tClassID,templateID);
+        }
+    }
+
+    rewrite TemplateConstructorAccessShort {
+        when (hostIsRewritten())
+        to TemplateConstructorAccess {
+            PTClassDecl host = (PTClassDecl) getParentClass(PTClassDecl.class);
+            String methodName = getID();
+            List<Expr>  argList = getArgList(); // getArgListNoTransform??
+            String tClassID = getTClassID();
+            String templateID = host.determineTemplateID(tClassID);
+            return new TemplateConstructorAccess(methodName,argList, tClassID,templateID);
+        }
+    }            
+    
+    
+    syn boolean PTMethodAccess.hostIsRewritten() = hasParentClass(PTClassDecl.class);
+
+    syn String PTClassDecl.determineTemplateID(String tClassID) {
+        return "UNKNOWN123666P";
+    }
 }
