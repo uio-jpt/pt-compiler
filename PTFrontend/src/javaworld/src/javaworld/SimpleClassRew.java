@@ -1,18 +1,32 @@
 package javaworld;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
+import AST.Access;
+import AST.Block;
 import AST.BodyDecl;
 import AST.ClassDecl;
 import AST.ConstructorDecl;
 import AST.List;
+import AST.Modifiers;
+import AST.Opt;
+import AST.PTClassDecl;
 import AST.PTDummyClass;
+import AST.ParameterDeclaration;
 import AST.SimpleClass;
+import AST.Stmt;
 import AST.TemplateConstructor;
+import AST.TemplateConstructorAccess;
+import AST.TypeAccess;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
@@ -22,7 +36,6 @@ public class SimpleClassRew {
 	private Collection<PTDummyClass> dummies;
 	private Set<String> conflicts;
 	private Collection<ClassDeclRew> renamedSources;
-	
 
 	public SimpleClassRew(SimpleClass decl,
 			Multimap<String, PTDummyClass> nameAndDummies) {
@@ -32,6 +45,18 @@ public class SimpleClassRew {
 		renamedSources = getRenamedAgnosticInstClasses();
 		conflicts = getConflicts();
 		computeClassToTemplateMultimap();
+	}
+
+	public void extendClass() {
+		updateSuperName();
+		renameResolvedConflicts();
+	
+		if (mergingIsPossible()) {
+			for (ClassDeclRew source : renamedSources) {
+				addDecls(source.getBodyDecls());
+			}
+		}
+		//decl.getClassDecl().getConstructorDeclList()
 	}
 
 	private void computeClassToTemplateMultimap() {
@@ -44,13 +69,20 @@ public class SimpleClassRew {
 		decl.getClassDecl().setClassToTemplateMap(classToTemplates);
 	}
 
-	public void extendClass() {
-		renameResolvedConflicts();
-
-		if (mergingIsPossible()) {
-			for (ClassDeclRew source : renamedSources) {
-				addDecls(source.getBodyDecls());
-			}
+	private void updateSuperName() {
+		HashSet<String> names = Sets.newHashSet();
+		for (ClassDeclRew x : renamedSources) {
+			names.add(x.getSuperClassName());
+		}
+		names.remove(null); // classes without superclass
+		try {
+			decl.getClassDecl().setSuperClassAccess(
+					new TypeAccess(Iterables.getOnlyElement(names)));
+		} catch (NoSuchElementException e) { // no superclasses
+		} catch (IllegalArgumentException e) {
+			decl.error(String.format(
+					"Merge error for %s. superklasses %s must be merged.\n",
+					decl.getID(), Joiner.on(" and ").join(names)));
 		}
 	}
 
@@ -111,8 +143,8 @@ public class SimpleClassRew {
 				target.addBodyDecl(bodyDecl);
 				if (bodyDecl instanceof TemplateConstructor) {
 					TemplateConstructor x = (TemplateConstructor) bodyDecl;
-					Util.print(x.toString());
-					
+					Util.print("adding templateConstructor: " + x.toString());
+
 				}
 			}
 		}
@@ -146,6 +178,13 @@ public class SimpleClassRew {
 			decl.error(decl.getID()
 					+ " is an add class, template source class not found!\n");
 		}
+	}
+
+	public void addSimpleTemplateConstructorCalls() {
+		ClassDecl classDecl = decl.getClassDecl();
+		LinkedList<ConstructorDecl> constructors = classDecl.getConstructorDeclList();
+		for (ConstructorDecl cd : constructors) 
+			Util.addSimpleTemplateConstructorCalls(classDecl,cd);
 	}
 
 }

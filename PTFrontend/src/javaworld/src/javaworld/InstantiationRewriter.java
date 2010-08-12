@@ -16,8 +16,8 @@ public class InstantiationRewriter {
 	public void run() {
 		target.createEmptyMissingAddClasses();
 		target.extendAddClassesWithInstantiatons();
-		target.updateAddsSuperClasses();
 		target.copyImportDecls();
+		target.addSimpleTemplateConstructorCalls();
 		target.flushCaches();
 	}
 }

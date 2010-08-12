@@ -75,40 +75,40 @@ aspect ReferenceAttributes {
         return true;
     }
 
-    inh String TemplateMethodAccess.getTemplateName(String methodName, String superClassName);
-
-    eq Program.getChild().getTemplateName(String methodName, String superClassName) { throw new RuntimeException("getTemplateName called in context of " + getClass().getName()); }
-
-    eq PTDecl.getSimpleClass(int i).getTemplateName(String methodName, String superClassName) {
-        PTDeclRew decl = new PTDeclRew(this);
-        return decl.getTemplateName(superClassName, methodName);
-    }
-
-    public String TemplateMethodAccess.getDefaultTemplateID(String methodName, String superClassName) {
-        return getTemplateName(methodName, superClassName);
-    }
-
-    syn HashSet<String> ConstructorDecl.getMergedClassesWithConstructors() =
+    syn Set<String> ConstructorDecl.getMergedClassesWithConstructors() =
         getClassDecl().getMergedClassesWithConstructors();
 
     syn ClassDecl BodyDecl.getClassDecl() = ((ClassDecl)getParentClass(ClassDecl.class));
 
-    coll HashSet<String> ClassDecl.getMergedClassesWithConstructors() [new HashSet<String>()]
+    coll Set<String> ClassDecl.getMergedClassesWithConstructors() [new HashSet<String>()]
         with add root ClassDecl;
     TemplateConstructor contributes getTClassID() to ClassDecl.getMergedClassesWithConstructors() for getClassDecl();    
     
-    coll HashSet<String> ConstructorDecl.getMergedSuperCallNames() [new HashSet<String>()]
+    coll Set<String> ConstructorDecl.getMergedSuperCallNames() [new HashSet<String>()]
         with add root ClassDecl;
     TemplateConstructorAccess contributes getTClassID() to ConstructorDecl.getMergedSuperCallNames()
         for getConstructorDecl();
 
-    coll Collection<PTPackage> CompilationUnit.getPTPackages() [new HashSet<PTPackage>()]
+    coll Set<PTPackage> CompilationUnit.getPTPackages() [new HashSet<PTPackage>()]
         with add root CompilationUnit;
     PTPackage contributes this to CompilationUnit.getPTPackages() for getCompilationUnit();
+
+    coll Collection<TemplateConstructorAccess> ConstructorDecl.getTemplateConstructorAccesses() [new LinkedList<TemplateConstructorAccess>()]
+        with add root ClassDecl;
+    TemplateConstructorAccess contributes this to ConstructorDecl.getTemplateConstructorAccesses()
+        for getConstructorDecl();
+
+    coll Collection<TemplateConstructor> ClassDecl.getTemplateConstructors() [new LinkedList<TemplateConstructor>()]
+        with add root ClassDecl;
+    TemplateConstructor contributes this to ClassDecl.getTemplateConstructors()
+        for getClassDecl();
+    
 
     inh CompilationUnit PTDecl.getCompilationUnit();
     eq PTCompilationUnit.getPTDecl(int i).getCompilationUnit() = this;
 
     syn ConstructorDecl TemplateConstructorAccess.getConstructorDecl() = ((ConstructorDecl)
                                                                      getParentClass(ConstructorDecl.class));
+
+    syn boolean TemplateConstructor.hasNoParameter() = getNumParameter() == 0;
 }

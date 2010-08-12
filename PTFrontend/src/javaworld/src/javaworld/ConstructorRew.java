@@ -11,7 +11,6 @@ import AST.Opt;
 import AST.ReturnStmt;
 import AST.Stmt;
 import AST.SuperConstructorAccess;
-import AST.TemplateConstructorAccess;
 import AST.TemplateConstructor;
 import AST.ThisAccess;
 import AST.TypeAccess;
@@ -27,30 +26,33 @@ public class ConstructorRew {
 	}
 
 	/*
-	 * TODO Should have void returntype. cleanup!
+	 * TODO cleanup!
 	 */
-	public MethodDecl toMethodDecl(String returnType,
-			String methodName, String orgSuperClass) {
+	protected MethodDecl toMethodDecl(String returnType,
+			String tclassID, String templateID) {
 		/*
 		 * Rewrite a whole constructor declaration to a method. Will also
 		 * rewrite constructor invocations to method invocations based on
 		 * orgSuperClass.
 		 */
 		// TODO TODO
-		String modifiedMethodName = Util.toName(sourceTemplateName, methodName);
+		Util.print(String.format("tclassID=%s, templateID=%s",tclassID,templateID));
+		String modifiedMethodName = Util.toName(templateID, tclassID);
+		Util.print(String.format("newmethodName=%s",modifiedMethodName));
 		MethodDecl md = new TemplateConstructor(cd.getModifiers(),
 				new TypeAccess(returnType), modifiedMethodName,
-				cd.getParameterList(), new List<Access>(), new Opt<Block>(), methodName);
+				cd.getParameterList(), new List<Access>(), new Opt<Block>(), tclassID);
 		md.setBlock(new Block(new List<Stmt>()));
-		if (cd.hasConstructorInvocation() && orgSuperClass != null) {
+		if (cd.hasConstructorInvocation() && templateID != null) {
 			// rewrite "super(x,y,z)" to "superA(x,y,z)" where A is the original
 			// superclass
+			Util.print("inside if block");
 			try {
 				ExprStmt s = (ExprStmt) cd.getConstructorInvocation();
 				SuperConstructorAccess sa = (SuperConstructorAccess) s
 						.getExpr();
 				MethodAccess oldConstructorInvocationAsMethod = new MethodAccess(
-						"tsuper[" + orgSuperClass + "]", sa.getArgList());
+						modifiedMethodName, sa.getArgList());
 				oldConstructorInvocationAsMethod.IDstart = sa.IDstart;
 				oldConstructorInvocationAsMethod.IDend = sa.IDend;
 				md.getBlock().addStmt(

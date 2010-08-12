@@ -30,16 +30,17 @@ public class ClassDeclRew {
 	}
 
 	/* TODO not very pretty */
-	public void renameConstructors(PTDummyClass instantiator) {
+	protected void renameConstructors(PTDummyClass instantiator) {
 		int i = -1;
 		for (BodyDecl decl : ext.getBodyDeclList()) {
 			i++;
 			if (decl instanceof ConstructorDecl) {
 				ConstructorDecl cd = (ConstructorDecl) decl;
-				ConstructorRew cdRew = new ConstructorRew(cd,sourceTemplateName);
+				ConstructorRew cdRew = new ConstructorRew(cd,
+						sourceTemplateName);
 				try {
 					decl = cdRew.toMethodDecl(instantiator.getID(),
-							instantiator.getOrgID(), ext.getSuperClassName());
+							instantiator.getOrgID(), sourceTemplateName);
 					ext.setBodyDecl(decl, i);
 				} catch (Exception e) {
 					cd.error("Could not rewrite constructor " + cd.dumpString()
@@ -49,11 +50,42 @@ public class ClassDeclRew {
 		}
 	}
 
+	protected void renameTypes(Map<String, String> renamedClasses) {
+		ext.renameTypes(renamedClasses);
+	}
+
+	protected Set<String> getSignatures() {
+		Builder<String> x = ImmutableSet.builder();
+		x.addAll(ext.methodSignatures());
+		x.addAll(ext.fieldNames());
+		return x.build();
+	}
+
+	protected List<BodyDecl> getBodyDecls() {
+		return ext.getBodyDecls();
+	}
+
+	protected void renameMatchingMethods(Set<String> conflicts) {
+		final String templateName = sourceTemplateName;
+		final String className = ext.getID();
+		Map<String, String> renamedVersion = Maps.newHashMap();
+		for (String possibleConflict : conflicts) {
+			String tsuperName = Util.toName(templateName, className,
+					possibleConflict);
+			renamedVersion.put(possibleConflict, tsuperName);
+		}
+		renameDefinitions(renamedVersion);
+	}
+
+	protected String getSuperClassName() {
+		return ext.getSuperClassName();
+	}
+
 	// TODO make pretty
 	void renameDefinitions(Map<String, String> namesMap) {
 		Map<String, MethodDecl> methods = ext.methodsSignatureMap();
 		Map<String, SimpleSet> fields = ext.memberFieldsMap();
-
+	
 		for (MethodDecl decl : methods.values()) {
 			if (namesMap.containsKey(decl.signature())) {
 				String newID = namesMap.get(decl.signature());
@@ -61,7 +93,7 @@ public class ClassDeclRew {
 				decl.setID(newID);
 			}
 		}
-
+	
 		for (SimpleSet simpleSet : fields.values()) {
 			for (Iterator iter = simpleSet.iterator(); iter.hasNext();) {
 				FieldDeclaration fieldDecl = (FieldDeclaration) iter.next();
@@ -71,33 +103,5 @@ public class ClassDeclRew {
 				}
 			}
 		}
-	}
-
-	public void renameTypes(Map<String, String> renamedClasses) {
-		ext.renameTypes(renamedClasses);
-	}
-
-	public Set<String> getSignatures() {
-		Builder<String> x = ImmutableSet.builder();
-		x.addAll(ext.methodSignatures());
-		x.addAll(ext.fieldNames());
-		return x.build();
-	}
-
-	public List<BodyDecl> getBodyDecls() {
-		return ext.getBodyDecls();
-	}
-
-	// TODO create a common name to tsuper name method
-	public void renameMatchingMethods(Set<String> conflicts) {
-		final String templateName = sourceTemplateName;
-		final String className = ext.getID();
-		Map<String, String> renamedVersion = Maps.newHashMap();
-		for (String possibleConflict : conflicts) {
-			String tsuperName = String.format("tsuper[%s.%s].%s", templateName,
-					className, possibleConflict);
-			renamedVersion.put(possibleConflict, tsuperName);
-		}
-		renameDefinitions(renamedVersion);
 	}
 }

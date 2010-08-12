@@ -1,5 +1,5 @@
 /**
-   This part should be rewritten.. maybe even put in javaworld.
+   This part might be rewritten.. maybe even put in javaworld.
    much of this signature stuff is done elsewhere.
  */
 aspect PTDummyRename {

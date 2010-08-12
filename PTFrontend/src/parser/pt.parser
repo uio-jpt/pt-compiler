@@ -139,7 +139,7 @@ Access explicit_merged_method_invocation =
 Access explicit_merged_constructor_invocation =
      TSUPER LBRACK IDENTIFIER.superClassName RBRACK LPAREN argument_list.args? RPAREN
      {: 
-        String mName = "tsuper" + superClassName;
+        String mName = javaworld.Util.toName(superClassName);
         TemplateConstructorAccessShort m = new TemplateConstructorAccessShort(mName, args, superClassName,"<UNKNOWN>");
         m.setStart(TSUPER.getStart());
         m.setEnd(RPAREN.getEnd());

@@ -1,3 +1,5 @@
+import com.google.common.collect.Sets;
+
 aspect NameCheck {
 
     /** Checks that instantiation refers to actual template */
@@ -14,14 +16,12 @@ aspect NameCheck {
     public void ConstructorDecl.callsMergedConstructorsCheck() {
         SimpleClass cls = (SimpleClass) getParentClass(SimpleClass.class);
 
-            HashSet<String> mustBeCalled = getMergedClassesWithConstructors();
-            HashSet<String> actuallyCalled = getMergedSuperCallNames();
-            HashSet<String> missing = new HashSet<String>(mustBeCalled);
-            missing.removeAll(actuallyCalled);
-            for (String name : missing) {
-                error("Missing merged constructor call to mergee class: " + name + "\n");
-            }
-
+        Set<String> mustBeCalled = getMergedClassesWithConstructors();
+        Set<String> actuallyCalled = getMergedSuperCallNames();
+        Set<String> missing = Sets.difference(mustBeCalled,actuallyCalled);
+        for (String name : missing) {
+            error("Missing merged constructor call to mergee class: " + name + "\n");
+        }
     }
 
     public void TemplateConstructorAccess.isCalledFromConstructor() {
@@ -61,14 +61,14 @@ aspect NameCheck {
     }
 
     public void PTDecl.noCircularInstantiation() {
-        HashSet<String> instantiatiorChain = getInstantiatorChain();
+        Set<String> instantiatiorChain = getInstantiatorChain();
         if (instantiatiorChain.contains(getID())) {
             error("has a circular instantiation chain.\n");
         }
     }
 
-    syn HashSet<String> PTDecl.getInstantiatorChain() circular [new HashSet<String>()] {
-        HashSet<String> result = new HashSet<String>();
+    syn Set<String> PTDecl.getInstantiatorChain() circular [new HashSet<String>()] {
+        Set<String> result = new HashSet<String>();
         for (PTInstDecl instDecl : getPTInstDecls()) {
             result.add(instDecl.getID());
             PTTemplate template = instDecl.getTemplate();

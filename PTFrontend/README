@@ -13,3 +13,10 @@ Fixes TODO:
   er en enkel fiks.
 
 * parserstoette for mergedConstructorAccess med [templatnavn.klassenavn]
+
+
+TODO HER:::
+*	protected MethodDecl toMethodDecl(String returnType,
+
+rar feil.. se $ ant testsingle -Dname=test/single_file/basic/BasicAdds.java
+

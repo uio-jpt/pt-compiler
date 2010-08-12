@@ -1,4 +1,5 @@
 import com.google.common.collect.*;
+import javaworld.Util;
 aspect JastAddAspectRefinements {
 
     syn String ClassDecl.getSuperClassName() {
@@ -21,29 +22,24 @@ aspect JastAddAspectRefinements {
 
     syn Set<String> ClassDecl.methodSignatures() {
         Set<String> signatures = localMethodsSignatureMap().keySet();
-        return Sets.newHashSet(signatures);
+        return ImmutableSet.copyOf(signatures);
     }
 
     syn Set<String> ClassDecl.fieldNames() {
         Set<String> names = localFieldsMap().keySet();
-		return Sets.newHashSet(names);
+        return ImmutableSet.copyOf(names);
     }
 
-    // TODO use google string operations ...
     syn Set<String> ClassDecl.methodNames() {
         Set<String> methodNames = Sets.newHashSet();
         for (String methodSignature : methodSignatures()) {
-            String methodName = methodSignature.split("\\(")[0];
-            methodNames.add(methodName);
+            String name = Util.getName(methodSignature);
+            methodNames.add(name);
         }
         return methodNames;
     }
 
-    // field names counts as signatures ...
     syn Set<String> ClassDecl.getDefinitionSignatures() {
-        Set<String> names = Sets.newHashSet();
-        names.addAll(methodSignatures());
-        names.addAll(fieldNames());
-        return names;
+        return ImmutableSet.copyOf(Iterables.concat(methodSignatures(),fieldNames()));
     }
 }
