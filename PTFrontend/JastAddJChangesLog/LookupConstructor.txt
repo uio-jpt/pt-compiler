@@ -1,0 +1,14 @@
+diff -u /home/eivind/code/pt-compiler/JastAddJ/Java1.4Frontend/LookupConstructor.jrag /tmp/buffer-content-23894tBd
+--- /home/eivind/code/pt-compiler/JastAddJ/Java1.4Frontend/LookupConstructor.jrag	2010-08-14 01:08:20.350480006 +0200
++++ /tmp/buffer-content-23894tBd	2010-08-14 01:08:29.715175063 +0200
+@@ -214,7 +214,7 @@
+   
+   // 8.8.5
+   rewrite ConstructorDecl {
+-    when(!hasConstructorInvocation() && !hostType().isObject())
++    when(!hasConstructorInvocation() && !hostType().isObject() && !hasParentClass(PTTemplate.class))
+     to ConstructorDecl {
+       setConstructorInvocation(
+         new ExprStmt(
+
+Diff finished.  Sat Aug 14 01:08:29 2010

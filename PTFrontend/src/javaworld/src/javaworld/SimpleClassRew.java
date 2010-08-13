@@ -199,8 +199,7 @@ public class SimpleClassRew {
 		for (TemplateConstructor x : emptyConstructors) {
 			if (isNotCalledFrom(x, accesses)) {
 				Stmt a = createAccess(x);
-				System.err.println("created " + a.toString());
-				System.err.println();
+				Util.print("created " + a.toString());
 				bodyDecls.add(a);
 			}
 		}

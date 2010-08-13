@@ -6,6 +6,10 @@ template SimpleTemplate {
         A getA() {
             return new A();
         }
+
+        A() {
+            k = 123;
+        }
     }
 
 }

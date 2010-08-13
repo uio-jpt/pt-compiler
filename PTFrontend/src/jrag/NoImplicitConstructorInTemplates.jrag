@@ -1,0 +1,8 @@
+aspect NoImplicitConstructorInTemplates {
+  eq PTC.noConstructor() {
+      if (hasParentClass(PTTemplate.class))
+          return false;
+      else
+          return super.noConstructor();
+  }
+}

@@ -1,0 +1,43 @@
+aspect ErrorCheck {
+
+  public void PTTemplate.collectErrors() {
+    nameCheck();
+    typeCheck();
+    accessControl();
+    exceptionHandling();
+    checkUnreachableStmt();
+    definiteAssignment();
+    checkModifiers();
+    for(int i = 0; i < getNumChild(); i++) {
+      getChild(i).ptCollectErrors();
+    }
+  }
+
+  public void ASTNode.ptCollectErrors() {
+    nameCheck();
+    typeCheck();
+    accessControl();
+    exceptionHandling();
+    checkUnreachableStmt();
+    definiteAssignment();
+    checkModifiers();
+    for(int i = 0; i < getNumChild(); i++) {
+      getChild(i).ptCollectErrors();
+    }
+  }
+
+  public void ClassInstanceExpr.ptCollectErrors() {
+      // skipping namecheck for templates
+      //    nameCheck();
+    typeCheck();
+    accessControl();
+    exceptionHandling();
+    checkUnreachableStmt();
+    definiteAssignment();
+    checkModifiers();
+    for(int i = 0; i < getNumChild(); i++) {
+      getChild(i).ptCollectErrors();
+    }
+  }
+  
+}

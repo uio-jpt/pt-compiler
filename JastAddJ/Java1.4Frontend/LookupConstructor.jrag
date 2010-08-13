@@ -214,7 +214,7 @@ aspect ImplicitConstructor {
   
   // 8.8.5
   rewrite ConstructorDecl {
-    when(!hasConstructorInvocation() && !hostType().isObject())
+    when(!hasConstructorInvocation() && !hostType().isObject() && !hasParentClass(PTTemplate.class))
     to ConstructorDecl {
       setConstructorInvocation(
         new ExprStmt(
