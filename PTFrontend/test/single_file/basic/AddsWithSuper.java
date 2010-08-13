@@ -20,7 +20,7 @@ package AddPackage {
         int x;
         
         Xylofon() {
-            tsuper[A]();
+
         }
     }
     
@@ -28,7 +28,7 @@ package AddPackage {
         int kkkk;
 
         Coil() {
-            tsuper[B]();
+
         }
     }
 }

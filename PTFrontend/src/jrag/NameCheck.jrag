@@ -9,11 +9,19 @@ aspect NameCheck {
     }
 
     public void PTDecl.nameCheck() {
+        super.nameCheck();
+        Set<String> instantiatiorChain = getInstantiatorChain();
+        if (instantiatiorChain.contains(getID())) {
+            error("has a circular instantiation chain.\n");
+        }
+        
         if (lookupPTDecl(getID()) != this)
             error("Template or Package with name " + getID() + " is multiply declared in compilation unit.\n");
     }
 
-    public void ConstructorDecl.callsMergedConstructorsCheck() {
+    /* method name is a hack, makes calling this method easier (remember ptCollectErrors)*/
+    public void ConstructorDecl.accessControl() {
+        super.nameCheck();
         SimpleClass cls = (SimpleClass) getParentClass(SimpleClass.class);
 
         Set<String> mustBeCalled = getMergedClassesWithConstructors();
@@ -24,12 +32,14 @@ aspect NameCheck {
         }
     }
 
-    public void TemplateConstructorAccess.isCalledFromConstructor() {
+    public void TemplateConstructorAccess.nameCheck() {
+        super.nameCheck();
         if (getConstructorDecl() == null)
             error("A merged constructor may only be called from a constructor.\n");
     }
 
-    public void TemplateMethodAccess.isCalledFromOverridingMethod() {
+    public void TemplateMethodAccess.nameCheck() {
+        super.nameCheck();        
         String methodName;
         String errorMsg = "A merged method may only be called from its overriding method.\n";
         MethodDecl methodDecl = ((MethodDecl)getParentClass(MethodDecl.class));
@@ -39,32 +49,6 @@ aspect NameCheck {
         methodName = methodDecl.getID();
         if (!methodName.equals(getID())) 
             error(errorMsg + "\n");
-    }
-
-    public void TemplateMethodAccess.collectErrors() {
-        super.collectErrors();
-        isCalledFromOverridingMethod();
-    }
-    
-    public void TemplateConstructorAccess.collectErrors() {
-        super.collectErrors();
-        isCalledFromConstructor();
-    }    
-    public void ConstructorDecl.collectErrors() {
-        super.collectErrors();
-        callsMergedConstructorsCheck();
-    }
-
-    public void PTDecl.collectErrors() {
-        super.collectErrors();
-        noCircularInstantiation();
-    }
-
-    public void PTDecl.noCircularInstantiation() {
-        Set<String> instantiatiorChain = getInstantiatorChain();
-        if (instantiatiorChain.contains(getID())) {
-            error("has a circular instantiation chain.\n");
-        }
     }
 
     syn Set<String> PTDecl.getInstantiatorChain() circular [new HashSet<String>()] {
