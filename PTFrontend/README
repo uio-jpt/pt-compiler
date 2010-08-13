@@ -20,3 +20,11 @@ TODO HER:::
 
 rar feil.. se $ ant testsingle -Dname=test/single_file/basic/BasicAdds.java
 
+
+MY_FAQ:
+
+** where are supercalls inserted into constructors?
+*  supercalls are inserted into constructors by rewrite rule in bottom of file LookupConstructors ..
+
+** where are empty constructors inserted?
+*  In lookupConstructors rewrite List

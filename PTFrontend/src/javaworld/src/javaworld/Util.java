@@ -56,9 +56,10 @@ public class Util {
 
 	public static TemplateConstructorAccess rewriteConstructorAccess(
 			TemplateConstructorAccessShort from) {
+		print("rewriting tconstructor access with short name " + from.getID());
 		String templateID = "";
 		PTClassDecl host = (PTClassDecl) from.getParentClass(PTClassDecl.class);
-		String methodName = from.getID();
+
 		List<Expr> argList = from.getArgList(); // getArgListNoTransform??
 		String tclassID = from.getTClassID();
 		try {
@@ -71,6 +72,7 @@ public class Util {
 							+ "in template constructor call %s. msg: %s",
 					tclassID, toName(tclassID), e.getMessage()));
 		}
+		String methodName = toName(templateID,tclassID);
 		return new TemplateConstructorAccess(methodName, argList, tclassID,
 				templateID);
 	}
@@ -95,44 +97,8 @@ public class Util {
 		return new TemplateMethodAccess(methodName, argList, tclassID,
 				templateID);
 	}
-
-	public static void addSimpleTemplateConstructorCalls(ClassDecl classDecl,
-			ConstructorDecl consDecl) {
-		List<Stmt> bodyDecls = consDecl.getBlock().getStmts();
-		Collection<TemplateConstructorAccess> accesses = consDecl
-				.getTemplateConstructorAccesses();
-		Collection<TemplateConstructor> emptyConstructors = Lists
-				.newLinkedList();
-		for (TemplateConstructor x : classDecl.getTemplateConstructors())
-			if (x.hasNoParameter())
-				emptyConstructors.add(x);
-
-		for (TemplateConstructor x : emptyConstructors) {
-			if (isNotCalledFrom(x, accesses)) {
-				Stmt a = createAccess(x);
-				System.err.println("created " + a.toString());
-				System.err.println();
-				bodyDecls.add(a);
-			}
-		}
-	}
-
-	private static Stmt createAccess(TemplateConstructor x) {
-		String templateName;
-		String tclassID = x.getTClassID();
-		TemplateConstructorAccess access = new TemplateConstructorAccessShort(
-				Util.toName(tclassID), new List<Expr>(), tclassID, "");
-		return new ExprStmt(access);
-	}
-
-	// TODO needs to create templateconstructor short which expands to
-	// templateConstructor.
-	private static boolean isNotCalledFrom(TemplateConstructor x,
-			Collection<TemplateConstructorAccess> accesses) {
-		for (TemplateConstructorAccess access : accesses) {
-			if (access.getTClassID().equals(x.getTClassID()))
-				return false;
-		}
-		return true;
+	
+	public static ClassDecl toPTC(ClassDecl decl) {
+		return decl;
 	}
 }

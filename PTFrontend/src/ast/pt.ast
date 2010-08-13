@@ -4,9 +4,11 @@ abstract PTDecl ::= <ID> PTInstDecl* SimpleClass*;
 PTTemplate : PTDecl;
 PTPackage : PTDecl;
 
+PTC : ClassDecl;
 abstract SimpleClass ::= ClassDecl;
 PTClassDecl : SimpleClass;
 PTClassAddsDecl : SimpleClass;
+
 
 PTInstDecl ::= <ID> PTDummyClass*; // inst T with A => X;
                                    //      ID     PTDummyClass
@@ -27,3 +29,6 @@ TemplateConstructorAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
 TemplateConstructorAccessShort : TemplateConstructorAccess;
 
 TemplateConstructor : MethodDecl ::= <TClassID>;
+
+// used to stop insertion of constructors into TemplateClasses
+HackList : List; 

@@ -1,19 +1,6 @@
 package javaworld;
 
-import AST.Access;
-import AST.Block;
-import AST.ConstructorDecl;
-import AST.ExprStmt;
-import AST.List;
-import AST.MethodAccess;
-import AST.MethodDecl;
-import AST.Opt;
-import AST.ReturnStmt;
-import AST.Stmt;
-import AST.SuperConstructorAccess;
-import AST.TemplateConstructor;
-import AST.ThisAccess;
-import AST.TypeAccess;
+import AST.*;
 
 public class ConstructorRew {
 
@@ -36,9 +23,7 @@ public class ConstructorRew {
 		 * orgSuperClass.
 		 */
 		// TODO TODO
-		Util.print(String.format("tclassID=%s, templateID=%s",tclassID,templateID));
 		String modifiedMethodName = Util.toName(templateID, tclassID);
-		Util.print(String.format("newmethodName=%s",modifiedMethodName));
 		MethodDecl md = new TemplateConstructor(cd.getModifiers(),
 				new TypeAccess(returnType), modifiedMethodName,
 				cd.getParameterList(), new List<Access>(), new Opt<Block>(), tclassID);

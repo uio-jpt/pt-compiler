@@ -57,10 +57,10 @@ ASTNode inst_or_class_single =
 
 
 SimpleClass pt_simple_declaration =
-  class_declaration.cd
+  pt_class_declaration.cd
               {: return new PTClassDecl(cd); :}
-| adds_class.ac 
-              {: return new PTClassAddsDecl(ac); :}
+| pt_adds_class.pt_ac 
+              {: return new PTClassAddsDecl(pt_ac); :}
 ;
 
 PTInstDecl pt_inst_decl =
@@ -110,10 +110,16 @@ PTDummyRename definition_renaming =
       | IDENTIFIER.a LPAREN def_opt_rename_params.pl RPAREN  SIMPLERIGHTARROW IDENTIFIER.b {: return new PTMethodRename(a,b,pl); :}
 ;
 
-ClassDecl adds_class = 
+ClassDecl pt_adds_class = 
   CLASS IDENTIFIER ADDS class_body.b
-    {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}
+    {: return new PTC(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}
   ;
+
+ClassDecl pt_class_declaration =
+    modifiers.m? CLASS IDENTIFIER super.s? interfaces.i? class_body.b 
+                                               {: return new PTC(new Modifiers(m), IDENTIFIER, s, i, b); :}
+  ;
+  
 
 Access method_invocation =  explicit_merged_method_invocation.e {: return e; :}
 | explicit_merged_constructor_invocation.e {: return e; :} ;
