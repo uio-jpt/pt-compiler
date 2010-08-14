@@ -13,7 +13,7 @@
   
   <property name="src" location="src"/>
   <property name="src.gen" location="src-gen"/>
-  <property name="src.testutils" location="${src}/testutils"/>
+  <property name="src.testutils" location="${src}/testutils/src"/>
   <property name="build" location="build"/>
   <property name="build.classes" location="${build}/classes"/>
   <property name="build.jar" location="${build}/jar"/>
@@ -27,7 +27,6 @@
   <property name="src.gen.parser.filename_lalr" location="${src.gen.parser}/JavaParser.all" />
   <property name="src.gen.parser.filename" location="${src.gen.parser}/JavaParser.beaver" />
   <property name="src.gen.beaver" location="${src.gen}/beaver" />
-  <property name="src.gen.testutils" location="${src.gen}/testutils"/>
   <property name="resources" location="resources" />    
   <property name="txt" location="${resources}/txt" />    
   <property name="txt.generic-build.xml" location="${txt}/generic-build.xml" />
@@ -78,8 +77,7 @@
        another fix would be to do javac basedir onlyinclude=src or something like that.
   -->
   <target name="PTGen" depends="gen">
-    <mkdir dir="${src.gen.testutils}" /> <!---->
-    <copy todir="${src.gen.testutils}">
+    <copy todir="${src.gen}">
       <fileset dir="${src.testutils}" />
     </copy>      
     <copy todir="${src.gen}">

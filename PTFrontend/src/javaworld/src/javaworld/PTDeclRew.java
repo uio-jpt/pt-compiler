@@ -47,6 +47,11 @@ public class PTDeclRew {
 		simpleClasses = lb.build();
 	}
 
+	protected void addSimpleTemplateConstructorCalls() {
+		for (SimpleClassRew decl : simpleClasses)
+			decl.addSimpleTemplateConstructorCalls();
+	}
+
 	protected void flushCaches() {
 		target.flushCaches();
 	}
@@ -79,13 +84,17 @@ public class PTDeclRew {
 		Set<String> addClasses = target.getAdditionClassNamesSet();
 		Set<String> missingAddsClass = Sets.difference(nameAndDummies.keySet(),
 				addClasses);
-	
+		
+		Builder<SimpleClassRew> lb = ImmutableList.builder();
+		lb.addAll(simpleClasses);
 		for (String name : missingAddsClass) {
 			ClassDecl cls = new ClassDecl(new Modifiers(), name, new Opt<Access>(),
 					new List<Access>(), new List<BodyDecl>());
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			target.addSimpleClass(addClass);
+			lb.add(new SimpleClassRew(addClass, nameAndDummies));
 		}
+		simpleClasses = lb.build();
 	}
 
 	private Multimap<String, PTDummyClass> getClassNamesWithDummyList() {
@@ -96,10 +105,5 @@ public class PTDeclRew {
 			}
 		}
 		return nameAndDummies;
-	}
-
-	public void addSimpleTemplateConstructorCalls() {
-		for (SimpleClassRew decl : simpleClasses)
-			decl.addSimpleTemplateConstructorCalls();
 	}
 }

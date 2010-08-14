@@ -20,13 +20,14 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.ImmutableSet.Builder;
 
 public class ClassDeclRew {
-	private final ClassDecl ext;
-	private final String sourceTemplateName;
+	protected final ClassDecl ext;
+	private final String sourceTemplateID;
 
-	public ClassDeclRew(ClassDecl ext, String sourceTemplateName) {
-		Preconditions.checkArgument(sourceTemplateName != null);
+	public ClassDeclRew(ClassDecl ext, String sourceTemplateID) {
+		this.sourceTemplateID = sourceTemplateID;
+		Preconditions.checkArgument(sourceTemplateID != null);
 		this.ext = ext;
-		this.sourceTemplateName = sourceTemplateName;
+		
 	}
 
 	/* TODO not very pretty */
@@ -36,11 +37,10 @@ public class ClassDeclRew {
 			i++;
 			if (decl instanceof ConstructorDecl) {
 				ConstructorDecl cd = (ConstructorDecl) decl;
-				ConstructorRew cdRew = new ConstructorRew(cd,
-						sourceTemplateName);
+				ConstructorRew cdRew = new ConstructorRew(cd, sourceTemplateID);
 				try {
 					decl = cdRew.toMethodDecl(instantiator.getID(),
-							instantiator.getOrgID(), sourceTemplateName);
+							instantiator.getOrgID());
 					ext.setBodyDecl(decl, i);
 				} catch (Exception e) {
 					cd.error("Could not rewrite constructor " + cd.dumpString()
@@ -66,7 +66,7 @@ public class ClassDeclRew {
 	}
 
 	protected void renameMatchingMethods(Set<String> conflicts) {
-		final String templateName = sourceTemplateName;
+		final String templateName = sourceTemplateID;
 		final String className = ext.getID();
 		Map<String, String> renamedVersion = Maps.newHashMap();
 		for (String possibleConflict : conflicts) {

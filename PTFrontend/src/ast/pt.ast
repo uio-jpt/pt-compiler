@@ -28,7 +28,7 @@ TemplateMethodAccessShort : TemplateMethodAccess;
 TemplateConstructorAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
 TemplateConstructorAccessShort : TemplateConstructorAccess;
 
-TemplateConstructor : MethodDecl ::= <TClassID>;
+TemplateConstructor : MethodDecl ::= <TClassID> <TemplateID>;
 
 // used to stop insertion of constructors into TemplateClasses
 HackList : List; 

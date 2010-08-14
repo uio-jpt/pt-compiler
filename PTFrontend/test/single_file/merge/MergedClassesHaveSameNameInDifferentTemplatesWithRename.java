@@ -14,7 +14,7 @@ package P {
         int x;
 
         int f(int x) {
-            return tsuper[A].f(x); // f should be T1.A.f();
+            return tsuper[T1.A].f(x);
         }
     }
 }

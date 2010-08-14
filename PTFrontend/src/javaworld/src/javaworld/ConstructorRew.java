@@ -5,18 +5,18 @@ import AST.*;
 public class ConstructorRew {
 
 	private final ConstructorDecl cd;
-	private final String sourceTemplateName;
+	private final String templateID;
 
-	public ConstructorRew(ConstructorDecl cd, String sourceTemplateName) {
+	public ConstructorRew(ConstructorDecl cd, String templateID) {
 		this.cd = cd;
-		this.sourceTemplateName = sourceTemplateName;
+		this.templateID = templateID;
 	}
 
 	/*
 	 * TODO cleanup!
 	 */
 	protected MethodDecl toMethodDecl(String returnType,
-			String tclassID, String templateID) {
+			String tclassID) {
 		/*
 		 * Rewrite a whole constructor declaration to a method. Will also
 		 * rewrite constructor invocations to method invocations based on
@@ -26,28 +26,9 @@ public class ConstructorRew {
 		String modifiedMethodName = Util.toName(templateID, tclassID);
 		MethodDecl md = new TemplateConstructor(cd.getModifiers(),
 				new TypeAccess(returnType), modifiedMethodName,
-				cd.getParameterList(), new List<Access>(), new Opt<Block>(), tclassID);
+				cd.getParameterList(), new List<Access>(), new Opt<Block>(), tclassID, templateID);
 		md.setBlock(new Block(new List<Stmt>()));
-		if (cd.hasConstructorInvocation() && templateID != null) {
-			// rewrite "super(x,y,z)" to "superA(x,y,z)" where A is the original
-			// superclass
-			Util.print("inside if block");
-			try {
-				ExprStmt s = (ExprStmt) cd.getConstructorInvocation();
-				SuperConstructorAccess sa = (SuperConstructorAccess) s
-						.getExpr();
-				MethodAccess oldConstructorInvocationAsMethod = new MethodAccess(
-						modifiedMethodName, sa.getArgList());
-				oldConstructorInvocationAsMethod.IDstart = sa.IDstart;
-				oldConstructorInvocationAsMethod.IDend = sa.IDend;
-				md.getBlock().addStmt(
-						new ExprStmt(oldConstructorInvocationAsMethod));
-			} catch (Exception e) {
-				cd.getConstructorInvocation().error(
-						"Could not rewrite constructor invocation to method: "
-								+ e + "\n");
-			}
-		}
+
 		for (Stmt s : cd.getBlock().getStmtList()) {
 			md.getBlock().addStmt(s);
 		}

@@ -53,13 +53,21 @@ public class SimpleClassRew {
 	public void extendClass() {
 		updateSuperName();
 		renameResolvedConflicts();
-	
+
 		if (mergingIsPossible()) {
 			for (ClassDeclRew source : renamedSources) {
 				addDecls(source.getBodyDecls());
 			}
 		}
-		//decl.getClassDecl().getConstructorDeclList()
+		// decl.getClassDecl().getConstructorDeclList()
+	}
+
+	public void addSimpleTemplateConstructorCalls() {
+		ClassDecl classDecl = decl.getClassDecl();
+		LinkedList<ConstructorDecl> constructors = classDecl
+				.getConstructorDeclList();
+		for (ConstructorDecl cd : constructors)
+			addSimpleTemplateConstructorCalls(cd);
 	}
 
 	private void computeClassToTemplateMultimap() {
@@ -178,13 +186,6 @@ public class SimpleClassRew {
 		}
 	}
 
-	public void addSimpleTemplateConstructorCalls() {
-		ClassDecl classDecl = decl.getClassDecl();
-		LinkedList<ConstructorDecl> constructors = classDecl.getConstructorDeclList();
-		for (ConstructorDecl cd : constructors) 
-			addSimpleTemplateConstructorCalls(cd);
-	}
-
 	private void addSimpleTemplateConstructorCalls(ConstructorDecl consDecl) {
 		ClassDecl classDecl = decl.getClassDecl();
 		List<Stmt> bodyDecls = consDecl.getBlock().getStmts();
@@ -199,20 +200,20 @@ public class SimpleClassRew {
 		for (TemplateConstructor x : emptyConstructors) {
 			if (isNotCalledFrom(x, accesses)) {
 				Stmt a = createAccess(x);
-				Util.print("created " + a.toString());
 				bodyDecls.add(a);
 			}
 		}
 	}
 
 	private Stmt createAccess(TemplateConstructor x) {
-		String templateName;
+		String templateName = x.getTemplateID();
 		String tclassID = x.getTClassID();
-		TemplateConstructorAccess access = new TemplateConstructorAccessShort(
-				Util.toName(tclassID), new List<Expr>(), tclassID, "");
+
+		TemplateConstructorAccess access = new TemplateConstructorAccess(
+				Util.toName(tclassID), new List<Expr>(), tclassID, templateName);
 		return new ExprStmt(access);
 	}
-	
+
 	private boolean isNotCalledFrom(TemplateConstructor x,
 			Collection<TemplateConstructorAccess> accesses) {
 		for (TemplateConstructorAccess access : accesses) {
