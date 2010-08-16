@@ -1,32 +1,6 @@
 aspect ErrorCheck {
 
-  public void PTTemplate.collectErrors() {
-    nameCheck();
-    typeCheck();
-    accessControl();
-    exceptionHandling();
-    checkUnreachableStmt();
-    definiteAssignment();
-    checkModifiers();
-    for(int i = 0; i < getNumChild(); i++) {
-      getChild(i).ptCollectErrors();
-    }
-  }
-
-  public void ASTNode.ptCollectErrors() {
-    nameCheck();
-    typeCheck();
-    accessControl();
-    exceptionHandling();
-    checkUnreachableStmt();
-    definiteAssignment();
-    checkModifiers();
-    for(int i = 0; i < getNumChild(); i++) {
-      getChild(i).ptCollectErrors();
-    }
-  }
-
-  public void ClassInstanceExpr.ptCollectErrors() {
+  public void ClassInstanceExpr.collectErrors() {
       // skipping namecheck for templates
       //    nameCheck();
     typeCheck();
@@ -36,8 +10,12 @@ aspect ErrorCheck {
     definiteAssignment();
     checkModifiers();
     for(int i = 0; i < getNumChild(); i++) {
-      getChild(i).ptCollectErrors();
+      getChild(i).collectErrors();
     }
   }
-  
+
+  public void ConstructorAccess.accessControl() {
+      if (hasParentClass(PTTemplate.class)) 
+          error("Super calls are illegal in template constructors");
+  }
 }

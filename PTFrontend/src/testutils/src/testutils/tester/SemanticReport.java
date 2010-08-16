@@ -20,17 +20,6 @@ public class SemanticReport extends SimpleReport {
 		this.containsPTPackage = containsPTPackage;
 	}
 
-	private void printNormalDataIfVerbose() {
-		if (!normalMsgs.equals(""))
-			System.out.println("verbose normal:\n" + normalMsgs);
-
-		if (!warningMsgs.equals(""))
-			System.out.println("verbose warning:\n" + warningMsgs);
-
-		if (!errorMsgs.equals(""))
-			System.out.println("verbose error:\n" + errorMsgs);
-	}
-
 	public boolean hasPassed() {
 		return shouldBeOk == actual;
 	}

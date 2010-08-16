@@ -37,10 +37,9 @@ public class ClassDeclRew {
 			i++;
 			if (decl instanceof ConstructorDecl) {
 				ConstructorDecl cd = (ConstructorDecl) decl;
-				ConstructorRew cdRew = new ConstructorRew(cd, sourceTemplateID);
+				ConstructorRew cdRew = new ConstructorRew(cd, sourceTemplateID,instantiator.getOrgID());
 				try {
-					decl = cdRew.toMethodDecl(instantiator.getID(),
-							instantiator.getOrgID());
+					decl = cdRew.toMethodDecl();
 					ext.setBodyDecl(decl, i);
 				} catch (Exception e) {
 					cd.error("Could not rewrite constructor " + cd.dumpString()

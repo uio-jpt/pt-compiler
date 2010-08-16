@@ -12,3 +12,7 @@ template Z {
     inst Y;
     class A adds { int h(int x) { return 4;}}
 }
+
+package A {
+    inst Y;
+}

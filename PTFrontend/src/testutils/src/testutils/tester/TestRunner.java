@@ -1,8 +1,6 @@
 package testutils.tester;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import testutils.javaparser.PTJavaParser;
 import testutils.utils.PTFrontend;

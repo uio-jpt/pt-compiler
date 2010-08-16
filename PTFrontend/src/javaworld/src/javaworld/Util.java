@@ -56,7 +56,6 @@ public class Util {
 
 	public static TemplateConstructorAccess rewriteConstructorAccess(
 			TemplateConstructorAccessShort from) {
-		print("rewriting tconstructor access with short name " + from.getID());
 		String templateID = "";
 		PTClassDecl host = (PTClassDecl) from.getParentClass(PTClassDecl.class);
 

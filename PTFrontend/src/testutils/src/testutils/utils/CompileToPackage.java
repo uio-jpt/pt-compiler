@@ -85,7 +85,7 @@ public class CompileToPackage extends PTFrontend {
 	private String makeJavaCompilable(String ptCode) {
 		String tmp;
 		String regSimple = "tsuper\\[(\\w+)\\]\\.?"; 
-		String regComplex = "tsuper\\[(\\w+)\\.(\\w+)].?";
+		String regComplex = "tsuper\\[(\\w+)\\.(\\w+)\\]\\.?";
 		String replacementSimple = "tsuper\\$$1\\$";
 		String replacementComplex = replacementSimple + "$2\\$";
 

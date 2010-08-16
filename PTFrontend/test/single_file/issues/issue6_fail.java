@@ -5,6 +5,7 @@ template TestInheritanceT {
 
     class B extends A {
         public B(int i) {
+            super();
         }
     }
 }
