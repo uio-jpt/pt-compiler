@@ -34,8 +34,8 @@ public class Log {
 
     public static void init() {
         initiated = true;
-        removeTag("PTJ:AstTree");
-        removeTag("PTJ:PrettyPrint");
+        removeTag("JPT:AstTree");
+        removeTag("JPT:PrettyPrint");
     }
 
     private static void printTag(String tag, String msg) {

@@ -17,7 +17,7 @@
   <property name="build" location="build"/>
   <property name="build.classes" location="${build}/classes"/>
   <property name="build.jar" location="${build}/jar"/>
-  <property name="build.jar.filename" location="${build.jar}/PTCompiler.jar"/>    
+  <property name="build.jar.filename" location="${build.jar}/JPT.jar"/>    
   <property name="build.launcher" location="${build}/ptcompiler"/>    
   <property name="lib" location="lib"/>
   <property name="debug" location="debug"/>    
