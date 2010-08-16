@@ -210,7 +210,7 @@ public class SimpleClassRew {
 		String tclassID = x.getTClassID();
 
 		TemplateConstructorAccess access = new TemplateConstructorAccess(
-				Util.toName(tclassID), new List<Expr>(), tclassID, templateName);
+				Util.toName(templateName,tclassID), new List<Expr>(), tclassID, templateName);
 		return new ExprStmt(access);
 	}
 
