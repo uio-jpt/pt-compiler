@@ -1,8 +1,11 @@
 aspect NoImplicitConstructorInTemplates {
+
+    /* this will insert implicit constructors ..
   eq PTC.noConstructor() {
       if (hasParentClass(PTTemplate.class))
           return false;
       else
           return super.noConstructor();
   }
+    */
 }

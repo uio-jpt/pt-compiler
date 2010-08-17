@@ -62,22 +62,5 @@ aspect InstantiationRewrite {
         }
     }            
 
-    /*
-    rewrite ConstructorDecl {
-        when (!this.isRewritten) 
-        to ConstructorDecl {
-            Util.print("entring constructrewrite for one constructor in  " + getClassDecl().getID());
-            if (hasParentClass(PTClassAddsDecl.class)) {
-                return this; // host is not rewritten
-            }
-            this.isRewritten = true;
-            if (hasParentClass(PTClassDecl.class))
-                return Util.rewriteConstructor(this);
-            else
-                return this; // normal constructordecl 
-        }
-    }
-    */
-    
     syn boolean PTMethodAccess.hostIsRewritten() = hasParentClass(PTClassDecl.class);
 }

@@ -18,6 +18,7 @@ import AST.Modifiers;
 import AST.Opt;
 import AST.PTClassDecl;
 import AST.PTDummyClass;
+import AST.PTTemplate;
 import AST.ParameterDeclaration;
 import AST.SimpleClass;
 import AST.Stmt;
@@ -138,9 +139,13 @@ public class SimpleClassRew {
 			decl.renameMatchingMethods(conflicts);
 	}
 
-	// TODO tautology?
 	private boolean addsHasOwnConstructor() {
-		return decl.getClassDecl().getConstructorDeclList().size() > 0;
+		boolean ans = decl.getClassDecl().getConstructorDeclList().size() > 0;
+		if (!ans) {
+			PTTemplate t = (PTTemplate) decl.getParentClass(PTTemplate.class);
+			decl.error(String.format("Class %s in template %s is missing a constructor. Unable to merge...", decl.getID(),t.getID()));
+		}
+		return ans;
 	}
 
 	private boolean mergingIsPossible() {
@@ -221,5 +226,10 @@ public class SimpleClassRew {
 				return false;
 		}
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return decl.getClassDecl().toString();
 	}
 }

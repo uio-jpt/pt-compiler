@@ -1,34 +1,26 @@
 package javaworld;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import AST.Access;
 import AST.BodyDecl;
 import AST.ClassDecl;
 import AST.CompilationUnit;
-import AST.ConstructorDecl;
 import AST.ImportDecl;
 import AST.List;
 import AST.Modifiers;
 import AST.Opt;
+import AST.PTC;
 import AST.PTClassAddsDecl;
 import AST.PTDecl;
 import AST.PTDummyClass;
 import AST.PTInstDecl;
 import AST.PTTemplate;
 import AST.SimpleClass;
-import AST.TypeAccess;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
@@ -88,7 +80,7 @@ public class PTDeclRew {
 		Builder<SimpleClassRew> lb = ImmutableList.builder();
 		lb.addAll(simpleClasses);
 		for (String name : missingAddsClass) {
-			ClassDecl cls = new ClassDecl(new Modifiers(), name, new Opt<Access>(),
+			ClassDecl cls = new PTC(new Modifiers(), name, new Opt<Access>(),
 					new List<Access>(), new List<BodyDecl>());
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			target.addSimpleClass(addClass);

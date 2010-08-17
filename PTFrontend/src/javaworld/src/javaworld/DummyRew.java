@@ -20,6 +20,7 @@ public class DummyRew {
 		ClassDecl ext = instantiator.getOriginator().fullCopy();
 		ClassDeclRew x = new ClassDeclRew(ext, getSourceTemplateName());
 		x.renameTypes(instantiator.getInstDecl().getRenamedClasses());
+		x.degradeTSuperToAncestor();
 		x.renameDefinitions(getExplicitlyRenamedDefinitions());
 		x.renameConstructors(instantiator);
 		return x;

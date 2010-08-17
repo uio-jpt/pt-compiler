@@ -1,0 +1,24 @@
+aspect TemplateSpecific {
+    
+    coll Collection<TemplateConstructorAccess>    ConstructorDecl.getTemplateConstructorAccesses() [new LinkedList<TemplateConstructorAccess>()]
+        with add root ClassDecl;
+    TemplateConstructorAccess contributes this to ConstructorDecl.getTemplateConstructorAccesses()
+        for getConstructorDecl();
+    
+    coll Collection<TemplateConstructor>    ClassDecl.getTemplateConstructors() [new LinkedList<TemplateConstructor>()]
+        with add root ClassDecl;
+    TemplateConstructor contributes this to ClassDecl.getTemplateConstructors()
+        for getClassDecl();
+
+    coll Collection<TemplateAncestorAccess> ClassDecl.getAncestorAccesses() [new LinkedList<TemplateAncestorAccess>()]
+        with add root ClassDecl;
+    TemplateAncestorAccess contributes this to ClassDecl.getAncestorAccesses()
+        for ((ClassDecl)getParentClass(ClassDecl.class));
+
+    coll Collection<TemplateAncestor> ClassDecl.getAncestors() [new LinkedList<TemplateAncestor>()]
+        with add root ClassDecl;
+    TemplateAncestor contributes this to ClassDecl.getAncestors()
+        for getClassDecl();
+    
+
+}

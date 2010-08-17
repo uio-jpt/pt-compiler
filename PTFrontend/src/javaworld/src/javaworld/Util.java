@@ -93,11 +93,17 @@ public class Util {
 							+ "in template method call %s. msg: ", tclassID,
 					from, e.getMessage()));
 		}
-		return new TemplateMethodAccess(methodName, argList, tclassID,
+		return new TemplateMethodAccess(toName(templateID,tclassID, methodName), argList, tclassID,
 				templateID);
 	}
 	
 	public static ClassDecl toPTC(ClassDecl decl) {
 		return decl;
+	}
+
+	public static String toAncestorName(String id, String sourceTemplateID,
+			String id2) {
+		return String.format("%s$%s_%s",id,sourceTemplateID,id2);
+
 	}
 }

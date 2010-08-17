@@ -1,5 +1,8 @@
 Fixes TODO:
 
+* Sjekke at tsuperkall kommer etter eventuelt superkall og før annen kode.
+
+
 * greppe source etter TODO
 
 * veldig mye annet småplukk.
@@ -11,20 +14,3 @@ Fixes TODO:
 
 * Classpath option til PT-Kompilatoren. JastAddJ støtter dette, så det
   er en enkel fiks.
-
-* parserstoette for mergedConstructorAccess med [templatnavn.klassenavn]
-
-
-TODO HER:::
-*	protected MethodDecl toMethodDecl(String returnType,
-
-rar feil.. se $ ant testsingle -Dname=test/single_file/basic/BasicAdds.java
-
-
-MY_FAQ:
-
-** where are supercalls inserted into constructors?
-*  supercalls are inserted into constructors by rewrite rule in bottom of file LookupConstructors ..
-
-** where are empty constructors inserted?
-*  In lookupConstructors rewrite List
