@@ -12,6 +12,9 @@ aspect PrettyPrint {
     eq PTPackage.addsIndentationLevel() = true;
     eq PTTemplate.addsIndentationLevel() = true;
 
+    public String PTInstDecl.getName() { return getClass().getName() + "["+getID() +"]"; }
+    public String PTDecl.getName()     { return getClass().getName() + "["+getID() +"]"; }
+
     public void PTCompilationUnit.toString(StringBuffer sb) {
         super.toString(sb);
         for (PTDecl ptDecl: getPTDecls()) 

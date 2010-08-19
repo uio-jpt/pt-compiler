@@ -2,6 +2,7 @@ import javaworld.InstantiationRewriter;
 import javaworld.Util;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Iterables;
+import testutils.tester.Log;
 
 
 aspect InstantiationRewrite {
@@ -24,8 +25,10 @@ aspect InstantiationRewrite {
     rewrite PTInstDecl {
         when (this.isRewritten == false && templateIsRewritten())
         to PTInstDecl {
+            Log.d("JPT:Rewrite:PTInstDecl", "Rewriting PTInstDecl " + this.getName() + " :: Started");
             this.isRewritten = true;
             addMissingDummyClassNodes();
+            Log.d("JPT:Rewrite:PTInstDecl", "Rewriting PTInstDecl " + this.getName() + " :: Finished");
             return this;
         }
     }
@@ -33,9 +36,18 @@ aspect InstantiationRewrite {
     rewrite PTDecl {
         when ( this.isRewritten == false && dependenciesAreRewritten())
         to PTDecl {
+            Log.d("JPT:Rewrite:PTDecl", "Rewriting PTDecl " + this.getName() + " :: Started");
+            StringBuffer sb;
+            sb = new StringBuffer();
+            this.toString(sb);
+            Log.d("JPT:Rewrite:PTDecl_before_rewrite", sb.toString());
             InstantiationRewriter x = new InstantiationRewriter(this);            
             x.run();
             this.isRewritten = true;            
+            sb = new StringBuffer();
+            this.toString(sb);
+            Log.d("JPT:Rewrite:PTDecl_after_rewrite", sb.toString());
+            Log.d("JPT:Rewrite:PTDecl", "Rewriting PTDecl " + this.getName() + " :: Finished");
             return this;
         }
     }
