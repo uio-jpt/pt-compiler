@@ -67,6 +67,16 @@ aspect InstantiationRewrite {
         }
     }
 
+    public boolean TemplateMethodAccess.isRewritten = false;
+
+    rewrite TemplateMethodAccess {
+        when (hostIsRewritten() && !isRewritten)
+        to TemplateMethodAccess {
+            this.isRewritten = true;
+            return Util.rewriteMethodAccess(this);
+        }
+    }
+
     rewrite TemplateConstructorAccessShort {
         when (hostIsRewritten())
         to TemplateConstructorAccess {

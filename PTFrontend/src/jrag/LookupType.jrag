@@ -50,4 +50,30 @@ aspect LookupType {
         TypeDecl t = lookupType("", name);
         if (t!=null) return SimpleSet.emptySet.add(t);
     }
+
+    inh ClassDecl TemplateMethodAccess.getClassDecl(String className);
+
+    eq ASTNode.getChild(int i).getClassDecl(String className) {
+    }
+    eq PTCompilationUnit.getPTDecl(int j).getClassDecl(String className) {
+        for (int i=0; i<getNumPTDecl(); i++) {
+            if (j==i) continue;
+            // System.out.println("*** Looking at " + getPTDecl(i) + "***");
+            ClassDecl res = getPTDecl(i).getInnerClassDecl(className);
+            if (res!=null) return res;
+        }
+        return null;
+    }
+
+    syn ClassDecl ASTNode.getInnerClassDecl(String className) {
+        for (int i=0; i<getNumChild(); i++) {
+            ClassDecl res = getChild(i).getInnerClassDecl(className);
+            if (res!=null) return res;
+        }
+        return null;
+    }
+
+    eq ClassDecl.getInnerClassDecl(String className) = 
+        getID().equals(className) ? this : null;
+
 }

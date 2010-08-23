@@ -10,6 +10,7 @@ import AST.ConstructorDecl;
 import AST.Expr;
 import AST.ExprStmt;
 import AST.List;
+import AST.MethodAccess;
 import AST.Modifiers;
 import AST.Opt;
 import AST.PTClassDecl;
@@ -75,7 +76,25 @@ public class Util {
 		return new TemplateConstructorAccess(methodName, argList, tclassID,
 				templateID);
 	}
+	public static TemplateMethodAccess rewriteMethodAccess(TemplateMethodAccess from) {
+		// we have the form tsuper[T.C].m(); ..
+        // should we add some rewriting to support super calls?
+		
+		/* Possible extension:
+		 * Check if the method exists in adds class:
+		 * Search left to right..
+		 * then upwards in each super class?
+		 * 
+		 * Current method:
+		 * Never look in any super class.
+		 * 
+		 */
+		/* ClassDecl cd = from.getClassDecl(from.getTClassID());
+		System.out.println("Got classdecl: "+ from.getTClassID()+"=>" +cd);*/		
+		return from;
+	}
 
+	
 	public static TemplateMethodAccess rewriteMethodAccess(
 			TemplateMethodAccessShort from) {
 		String templateID = "";

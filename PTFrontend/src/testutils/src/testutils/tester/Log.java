@@ -1,4 +1,7 @@
 package testutils.tester;
+/*
+import testutils.tester.Log;
+ */
 
 import java.util.LinkedList;
 

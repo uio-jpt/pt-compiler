@@ -20,5 +20,16 @@ aspect TypeCheck {
             }
         }
     }
+
+    public void TemplateMethodAccess.typeCheck() {
+        super.typeCheck();
+        // TemplateMethodAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
+        // TODO: Denne er litt buggy, dvs. gir flere feil 
+        // siden kopierte TemplateMethodAccess ikke tar med seg
+        // inst clausen..
+        if (!getPTDecl().visibleTemplateNames().contains(getTemplateID())) {
+            error("Template " + getTemplateID() + " not visible in current scope.");
+        }
+    }
 }
 

@@ -102,4 +102,18 @@ aspect ReferenceAttributes {
                                                                      getParentClass(ConstructorDecl.class));
 
     syn boolean TemplateConstructor.hasNoParameter() = getNumParameter() == 0;
+
+    coll Set<String> PTDecl.visibleTemplateNames() [new HashSet<String>()] with add root PTDecl;
+
+    PTInstDecl contributes getID() to PTDecl.visibleTemplateNames() for getPTDecl();
+
+    inh PTDecl PTInstDecl.getPTDecl();
+    inh PTDecl TemplateMethodAccess.getPTDecl();
+    eq PTDecl.getChild(int i).getPTDecl() = this;
+
+    eq ASTNode.getChild(int i).getPTDecl() {
+        if (getParent()==null) return null;
+        /* If there is no return statement, the default behaviour is to
+         * call search upwards the tree. This is done by the generated code. */
+    }
 }
