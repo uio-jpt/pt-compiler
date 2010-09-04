@@ -16,6 +16,7 @@ aspect ReferenceAttributes {
         return null;
     }
 
+    /* denne gir nullpointerexception */
     syn String SimpleClass.getTopMostSuperName() {
         ClassDecl c = getClassDecl();
         if (!c.hasSuperclass())
