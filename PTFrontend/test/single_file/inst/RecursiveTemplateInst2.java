@@ -20,7 +20,9 @@ template T2 {
 
 package P3 {
     inst T2 with A2 => A3, B2 => B3, C2 => C3, D2 => D3;
-    class A3 adds { public String m() { return tsuper[T1.A1].m(); /* should be illegal because template is not visible */ } }
+    class A3 adds { 
+        //public String m() { return tsuper[T1.A1].m(); /* should be illegal because template is not visible */ } 
+    }
     class B3 adds { }
     class C3 adds { public String m() { return tsuper[T2.C2].m(); } }
     class D3 adds { public String x() { return m(); } /* Should return T1.D1.m() */ }

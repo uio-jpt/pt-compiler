@@ -1,14 +1,22 @@
 package testutils.utils;
-import AST.*;
-import testutils.tester.Log;
-import java.util.*;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 
-import testutils.javaparser.PTJavaParser;
+import testutils.tester.Log;
+import AST.BytecodeParser;
+import AST.BytecodeReader;
+import AST.CompilationUnit;
+import AST.JavaParser;
+import AST.Options;
+import AST.Problem;
+import AST.Program;
+import errorcheck.ErrorCheckBeforeRewrite;
 
 public class PTFrontend {
 	
@@ -17,7 +25,7 @@ public class PTFrontend {
 	private StringBuffer normalMsgs;
 	private StringBuffer errorMsgs;
 	private StringBuffer warningMsgs;
-    
+
     public static Collection<File> getFilesInFolderAndSubFolders(File file, String extension) {
     	String[] p = { extension };
 		return FileUtils.listFiles(file, p, true);
@@ -78,7 +86,13 @@ public class PTFrontend {
                     System.out.println("WARNING: file \"" + name + "\" does not exist");
                 program.addSourceFile(name);
             }
-
+            
+            for(Iterator iter = program.compilationUnitIterator(); iter.hasNext(); ) {
+                CompilationUnit unit = (CompilationUnit)iter.next();
+                ErrorCheckBeforeRewrite checkerr = new ErrorCheckBeforeRewrite();
+                checkerr.checkErrors(unit);
+            }
+            
             for(Iterator iter = program.compilationUnitIterator(); iter.hasNext(); ) {
                 CompilationUnit unit = (CompilationUnit)iter.next();
                 if(unit.fromSource()) {
