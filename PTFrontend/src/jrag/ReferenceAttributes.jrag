@@ -9,6 +9,21 @@ aspect ReferenceAttributes {
     inh PTDecl PTDecl.lookupPTDecl(String name);
     inh boolean PTDecl.hasImportDecl(String name);
 
+    syn SimpleClass PTDecl.getSimpleClass(String name) {
+        for (SimpleClass sc : getSimpleClasss()) 
+            if (sc.getClassDecl().getID().equals(name))
+                return sc;
+        return null;
+    }
+
+    syn String SimpleClass.getTopMostSuperName() {
+        ClassDecl c = getClassDecl();
+        if (!c.hasSuperclass())
+            return c.getID();
+        String superName = c.getSuperClassName();
+        SimpleClass sc = getPTDecl().getSimpleClass(superName);
+        return sc.getTopMostSuperName();
+    }
 
     eq PTCompilationUnit.getPTDecl(int i).hasImportDecl(String name) {
         for (ImportDecl decl : getImportDeclList())
