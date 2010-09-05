@@ -27,15 +27,15 @@ import com.google.common.collect.Sets;
 public class PTDeclRew {
 
 	private final PTDecl target;
-	private Multimap<String, PTDummyClass> nameAndDummies;
+	private Multimap<String, PTDummyClass> destinationClassIDsWithInstTuples;
 	private ImmutableList<SimpleClassRew> simpleClasses;
 
 	public PTDeclRew(PTDecl target) {
 		this.target = target;
-		nameAndDummies = getClassNamesWithDummyList();
+		destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
 		Builder<SimpleClassRew> lb = ImmutableList.builder();
 		for (SimpleClass decl : target.getSimpleClassList()) 
-			lb.add(new SimpleClassRew(decl, nameAndDummies));
+			lb.add(new SimpleClassRew(decl, destinationClassIDsWithInstTuples));
 		simpleClasses = lb.build();
 	}
 
@@ -74,7 +74,7 @@ public class PTDeclRew {
 
 	protected void createEmptyMissingAddClasses() {
 		Set<String> addClasses = target.getAdditionClassNamesSet();
-		Set<String> missingAddsClass = Sets.difference(nameAndDummies.keySet(),
+		Set<String> missingAddsClass = Sets.difference(destinationClassIDsWithInstTuples.keySet(),
 				addClasses);
 		
 		Builder<SimpleClassRew> lb = ImmutableList.builder();
@@ -84,12 +84,17 @@ public class PTDeclRew {
 					new List<Access>(), new List<BodyDecl>());
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			target.addSimpleClass(addClass);
-			lb.add(new SimpleClassRew(addClass, nameAndDummies));
+			lb.add(new SimpleClassRew(addClass, destinationClassIDsWithInstTuples));
 		}
 		simpleClasses = lb.build();
 	}
 
-	private Multimap<String, PTDummyClass> getClassNamesWithDummyList() {
+	/**
+	 * returns a multimap where the 
+	 * 		key is DestinationClassID (String) 
+	 * 		and the value is a list of InstTuples (for example A => X). 
+	 */
+	private Multimap<String, PTDummyClass> getDestinationClassIDsWithInstTuples() {
 		Multimap<String, PTDummyClass> nameAndDummies = HashMultimap.create();
 		for (PTInstDecl templateInst : target.getPTInstDecls()) {
 			for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {

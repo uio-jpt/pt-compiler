@@ -8,11 +8,11 @@ import AST.PTDummyRename;
 
 import com.google.common.collect.Maps;
 
-public class DummyRew {
+public class InstTupleRew {
 
 	final PTDummyClass instantiator;
 
-	public DummyRew(PTDummyClass dummy) {
+	public InstTupleRew(PTDummyClass dummy) {
 		this.instantiator = dummy;
 	}
 

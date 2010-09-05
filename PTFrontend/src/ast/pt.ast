@@ -16,7 +16,7 @@ PTInstDecl ::= <ID> PTDummyClass*; // inst T with A => X;
 PTDummyClass ::= <OrgID> <ID> PTDummyRename*;
 
 abstract PTDummyRename ::= <OrgID> <ID>;
-PTMethodRename : PTDummyRename ::= <OrgID> <ID> Access*;
+PTMethodRename : PTDummyRename ::= Access*;
 PTMethodRenameAll : PTDummyRename;
 PTFieldRename : PTDummyRename;
 

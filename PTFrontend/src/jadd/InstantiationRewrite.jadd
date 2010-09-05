@@ -24,8 +24,13 @@ aspect InstantiationRewrite {
 
     rewrite PTInstDecl {
         when (this.isRewritten == false && templateIsRewritten())
+            // templateIsRewritten() refers to the source template of this
+            // PTInstDecl and not the template that contains it, meaning
+            // that PTInstDecl will be rewritten before it's containing
+            // template or package is rewritten.
         to PTInstDecl {
             Log.d("JPT:Rewrite:PTInstDecl", "Rewriting PTInstDecl " + this.getName() + " :: Started");
+            Log.d("JPT:Rewrite:PTInstDecl", "Scope was: " + showParentsAndSelf());
             this.isRewritten = true;
             addMissingDummyClassNodes();
             Log.d("JPT:Rewrite:PTInstDecl", "Rewriting PTInstDecl " + this.getName() + " :: Finished");
@@ -35,6 +40,9 @@ aspect InstantiationRewrite {
             
     rewrite PTDecl {
         when ( this.isRewritten == false && dependenciesAreRewritten())
+            // dependenciesAreRewritten() refers to this template's/package's
+            // PTInstDecl, which again refer to templates. So in effect it
+            // means all the templates this template depends on.
         to PTDecl {
             Log.d("JPT:Rewrite:PTDecl", "Rewriting PTDecl " + this.getName() + " :: Started");
             StringBuffer sb;

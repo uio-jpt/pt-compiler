@@ -121,10 +121,10 @@ public class ClassDeclRew {
 		final String templateName = sourceTemplateID;
 		final String className = ext.getID();
 		Map<String, String> renamedVersion = Maps.newHashMap();
-		for (String possibleConflict : conflicts) {
+		for (String memberNameToBeRenamed : conflicts) {
 			String tsuperName = Util.toName(templateName, className,
-					possibleConflict);
-			renamedVersion.put(possibleConflict, tsuperName);
+					memberNameToBeRenamed);
+			renamedVersion.put(memberNameToBeRenamed, tsuperName);
 		}
 		renameDefinitions(renamedVersion);
 	}

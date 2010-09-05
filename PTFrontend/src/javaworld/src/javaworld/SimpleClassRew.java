@@ -37,25 +37,28 @@ import com.google.common.collect.Sets;
 
 public class SimpleClassRew {
 	private final SimpleClass decl;
-	private Collection<PTDummyClass> dummies;
-	private Set<String> conflicts;
+	private Collection<PTDummyClass> instTuples;
+	private Set<String> possibleConflicts;
 	private Collection<ClassDeclRew> renamedSources;
 
 	public SimpleClassRew(SimpleClass decl,
-			Multimap<String, PTDummyClass> nameAndDummies) {
+			Multimap<String, PTDummyClass> destinationClassIDsWithInstTuples) {
 		this.decl = decl;
-		checkIfSane(nameAndDummies);
-		dummies = nameAndDummies.get(decl.getID());
-		renamedSources = getRenamedAgnosticInstClasses();
-		conflicts = getConflicts();
+		checkIfSane(destinationClassIDsWithInstTuples);
+		instTuples = destinationClassIDsWithInstTuples.get(decl.getID());
+		renamedSources = getRenamedInstClassesRewriters();
+		possibleConflicts = getPossibleConflicts();
 		computeClassToTemplateMultimap();
 	}
 
+	/** extends a single class with the instantiations given
+	 * in the current scope.
+	 */
 	public void extendClass() {
 		updateSuperName();
-		renameResolvedConflicts();
 
 		if (mergingIsPossible()) {
+			renameResolvedConflicts();
 			for (ClassDeclRew source : renamedSources) {
 				addDecls(source.getBodyDecls());
 			}
@@ -73,7 +76,7 @@ public class SimpleClassRew {
 
 	private void computeClassToTemplateMultimap() {
 		Multimap<String, String> classToTemplates = HashMultimap.create();
-		for (PTDummyClass dummy : dummies) {
+		for (PTDummyClass dummy : instTuples) {
 			String classID = dummy.getOriginator().getID();
 			String templateID = dummy.getTemplate().getID();
 			classToTemplates.put(classID, templateID);
@@ -93,14 +96,14 @@ public class SimpleClassRew {
 		} catch (NoSuchElementException e) { // no superclasses
 		} catch (IllegalArgumentException e) {
 			decl.error(String.format(
-					"Merge error for %s. superklasses %s must be merged.\n",
+					"Merge error for %s. Superclasses %s must be merged.\n",
 					decl.getID(), Joiner.on(" and ").join(names)));
 		}
 	}
 
 	private boolean addsResolvesConflict() {
 		Set<String> addRefinements = decl.getClassDecl().methodSignatures();
-		for (String conflictingName : conflicts) {
+		for (String conflictingName : possibleConflicts) {
 			if (!addRefinements.contains(conflictingName)) {
 				decl.error(conflictingName
 						+ " is an unresolved conflict during merging.\n");
@@ -117,8 +120,11 @@ public class SimpleClassRew {
 	 * 
 	 * (since getConflicts needs all classes renamed. maybe it should use a
 	 * renamed copy for these purposes.)
+	 * 
+	 * @return A set of possible conflicts. 'Possible' means that an adds method
+	 * may resolve the conflict.
 	 */
-	private Set<String> getConflicts() {
+	private Set<String> getPossibleConflicts() {
 		Set<String> collisions = ImmutableSet.of();
 		Set<String> allDefinitions = ImmutableSet.copyOf((decl.getClassDecl()
 				.methodSignatures()));
@@ -136,7 +142,7 @@ public class SimpleClassRew {
 
 	private void renameResolvedConflicts() {
 		for (ClassDeclRew decl : renamedSources)
-			decl.renameMatchingMethods(conflicts);
+			decl.renameMatchingMethods(possibleConflicts);
 	}
 
 	private boolean addsHasOwnConstructor() {
@@ -164,22 +170,30 @@ public class SimpleClassRew {
 	/**
 	 * Renamed classes are not cross checked. If there's a method name conflict
 	 * that the adds class resolves, then the correct renaming of the
-	 * conflicting classes will be performed later on.
+	 * conflicting classes will be performed later on.<br/><br/>
+
+	 * The wrapper class (of which as list is returned) contains the renamed ClassDecl.
+	 * The renaming is done in two parts:
+	 * 		Based on new class names in the inst clause, which will rename types.
+	 * 		Based on explicit renamings in the inst clause, which will rename methods and variables.  
 	 * 
-	 * @return all classes that will be merge into current.
+	 * This is the so-called first part of the total renaming process.
+	 * The second part of the total renaming process deals with renaming conflicts between merged classes.
+	 * 
+	 * @return A list of rewriters wrapper classes for all classes that will be merge into the current class.
 	 */
-	private Collection<ClassDeclRew> getRenamedAgnosticInstClasses() {
+	private Collection<ClassDeclRew> getRenamedInstClassesRewriters() {
 		Collection<ClassDeclRew> instClasses = Lists.newLinkedList();
-		for (PTDummyClass x : dummies) {
-			DummyRew dummyr = new DummyRew(x);
-			ClassDeclRew ext = dummyr.getRenamedSourceClass();
+		for (PTDummyClass x : instTuples) {
+			InstTupleRew instTupleRew = new InstTupleRew(x);
+			ClassDeclRew ext = instTupleRew.getRenamedSourceClass();
 			instClasses.add(ext);
 		}
 		return instClasses;
 	}
 
-	private void checkIfSane(Multimap<String, PTDummyClass> nameAndDummies) {
-		if (nameAndDummies.containsKey(decl.getID())) {
+	private void checkIfSane(Multimap<String, PTDummyClass> destinationClassIDsWithInstTuples) {
+		if (destinationClassIDsWithInstTuples.containsKey(decl.getID())) {
 			if (!decl.isAddsClass()) {
 				decl.error("Class "
 						+ decl.getID()
