@@ -10,10 +10,10 @@ PTClassDecl : SimpleClass;
 PTClassAddsDecl : SimpleClass;
 
 
-PTInstDecl ::= <ID> PTDummyClass*; // inst T with A => X;
-                                   //      ID     PTDummyClass
+PTInstDecl ::= <ID> PTInstTuple*; // inst T with A => X;
+                                   //      ID    PTInstTuple
 
-PTDummyClass ::= <OrgID> <ID> PTDummyRename*;
+PTInstTuple ::= <OrgID> <ID> PTDummyRename*;
 
 abstract PTDummyRename ::= <OrgID> <ID>;
 PTMethodRename : PTDummyRename ::= Access*;

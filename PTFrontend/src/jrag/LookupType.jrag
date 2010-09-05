@@ -25,7 +25,7 @@ aspect LookupType {
         return null;
     }
 
-    syn ClassDecl PTDummyClass.getOriginator() = (ClassDecl) getTemplate().lookupType(getOrgID());
+    syn ClassDecl PTInstTuple.getOriginator() = (ClassDecl) getTemplate().lookupType(getOrgID());
 
     syn PTTemplate PTDecl.lookupTemplate(String name) = null;
     eq PTTemplate.lookupTemplate(String name) = name.equals(getID()) ? this : null;

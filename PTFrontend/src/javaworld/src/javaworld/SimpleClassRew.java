@@ -17,7 +17,7 @@ import AST.List;
 import AST.Modifiers;
 import AST.Opt;
 import AST.PTClassDecl;
-import AST.PTDummyClass;
+import AST.PTInstTuple;
 import AST.PTTemplate;
 import AST.ParameterDeclaration;
 import AST.SimpleClass;
@@ -37,12 +37,12 @@ import com.google.common.collect.Sets;
 
 public class SimpleClassRew {
 	private final SimpleClass decl;
-	private Collection<PTDummyClass> instTuples;
+	private Collection<PTInstTuple> instTuples;
 	private Set<String> possibleConflicts;
 	private Collection<ClassDeclRew> renamedSources;
 
 	public SimpleClassRew(SimpleClass decl,
-			Multimap<String, PTDummyClass> destinationClassIDsWithInstTuples) {
+			Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples) {
 		this.decl = decl;
 		checkIfSane(destinationClassIDsWithInstTuples);
 		instTuples = destinationClassIDsWithInstTuples.get(decl.getID());
@@ -76,7 +76,7 @@ public class SimpleClassRew {
 
 	private void computeClassToTemplateMultimap() {
 		Multimap<String, String> classToTemplates = HashMultimap.create();
-		for (PTDummyClass dummy : instTuples) {
+		for (PTInstTuple dummy : instTuples) {
 			String classID = dummy.getOriginator().getID();
 			String templateID = dummy.getTemplate().getID();
 			classToTemplates.put(classID, templateID);
@@ -184,7 +184,7 @@ public class SimpleClassRew {
 	 */
 	private Collection<ClassDeclRew> getRenamedInstClassesRewriters() {
 		Collection<ClassDeclRew> instClasses = Lists.newLinkedList();
-		for (PTDummyClass x : instTuples) {
+		for (PTInstTuple x : instTuples) {
 			InstTupleRew instTupleRew = new InstTupleRew(x);
 			ClassDeclRew ext = instTupleRew.getRenamedSourceClass();
 			instClasses.add(ext);
@@ -192,7 +192,7 @@ public class SimpleClassRew {
 		return instClasses;
 	}
 
-	private void checkIfSane(Multimap<String, PTDummyClass> destinationClassIDsWithInstTuples) {
+	private void checkIfSane(Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples) {
 		if (destinationClassIDsWithInstTuples.containsKey(decl.getID())) {
 			if (!decl.isAddsClass()) {
 				decl.error("Class "

@@ -5,7 +5,7 @@ aspect PrettyPrint {
     eq PTClassAddsDecl.dumpString() = getClass().getName() + " [" + getID() + "]";
     eq PTClassDecl.dumpString() = getClass().getName() + " [" + getID() + "]";
     eq PTInstDecl.dumpString() = getClass().getName() + " [" + getID() + "]";
-    eq PTDummyClass.dumpString() = getClass().getName() + " [" + getOrgID() + " => " + getID() + "]";
+    eq PTInstTuple.dumpString() = getClass().getName() + " [" + getOrgID() + " => " + getID() + "]";
     eq PTMethodRename.dumpString() = getClass().getName() + " [" + getSignature() + " -> " + getID() + "]";
     eq PTFieldRename.dumpString() = getClass().getName() + " [" + getOrgID() + " -> " + getID() + "]";    
 
@@ -51,7 +51,7 @@ aspect PrettyPrint {
         }
     }
 
-    public void PTDummyClass.toString(StringBuffer sb) {
+    public void PTInstTuple.toString(StringBuffer sb) {
         sb.append(getOrgID() + " => " + getID());
         getPTDummyRenameList().toString(sb, " (", ")", ", ");
     }
@@ -59,7 +59,7 @@ aspect PrettyPrint {
     public void PTInstDecl.toString(StringBuffer sb) {
         sb.append(indent());
         sb.append("inst " + getID());
-        getPTDummyClassList().toString(sb, " with ", "", ", ");
+        getPTInstTupleList().toString(sb, " with ", "", ", ");
         sb.append(";");
     }
 

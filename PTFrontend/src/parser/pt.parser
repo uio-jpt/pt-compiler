@@ -75,10 +75,10 @@ List dummy_class_list =
     | dummy_inst_tuple.t {: return new List().add(t); :}
     ;
 
-PTDummyClass dummy_inst_tuple =
+PTInstTuple dummy_inst_tuple =
     IDENTIFIER.a RIGHTARROW IDENTIFIER.b 
     dummy_inst_tuple_rename_list_opt.l
-    {: return new PTDummyClass(a,b,l); :}
+    {: return new PTInstTuple(a,b,l); :}
     ;
 
 List dummy_inst_tuple_rename_list_opt =

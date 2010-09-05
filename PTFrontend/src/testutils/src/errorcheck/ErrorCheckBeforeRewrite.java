@@ -7,7 +7,7 @@ import java.util.Set;
 import AST.ClassDecl;
 import AST.CompilationUnit;
 import AST.PTDecl;
-import AST.PTDummyClass;
+import AST.PTInstTuple;
 import AST.PTInstDecl;
 import AST.PTPackage;
 import AST.SimpleClass;
@@ -50,7 +50,7 @@ public class ErrorCheckBeforeRewrite {
 //        		searchDown(p, this, "handleClass", false);
 //        	}
 //        	
-//        	public void recurseInstantiations(PTDummyClass p, String fromClass) {
+//        	public void recurseInstantiations(PTInstTuple p, String fromClass) {
 //        		//System.out.println("Looking at " + p + " with " + fromClass);
 //        		if (p.getID().equals(fromClass)) {
 //        			PTInstDecl inst = (PTInstDecl)p.getParentClass(PTInstDecl.class);
@@ -103,7 +103,7 @@ public class ErrorCheckBeforeRewrite {
         		System.out.println("class " + key + " extends " + cd.getSuperClassName());
         	}
         	
-        	public void find(PTDummyClass instTuple) {
+        	public void find(PTInstTuple instTuple) {
         		PTDecl scope = (PTDecl)instTuple.getParentClass(PTDecl.class);
         		PTInstDecl importedFromScope = (PTInstDecl)instTuple.getParentClass(PTInstDecl.class);
         		String fromKey = importedFromScope.getID() + "::" + instTuple.getOrgID();

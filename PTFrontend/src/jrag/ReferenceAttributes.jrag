@@ -2,9 +2,9 @@
 aspect ReferenceAttributes {
     
     syn PTTemplate PTInstDecl.getTemplate() = getTemplate(getID());
-    syn PTTemplate PTDummyClass.getTemplate() = getInstDecl().getTemplate();
+    syn PTTemplate PTInstTuple.getTemplate() = getInstDecl().getTemplate();
     inh PTTemplate PTInstDecl.getTemplate(String name);
-    inh PTInstDecl PTDummyClass.getInstDecl();
+    inh PTInstDecl PTInstTuple.getInstDecl();
     inh PTTemplate CompilationUnit.lookupTemplateGlobal(String name);
     inh PTDecl PTDecl.lookupPTDecl(String name);
     inh boolean PTDecl.hasImportDecl(String name);
@@ -40,7 +40,7 @@ aspect ReferenceAttributes {
         return null;
     }
 
-    eq PTInstDecl.getPTDummyClass(int i).getInstDecl() = this;
+    eq PTInstDecl.getPTInstTuple(int i).getInstDecl() = this;
 
     eq PTCompilationUnit.getPTDecl(int i).getTemplate(String name) {
         PTTemplate res = lookupTemplateLocal(name);
@@ -70,8 +70,8 @@ aspect ReferenceAttributes {
 
     syn Map<String,String> PTInstDecl.getRenamedClasses() {
         Map<String,String> renamedClasses = new HashMap<String,String>();
-        for (PTDummyClass dummy: getPTDummyClassList()) 
-            renamedClasses.put(dummy.getOrgID(),dummy.getID());
+        for (PTInstTuple instTuple: getPTInstTupleList()) 
+            renamedClasses.put(instTuple.getOrgID(),instTuple.getID());
         return renamedClasses; 
     }
 

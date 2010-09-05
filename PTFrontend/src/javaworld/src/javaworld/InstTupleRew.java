@@ -3,16 +3,16 @@ package javaworld;
 import java.util.Map;
 
 import AST.ClassDecl;
-import AST.PTDummyClass;
+import AST.PTInstTuple;
 import AST.PTDummyRename;
 
 import com.google.common.collect.Maps;
 
 public class InstTupleRew {
 
-	final PTDummyClass instantiator;
+	final PTInstTuple instantiator;
 
-	public InstTupleRew(PTDummyClass dummy) {
+	public InstTupleRew(PTInstTuple dummy) {
 		this.instantiator = dummy;
 	}
 

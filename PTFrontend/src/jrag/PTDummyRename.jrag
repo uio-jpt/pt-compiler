@@ -5,7 +5,7 @@
 aspect PTDummyRename {
 
     inh ClassDecl PTDummyRename.getOriginatorClass();
-    eq PTDummyClass.getPTDummyRename(int i).getOriginatorClass() = getOriginator();
+    eq PTInstTuple.getPTDummyRename(int i).getOriginatorClass() = getOriginator();
     
     eq PTMethodRename.getAccess(int i).lookupType(String name) {
         return getOriginatorClass().lookupType(name);

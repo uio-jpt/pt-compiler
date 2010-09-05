@@ -12,7 +12,7 @@ import AST.ExprStmt;
 import AST.FieldDeclaration;
 import AST.List;
 import AST.MethodDecl;
-import AST.PTDummyClass;
+import AST.PTInstTuple;
 import AST.SimpleSet;
 import AST.TemplateAncestor;
 import AST.TemplateAncestorAccess;
@@ -37,7 +37,7 @@ public class ClassDeclRew {
 	}
 
 	/* TODO not very pretty */
-	protected void renameConstructors(PTDummyClass instantiator) {
+	protected void renameConstructors(PTInstTuple instantiator) {
 		int i = -1;
 		for (BodyDecl decl : ext.getBodyDeclList()) {
 			i++;

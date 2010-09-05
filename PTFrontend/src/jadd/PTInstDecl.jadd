@@ -6,9 +6,9 @@ aspect PTInstDecl {
             for (ClassDecl templateClass: templateClasses) {
                 String templateClassID = templateClass.getID();
                 if (!renamedClasses.containsKey(templateClassID)) {
-                    PTDummyClass dummy;                                
-                    dummy = new PTDummyClass(templateClassID,templateClassID, new List());
-                    addPTDummyClass(dummy);
+                    PTInstTuple instTuple;                                
+                    instTuple = new PTInstTuple(templateClassID,templateClassID, new List());
+                    addPTInstTuple(instTuple);
                 } 
             }
         } catch(NullPointerException e) {

@@ -13,7 +13,7 @@ import AST.Opt;
 import AST.PTC;
 import AST.PTClassAddsDecl;
 import AST.PTDecl;
-import AST.PTDummyClass;
+import AST.PTInstTuple;
 import AST.PTInstDecl;
 import AST.PTTemplate;
 import AST.SimpleClass;
@@ -27,7 +27,7 @@ import com.google.common.collect.Sets;
 public class PTDeclRew {
 
 	private final PTDecl target;
-	private Multimap<String, PTDummyClass> destinationClassIDsWithInstTuples;
+	private Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples;
 	private ImmutableList<SimpleClassRew> simpleClasses;
 
 	public PTDeclRew(PTDecl target) {
@@ -94,10 +94,10 @@ public class PTDeclRew {
 	 * 		key is DestinationClassID (String) 
 	 * 		and the value is a list of InstTuples (for example A => X). 
 	 */
-	private Multimap<String, PTDummyClass> getDestinationClassIDsWithInstTuples() {
-		Multimap<String, PTDummyClass> nameAndDummies = HashMultimap.create();
+	private Multimap<String, PTInstTuple> getDestinationClassIDsWithInstTuples() {
+		Multimap<String, PTInstTuple> nameAndDummies = HashMultimap.create();
 		for (PTInstDecl templateInst : target.getPTInstDecls()) {
-			for (PTDummyClass dummy : templateInst.getPTDummyClassList()) {
+			for (PTInstTuple dummy : templateInst.getPTInstTupleList()) {
 				nameAndDummies.put(dummy.getID(), dummy);
 			}
 		}
