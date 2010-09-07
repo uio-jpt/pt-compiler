@@ -1,9 +1,6 @@
 package javaworld;
 
-import AST.ConstructorDecl;
-import AST.MethodDecl;
 import AST.PTDecl;
-import AST.Stmt;
 
 public class InstantiationRewriter {
 
@@ -17,7 +14,6 @@ public class InstantiationRewriter {
 		target.createEmptyMissingAddClasses();
 		target.extendAddClassesWithInstantiatons();
 		target.copyImportDecls();
-		target.addSimpleTemplateConstructorCalls();
 		target.flushCaches();
 	}
 }

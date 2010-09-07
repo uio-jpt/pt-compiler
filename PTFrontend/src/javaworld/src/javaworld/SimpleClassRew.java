@@ -6,25 +6,18 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import AST.Access;
-import AST.Block;
 import AST.BodyDecl;
 import AST.ClassDecl;
 import AST.ConstructorDecl;
 import AST.Expr;
 import AST.ExprStmt;
 import AST.List;
-import AST.Modifiers;
-import AST.Opt;
-import AST.PTClassDecl;
 import AST.PTInstTuple;
 import AST.PTTemplate;
-import AST.ParameterDeclaration;
 import AST.SimpleClass;
 import AST.Stmt;
 import AST.TemplateConstructor;
 import AST.TemplateConstructorAccess;
-import AST.TemplateConstructorAccessShort;
 import AST.TypeAccess;
 
 import com.google.common.base.Joiner;
@@ -64,14 +57,6 @@ public class SimpleClassRew {
 			}
 		}
 		// decl.getClassDecl().getConstructorDeclList()
-	}
-
-	public void addSimpleTemplateConstructorCalls() {
-		ClassDecl classDecl = decl.getClassDecl();
-		LinkedList<ConstructorDecl> constructors = classDecl
-				.getConstructorDeclList();
-		for (ConstructorDecl cd : constructors)
-			addSimpleTemplateConstructorCalls(cd);
 	}
 
 	private void computeClassToTemplateMultimap() {
@@ -205,25 +190,6 @@ public class SimpleClassRew {
 		}
 	}
 
-	private void addSimpleTemplateConstructorCalls(ConstructorDecl consDecl) {
-		ClassDecl classDecl = decl.getClassDecl();
-		List<Stmt> bodyDecls = consDecl.getBlock().getStmts();
-		Collection<TemplateConstructorAccess> accesses = consDecl
-				.getTemplateConstructorAccesses();
-		Collection<TemplateConstructor> emptyConstructors = Lists
-				.newLinkedList();
-		for (TemplateConstructor x : classDecl.getTemplateConstructors())
-			if (x.hasNoParameter())
-				emptyConstructors.add(x);
-
-		for (TemplateConstructor x : emptyConstructors) {
-			if (isNotCalledFrom(x, accesses)) {
-				Stmt a = createAccess(x);
-				bodyDecls.add(a);
-			}
-		}
-	}
-
 	private Stmt createAccess(TemplateConstructor x) {
 		String templateName = x.getTemplateID();
 		String tclassID = x.getTClassID();
@@ -233,15 +199,6 @@ public class SimpleClassRew {
 		return new ExprStmt(access);
 	}
 
-	private boolean isNotCalledFrom(TemplateConstructor x,
-			Collection<TemplateConstructorAccess> accesses) {
-		for (TemplateConstructorAccess access : accesses) {
-			if (access.getTClassID().equals(x.getTClassID()))
-				return false;
-		}
-		return true;
-	}
-	
 	@Override
 	public String toString() {
 		return decl.getClassDecl().toString();

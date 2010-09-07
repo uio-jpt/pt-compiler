@@ -19,19 +19,6 @@ aspect NameCheck {
             error("Template or Package with name " + getID() + " is multiply declared in compilation unit.\n");
     }
 
-    /* method name is a hack, makes calling this method easier (remember ptCollectErrors)*/
-    public void ConstructorDecl.accessControl() {
-        super.nameCheck();
-        SimpleClass cls = (SimpleClass) getParentClass(SimpleClass.class);
-
-        Set<String> mustBeCalled = getMergedClassesWithConstructors();
-        Set<String> actuallyCalled = getMergedSuperCallNames();
-        Set<String> missing = Sets.difference(mustBeCalled,actuallyCalled);
-        for (String name : missing) {
-            error("Missing merged constructor call to mergee class: " + name + "\n");
-        }
-    }
-
     public void TemplateConstructorAccess.nameCheck() {
         super.nameCheck();
         if (getConstructorDecl() == null)

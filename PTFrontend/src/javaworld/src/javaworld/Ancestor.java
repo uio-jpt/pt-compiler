@@ -2,9 +2,7 @@ package javaworld;
 
 import AST.Access;
 import AST.Block;
-import AST.BodyDecl;
 import AST.List;
-import AST.MethodDecl;
 import AST.Modifier;
 import AST.Modifiers;
 import AST.Opt;

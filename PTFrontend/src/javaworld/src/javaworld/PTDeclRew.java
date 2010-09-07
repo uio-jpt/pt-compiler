@@ -39,11 +39,6 @@ public class PTDeclRew {
 		simpleClasses = lb.build();
 	}
 
-	protected void addSimpleTemplateConstructorCalls() {
-		for (SimpleClassRew decl : simpleClasses)
-			decl.addSimpleTemplateConstructorCalls();
-	}
-
 	protected void flushCaches() {
 		target.flushCaches();
 	}

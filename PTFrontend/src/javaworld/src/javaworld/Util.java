@@ -125,4 +125,8 @@ public class Util {
 		return String.format("%s$%s_%s",id,sourceTemplateID,id2);
 
 	}
+
+	public static String toMinitName(String templateID, String tclassID) {
+		return String.format("minit$%s$%s", templateID,tclassID);
+	}
 }

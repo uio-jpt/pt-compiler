@@ -1,34 +1,26 @@
-template SimpleTemplate {
+template T1 {
 
     class A {
-        int k;
-
-        A getA() {
-            return new A();
-        }
+        int a;
     }
 
-    class B {
-        int k;
+    class B extends A {
+        int b;
+    }
+}
+
+template T2 {
+
+    class X {
+        int x;
+    }
+
+    class Y extends X {
+        int y;
     }
 }
 
 package AddPackage {
-    inst SimpleTemplate with A => Xylofon, B => Coil;
-
-    class Xylofon adds {
-        int x;
-        
-        Xylofon() {
-
-        }
-    }
-    
-    class Coil adds {
-        int kkkk;
-
-        Coil() {
-
-        }
-    }
+    inst T1 with A => J, B => K;
+    inst T2 with X => J, Y => K;    
 }

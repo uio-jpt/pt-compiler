@@ -30,7 +30,6 @@ public class ErrorCheckBeforeRewrite {
         	}
         	
         	public void find(TemplateMethodAccess p) {
-        		System.out.println("checking " + p);
         		ok = false;
         		templateID = p.getTemplateID();
         		PTDecl scope = (PTDecl)p.getParentClass(PTDecl.class);
@@ -100,7 +99,6 @@ public class ErrorCheckBeforeRewrite {
         		PTDecl scope = (PTDecl)cd.getParentClass(PTDecl.class);
         		String key = scope.getID() + "::" + cd.getID();
         		globalScope.put(key, cd);
-        		System.out.println("class " + key + " extends " + cd.getSuperClassName());
         	}
         	
         	public void find(PTInstTuple instTuple) {
@@ -108,7 +106,7 @@ public class ErrorCheckBeforeRewrite {
         		PTInstDecl importedFromScope = (PTInstDecl)instTuple.getParentClass(PTInstDecl.class);
         		String fromKey = importedFromScope.getID() + "::" + instTuple.getOrgID();
         		String toKey = scope.getID() + "::" + instTuple.getID();
-        		System.out.println("inst " + fromKey + " => " + toKey);
+//        		System.out.println("inst " + fromKey + " => " + toKey);
         		//instantiations.put(fromKey, toKey);
         		instantiationsReverse.put(toKey, fromKey);
         	}
