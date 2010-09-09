@@ -57,18 +57,26 @@ public class SimpleClassRew {
 	private void computeTSuperDeps() {
 		getSuperDepsCopy();
 		for (PTInstTuple x : instTuples) {
-			expandDepsWith(x.getOriginator());
+			expandDepsWith(x.getTemplate().getID(), x.getOriginator());
 		}
+		System.out.println(decl.getID() + " has deps: " + decl.getClassDecl().allTDeps);
 	}
 
-	private void expandDepsWith(ClassDecl originator) {
+	private void expandDepsWith(String templateName, ClassDecl originator) {
 		Map<String, String> deps = decl.getClassDecl().allTDeps;
 		deps.putAll(originator.allTDeps);
+		String key = Util.toMinitName(templateName,originator.getTopMostSuperName());
+		String value = Util.toMinitName(templateName,originator.getID());
+		deps.put(key, value);
 	}
 
 	private Map<String, String> getSuperDepsCopy() {
-		// TODO get supercalldecl and copy its allTDeps
-		return Maps.newHashMap();
+		String superName = decl.getClassDecl().getSuperClassName();
+		if (superName != null) {
+			return decl.getPTDecl().getSimpleClass(superName).getClassDecl().allTDeps;
+		} else {
+			return Maps.newHashMap();
+		}
 	}
 
 	/**
@@ -247,28 +255,34 @@ public class SimpleClassRew {
 	public void createDummyConstructor(String dummyName) {
 		List<ParameterDeclaration> params = new List<ParameterDeclaration>();
 		params.add(new ParameterDeclaration(new TypeAccess(dummyName), "dummy"));
-		Opt<Stmt> superInvo = getDummySuperCall(dummyName);;
-		ConstructorDecl dummy = new ConstructorDecl(new Modifiers(), decl.getID(), params,
-				new List<Access>(), superInvo, new Block(new List()));
+		Opt<Stmt> superInvo = getDummySuperCall(dummyName);
+		;
+		ConstructorDecl dummy = new ConstructorDecl(new Modifiers(),
+				decl.getID(), params, new List<Access>(), superInvo, new Block(
+						new List()));
 		decl.getClassDecl().getBodyDeclList().add(dummy);
 	}
 
 	private Opt<Stmt> getDummySuperCall(String dummyName) {
 		String superName = decl.getClassDecl().getSuperClassName();
 		if (superName != null) {
-			return new Opt<Stmt>(new ExprStmt(new SuperConstructorAccess("super",
-					new List().add(new ClassInstanceExpr(new TypeAccess(
-							dummyName), new List(), new Opt())))));
+			return new Opt<Stmt>(
+					new ExprStmt(new SuperConstructorAccess("super",
+							new List().add(new ClassInstanceExpr(
+									new TypeAccess(dummyName), new List(),
+									new Opt())))));
 		} else {
 			return new Opt<Stmt>();
 		}
 	}
 
-	/** TODO: if real constructor has args, it'll already be renamed to a  
-	 *  minit method. So atm only the empty regenerated constructor will show here (that's my guess anyway).
-	 *  For every original constructor (now minit), a real constructor with the same params should be
-	 *  created that first will call a init method (calls deps), and then call the the correct minit with the 
-	 *  correct args.
+	/**
+	 * TODO: if real constructor has args, it'll already be renamed to a minit
+	 * method. So atm only the empty regenerated constructor will show here
+	 * (that's my guess anyway). For every original constructor (now minit), a
+	 * real constructor with the same params should be created that first will
+	 * call a init method (calls deps), and then call the the correct minit with
+	 * the correct args.
 	 */
 	public void createInitConstructor(String dummyName) {
 		ClassDecl h = decl.getClassDecl();
@@ -283,7 +297,6 @@ public class SimpleClassRew {
 		Map<String, String> deps = c.getClassDecl().allTDeps;
 		c.setConstructorInvocationOpt(getDummySuperCall(dummyName));
 		List<Stmt> statements = c.getBlock().getStmtList();
-		System.out.println("HEEEEEEEEEEEEEEEEEEEEEEEEEIIIIII");
 		for (String dep : deps.values()) {
 			MethodAccess x = new MethodAccess(dep, new List<Expr>());
 			statements = statements.add(new ExprStmt(x));

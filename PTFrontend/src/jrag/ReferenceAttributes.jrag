@@ -16,13 +16,17 @@ aspect ReferenceAttributes {
         return null;
     }
 
-    /* denne gir nullpointerexception */
+    syn String ClassDecl.getTopMostSuperName() {
+        SimpleClass x = (SimpleClass) getParentClass(SimpleClass.class);
+        return x.getTopMostSuperName();
+    }
+    
     syn String SimpleClass.getTopMostSuperName() {
         ClassDecl c = getClassDecl();
-        if (!c.hasSuperclass())
+        String superclassName = c.getSuperClassName();
+        if (superclassName == null)
             return c.getID();
-        String superName = c.getSuperClassName();
-        SimpleClass sc = getPTDecl().getSimpleClass(superName);
+        SimpleClass sc = getPTDecl().getSimpleClass(superclassName);
         return sc.getTopMostSuperName();
     }
 
