@@ -112,8 +112,7 @@ public class PTDeclRew {
 	private String addDummyClass() {
 		
 		String dummyName = "DUMMY$"; // TODO something better?
-		Modifiers m = new Modifiers(new List().add(new Modifier("protected")));
-		ClassDecl dummy = new ClassDecl(m, dummyName, new Opt(), new List(), new List());
+		ClassDecl dummy = new ClassDecl(new Modifiers(), dummyName, new Opt(), new List(), new List());
 		target.getSimpleClassList().add(new PTClassDecl(dummy));
 		return dummyName;
 	}

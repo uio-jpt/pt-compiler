@@ -247,16 +247,25 @@ public class SimpleClassRew {
 	public void addConstructors(String dummyName) {
 		List<ParameterDeclaration> params = new List<ParameterDeclaration>();
 		params.add(new ParameterDeclaration(new TypeAccess(dummyName), "dummy"));
-		Modifiers m = new Modifiers(new List().add(new Modifier("protected")));
-		String superName = decl.getClassDecl().getSuperClassName();
+		Stmt superCall = getDummySuperCall(dummyName);
 		Opt<Stmt> superInvo;
-		if (superName != null) {
-			superInvo = new Opt(new ExprStmt(new SuperConstructorAccess("super", new List().add(new ClassInstanceExpr(new TypeAccess(dummyName),new List(), new Opt())))));
-		} else {
-			superInvo = new Opt();
-		}
-			
-		ConstructorDecl dummy = new ConstructorDecl(m, decl.getID(), params, new List<Access>(), superInvo, new Block(new List()));
+		if (superCall == null)
+			superInvo = new Opt<Stmt>();
+		else
+			superInvo = new Opt<Stmt>(superCall);
+		ConstructorDecl dummy = new ConstructorDecl(new Modifiers(), decl.getID(), params,
+				new List<Access>(), superInvo, new Block(new List()));
 		decl.getClassDecl().getBodyDeclList().add(dummy);
+	}
+
+	private Stmt getDummySuperCall(String dummyName) {
+		String superName = decl.getClassDecl().getSuperClassName();
+		if (superName != null) {
+			return new ExprStmt(new SuperConstructorAccess("super",
+					new List().add(new ClassInstanceExpr(new TypeAccess(
+							dummyName), new List(), new Opt()))));
+		} else {
+			return null;
+		}
 	}
 }
