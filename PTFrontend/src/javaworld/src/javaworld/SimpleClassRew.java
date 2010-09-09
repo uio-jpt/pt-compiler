@@ -15,7 +15,7 @@ import AST.ConstructorDecl;
 import AST.Expr;
 import AST.ExprStmt;
 import AST.List;
-import AST.Modifier;
+import AST.MethodAccess;
 import AST.Modifiers;
 import AST.Opt;
 import AST.PTInstTuple;
@@ -244,28 +244,50 @@ public class SimpleClassRew {
 		return decl.getClassDecl().toString();
 	}
 
-	public void addConstructors(String dummyName) {
+	public void createDummyConstructor(String dummyName) {
 		List<ParameterDeclaration> params = new List<ParameterDeclaration>();
 		params.add(new ParameterDeclaration(new TypeAccess(dummyName), "dummy"));
-		Stmt superCall = getDummySuperCall(dummyName);
-		Opt<Stmt> superInvo;
-		if (superCall == null)
-			superInvo = new Opt<Stmt>();
-		else
-			superInvo = new Opt<Stmt>(superCall);
+		Opt<Stmt> superInvo = getDummySuperCall(dummyName);;
 		ConstructorDecl dummy = new ConstructorDecl(new Modifiers(), decl.getID(), params,
 				new List<Access>(), superInvo, new Block(new List()));
 		decl.getClassDecl().getBodyDeclList().add(dummy);
 	}
 
-	private Stmt getDummySuperCall(String dummyName) {
+	private Opt<Stmt> getDummySuperCall(String dummyName) {
 		String superName = decl.getClassDecl().getSuperClassName();
 		if (superName != null) {
-			return new ExprStmt(new SuperConstructorAccess("super",
+			return new Opt<Stmt>(new ExprStmt(new SuperConstructorAccess("super",
 					new List().add(new ClassInstanceExpr(new TypeAccess(
-							dummyName), new List(), new Opt()))));
+							dummyName), new List(), new Opt())))));
 		} else {
-			return null;
+			return new Opt<Stmt>();
 		}
+	}
+
+	/** TODO: if real constructor has args, it'll already be renamed to a  
+	 *  minit method. So atm only the empty regenerated constructor will show here (that's my guess anyway).
+	 *  For every original constructor (now minit), a real constructor with the same params should be
+	 *  created that first will call a init method (calls deps), and then call the the correct minit with the 
+	 *  correct args.
+	 */
+	public void createInitConstructor(String dummyName) {
+		ClassDecl h = decl.getClassDecl();
+		for (BodyDecl bdecl : h.getBodyDeclList()) {
+			if (bdecl instanceof ConstructorDecl) {
+				callDummySuperAndDeps(dummyName, (ConstructorDecl) bdecl);
+			}
+		}
+	}
+
+	private void callDummySuperAndDeps(String dummyName, ConstructorDecl c) {
+		Map<String, String> deps = c.getClassDecl().allTDeps;
+		c.setConstructorInvocationOpt(getDummySuperCall(dummyName));
+		List<Stmt> statements = c.getBlock().getStmtList();
+		System.out.println("HEEEEEEEEEEEEEEEEEEEEEEEEEIIIIII");
+		for (String dep : deps.values()) {
+			MethodAccess x = new MethodAccess(dep, new List<Expr>());
+			statements = statements.add(new ExprStmt(x));
+		}
+		c.getBlock().setStmtList(statements);
 	}
 }

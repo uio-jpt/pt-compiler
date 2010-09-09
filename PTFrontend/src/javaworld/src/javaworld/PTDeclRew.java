@@ -105,12 +105,12 @@ public class PTDeclRew {
 		if (target instanceof PTTemplate) return;
 		String dummyName = addDummyClass();
 		for (SimpleClassRew x : simpleClasses) {
-			x.addConstructors(dummyName);
+			x.createInitConstructor(dummyName);
+			x.createDummyConstructor(dummyName);
 		}
 	}
 
 	private String addDummyClass() {
-		
 		String dummyName = "DUMMY$"; // TODO something better?
 		ClassDecl dummy = new ClassDecl(new Modifiers(), dummyName, new Opt(), new List(), new List());
 		target.getSimpleClassList().add(new PTClassDecl(dummy));
