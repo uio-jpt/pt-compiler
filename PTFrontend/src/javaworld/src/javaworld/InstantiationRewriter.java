@@ -1,6 +1,7 @@
 package javaworld;
 
 import AST.PTDecl;
+import AST.PTPackage;
 
 public class InstantiationRewriter {
 
@@ -14,6 +15,7 @@ public class InstantiationRewriter {
 		target.createEmptyMissingAddClasses();
 		target.extendAddClassesWithInstantiatons();
 		target.copyImportDecls();
+		target.createInitIfPackage();
 		target.flushCaches();
 	}
 }

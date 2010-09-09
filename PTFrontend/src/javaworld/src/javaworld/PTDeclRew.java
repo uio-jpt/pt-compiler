@@ -8,13 +8,15 @@ import AST.ClassDecl;
 import AST.CompilationUnit;
 import AST.ImportDecl;
 import AST.List;
+import AST.Modifier;
 import AST.Modifiers;
 import AST.Opt;
 import AST.PTC;
 import AST.PTClassAddsDecl;
+import AST.PTClassDecl;
 import AST.PTDecl;
-import AST.PTInstTuple;
 import AST.PTInstDecl;
+import AST.PTInstTuple;
 import AST.PTTemplate;
 import AST.SimpleClass;
 
@@ -97,5 +99,22 @@ public class PTDeclRew {
 			}
 		}
 		return nameAndDummies;
+	}
+
+	public void createInitIfPackage() {
+		if (target instanceof PTTemplate) return;
+		String dummyName = addDummyClass();
+		for (SimpleClassRew x : simpleClasses) {
+			x.addConstructors(dummyName);
+		}
+	}
+
+	private String addDummyClass() {
+		
+		String dummyName = "DUMMY$"; // TODO something better?
+		Modifiers m = new Modifiers(new List().add(new Modifier("protected")));
+		ClassDecl dummy = new ClassDecl(m, dummyName, new Opt(), new List(), new List());
+		target.getSimpleClassList().add(new PTClassDecl(dummy));
+		return dummyName;
 	}
 }

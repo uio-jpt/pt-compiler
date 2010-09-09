@@ -2,20 +2,28 @@ package javaworld;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import AST.Access;
+import AST.Block;
 import AST.BodyDecl;
 import AST.ClassDecl;
+import AST.ClassInstanceExpr;
 import AST.ConstructorDecl;
 import AST.Expr;
 import AST.ExprStmt;
 import AST.List;
+import AST.Modifier;
+import AST.Modifiers;
+import AST.Opt;
 import AST.PTInstTuple;
 import AST.PTTemplate;
+import AST.ParameterDeclaration;
 import AST.SimpleClass;
 import AST.Stmt;
+import AST.SuperConstructorAccess;
 import AST.TemplateConstructor;
 import AST.TemplateConstructorAccess;
 import AST.TypeAccess;
@@ -25,6 +33,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
@@ -42,10 +51,29 @@ public class SimpleClassRew {
 		renamedSources = getRenamedInstClassesRewriters();
 		possibleConflicts = getPossibleConflicts();
 		computeClassToTemplateMultimap();
+		computeTSuperDeps();
 	}
 
-	/** extends a single class with the instantiations given
-	 * in the current scope.
+	private void computeTSuperDeps() {
+		getSuperDepsCopy();
+		for (PTInstTuple x : instTuples) {
+			expandDepsWith(x.getOriginator());
+		}
+	}
+
+	private void expandDepsWith(ClassDecl originator) {
+		Map<String, String> deps = decl.getClassDecl().allTDeps;
+		deps.putAll(originator.allTDeps);
+	}
+
+	private Map<String, String> getSuperDepsCopy() {
+		// TODO get supercalldecl and copy its allTDeps
+		return Maps.newHashMap();
+	}
+
+	/**
+	 * extends a single class with the instantiations given in the current
+	 * scope.
 	 */
 	public void extendClass() {
 		updateSuperName();
@@ -59,6 +87,11 @@ public class SimpleClassRew {
 		// decl.getClassDecl().getConstructorDeclList()
 	}
 
+	/**
+	 * See instantiationrewrite.jadd
+	 * 
+	 * Used to expend tsuper[classname] to tsuper[templatename,classname]
+	 */
 	private void computeClassToTemplateMultimap() {
 		Multimap<String, String> classToTemplates = HashMultimap.create();
 		for (PTInstTuple dummy : instTuples) {
@@ -107,7 +140,7 @@ public class SimpleClassRew {
 	 * renamed copy for these purposes.)
 	 * 
 	 * @return A set of possible conflicts. 'Possible' means that an adds method
-	 * may resolve the conflict.
+	 *         may resolve the conflict.
 	 */
 	private Set<String> getPossibleConflicts() {
 		Set<String> collisions = ImmutableSet.of();
@@ -134,7 +167,9 @@ public class SimpleClassRew {
 		boolean ans = decl.getClassDecl().getConstructorDeclList().size() > 0;
 		if (!ans) {
 			PTTemplate t = (PTTemplate) decl.getParentClass(PTTemplate.class);
-			decl.error(String.format("Class %s in template %s is missing a constructor. Unable to merge...", decl.getID(),t.getID()));
+			decl.error(String
+					.format("Class %s in template %s is missing a constructor. Unable to merge...",
+							decl.getID(), t.getID()));
 		}
 		return ans;
 	}
@@ -155,17 +190,20 @@ public class SimpleClassRew {
 	/**
 	 * Renamed classes are not cross checked. If there's a method name conflict
 	 * that the adds class resolves, then the correct renaming of the
-	 * conflicting classes will be performed later on.<br/><br/>
-
-	 * The wrapper class (of which as list is returned) contains the renamed ClassDecl.
-	 * The renaming is done in two parts:
-	 * 		Based on new class names in the inst clause, which will rename types.
-	 * 		Based on explicit renamings in the inst clause, which will rename methods and variables.  
+	 * conflicting classes will be performed later on.<br/>
+	 * <br/>
 	 * 
-	 * This is the so-called first part of the total renaming process.
-	 * The second part of the total renaming process deals with renaming conflicts between merged classes.
+	 * The wrapper class (of which as list is returned) contains the renamed
+	 * ClassDecl. The renaming is done in two parts: Based on new class names in
+	 * the inst clause, which will rename types. Based on explicit renamings in
+	 * the inst clause, which will rename methods and variables.
 	 * 
-	 * @return A list of rewriters wrapper classes for all classes that will be merge into the current class.
+	 * This is the so-called first part of the total renaming process. The
+	 * second part of the total renaming process deals with renaming conflicts
+	 * between merged classes.
+	 * 
+	 * @return A list of rewriters wrapper classes for all classes that will be
+	 *         merge into the current class.
 	 */
 	private Collection<ClassDeclRew> getRenamedInstClassesRewriters() {
 		Collection<ClassDeclRew> instClasses = Lists.newLinkedList();
@@ -177,7 +215,8 @@ public class SimpleClassRew {
 		return instClasses;
 	}
 
-	private void checkIfSane(Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples) {
+	private void checkIfSane(
+			Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples) {
 		if (destinationClassIDsWithInstTuples.containsKey(decl.getID())) {
 			if (!decl.isAddsClass()) {
 				decl.error("Class "
@@ -195,12 +234,29 @@ public class SimpleClassRew {
 		String tclassID = x.getTClassID();
 
 		TemplateConstructorAccess access = new TemplateConstructorAccess(
-				Util.toName(templateName,tclassID), new List<Expr>(), tclassID, templateName);
+				Util.toName(templateName, tclassID), new List<Expr>(),
+				tclassID, templateName);
 		return new ExprStmt(access);
 	}
 
 	@Override
 	public String toString() {
 		return decl.getClassDecl().toString();
+	}
+
+	public void addConstructors(String dummyName) {
+		List<ParameterDeclaration> params = new List<ParameterDeclaration>();
+		params.add(new ParameterDeclaration(new TypeAccess(dummyName), "dummy"));
+		Modifiers m = new Modifiers(new List().add(new Modifier("protected")));
+		String superName = decl.getClassDecl().getSuperClassName();
+		Opt<Stmt> superInvo;
+		if (superName != null) {
+			superInvo = new Opt(new ExprStmt(new SuperConstructorAccess("super", new List().add(new ClassInstanceExpr(new TypeAccess(dummyName),new List(), new Opt())))));
+		} else {
+			superInvo = new Opt();
+		}
+			
+		ConstructorDecl dummy = new ConstructorDecl(m, decl.getID(), params, new List<Access>(), superInvo, new Block(new List()));
+		decl.getClassDecl().getBodyDeclList().add(dummy);
 	}
 }

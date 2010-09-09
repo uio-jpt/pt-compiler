@@ -1,29 +1,18 @@
 package javaworld;
 
-import java.util.Collection;
 import java.util.NoSuchElementException;
 
-import AST.Access;
-import AST.Block;
 import AST.ClassDecl;
-import AST.ConstructorDecl;
 import AST.Expr;
-import AST.ExprStmt;
 import AST.List;
-import AST.MethodAccess;
-import AST.Modifiers;
-import AST.Opt;
 import AST.PTClassDecl;
-import AST.ParameterDeclaration;
-import AST.Stmt;
-import AST.TemplateConstructor;
 import AST.TemplateConstructorAccess;
 import AST.TemplateConstructorAccessShort;
 import AST.TemplateMethodAccess;
 import AST.TemplateMethodAccessShort;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+
 
 public class Util {
 	final static boolean debugMode = true;

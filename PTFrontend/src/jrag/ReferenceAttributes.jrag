@@ -1,6 +1,6 @@
  import javaworld.PTDeclRew;
 aspect ReferenceAttributes {
-    
+
     syn PTTemplate PTInstDecl.getTemplate() = getTemplate(getID());
     syn PTTemplate PTInstTuple.getTemplate() = getInstDecl().getTemplate();
     inh PTTemplate PTInstDecl.getTemplate(String name);
