@@ -15,12 +15,11 @@ public class ConstructorRew {
 	}
 
 	/*
+	 * Rewrite a whole constructor declaration to a method.
+	 * 
 	 * TODO cleanup!
 	 */
 	protected MethodDecl toMethodDecl() {
-		/*
-		 * Rewrite a whole constructor declaration to a method.
-		 */
 		// TODO TODO
 		String modifiedMethodName = Util.toMinitName(templateID, tclassID);
 		MethodDecl md = new TemplateConstructor(cd.getModifiers(),

@@ -5,13 +5,11 @@ import AST.PTPackage;
 
 public class InstantiationRewriter {
 
-	private final PTDeclRew target;
-
-	public InstantiationRewriter(PTDecl target) {
-		this.target = new PTDeclRew(target);
+	public InstantiationRewriter() {
 	}
 
-	public void run() {
+	public void run(PTDecl decl) {
+		PTDeclRew target = new PTDeclRew(decl);
 		target.createEmptyMissingAddClasses();
 		target.extendAddClassesWithInstantiatons();
 		target.copyImportDecls();

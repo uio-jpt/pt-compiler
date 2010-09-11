@@ -18,16 +18,16 @@ public class InstTupleRew {
 
 	protected ClassDeclRew getRenamedSourceClass() {
 		ClassDecl ext = instantiator.getOriginator().fullCopy();
-		ClassDeclRew x = new ClassDeclRew(ext, getSourceTemplateName());
-		x.renameConstructors(instantiator);
-		x.renameTypes(instantiator.getInstDecl().getRenamedClasses());
+		ClassDeclRew rewriteClass = new ClassDeclRew(ext, getSourceTemplateName());
+		rewriteClass.renameConstructors(instantiator);
+		rewriteClass.renameTypes(instantiator.getInstDecl().getRenamedClasses());
 		// TODO still relevant?
 //		x.degradeTSuperToAncestor();
-		x.renameDefinitions(getExplicitlyRenamedDefinitions());
-		return x;
+		rewriteClass.renameDefinitions(getExplicitlyRenamedDefinitions());
+		return rewriteClass;
 	}
 
-	Map<String, String> getExplicitlyRenamedDefinitions() {
+	private Map<String, String> getExplicitlyRenamedDefinitions() {
 		// TODO addsselfto... move it here!!!
 		Map<String, String> map = Maps.newHashMap();
 		for (PTDummyRename entry : instantiator.getPTDummyRenameList()) {

@@ -45,8 +45,8 @@ aspect InstantiationRewrite {
             StringBuffer sb;
             sb = new StringBuffer();
             this.toString(sb);
-            InstantiationRewriter x = new InstantiationRewriter(this);            
-            x.run();
+            InstantiationRewriter x = new InstantiationRewriter();            
+            x.run(this);
             this.isRewritten = true;            
             sb = new StringBuffer();
             this.toString(sb);

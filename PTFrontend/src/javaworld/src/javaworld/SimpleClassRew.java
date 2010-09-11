@@ -43,15 +43,33 @@ public class SimpleClassRew {
 	private Set<String> possibleConflicts;
 	private Collection<ClassDeclRew> renamedSources;
 
-	public SimpleClassRew(SimpleClass decl,
-			Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples) {
+	public SimpleClassRew(SimpleClass decl) {
 		this.decl = decl;
-		checkIfSane(destinationClassIDsWithInstTuples);
+	}
+
+	/**
+	 * Extends a single class with the instantiations given in the current
+	 * scope.
+	 */
+	public void extendClass(Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples) {
+		if (!checkIfSane(destinationClassIDsWithInstTuples)) {
+			return;
+		}
 		instTuples = destinationClassIDsWithInstTuples.get(decl.getID());
 		renamedSources = getRenamedInstClassesRewriters();
 		possibleConflicts = getPossibleConflicts();
 		computeClassToTemplateMultimap();
 		computeTSuperDeps();
+		
+		updateSuperName();
+	
+		if (mergingIsPossible()) {
+			renameResolvedConflicts();
+			for (ClassDeclRew source : renamedSources) {
+				addDecls(source.getBodyDecls());
+			}
+		}
+		// decl.getClassDecl().getConstructorDeclList()
 	}
 
 	private void computeTSuperDeps() {
@@ -80,25 +98,9 @@ public class SimpleClassRew {
 	}
 
 	/**
-	 * extends a single class with the instantiations given in the current
-	 * scope.
-	 */
-	public void extendClass() {
-		updateSuperName();
-
-		if (mergingIsPossible()) {
-			renameResolvedConflicts();
-			for (ClassDeclRew source : renamedSources) {
-				addDecls(source.getBodyDecls());
-			}
-		}
-		// decl.getClassDecl().getConstructorDeclList()
-	}
-
-	/**
 	 * See instantiationrewrite.jadd
 	 * 
-	 * Used to expend tsuper[classname] to tsuper[templatename,classname]
+	 * Used to expand tsuper[classname] to tsuper[templatename,classname]
 	 */
 	private void computeClassToTemplateMultimap() {
 		Multimap<String, String> classToTemplates = HashMultimap.create();
@@ -110,6 +112,10 @@ public class SimpleClassRew {
 		decl.getClassDecl().setClassToTemplateMap(classToTemplates);
 	}
 
+	/**
+	 * Sets the supername of this class to the
+	 * supername of the merged classes.
+	 */
 	private void updateSuperName() {
 		HashSet<String> names = Sets.newHashSet();
 		for (ClassDeclRew x : renamedSources) {
@@ -201,17 +207,17 @@ public class SimpleClassRew {
 	 * conflicting classes will be performed later on.<br/>
 	 * <br/>
 	 * 
-	 * The wrapper class (of which as list is returned) contains the renamed
-	 * ClassDecl. The renaming is done in two parts: Based on new class names in
-	 * the inst clause, which will rename types. Based on explicit renamings in
-	 * the inst clause, which will rename methods and variables.
+	 * The wrapper class, of which as list is returned, contains the renamed
+	 * ClassDecl. The renaming is done in two parts: 
+	 * 		1. Based on new class names in the inst clause, which will rename types used. 
+	 * 		2. Based on explicit renamings in the inst clause, which will rename methods and variables.
 	 * 
 	 * This is the so-called first part of the total renaming process. The
 	 * second part of the total renaming process deals with renaming conflicts
 	 * between merged classes.
 	 * 
 	 * @return A list of rewriters wrapper classes for all classes that will be
-	 *         merge into the current class.
+	 *         merged into the current class.
 	 */
 	private Collection<ClassDeclRew> getRenamedInstClassesRewriters() {
 		Collection<ClassDeclRew> instClasses = Lists.newLinkedList();
@@ -223,18 +229,21 @@ public class SimpleClassRew {
 		return instClasses;
 	}
 
-	private void checkIfSane(
+	private boolean checkIfSane(
 			Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples) {
 		if (destinationClassIDsWithInstTuples.containsKey(decl.getID())) {
 			if (!decl.isAddsClass()) {
 				decl.error("Class "
 						+ decl.getID()
 						+ " has dual roles. It's both defined as an inpedendent class and as a template adds class.\n");
+				return false;
 			}
 		} else if (decl.isAddsClass()) {
 			decl.error(decl.getID()
 					+ " is an add class, template source class not found!\n");
+			return false;
 		}
+		return true;
 	}
 
 	private Stmt createAccess(TemplateConstructor x) {

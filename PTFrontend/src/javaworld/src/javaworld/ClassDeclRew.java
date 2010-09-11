@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import testutils.tester.Log;
+
 import AST.BodyDecl;
 import AST.ClassDecl;
 import AST.ConstructorDecl;
@@ -36,7 +38,12 @@ public class ClassDeclRew {
 
 	}
 
-	/* TODO not very pretty */
+	/* TODO not very pretty 
+	 * 
+	 * Renames a constructor to a method with name minit$<<TemplateName>>$<<OriginalClassName>>
+	 * Adds a super method call with the same name style if needed.
+	 * 
+	 */
 	protected void renameConstructors(PTInstTuple instantiator) {
 		int i = -1;
 		for (BodyDecl decl : ext.getBodyDeclList()) {
@@ -48,6 +55,7 @@ public class ClassDeclRew {
 				try {
 					decl = cdRew.toMethodDecl();
 					ext.setBodyDecl(decl, i);
+
 				} catch (Exception e) {
 					cd.error("Could not rewrite constructor " + cd.dumpString()
 							+ " to method during class merging.\n");
@@ -133,7 +141,11 @@ public class ClassDeclRew {
 		return ext.getSuperClassName();
 	}
 
-	// TODO make pretty
+	/* 
+	 * Renames methods or fields which have renaming explicitly
+	 * given in the inst clauses.
+	 * TODO make pretty
+	 */
 	void renameDefinitions(Map<String, String> namesMap) {
 		Map<String, MethodDecl> methods = ext.methodsSignatureMap();
 		Map<String, SimpleSet> fields = ext.memberFieldsMap();
