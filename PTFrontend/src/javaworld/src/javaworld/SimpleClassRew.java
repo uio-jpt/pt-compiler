@@ -73,7 +73,7 @@ public class SimpleClassRew {
 	}
 
 	private void computeTSuperDeps() {
-//		getSuperDepsCopy();
+		decl.getClassDecl().allTDeps.putAll(getSuperDepsCopy());
 		for (PTInstTuple instTuple : instTuples) {
 			expandDepsWith(instTuple.getTemplate().getID(), instTuple.getOriginator());
 		}
@@ -89,15 +89,15 @@ public class SimpleClassRew {
 		deps.put(key, value);
 	}
 
-	// TODO: Denne gjør ikke noe, er det meningen?
-//	private Map<String, String> getSuperDepsCopy() {
-//		String superName = decl.getClassDecl().getSuperClassName();
-//		if (superName != null) {
-//			return decl.getPTDecl().getSimpleClass(superName).getClassDecl().allTDeps;
-//		} else {
-//			return Maps.newHashMap();
-//		}
-//	}
+	// TODO: Denne gjÃ¸r ikke noe, er det meningen?
+	private Map<String, String> getSuperDepsCopy() {
+		String superName = decl.getClassDecl().getSuperClassName();
+		if (superName != null) {
+			return decl.getPTDecl().getSimpleClass(superName).getClassDecl().allTDeps;
+		} else {
+			return Maps.newHashMap();
+		}
+	}
 
 	/**
 	 * See instantiationrewrite.jadd
