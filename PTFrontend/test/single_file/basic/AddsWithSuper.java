@@ -11,16 +11,34 @@ template T1 {
 
 template T2 {
 
-    class X {
+    class C {
         int x;
     }
 
-    class Y extends X {
+    class D extends C {
         int y;
     }
 }
 
-package AddPackage {
-    inst T1 with A => J, B => K;
-    inst T2 with X => J, Y => K;    
+template T3 {
+    inst T1 with B => U;
+    inst T2 with D => U;
+
+    class V extends U {
+        int v;
+    }
+
+    class W extends V {
+        int w;
+    }
+}
+
+package P {
+    inst T3 with U => K,
+        V => L,
+        W => M;
+
+    class N extends M {
+        int n;
+    }
 }

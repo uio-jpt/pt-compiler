@@ -1,7 +1,6 @@
 import javaworld.InstantiationRewriter;
 import javaworld.Util;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.*;
 import testutils.tester.Log;
 
 
@@ -11,7 +10,16 @@ aspect InstantiationRewrite {
     protected boolean PTInstDecl.isRewritten = false;
 
     private Multimap<String,String> ClassDecl.templateClassIDTotemplateID;
-    public Map<String,String> ClassDecl.allTDeps = new HashMap<String,String>();
+
+    /** Template.TopmostSupername <-> Template.LowestSupername
+     *  used to compute Package class konstruktur minit call
+     *  dependencies..
+     */
+    public LinkedHashMap<String,String> ClassDecl.allTDeps = Maps.newLinkedHashMap();
+
+    /** Preserves order for minit calls
+     */
+    public Collection<String> ClassDecl.tdepsOrder = Lists.newLinkedList();
     
     public void ClassDecl.setClassToTemplateMap(Multimap<String,String> x) {
         templateClassIDTotemplateID = x;

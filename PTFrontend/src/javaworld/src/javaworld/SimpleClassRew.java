@@ -1,7 +1,10 @@
 package javaworld;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -73,29 +76,33 @@ public class SimpleClassRew {
 	}
 
 	private void computeTSuperDeps() {
-		decl.getClassDecl().allTDeps.putAll(getSuperDepsCopy());
+		LinkedHashMap<String, String> deps = decl.getClassDecl().allTDeps;
 		for (PTInstTuple instTuple : instTuples) {
-			expandDepsWith(instTuple.getTemplate().getID(), instTuple.getOriginator());
+			expandDepsWith(deps,instTuple.getTemplate().getID(), instTuple.getOriginator());
 		}
-		System.out.println(decl.getID() + " has deps: " + decl.getClassDecl().allTDeps);
+		LinkedHashMap<String, String> superDeps = getSuperDepsCopy();
+		for (String superDep: superDeps.keySet()) {
+			if (!deps.containsKey(superDep)) {
+				String value = superDeps.get(superDep);
+				deps.put(superDep,value);
+			}
+		}
 	}
 
-	private void expandDepsWith(String templateName, ClassDecl originator) {
-		Map<String, String> deps = decl.getClassDecl().allTDeps;
+	private void expandDepsWith(LinkedHashMap<String, String> deps, String templateName, ClassDecl originator) {
 		deps.putAll(originator.allTDeps);
 		String key = Util.toMinitName(templateName,originator.getTopMostSuperName());
 		String value = Util.toMinitName(templateName,originator.getID());
-		//System.out.println(key + " => " + value);
 		deps.put(key, value);
 	}
 
-	// TODO: Denne gjør ikke noe, er det meningen?
-	private Map<String, String> getSuperDepsCopy() {
+	private LinkedHashMap<String, String> getSuperDepsCopy() {
 		String superName = decl.getClassDecl().getSuperClassName();
 		if (superName != null) {
+			System.err.println(superName);
 			return decl.getPTDecl().getSimpleClass(superName).getClassDecl().allTDeps;
 		} else {
-			return Maps.newHashMap();
+			return Maps.newLinkedHashMap();
 		}
 	}
 
@@ -305,10 +312,13 @@ public class SimpleClassRew {
 	}
 
 	private void callDummySuperAndDeps(String dummyName, ConstructorDecl c) {
-		Map<String, String> deps = c.getClassDecl().allTDeps;
+		Map<String, String> depsMap = c.getClassDecl().allTDeps;
 		c.setConstructorInvocationOpt(getDummySuperCall(dummyName));
 		List<Stmt> statements = c.getBlock().getStmtList();
-		for (String dep : deps.values()) {
+		LinkedList<String> deps = Lists.newLinkedList(depsMap.values());
+		Collections.reverse(deps);
+		System.out.println(decl.getID() + " adding minit for " + Joiner.on(", ").join(deps));
+		for (String dep : deps) {
 			MethodAccess x = new MethodAccess(dep, new List<Expr>());
 			statements = statements.add(new ExprStmt(x));
 		}
