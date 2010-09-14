@@ -62,12 +62,14 @@ public class PTDeclRew {
 		Set<String> visited = Sets.newHashSet();
 		while (visited.size() < simpleClasses.size()) {
 			for (SimpleClassRew decl : simpleClasses) {
+				System.out.printf("classname %s. super: %s visited: %d, simpleclasses: %d\n",decl.getName(),decl.getSuperClassname(),visited.size(),simpleClasses.size());
 				String superName = decl.getSuperClassname();
 				if (superName == null || visited.contains(superName)) {
 					visited.add(decl.getName());
 					decl.extendClass(getDestinationClassIDsWithInstTuples());
 				}
 			}
+			
 		}
 	}
 
