@@ -30,6 +30,7 @@ import AST.SuperConstructorAccess;
 import AST.TemplateConstructor;
 import AST.TemplateConstructorAccess;
 import AST.TypeAccess;
+import AST.TypeDecl;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
@@ -62,9 +63,8 @@ public class SimpleClassRew {
 		renamedSources = getRenamedInstClassesRewriters();
 		possibleConflicts = getPossibleConflicts();
 		computeClassToTemplateMultimap();
-		computeTSuperDeps();
-		
 		updateSuperName();
+		computeTSuperDeps();
 	
 		if (mergingIsPossible()) {
 			renameResolvedConflicts();
@@ -80,8 +80,11 @@ public class SimpleClassRew {
 		for (PTInstTuple instTuple : instTuples) {
 			expandDepsWith(deps,instTuple.getTemplate().getID(), instTuple.getOriginator());
 		}
+		System.out.println(decl.getID() + ": " + deps);
 		LinkedHashMap<String, String> superDeps = getSuperDepsCopy();
+		System.out.println("parent: " + superDeps);
 		for (String superDep: superDeps.keySet()) {
+			
 			if (!deps.containsKey(superDep)) {
 				String value = superDeps.get(superDep);
 				deps.put(superDep,value);
@@ -98,10 +101,11 @@ public class SimpleClassRew {
 
 	private LinkedHashMap<String, String> getSuperDepsCopy() {
 		String superName = decl.getClassDecl().getSuperClassName();
+		System.out.println(decl.getID() + " has superclass: " + decl.getClassDecl().hasSuperclass());
 		if (superName != null) {
-			System.err.println(superName);
 			return decl.getPTDecl().getSimpleClass(superName).getClassDecl().allTDeps;
 		} else {
+			System.out.println("Has no superclass " + decl.getID());
 			return Maps.newLinkedHashMap();
 		}
 	}
@@ -255,16 +259,6 @@ public class SimpleClassRew {
 		return true;
 	}
 
-	private Stmt createAccess(TemplateConstructor x) {
-		String templateName = x.getTemplateID();
-		String tclassID = x.getTClassID();
-
-		TemplateConstructorAccess access = new TemplateConstructorAccess(
-				Util.toName(templateName, tclassID), new List<Expr>(),
-				tclassID, templateName);
-		return new ExprStmt(access);
-	}
-
 	@Override
 	public String toString() {
 		return decl.getClassDecl().toString();
@@ -277,7 +271,7 @@ public class SimpleClassRew {
 		;
 		ConstructorDecl dummy = new ConstructorDecl(new Modifiers(),
 				decl.getID(), params, new List<Access>(), superInvo, new Block(
-						new List()));
+						new List<Stmt>()));
 		decl.getClassDecl().getBodyDeclList().add(dummy);
 	}
 
@@ -286,9 +280,9 @@ public class SimpleClassRew {
 		if (superName != null) {
 			return new Opt<Stmt>(
 					new ExprStmt(new SuperConstructorAccess("super",
-							new List().add(new ClassInstanceExpr(
-									new TypeAccess(dummyName), new List(),
-									new Opt())))));
+							new List<Expr>().add(new ClassInstanceExpr(
+									new TypeAccess(dummyName), new List<Expr>(),
+									new Opt<TypeDecl>())))));
 		} else {
 			return new Opt<Stmt>();
 		}
@@ -317,11 +311,18 @@ public class SimpleClassRew {
 		List<Stmt> statements = c.getBlock().getStmtList();
 		LinkedList<String> deps = Lists.newLinkedList(depsMap.values());
 		Collections.reverse(deps);
-		System.out.println(decl.getID() + " adding minit for " + Joiner.on(", ").join(deps));
 		for (String dep : deps) {
 			MethodAccess x = new MethodAccess(dep, new List<Expr>());
 			statements = statements.add(new ExprStmt(x));
 		}
 		c.getBlock().setStmtList(statements);
+	}
+
+	public String getSuperClassname() {
+		return decl.getClassDecl().getSuperClassName();
+	}
+
+	public String getName() {
+		return decl.getID();
 	}
 }

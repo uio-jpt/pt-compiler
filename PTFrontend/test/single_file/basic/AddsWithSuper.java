@@ -12,17 +12,17 @@ template T1 {
 template T2 {
 
     class C {
-        int x;
+        int c;
     }
 
     class D extends C {
-        int y;
+        int d;
     }
 }
 
 template T3 {
     inst T1 with B => U;
-    inst T2 with D => U;
+    inst T2 with C => U;
 
     class V extends U {
         int v;

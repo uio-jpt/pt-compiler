@@ -59,37 +59,44 @@ public class PTDeclRew {
 	}
 
 	protected void extendAddClassesWithInstantiatons() {
-		for (SimpleClassRew decl : simpleClasses) {
-			decl.extendClass(getDestinationClassIDsWithInstTuples());
+		Set<String> visited = Sets.newHashSet();
+		while (visited.size() < simpleClasses.size()) {
+			for (SimpleClassRew decl : simpleClasses) {
+				String superName = decl.getSuperClassname();
+				if (superName == null || visited.contains(superName)) {
+					visited.add(decl.getName());
+					decl.extendClass(getDestinationClassIDsWithInstTuples());
+				}
+			}
 		}
 	}
 
 	protected void createEmptyMissingAddClasses() {
-		
+
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
 		Builder<SimpleClassRew> lb = ImmutableList.builder();
-		
-		/* Add the explicitly defined classes residing in this PTDecl
-		 * to our rewrite list.
+
+		/*
+		 * Add the explicitly defined classes residing in this PTDecl to our
+		 * rewrite list.
 		 */
-		for (SimpleClass decl : ptDeclToBeRewritten.getSimpleClassList()) 
+		for (SimpleClass decl : ptDeclToBeRewritten.getSimpleClassList())
 			lb.add(new SimpleClassRew(decl));
-		/* Does SimpleClassRew really need the whole destinationClassIDsWithInstTuples?
-		 * Why?
+		/*
+		 * Does SimpleClassRew really need the whole
+		 * destinationClassIDsWithInstTuples? Why?
 		 */
-		
-		/* For those classes which are implicitly defined by inst clauses and where
-		 * no concrete destination class is found, add an empty adds class.
-		 * For example:
-		 * package P {
-		 * inst T with A => X;
-		 *  // no class X adds .. given later
-		 * }
+
+		/*
+		 * For those classes which are implicitly defined by inst clauses and
+		 * where no concrete destination class is found, add an empty adds
+		 * class. For example: package P { inst T with A => X; // no class X
+		 * adds .. given later }
 		 */
 		Set<String> addClasses = ptDeclToBeRewritten.getAdditionClassNamesSet();
-		Set<String> missingAddsClass = Sets.difference(destinationClassIDsWithInstTuples.keySet(),
-				addClasses);
-		
+		Set<String> missingAddsClass = Sets.difference(
+				destinationClassIDsWithInstTuples.keySet(), addClasses);
+
 		for (String name : missingAddsClass) {
 			ClassDecl cls = new PTC(new Modifiers(), name, new Opt<Access>(),
 					new List<Access>(), new List<BodyDecl>());
@@ -101,23 +108,25 @@ public class PTDeclRew {
 	}
 
 	/**
-	 * returns a multimap where the 
-	 * 		key is DestinationClassID (String) 
-	 * 		and the value is a list of InstTuples (for example A => X). 
-	 *      Per key there may be more than one InstTuple if we are merging several source classes.
+	 * returns a multimap where the key is DestinationClassID (String) and the
+	 * value is a list of InstTuples (for example A => X). Per key there may be
+	 * more than one InstTuple if we are merging several source classes.
 	 */
 	private Multimap<String, PTInstTuple> getDestinationClassIDsWithInstTuples() {
-		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = HashMultimap.create();
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = HashMultimap
+				.create();
 		for (PTInstDecl templateInst : ptDeclToBeRewritten.getPTInstDecls()) {
 			for (PTInstTuple instTuple : templateInst.getPTInstTupleList()) {
-				destinationClassIDsWithInstTuples.put(instTuple.getID(), instTuple);
+				destinationClassIDsWithInstTuples.put(instTuple.getID(),
+						instTuple);
 			}
 		}
 		return destinationClassIDsWithInstTuples;
 	}
 
 	public void createInitIfPackage() {
-		if (ptDeclToBeRewritten instanceof PTTemplate) return;
+		if (ptDeclToBeRewritten instanceof PTTemplate)
+			return;
 		String dummyName = addDummyClass();
 		for (SimpleClassRew x : simpleClasses) {
 			x.createInitConstructor(dummyName);
@@ -127,7 +136,8 @@ public class PTDeclRew {
 
 	private String addDummyClass() {
 		String dummyName = "DUMMY$"; // TODO something better?
-		ClassDecl dummy = new ClassDecl(new Modifiers(), dummyName, new Opt(), new List(), new List());
+		ClassDecl dummy = new ClassDecl(new Modifiers(), dummyName, new Opt(),
+				new List(), new List());
 		ptDeclToBeRewritten.getSimpleClassList().add(new PTClassDecl(dummy));
 		return dummyName;
 	}
