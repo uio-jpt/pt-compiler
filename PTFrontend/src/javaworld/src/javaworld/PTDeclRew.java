@@ -58,18 +58,27 @@ public class PTDeclRew {
 		}
 	}
 
+	/** Needs extende classes in correct order.
+	 *  Minit dependencies are inherited and therefore a superclass must be extended
+	 *  before its child.
+	 */
 	protected void extendAddClassesWithInstantiatons() {
 		Set<String> visited = Sets.newHashSet();
 		while (visited.size() < simpleClasses.size()) {
 			for (SimpleClassRew decl : simpleClasses) {
-				System.out.printf("classname %s. super: %s visited: %d, simpleclasses: %d\n",decl.getName(),decl.getSuperClassname(),visited.size(),simpleClasses.size());
+				System.out
+						.printf("classname %s. super: %s visited: %d, simpleclasses: %d\n",
+								decl.getName(), decl.getSuperClassname(),
+								visited.size(), simpleClasses.size());
 				String superName = decl.getSuperClassname();
-				if (superName == null || visited.contains(superName)) {
-					visited.add(decl.getName());
-					decl.extendClass(getDestinationClassIDsWithInstTuples());
+				if (!visited.contains(decl.getName())) {
+					if (superName == null || visited.contains(superName)) {
+						visited.add(decl.getName());
+						decl.extendClass(getDestinationClassIDsWithInstTuples());
+					}
 				}
 			}
-			
+
 		}
 	}
 

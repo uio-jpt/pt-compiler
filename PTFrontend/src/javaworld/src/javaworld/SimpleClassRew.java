@@ -310,7 +310,7 @@ public class SimpleClassRew {
 		c.setConstructorInvocationOpt(getDummySuperCall(dummyName));
 		List<Stmt> statements = c.getBlock().getStmtList();
 		LinkedList<String> deps = Lists.newLinkedList(depsMap.values());
-		Collections.reverse(deps);
+//		Collections.reverse(deps);
 		for (String dep : deps) {
 			MethodAccess x = new MethodAccess(dep, new List<Expr>());
 			statements = statements.add(new ExprStmt(x));
