@@ -61,7 +61,7 @@ public class Util {
 							+ "in template constructor call %s. msg: %s",
 					tclassID, toName(tclassID), e.getMessage()));
 		}
-		String methodName = toName(templateID,tclassID);
+		String methodName = toMinitName(templateID,tclassID);
 		return new TemplateConstructorAccess(methodName, argList, tclassID,
 				templateID);
 	}
@@ -117,5 +117,9 @@ public class Util {
 
 	public static String toMinitName(String templateID, String tclassID) {
 		return String.format("minit$%s$%s", templateID,tclassID);
+	}
+	
+	public static String toMinitName(String tclassID) {
+		return String.format("minit$%s",tclassID);
 	}
 }

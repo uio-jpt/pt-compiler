@@ -86,12 +86,13 @@ public class PTFrontend {
                     System.out.println("WARNING: file \"" + name + "\" does not exist");
                 program.addSourceFile(name);
             }
-            
-            for(Iterator iter = program.compilationUnitIterator(); iter.hasNext(); ) {
-                CompilationUnit unit = (CompilationUnit)iter.next();
-                ErrorCheckBeforeRewrite checkerr = new ErrorCheckBeforeRewrite();
-                checkerr.checkErrors(unit);
-            }
+
+            // TODO: I think there's a bug somewhere in errorcheck.
+            // for(Iterator iter = program.compilationUnitIterator(); iter.hasNext(); ) {
+            //     CompilationUnit unit = (CompilationUnit)iter.next();
+            //     ErrorCheckBeforeRewrite checkerr = new ErrorCheckBeforeRewrite();
+            //     checkerr.checkErrors(unit);
+            // }
             
             for(Iterator iter = program.compilationUnitIterator(); iter.hasNext(); ) {
                 CompilationUnit unit = (CompilationUnit)iter.next();

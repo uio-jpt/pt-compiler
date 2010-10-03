@@ -25,18 +25,6 @@ aspect NameCheck {
             error("A merged constructor may only be called from a constructor.\n");
     }
 
-    public void TemplateMethodAccess.nameCheck() {
-        super.nameCheck();        
-        String methodName;
-        String errorMsg = "A merged method may only be called from its overriding method.\n";
-        MethodDecl methodDecl = ((MethodDecl)getParentClass(MethodDecl.class));
-        if (methodDecl == null)
-            error(errorMsg + "\n");
-
-        methodName = methodDecl.getID();
-        if (!methodName.equals(getID())) 
-            error(errorMsg + "\n");
-    }
 
     syn Set<String> PTDecl.getInstantiatorChain() circular [new HashSet<String>()] {
         Set<String> result = new HashSet<String>();

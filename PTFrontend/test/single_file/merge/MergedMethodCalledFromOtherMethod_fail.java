@@ -1,3 +1,5 @@
+// TODO should this really fail?
+
 template SimpleTemplate {
 
     class A {

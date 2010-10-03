@@ -2,10 +2,7 @@ Fixes TODO:
 
 * Sjekke at tsuperkall kommer etter eventuelt superkall og før annen kode.
 
-
-* greppe source etter TODO
-
-* veldig mye annet småplukk.
+* ErrorCheckBeforeRewrite - kall naa kommentert ut fra PTFrontend. Er det en bug i errorcheck?
 
 * Se på import decls for merga klasser, her er det mulig med
   konflikter. Eksempelvis, klasse A importerer java.util.List, mens
@@ -14,3 +11,7 @@ Fixes TODO:
 
 * Classpath option til PT-Kompilatoren. JastAddJ støtter dette, så det
   er en enkel fiks.
+
+* greppe source etter TODO
+
+  

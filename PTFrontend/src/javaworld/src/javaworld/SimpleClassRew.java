@@ -29,6 +29,7 @@ import AST.Stmt;
 import AST.SuperConstructorAccess;
 import AST.TemplateConstructor;
 import AST.TemplateConstructorAccess;
+import AST.TemplateConstructorAccessShort;
 import AST.TypeAccess;
 import AST.TypeDecl;
 
@@ -80,9 +81,7 @@ public class SimpleClassRew {
 		for (PTInstTuple instTuple : instTuples) {
 			expandDepsWith(deps,instTuple.getTemplate().getID(), instTuple.getOriginator());
 		}
-		System.out.println(decl.getID() + ": " + deps);
 		LinkedHashMap<String, String> superDeps = getSuperDepsCopy();
-		System.out.println("parent: " + superDeps);
 		for (String superDep: superDeps.keySet()) {
 			
 			if (!deps.containsKey(superDep)) {
@@ -101,11 +100,9 @@ public class SimpleClassRew {
 
 	private LinkedHashMap<String, String> getSuperDepsCopy() {
 		String superName = decl.getClassDecl().getSuperClassName();
-		System.out.println(decl.getID() + " has superclass: " + decl.getClassDecl().hasSuperclass());
 		if (superName != null) {
 			return decl.getPTDecl().getSimpleClass(superName).getClassDecl().allTDeps;
 		} else {
-			System.out.println("Has no superclass " + decl.getID());
 			return Maps.newLinkedHashMap();
 		}
 	}
@@ -308,15 +305,75 @@ public class SimpleClassRew {
 	private void callDummySuperAndDeps(String dummyName, ConstructorDecl c) {
 		Map<String, String> depsMap = c.getClassDecl().allTDeps;
 		c.setConstructorInvocationOpt(getDummySuperCall(dummyName));
-		List<Stmt> statements = c.getBlock().getStmtList();
+		List<Stmt> origStatements = c.getBlock().getStmtList();
+		List<Stmt> otherStatements = new List<Stmt>();
 		LinkedList<String> deps = Lists.newLinkedList(depsMap.values());
-//		Collections.reverse(deps);
+		LinkedList<TemplateConstructorAccess> callChain = Lists.newLinkedList();
+
+		// add generic calls
 		for (String dep : deps) {
-			MethodAccess x = new MethodAccess(dep, new List<Expr>());
+			String[] parts = dep.split("\\$"); // TODO let dep be a data object
+			String templateID = parts[1];
+			String tclassID = parts[2];
+			TemplateConstructorAccess x = new TemplateConstructorAccess(dep,
+					new List<Expr>(), tclassID, templateID);
+			callChain.add(x);
+		}
+		// replace with explicit calls
+		for (Stmt stmt : origStatements) {
+			if (stmt instanceof ExprStmt) {
+				ExprStmt exprstmt = (ExprStmt) stmt;
+				Expr expr = exprstmt.getExpr();
+				if (expr instanceof TemplateConstructorAccess) {
+					TemplateConstructorAccess x = (TemplateConstructorAccess) expr;
+					if (x instanceof TemplateConstructorAccessShort)
+						replaceImplicitTSuperCall(
+								(TemplateConstructorAccessShort) x, callChain);
+					else
+						replaceGeneric(x, callChain);
+				} else {
+					otherStatements.add(stmt);
+				}
+			}
+		}
+
+		// add modified call chain
+		List<Stmt> statements = new List<Stmt>();
+		for (TemplateConstructorAccess x : callChain) {
 			statements = statements.add(new ExprStmt(x));
 		}
+		for (Stmt x : otherStatements)
+			statements = statements.add(x);
 		c.getBlock().setStmtList(statements);
 	}
+
+	private void replaceGeneric(TemplateConstructorAccess x,
+			LinkedList<TemplateConstructorAccess> callChain) {
+		String tclassID= x.getTClassID();
+		String tname = x.getTemplateID();
+		
+		for (int i=0; i < callChain.size(); i++) {
+			TemplateConstructorAccess cur = callChain.get(i);
+			String curClassName = cur.getTClassID();
+			String curTemplateName = cur.getTemplateID();
+			if (curClassName.equals(tclassID) && curTemplateName.equals(tname)) {
+				callChain.set(i, x);
+			}
+		}
+
+	}
+
+	private void replaceImplicitTSuperCall(TemplateConstructorAccessShort x,
+			LinkedList<TemplateConstructorAccess> callChain) {
+		String name = x.getTClassID();
+		for (int i=0; i < callChain.size(); i++) {
+			TemplateConstructorAccess cur = callChain.get(i);
+			if (cur.getTClassID().equals(name)) {
+				callChain.set(i, x);
+			}
+		}
+	}
+
 
 	public String getSuperClassname() {
 		return decl.getClassDecl().getSuperClassName();
