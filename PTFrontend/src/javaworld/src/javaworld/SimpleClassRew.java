@@ -303,12 +303,25 @@ public class SimpleClassRew {
 
 	private void callDummySuperAndDeps(String dummyName, ConstructorDecl c) {
 		Map<String, String> depsMap = c.getClassDecl().allTDeps;
+		
+		// store supercall args for later usage
+		ExprStmt cinv = (ExprStmt) c.getConstructorInvocation(); 
+		SuperConstructorAccess superaccess = (SuperConstructorAccess) cinv.getExpr();
+		List<Expr> superCallArgs = superaccess.getArgList();
+		
 		c.setConstructorInvocationOpt(getDummySuperCall(dummyName));
 		List<Stmt> origStatements = c.getBlock().getStmtList();
 		List<Stmt> otherStatements = new List<Stmt>();
 		LinkedList<String> deps = Lists.newLinkedList(depsMap.values());
 		LinkedList<TemplateConstructorAccess> callChain = Lists.newLinkedList();
 
+		String supername = c.getClassDecl().getSuperClassName();
+		if (supername != null) {
+			String methodName = Util.toMinitName(decl.getPTDecl().getID(), supername);
+			TemplateConstructorAccess supercall = new TemplateConstructorAccess(methodName, superCallArgs, supername,decl.getPTDecl().getID());
+			otherStatements = otherStatements.add(new ExprStmt(supercall));
+		}
+		
 		// add generic calls
 		for (String dep : deps) {
 			String[] parts = dep.split("\\$"); // TODO let dep be a data object

@@ -21,7 +21,7 @@ aspect NameCheck {
 
     public void TemplateConstructorAccess.nameCheck() {
         super.nameCheck();
-        if (getConstructorDecl() == null)
+        if (getConstructorDecl() == null && getParentClass(PackageConstructor.class) == null)
             error("A merged constructor may only be called from a constructor.\n");
     }
 

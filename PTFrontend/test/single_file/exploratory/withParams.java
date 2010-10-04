@@ -28,7 +28,6 @@ package P {
         int x;
 
         X(int a, int x) {
-            tsuper[A]();
             this.x = x;
             System.out.println(x);
         }
@@ -38,7 +37,7 @@ package P {
         int y;
 
         Y(int a, int b, int y) {
-            tsuper[B]();
+            super(1,2);
             this.y = y;
         }
     }
