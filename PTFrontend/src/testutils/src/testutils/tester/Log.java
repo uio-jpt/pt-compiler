@@ -37,7 +37,7 @@ public class Log {
 
     public static void init() {
         initiated = true;
-        removeTag("JPT:AstTree");
+        //        removeTag("JPT:AstTree");
         //        removeTag("JPT:PrettyPrint");
     }
 

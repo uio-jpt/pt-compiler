@@ -1,21 +1,33 @@
 aspect ErrorCheck {
 
-  public void ClassInstanceExpr.collectErrors() {
-      // skipping namecheck for templates
-      //    nameCheck();
-    typeCheck();
-    accessControl();
-    exceptionHandling();
-    checkUnreachableStmt();
-    definiteAssignment();
-    checkModifiers();
-    for(int i = 0; i < getNumChild(); i++) {
-      getChild(i).collectErrors();
-    }
-  }
+    /* what does this do? */
+  // public void ClassInstanceExpr.collectErrors() {
+  //     // skipping namecheck for templates
+  //     //    nameCheck();
+  //   typeCheck();
+  //   accessControl();
+  //   exceptionHandling();
+  //   checkUnreachableStmt();
+  //   definiteAssignment();
+  //   checkModifiers();
+  //   for(int i = 0; i < getNumChild(); i++) {
+  //     getChild(i).collectErrors();
+  //   }
+  // }
 
-  public void ConstructorAccess.accessControl() {
-      if (hasParentClass(PTTemplate.class)) 
-          error("Super calls are illegal in template constructors");
-  }
+    public void TemplateConstructor.typeCheck() {
+        super.typeCheck();
+        if (getNumParameter() > 0) {
+            error("Template Constructor aren't allowed to have parameters.");
+        }
+    }
+
+    refine TypeCheck public void  ClassInstanceExpr.typeCheck() {
+        TypeCheck.ClassInstanceExpr.typeCheck();
+        if (getNumArg() > 0) {
+            // TODO make this check only for new TemplateClass calls.
+            // example, new LinkedList(oldLinkedList); should work.
+            error("New calls in templates only allowed without arguments.");
+        }
+    }
 }

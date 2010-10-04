@@ -1,7 +1,6 @@
 package javaworld;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -18,20 +17,20 @@ import AST.ConstructorDecl;
 import AST.Expr;
 import AST.ExprStmt;
 import AST.List;
-import AST.MethodAccess;
 import AST.Modifiers;
 import AST.Opt;
 import AST.PTInstTuple;
 import AST.PTTemplate;
+import AST.PackageConstructor;
 import AST.ParameterDeclaration;
 import AST.SimpleClass;
 import AST.Stmt;
 import AST.SuperConstructorAccess;
-import AST.TemplateConstructor;
 import AST.TemplateConstructorAccess;
 import AST.TemplateConstructorAccessShort;
 import AST.TypeAccess;
 import AST.TypeDecl;
+import AST.VarAccess;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
@@ -342,9 +341,19 @@ public class SimpleClassRew {
 		for (TemplateConstructorAccess x : callChain) {
 			statements = statements.add(new ExprStmt(x));
 		}
-		for (Stmt x : otherStatements)
-			statements = statements.add(x);
-		c.getBlock().setStmtList(statements);
+		String ownName = Util.toMinitName(decl.getPTDecl().getID(), decl.getID());
+		PackageConstructor ownMinit = new PackageConstructor(c.getModifiers(),
+				new TypeAccess("void"), ownName,
+				c.getParameterList(), new List<Access>(), new Opt<Block>(
+						new Block(otherStatements)), decl.getPTDecl().getID(), decl.getID());
+		decl.getClassDecl().addBodyDecl(ownMinit);
+		List<Expr> args = new List<Expr>();
+		for (ParameterDeclaration p : c.getParameterList()) {
+			args = args.add(new VarAccess(p.getID()));
+		}
+		TemplateConstructorAccess x = new TemplateConstructorAccess(ownName,
+				args, decl.getPTDecl().getID(), decl.getID());
+		c.getBlock().setStmtList(statements.add(new ExprStmt(x)));
 	}
 
 	private void replaceGeneric(TemplateConstructorAccess x,

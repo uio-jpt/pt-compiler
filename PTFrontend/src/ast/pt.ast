@@ -29,6 +29,7 @@ TemplateConstructorAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
 TemplateConstructorAccessShort : TemplateConstructorAccess;
 
 TemplateConstructor : MethodDecl ::= <TClassID> <TemplateID>;
+PackageConstructor : MethodDecl ::= <TClassID> <TemplateID>;
 
 TemplateAncestor : MethodDecl;
 TemplateAncestorAccess : PTMethodAccess;
