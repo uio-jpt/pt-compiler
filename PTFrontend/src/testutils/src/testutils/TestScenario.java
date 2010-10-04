@@ -52,7 +52,7 @@ public class TestScenario {
             }
 			System.out.println(scenario.presentResults());
 		} catch (FatalErrorException e) {
-			System.err.println("Error: " + e.getMessage());
+			System.out.println("Error: " + e.getMessage());
 		}
 	}
 
@@ -143,7 +143,7 @@ public class TestScenario {
 		try {
 			parser.parse(args);
 		} catch (Exception e) {
-			System.err.println("Unknown args");
+			System.out.println("Unknown args");
 			System.exit(1);
 		}
 		boolean isVerbose = (Boolean) parser.getOptionValue(verbose, Boolean.FALSE);

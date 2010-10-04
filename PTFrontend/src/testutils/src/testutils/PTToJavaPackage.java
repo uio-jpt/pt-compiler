@@ -85,7 +85,7 @@ public class PTToJavaPackage {
 		try {
 			parser.parse(args);
 		} catch (Exception e) {
-			System.err.println("Unknown args: " + e.getMessage());
+			System.out.println("Unknown args: " + e.getMessage());
 			System.exit(1);
 		}
 		boolean verbose = (Boolean) parser.getOptionValue(verboseOption,

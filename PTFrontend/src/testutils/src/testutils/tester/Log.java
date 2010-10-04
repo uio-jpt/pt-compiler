@@ -42,7 +42,7 @@ public class Log {
     }
 
     private static void printTag(String tag, String msg) {
-        System.err.println(tag + ": " + msg);
+        System.out.println(tag + ": " + msg);
     }
 
     public static void d(String tag, String msg) {

@@ -114,7 +114,7 @@ public class PTFrontend {
                 }
             }
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.out.println(e.getMessage());
             e.printStackTrace();
             return false;
         }
