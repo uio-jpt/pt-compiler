@@ -8,14 +8,8 @@ template T1 {
 template T2 {
     inst T1 with A1 => A2, C1 => C2, B1 => B2, D1 => D2;
     class A2 adds { public String m()  { return "T2.A2.m()"; } }
-    class B2 adds { public String m()  { return tsuper[T1.B1].m(); /* this should give a compile error
-                                                                      because m() is not defined in B1 
-                                                                      or in it's adds parent classes. Correct? */
+    class B2 adds { public String m()  { return super.m(); 
                                        }
-                    public String m2() {
-                        // not legal
-                        //return tsuper[T1.A1].m(); /* Is this legal? */
-                    }
                   }
     class C2 adds { public String m() { return "T2.C2.m() :: " + tsuper[T1.C1].m(); } }
     class D2 adds { }

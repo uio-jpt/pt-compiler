@@ -4,7 +4,7 @@ template TestInheritanceT {
     }
 
     class B extends A {
-        public B(int i) {
+        public B() {
         }
     }
 }
@@ -15,7 +15,7 @@ package TestInheritanceP {
    class B adds {
 
        public B() {
-           tsuper[B](123);
+           System.out.println("hello");
        }
    }
 }

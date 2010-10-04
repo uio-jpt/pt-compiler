@@ -17,7 +17,13 @@ aspect ErrorCheck {
 
     public void TemplateConstructor.typeCheck() {
         super.typeCheck();
+        if (getNumParameter() > 0) {
+            error("Template Constructor aren't allowed to have parameters.");
+        }
+    }
 
+    refine TypeCheck public void  ClassInstanceExpr.typeCheck() {
+        TypeCheck.ClassInstanceExpr.typeCheck();
         // check that expr is not a template class if new expr is made
         // from within a template class and its list of arguments is
         // greater than 1.
@@ -28,15 +34,6 @@ aspect ErrorCheck {
             // example, new LinkedList(oldLinkedList); should work.
             error("New calls in templates only allowed without arguments.");
         	}
-        }
-    }
-
-    refine TypeCheck public void  ClassInstanceExpr.typeCheck() {
-        TypeCheck.ClassInstanceExpr.typeCheck();
-        if (getNumArg() > 0) {
-            // TODO make this check only for new TemplateClass calls.
-            // example, new LinkedList(oldLinkedList); should work.
-            error("New calls in templates only allowed without arguments.");
         }
     }
 }
