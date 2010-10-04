@@ -2,16 +2,16 @@ template SimpleTemplate {
 
     class A {
         int x;
-        A(int x) {
-            this.x = x;
+        A() {
+            this.x = 2;
         }
     }
 
     class B {
         int y;
         
-        B(int y) {
-            this.y = y;
+        B() {
+            this.y = 3;
         }
     }
 }
@@ -23,8 +23,8 @@ package AddPackage {
     class M adds {
         
         M(int x, int y) {
-            tsuper[A](x);
-            tsuper[B](y);
+            this.x = x;
+            this.y = y;
         }
     }
 }
