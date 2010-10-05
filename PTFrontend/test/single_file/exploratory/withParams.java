@@ -1,7 +1,6 @@
 template T1 {
 
     class A {
-
         int a;
 
         A() {
