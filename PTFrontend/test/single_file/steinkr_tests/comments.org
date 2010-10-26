@@ -1,0 +1,27 @@
+* Kommentarer til tester
+  - [X] T1
+  - [X] T2
+  - [X] P1
+  - [X] P2
+  - [X] P3_fail
+  - [-] P4
+    - [X] Vi har til nå bevisst latt det være en feil å redefinere variabelnavn.
+    - [X] Det er lov å redefinere metoder
+    - [X] Den "gamle" metoden og alle dens kall blir da renamet til
+      spesiell tsuper syntaks.
+    - [ ] Tilsvarende er også mulig for variable, er dette ønskelig?
+          - #+BEGIN_QUOTE
+            package P4 {
+              inst T1 with B => C;
+              class C adds {
+                /*
+                  int j;   // Gir dette kollisjon med ”j” i B?  Bør vel helst ikke det, men jeg tror vi har vaklet litt her
+                */
+                void n (int k) { System.out.println("override?"); }
+                void m(){ C rC = new C();}  // Denne skulle bare override den def. i A
+              }
+            }
+
+            #+END_QUOTE
+
+          
