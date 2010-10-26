@@ -10,18 +10,17 @@
     - [X] Den "gamle" metoden og alle dens kall blir da renamet til
       spesiell tsuper syntaks.
     - [ ] Tilsvarende er også mulig for variable, er dette ønskelig?
-          - #+BEGIN_QUOTE
-            package P4 {
-              inst T1 with B => C;
-              class C adds {
-                /*
-                  int j;   // Gir dette kollisjon med ”j” i B?  Bør vel helst ikke det, men jeg tror vi har vaklet litt her
-                */
-                void n (int k) { System.out.println("override?"); }
-                void m(){ C rC = new C();}  // Denne skulle bare override den def. i A
-              }
-            }
+  - [X] P5 - ok med følgende forandringer:
+    - [X] Renaming av metoder trenger ikke returtype da det ikke
+      bestemmer signaturen i Java.
+    - [X] renaming av metoder trenger parametertyper, eventuelt den
+      spesielle * notasjonen som indikerer alle varianter.
+  - [X] P6
+  - [X] P7 
+    - [X] Har feil fordi n(int) ikke er overrida i adds klassen og
+      fordi m() er overrida i en adds subklasse. m() vil altså gi mergefeil
+      i superklassen.
+    - [X] Har laget P7_2.java hvor overridingen skjer riktig og som
+      passerer.
+  - [X] P8
 
-            #+END_QUOTE
-
-          
