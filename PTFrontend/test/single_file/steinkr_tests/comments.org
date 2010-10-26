@@ -15,8 +15,8 @@
       bestemmer signaturen i Java.
     - [X] renaming av metoder trenger parametertyper, eventuelt den
       spesielle * notasjonen som indikerer alle varianter.
-  - [X] P6
-  - [X] P7 
+  - [X] P6_fail
+  - [X] P7_fail 
     - [X] Har feil fordi n(int) ikke er overrida i adds klassen og
       fordi m() er overrida i en adds subklasse. m() vil altså gi mergefeil
       i superklassen.
