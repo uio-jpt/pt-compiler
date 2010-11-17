@@ -10,6 +10,7 @@
 ** Things to check
    - [X] are methods renamed before they're copied into a class?
    - [ ] Is it possible to know why a class was renamed?
+     - [ ] needs extra information
    - [ ] Is it possible to know that a tabstract class was renamed
      because of an overriding method?
 
