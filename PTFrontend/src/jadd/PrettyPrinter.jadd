@@ -90,4 +90,9 @@ aspect PrettyPrint {
         return sb.toString();
     }
 
+    public void TabstractMethodDecl.toString(StringBuffer sb) {
+        sb.append("tabstract");
+        super.toString(sb);
+    }
+        
 }

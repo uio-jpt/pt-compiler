@@ -37,4 +37,25 @@ aspect NameCheck {
         return result;
     }
 
+    public void TabstractMethodDecl.nameCheck() {
+    // 8.4
+    // 8.4.2
+        /*
+    if(!hostType().methodsSignature(signature()).contains(this))
+      error("test method with signature " + signature() + " is multiply declared in type " + hostType().typeName());
+        */
+
+    /**
+     *  tabstract is a special abstract
+     */
+    // 8.4.3.4
+    //    if(isNative() && hasBlock())
+    //      error("native methods must have an empty semicolon body");
+    // 8.4.5
+    //    if(isAbstract() && hasBlock())
+    //      error("abstract methods must have an empty semicolon body");
+    // 8.4.5
+    //    if(!hasBlock() && !(isNative() || isAbstract()))
+    //      error("only abstract and native methods may have an empty semicolon body");
+  }
 }

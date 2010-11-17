@@ -10,4 +10,5 @@
   // jastaddj has a general rule about *. therefore needs something more speci
   "(\*)"                     { return sym(Terminals.ASTERISK_PAR); }
   "tsuper"                        { return sym(Terminals.TSUPER); }
+  "tabstract"                { return sym(Terminals.TABSTRACT); }
 }

@@ -42,4 +42,17 @@ aspect JastAddAspectRefinements {
     syn Set<String> ClassDecl.getDefinitionSignatures() {
         return ImmutableSet.copyOf(Iterables.concat(methodSignatures(),fieldNames()));
     }
+
+  // signature -> method declaration
+    refine MemberMethods eq TypeDecl.localMethodsSignatureMap() {
+    HashMap map = new HashMap(getNumBodyDecl());
+    for(int i = 0; i < getNumBodyDecl(); i++) {
+        if(getBodyDecl(i) instanceof MethodDecl && !(getBodyDecl(i) instanceof TabstractMethodDecl)) {
+        MethodDecl decl = (MethodDecl)getBodyDecl(i);
+        map.put(decl.signature(), decl);
+      }
+    }
+    return map;
+  }
+    
 }
