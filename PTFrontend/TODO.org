@@ -1,0 +1,25 @@
+* TODO
+** TODO Implement tabstract
+   - [ ] Sol-1
+   - [ ] Sol-2
+
+* TODO Sol-1
+  - Have a own tabstract method type
+  - Check that it's not present in Package class
+
+** Things to check
+   - [X] are methods renamed before they're copied into a class?
+   - [ ] Is it possible to know why a class was renamed?
+   - [ ] Is it possible to know that a tabstract class was renamed
+     because of an overriding method?
+
+** What makes it difficult
+    - When a method is overridden, the tabstract must be removed.
+    - It's difficult to know when a tabstract method is overridden
+
+* TODO Sol-2
+  - [ ] Let each SimpleClass have a internal list of tabstract methods.
+  - [ ] Let Package SimpleClass check that they have that method
+  - [ ] Rename the internal list when copying and merging
+    
+
