@@ -1,3 +1,5 @@
+import testutils.utils.CriticalPTException;
+
 aspect ErrorCheck {
 
     /* what does this do? */
@@ -34,6 +36,14 @@ aspect ErrorCheck {
             // example, new LinkedList(oldLinkedList); should work.
             error("New calls in templates only allowed without arguments.");
         	}
+        }
+    }
+
+    refine ErrorCheck public void ASTNode.collectErrors() {
+        try{
+            ErrorCheck.ASTNode.collectErrors();
+        } catch (CriticalPTException e) {
+            
         }
     }
 }

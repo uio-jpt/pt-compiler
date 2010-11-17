@@ -1,0 +1,26 @@
+* Kommentarer til tester
+  - [X] T1
+  - [X] T2
+  - [X] P1
+  - [X] P2
+  - [X] P3_fail
+  - [-] P4
+    - [X] Vi har til nå bevisst latt det være en feil å redefinere variabelnavn.
+    - [X] Det er lov å redefinere metoder
+    - [X] Den "gamle" metoden og alle dens kall blir da renamet til
+      spesiell tsuper syntaks.
+    - [ ] Tilsvarende er også mulig for variable, er dette ønskelig?
+  - [X] P5 - ok med følgende forandringer:
+    - [X] Renaming av metoder trenger ikke returtype da det ikke
+      bestemmer signaturen i Java.
+    - [X] renaming av metoder trenger parametertyper, eventuelt den
+      spesielle * notasjonen som indikerer alle varianter.
+  - [X] P6_fail
+  - [X] P7_fail 
+    - [X] Har feil fordi n(int) ikke er overrida i adds klassen og
+      fordi m() er overrida i en adds subklasse. m() vil altså gi mergefeil
+      i superklassen.
+    - [X] Har laget P7_2.java hvor overridingen skjer riktig og som
+      passerer.
+  - [X] P8
+

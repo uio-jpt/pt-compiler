@@ -23,4 +23,3 @@
   - [ ] Let Package SimpleClass check that they have that method
   - [ ] Rename the internal list when copying and merging
     
-

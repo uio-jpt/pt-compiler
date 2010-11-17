@@ -2,20 +2,10 @@ template T1 {
 
     class A {
         int a;
-
-        A() {
-            this.a = 42;
-        }
     }
 
     class B extends A {
-
         int b;
-
-        B() {
-            super();
-            this.b = 42;
-        }
     }
 }
 

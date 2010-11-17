@@ -1,7 +1,13 @@
- import javaworld.PTDeclRew;
+import testutils.utils.CriticalPTException;
 aspect ReferenceAttributes {
 
-    syn PTTemplate PTInstDecl.getTemplate() = getTemplate(getID());
+    syn PTTemplate PTInstDecl.getTemplate() {
+        PTTemplate ans = getTemplate(getID());
+        if (ans != null)
+            return ans;
+        error(String.format("Instantiation of non-existing template %s.",getID()));
+        throw new CriticalPTException("egl test");
+    }
     syn PTTemplate PTInstTuple.getTemplate() = getInstDecl().getTemplate();
     inh PTTemplate PTInstDecl.getTemplate(String name);
     inh PTInstDecl PTInstTuple.getInstDecl();
