@@ -33,3 +33,5 @@ PackageConstructor : MethodDecl ::= <TClassID> <TemplateID>;
 
 TemplateAncestor : MethodDecl;
 TemplateAncestorAccess : PTMethodAccess;
+
+TabstractMethodDecl : MethodDecl;

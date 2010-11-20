@@ -164,3 +164,10 @@ Access explicit_merged_constructor_invocation =
 String merged_method_name =
       DOT IDENTIFIER {: return IDENTIFIER; :}
     ;
+
+MethodDecl method_header =
+    TABSTRACT modifiers.m? type.t IDENTIFIER LPAREN formal_parameter_list.l? RPAREN dims.d? throws.tl?
+    {: return new TabstractMethodDecl(new Modifiers(m), t.addArrayDims(d), IDENTIFIER, l, tl, new Opt()); :}
+  | TABSTRACT modifiers.m? VOID   IDENTIFIER LPAREN formal_parameter_list.l? RPAREN throws.tl?
+    {: return new TabstractMethodDecl(new Modifiers(m), new PrimitiveTypeAccess("void"), IDENTIFIER, l, tl, new Opt()); :}
+  ;

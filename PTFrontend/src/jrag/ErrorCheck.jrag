@@ -46,4 +46,10 @@ aspect ErrorCheck {
             
         }
     }
+
+    public void TabstractMethodDecl.typeCheck() {
+        if (getParentClass(PTPackage.class) != null)
+            if(hostType().methodsSignature(signature()) == SimpleSet.emptySet)
+            error("Tabstract method must be implemented before or in the instantiating package class.");
+    }
 }

@@ -26,6 +26,7 @@ import AST.ParameterDeclaration;
 import AST.SimpleClass;
 import AST.Stmt;
 import AST.SuperConstructorAccess;
+import AST.TabstractMethodDecl;
 import AST.TemplateConstructorAccess;
 import AST.TemplateConstructorAccessShort;
 import AST.TypeAccess;
@@ -55,7 +56,8 @@ public class SimpleClassRew {
 	 * Extends a single class with the instantiations given in the current
 	 * scope.
 	 */
-	public void extendClass(Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples) {
+	public void extendClass(
+			Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples) {
 		if (!checkIfSane(destinationClassIDsWithInstTuples)) {
 			return;
 		}
@@ -65,7 +67,7 @@ public class SimpleClassRew {
 		computeClassToTemplateMultimap();
 		updateSuperName();
 		computeTSuperDeps();
-	
+
 		if (mergingIsPossible()) {
 			renameResolvedConflicts();
 			for (ClassDeclRew source : renamedSources) {
@@ -78,22 +80,25 @@ public class SimpleClassRew {
 	private void computeTSuperDeps() {
 		LinkedHashMap<String, String> deps = decl.getClassDecl().allTDeps;
 		for (PTInstTuple instTuple : instTuples) {
-			expandDepsWith(deps,instTuple.getTemplate().getID(), instTuple.getOriginator());
+			expandDepsWith(deps, instTuple.getTemplate().getID(),
+					instTuple.getOriginator());
 		}
 		LinkedHashMap<String, String> superDeps = getSuperDepsCopy();
-		for (String superDep: superDeps.keySet()) {
-			
+		for (String superDep : superDeps.keySet()) {
+
 			if (!deps.containsKey(superDep)) {
 				String value = superDeps.get(superDep);
-				deps.put(superDep,value);
+				deps.put(superDep, value);
 			}
 		}
 	}
 
-	private void expandDepsWith(LinkedHashMap<String, String> deps, String templateName, ClassDecl originator) {
+	private void expandDepsWith(LinkedHashMap<String, String> deps,
+			String templateName, ClassDecl originator) {
 		deps.putAll(originator.allTDeps);
-		String key = Util.toMinitName(templateName,originator.getTopMostSuperName());
-		String value = Util.toMinitName(templateName,originator.getID());
+		String key = Util.toMinitName(templateName,
+				originator.getTopMostSuperName());
+		String value = Util.toMinitName(templateName, originator.getID());
 		deps.put(key, value);
 	}
 
@@ -122,8 +127,7 @@ public class SimpleClassRew {
 	}
 
 	/**
-	 * Sets the supername of this class to the
-	 * supername of the merged classes.
+	 * Sets the supername of this class to the supername of the merged classes.
 	 */
 	private void updateSuperName() {
 		HashSet<String> names = Sets.newHashSet();
@@ -167,16 +171,18 @@ public class SimpleClassRew {
 	 */
 	private Set<String> getPossibleConflicts() {
 		Set<String> collisions = ImmutableSet.of();
-		Set<String> allDefinitions = ImmutableSet.copyOf((decl.getClassDecl()
-				.methodSignatures()));
+		Set<String> hostMethods = ImmutableSet.copyOf((decl.getClassDecl().methodSignatures()));
+		Set<String> hostFields = ImmutableSet.copyOf((decl.getClassDecl().fieldNames()));
+		Set<String> allDefinitions = Sets.union(hostMethods,hostFields);
+		
 		for (ClassDeclRew decl : renamedSources) {
 			Set<String> instanceDecls = decl.getSignatures();
 			Set<String> localCollisions = Sets.intersection(instanceDecls,
 					allDefinitions);
-			allDefinitions = ImmutableSet.copyOf(Sets.union(allDefinitions,
-					instanceDecls));
-			collisions = ImmutableSet.copyOf(Sets.union(collisions,
-					localCollisions));
+			allDefinitions = Sets.union(allDefinitions,
+					instanceDecls);
+			collisions = Sets.union(collisions,
+					localCollisions);
 		}
 		return collisions;
 	}
@@ -217,9 +223,9 @@ public class SimpleClassRew {
 	 * <br/>
 	 * 
 	 * The wrapper class, of which as list is returned, contains the renamed
-	 * ClassDecl. The renaming is done in two parts: 
-	 * 		1. Based on new class names in the inst clause, which will rename types used. 
-	 * 		2. Based on explicit renamings in the inst clause, which will rename methods and variables.
+	 * ClassDecl. The renaming is done in two parts: 1. Based on new class names
+	 * in the inst clause, which will rename types used. 2. Based on explicit
+	 * renamings in the inst clause, which will rename methods and variables.
 	 * 
 	 * This is the so-called first part of the total renaming process. The
 	 * second part of the total renaming process deals with renaming conflicts
@@ -274,11 +280,10 @@ public class SimpleClassRew {
 	private Opt<Stmt> getDummySuperCall(String dummyName) {
 		String superName = decl.getClassDecl().getSuperClassName();
 		if (superName != null) {
-			return new Opt<Stmt>(
-					new ExprStmt(new SuperConstructorAccess("super",
-							new List<Expr>().add(new ClassInstanceExpr(
-									new TypeAccess(dummyName), new List<Expr>(),
-									new Opt<TypeDecl>())))));
+			return new Opt<Stmt>(new ExprStmt(new SuperConstructorAccess(
+					"super", new List<Expr>().add(new ClassInstanceExpr(
+							new TypeAccess(dummyName), new List<Expr>(),
+							new Opt<TypeDecl>())))));
 		} else {
 			return new Opt<Stmt>();
 		}
@@ -303,12 +308,13 @@ public class SimpleClassRew {
 
 	private void callDummySuperAndDeps(String dummyName, ConstructorDecl c) {
 		Map<String, String> depsMap = c.getClassDecl().allTDeps;
-		
+
 		// store supercall args for later usage
-		ExprStmt cinv = (ExprStmt) c.getConstructorInvocation(); 
-		SuperConstructorAccess superaccess = (SuperConstructorAccess) cinv.getExpr();
+		ExprStmt cinv = (ExprStmt) c.getConstructorInvocation();
+		SuperConstructorAccess superaccess = (SuperConstructorAccess) cinv
+				.getExpr();
 		List<Expr> superCallArgs = superaccess.getArgList();
-		
+
 		c.setConstructorInvocationOpt(getDummySuperCall(dummyName));
 		List<Stmt> origStatements = c.getBlock().getStmtList();
 		List<Stmt> otherStatements = new List<Stmt>();
@@ -317,11 +323,14 @@ public class SimpleClassRew {
 
 		String supername = c.getClassDecl().getSuperClassName();
 		if (supername != null) {
-			String methodName = Util.toMinitName(decl.getPTDecl().getID(), supername);
-			TemplateConstructorAccess supercall = new TemplateConstructorAccess(methodName, superCallArgs, supername,decl.getPTDecl().getID());
+			String methodName = Util.toMinitName(decl.getPTDecl().getID(),
+					supername);
+			TemplateConstructorAccess supercall = new TemplateConstructorAccess(
+					methodName, superCallArgs, supername, decl.getPTDecl()
+							.getID());
 			otherStatements = otherStatements.add(new ExprStmt(supercall));
 		}
-		
+
 		// add generic calls
 		for (String dep : deps) {
 			String[] parts = dep.split("\\$"); // TODO let dep be a data object
@@ -354,11 +363,12 @@ public class SimpleClassRew {
 		for (TemplateConstructorAccess x : callChain) {
 			statements = statements.add(new ExprStmt(x));
 		}
-		String ownName = Util.toMinitName(decl.getPTDecl().getID(), decl.getID());
+		String ownName = Util.toMinitName(decl.getPTDecl().getID(),
+				decl.getID());
 		PackageConstructor ownMinit = new PackageConstructor(c.getModifiers(),
-				new TypeAccess("void"), ownName,
-				c.getParameterList(), new List<Access>(), new Opt<Block>(
-						new Block(otherStatements)), decl.getPTDecl().getID(), decl.getID());
+				new TypeAccess("void"), ownName, c.getParameterList(),
+				new List<Access>(), new Opt<Block>(new Block(otherStatements)),
+				decl.getPTDecl().getID(), decl.getID());
 		decl.getClassDecl().addBodyDecl(ownMinit);
 		List<Expr> args = new List<Expr>();
 		for (ParameterDeclaration p : c.getParameterList()) {
@@ -371,10 +381,10 @@ public class SimpleClassRew {
 
 	private void replaceGeneric(TemplateConstructorAccess x,
 			LinkedList<TemplateConstructorAccess> callChain) {
-		String tclassID= x.getTClassID();
+		String tclassID = x.getTClassID();
 		String tname = x.getTemplateID();
-		
-		for (int i=0; i < callChain.size(); i++) {
+
+		for (int i = 0; i < callChain.size(); i++) {
 			TemplateConstructorAccess cur = callChain.get(i);
 			String curClassName = cur.getTClassID();
 			String curTemplateName = cur.getTemplateID();
@@ -388,14 +398,13 @@ public class SimpleClassRew {
 	private void replaceImplicitTSuperCall(TemplateConstructorAccessShort x,
 			LinkedList<TemplateConstructorAccess> callChain) {
 		String name = x.getTClassID();
-		for (int i=0; i < callChain.size(); i++) {
+		for (int i = 0; i < callChain.size(); i++) {
 			TemplateConstructorAccess cur = callChain.get(i);
 			if (cur.getTClassID().equals(name)) {
 				callChain.set(i, x);
 			}
 		}
 	}
-
 
 	public String getSuperClassname() {
 		return decl.getClassDecl().getSuperClassName();
