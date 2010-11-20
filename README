@@ -16,7 +16,7 @@ $ ant jar
 
 # Kjøring av kompilator
 # generelt slik:
-$ java -jar build/jar/PTCompiler.jar <inputfolder> [-o <folder_name>] [-v]
+$ java -jar build/jar/JPT.jar <inputfolder> [-o <folder_name>] [-v]
   
 # Usage Examples:
 #

@@ -1,6 +1,8 @@
 package testutils;
 
 import jargs.gnu.CmdLineParser;
+import jargs.gnu.CmdLineParser.IllegalOptionValueException;
+import jargs.gnu.CmdLineParser.UnknownOptionException;
 
 import java.io.File;
 
@@ -18,8 +20,30 @@ public class PTToJavaPackage {
 	private GenerateJava compiler;
 
 	public static void main(String[] args) {
-		PTToJavaPackage controller = parseArgsAndInstantiate(args);
-		controller.run();
+		PTToJavaPackage controller;
+		String errorCause;
+		try {
+			controller = parseArgsAndInstantiate(args);
+			controller.run();
+		} catch (IllegalOptionValueException e) {
+			errorCause = e.getMessage();
+			printUsage(errorCause);
+		} catch (UnknownOptionException e) {
+			errorCause = e.getMessage();
+			printUsage(errorCause);
+		} catch (FatalErrorException e) {
+			errorCause = e.getMessage();
+			printUsage(errorCause);
+		}
+		
+	}
+	
+	private static void printUsage(String errorCause) {
+		System.out.println("Unable to run because of:\t" + errorCause);
+		System.out.println("\n");
+		System.out.println(
+				"Required argument:\tinputfolder" + 
+				"Optional arguments:\t[{-o,--outputFolder} a_folder_path] [{-v,--verbose}]");
 	}
 
 	private void run() {
@@ -43,6 +67,7 @@ public class PTToJavaPackage {
 		compiler = new GenerateJava(inputfilenames, outputFolderName);
 		compiler.compile();
 		compiler.write();
+		
 	}
 
 	private void error(String message) {
@@ -52,6 +77,7 @@ public class PTToJavaPackage {
 
 	private void readSourceFolder() {
 		FileIO sourceFolder;
+		
 		try {
 			sourceFolder = new FileIO(sourceFolderName);
 			verbose("SourceFolderName: " + sourceFolderName);
@@ -59,10 +85,16 @@ public class PTToJavaPackage {
 			sourceFolder = null;
 			error("Missing sourceFolder");
 		}
-		if (!sourceFolder.isDirectory())
-			error(String.format("Source folder directory '%s' not found.",
-					sourceFolderName));
-		inputfilenames = sourceFolder.getFilePaths("java");
+		if (sourceFolder.isDirectory()) {
+			inputfilenames = sourceFolder.getFilePaths("java");
+			verbose("Input is a directory.");
+		} else if (sourceFolder.isFile()) {
+			String[] tmp = { sourceFolder.getPath() };
+			inputfilenames = tmp;
+			verbose("Input is a file");
+		} else 
+			error(String.format("Source file/directory '%s' not found.",
+				sourceFolderName));
 		verbose("Printing all [" + inputfilenames.length + "] inputfilenames.");
 		for (String filename : inputfilenames)
 			verbose("\tinputfilename: " + filename);
@@ -73,27 +105,24 @@ public class PTToJavaPackage {
 			System.out.println("Verbose: " + string);
 	}
 
-	private static PTToJavaPackage parseArgsAndInstantiate(String[] args) {
+	private static PTToJavaPackage parseArgsAndInstantiate(String[] args) throws IllegalOptionValueException, UnknownOptionException {
 		CmdLineParser parser = new CmdLineParser();
 		CmdLineParser.Option verboseOption = parser.addBooleanOption('v',
 				"verbose");
+		CmdLineParser.Option singleFileOption = parser.addBooleanOption('s',
+		"singleFile");
 		CmdLineParser.Option outputFolderOption = parser.addStringOption('o',
 				"outputFolder");
-		CmdLineParser.Option genericBuildXMLPathOpt = parser.addStringOption(
-				'p', "buildXMLPath");
-
-		try {
+		
 			parser.parse(args);
-		} catch (Exception e) {
-			System.out.println("Unknown args: " + e.getMessage());
-			System.exit(1);
-		}
+		
 		boolean verbose = (Boolean) parser.getOptionValue(verboseOption,
 				Boolean.FALSE);
 
 		String[] remainingArgs = parser.getRemainingArgs();
-		if (remainingArgs.length == 0)
-			throw new FatalErrorException("couldn't find an input file.");
+		if (remainingArgs.length == 0) {
+			throw new FatalErrorException("missing input folder [file].");
+		}
 		String sourceFolder = new File(remainingArgs[0]).getPath();
 		String outputFolder = (String) parser.getOptionValue(
 				outputFolderOption, sourceFolder + "_output");
