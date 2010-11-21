@@ -67,7 +67,6 @@
     </jar>
     <echo>
       Jar file ${build.jar.filename} created.
-      The jar file is self contained and may be moved around.
       see PROJECT_ROOT/README for usage examples.
     </echo>
   </target>

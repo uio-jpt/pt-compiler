@@ -142,4 +142,20 @@ aspect ReferenceAttributes {
         /* If there is no return statement, the default behaviour is to
          * call search upwards the tree. This is done by the generated code. */
     }
+
+    coll Set<VarAccess> FieldDeclaration.fieldAccess()
+        [new HashSet<VarAccess>()] with add root ClassDecl;
+
+    VarAccess contributes this 
+        when (decl() instanceof FieldDeclaration)
+        to FieldDeclaration.fieldAccess()
+        for ((FieldDeclaration) decl());
+
+    coll Set<MethodAccess> MethodDecl.methodAccess()
+        [new HashSet<MethodAccess>()] with add root ClassDecl;
+
+    MethodAccess contributes this 
+        to MethodDecl.methodAccess()
+        for ((MethodDecl) decl());
+
 }

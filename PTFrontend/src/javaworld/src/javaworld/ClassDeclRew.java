@@ -5,14 +5,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import testutils.tester.Log;
-
 import AST.BodyDecl;
 import AST.ClassDecl;
 import AST.ConstructorDecl;
 import AST.ExprStmt;
 import AST.FieldDeclaration;
 import AST.List;
+import AST.MethodAccess;
 import AST.MethodDecl;
 import AST.PTInstTuple;
 import AST.SimpleSet;
@@ -20,6 +19,7 @@ import AST.TemplateAncestor;
 import AST.TemplateAncestorAccess;
 import AST.TemplateConstructor;
 import AST.TemplateConstructorAccess;
+import AST.VarAccess;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -154,7 +154,10 @@ public class ClassDeclRew {
 			if (namesMap.containsKey(decl.signature())) {
 				String newID = namesMap.get(decl.signature());
 				newID = newID.split("\\(")[0];
+				for (MethodAccess x : decl.methodAccess())
+					x.setID(newID);
 				decl.setID(newID);
+				
 			}
 		}
 
@@ -163,6 +166,8 @@ public class ClassDeclRew {
 				FieldDeclaration fieldDecl = (FieldDeclaration) iter.next();
 				if (namesMap.containsKey(fieldDecl.getID())) {
 					String newID = namesMap.get(fieldDecl.getID());
+					for (VarAccess x : fieldDecl.fieldAccess())
+						x.setID(newID);
 					fieldDecl.setID(newID);
 				}
 			}
