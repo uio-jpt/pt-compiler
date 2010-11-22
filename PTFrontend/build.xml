@@ -94,9 +94,9 @@
 
       <jvmarg value="${heap-max}" />      
       <arg value="--testSingleFiles"/>          
-      <arg value="test/single_file"/>
+      <arg value="test/compiler_semantic_tests//single_file"/>
       <arg value="--testFolderAsUnit"/>                      
-      <arg value="test/multiple_files"/>
+      <arg value="test/compiler_semantic_tests//multiple_files"/>
     </java>
   </target>
 

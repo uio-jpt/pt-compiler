@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import argparse
+import optparse
 import os
 import sys
 import subprocess
@@ -109,14 +109,13 @@ class Cleanup(object):
     def printSummary(self):
         print 'Done.'
 
-parser = argparse.ArgumentParser(description='Compile and run tests in test/runtime_tests/.')
-parser.add_argument('--cleanup', dest='cleanup', action='store_const',
-                   const=True, default=False,
+parser = optparse.OptionParser(description='Compile and run tests in test/runtime_tests/.')
+parser.add_option('--cleanup', dest='cleanup', action='store_true',default=False,
                    help='Perform Cleanup from previous tests')
 
-args = parser.parse_args()
+(options,args) = parser.parse_args()
 
-if args.cleanup:
+if options.cleanup:
     f = Cleanup()
 else:
     f = RunTest()
