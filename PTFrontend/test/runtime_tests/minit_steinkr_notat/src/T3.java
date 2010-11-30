@@ -1,0 +1,22 @@
+template T3 {
+    inst T1 with
+        B => U;
+    inst T2 with
+        C=> U;
+    
+    class U adds {
+        U () { 
+            System.out.println("T3.U");
+        }
+    }
+    class V extends U {
+        V () {
+            System.out.println("T3.V");
+        }
+    }
+    class W extends V {
+        W () {
+            System.out.println("T3.W");
+        }
+    }
+}

@@ -1,5 +1,6 @@
 package javaworld;
 
+import java.util.Comparator;
 import java.util.Set;
 
 import AST.Access;
@@ -24,6 +25,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
 public class PTDeclRew {
@@ -59,13 +61,24 @@ public class PTDeclRew {
 	}
 
 	/**
-	 * Needs extende classes in correct order. Minit dependencies are inherited
+	 * Needs extended classes in correct order. Minit dependencies are inherited
 	 * and therefore a superclass must be extended before its child.
 	 */
 	protected void extendAddClassesWithInstantiatons() {
+		/* this comparator is created to let the ordering of non-interfering
+		 * minit calls be consistent.
+		 */
+		Comparator<SimpleClassRew> cmp = new Comparator<SimpleClassRew>() {
+			
+			@Override
+			public int compare(SimpleClassRew o1, SimpleClassRew o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		};
+		 ImmutableList<SimpleClassRew> classes = Ordering.from(cmp).immutableSortedCopy(simpleClasses);
 		Set<String> visited = Sets.newHashSet();
-		while (visited.size() < simpleClasses.size()) {
-			for (SimpleClassRew decl : simpleClasses) {
+		while (visited.size() < classes.size()) {
+			for (SimpleClassRew decl : classes) {
 				String superName = decl.getSuperClassname();
 				if (!visited.contains(decl.getName())) {
 					if (superName == null || visited.contains(superName)) {

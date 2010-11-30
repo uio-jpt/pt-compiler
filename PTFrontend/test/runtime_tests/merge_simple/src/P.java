@@ -1,4 +1,4 @@
-package simple_merge {
+package merge_simple {
     inst T with TA => X(x->ta_x),
         TX => X(x->tx_x,f()->ff);
 

@@ -6,6 +6,11 @@ import subprocess
 import filecmp
 import shutil
 
+class SubprocException(Exception):
+    def __init__(self,name,msg):
+        self.name = name
+        super(SubprocException,self).__init__(msg)
+
 class RuntimeTest(object):
     default_generate_name = 'src_output'
     default_test_ext = '.expected_output'
@@ -20,8 +25,13 @@ class RuntimeTest(object):
         self.total = 0
 
     def generate(self):
-        retval = subprocess.call(self.generateCmd,cwd=self.basePath,stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
-        assert retval == 0
+        proc = subprocess.Popen(self.generateCmd,cwd=self.basePath,
+                                  stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        output,_ = proc.communicate()
+        hasError = proc.wait()
+        
+        if hasError:
+            raise SubprocException(self.name,output)
 
     def compile(self):
         retval = subprocess.call('ant',cwd=os.path.join(self.basePath,self.default_generate_name), stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
@@ -56,7 +66,7 @@ class RuntimeTest(object):
     def compare(self,basename):
         inputname = self.asInputName(basename)
         outputname = self.asOutputName(basename)
-        print (('\t%s.%s' % (self.name,basename)).ljust(20) + ':'),
+        print (('\t%s.%s' % (self.name,basename)).ljust(40) + ':'),
         if filecmp.cmp(inputname,outputname):
             print 'ok.'
         else:
@@ -126,6 +136,17 @@ path = os.path.join(bpath,'test','runtime_tests')
 jpt_path = os.path.abspath(os.path.join(bpath,'build','jar','JPT.jar'))
 run_jpt = ['java','-jar',jpt_path,'src']
 
-for x in os.listdir(path):
-    f(path,x)
-f.printSummary()    
+try:
+    for x in os.listdir(path):
+        f(path,x)
+    f.printSummary()    
+except SubprocException, e:
+    print '%sError Message for: %s %s' % ('*'*10,e.name,'*'*10)
+    print
+    print e.message
+    print
+    print '%sEnd Error Message for: %s %s' % ('*'*10,e.name,'*'*10)
+    print 'aborting'
+    import sys
+    sys.exit(1)
+

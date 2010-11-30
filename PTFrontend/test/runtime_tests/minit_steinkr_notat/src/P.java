@@ -1,0 +1,34 @@
+package minit_steinkr_notat {
+    inst T3 with
+        U => K,
+        V => L,
+        W => M;    
+    
+    class K adds {
+        K () { 
+            System.out.println("P.K");
+        }
+    }
+    class L adds {
+        L () {
+            System.out.println("P.L");
+        }
+    }
+    class M adds {
+        M () {
+            System.out.println("P.M");
+        }
+    }
+
+    class N extends M {
+        N () {
+            System.out.println("P.N");
+        }
+    }
+
+    class Initial {
+        public static void main(String[] args){
+            new N();
+        }
+    }
+}

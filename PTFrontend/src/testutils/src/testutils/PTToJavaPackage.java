@@ -35,39 +35,29 @@ public class PTToJavaPackage {
 			errorCause = e.getMessage();
 			printUsage(errorCause);
 		}
-		
 	}
-	
+
 	private static void printUsage(String errorCause) {
 		System.out.println("Unable to run because of:\t" + errorCause);
 		System.out.println("\n");
-		System.out.println(
-				"Required argument:\tinputfolder" + 
-				"Optional arguments:\t[{-o,--outputFolder} a_folder_path] [{-v,--verbose}]");
+		System.out
+				.println("Required argument:\tinputfolder"
+						+ "Optional arguments:\t[{-o,--outputFolder} a_folder_path] [{-v,--verbose}]");
+		System.exit(1);
 	}
 
 	private void run() {
-		try {
-			readSourceFolder();
-			compileAndWrite();
-			System.out
-					.println("Compilation completed. Java package(s) written to "
-							+ outputFolderName);
-		} catch (FatalErrorException e) {
-			System.out.println("Fatal error:");
-			System.out.println(e.getMessage());
-		} catch (CompileErrorException e) {
-			System.out.println(e.getMessage());
-			System.out.println("Compilation had errors.");
-		}
-
+		readSourceFolder();
+		compileAndWrite();
+		System.out.println("Compilation completed. Java package(s) written to "
+				+ outputFolderName);
 	}
 
 	private void compileAndWrite() {
 		compiler = new GenerateJava(inputfilenames, outputFolderName);
 		compiler.compile();
 		compiler.write();
-		
+
 	}
 
 	private void error(String message) {
@@ -77,7 +67,7 @@ public class PTToJavaPackage {
 
 	private void readSourceFolder() {
 		FileIO sourceFolder;
-		
+
 		try {
 			sourceFolder = new FileIO(sourceFolderName);
 			verbose("SourceFolderName: " + sourceFolderName);
@@ -92,9 +82,9 @@ public class PTToJavaPackage {
 			String[] tmp = { sourceFolder.getPath() };
 			inputfilenames = tmp;
 			verbose("Input is a file");
-		} else 
+		} else
 			error(String.format("Source file/directory '%s' not found.",
-				sourceFolderName));
+					sourceFolderName));
 		verbose("Printing all [" + inputfilenames.length + "] inputfilenames.");
 		for (String filename : inputfilenames)
 			verbose("\tinputfilename: " + filename);
@@ -105,17 +95,18 @@ public class PTToJavaPackage {
 			System.out.println("Verbose: " + string);
 	}
 
-	private static PTToJavaPackage parseArgsAndInstantiate(String[] args) throws IllegalOptionValueException, UnknownOptionException {
+	private static PTToJavaPackage parseArgsAndInstantiate(String[] args)
+			throws IllegalOptionValueException, UnknownOptionException {
 		CmdLineParser parser = new CmdLineParser();
 		CmdLineParser.Option verboseOption = parser.addBooleanOption('v',
 				"verbose");
 		CmdLineParser.Option singleFileOption = parser.addBooleanOption('s',
-		"singleFile");
+				"singleFile");
 		CmdLineParser.Option outputFolderOption = parser.addStringOption('o',
 				"outputFolder");
-		
-			parser.parse(args);
-		
+
+		parser.parse(args);
+
 		boolean verbose = (Boolean) parser.getOptionValue(verboseOption,
 				Boolean.FALSE);
 
