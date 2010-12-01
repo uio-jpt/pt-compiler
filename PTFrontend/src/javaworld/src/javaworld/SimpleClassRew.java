@@ -78,7 +78,6 @@ public class SimpleClassRew {
 	}
 
 	private void computeTSuperDeps() {
-		// TODO last for loop not necessary? 
 		LinkedHashMap<String, String> deps = decl.getClassDecl().allTDeps;
 		for (PTInstTuple instTuple : instTuples) {
 			expandDepsWith(deps, instTuple.getTemplate().getID(),

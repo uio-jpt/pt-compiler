@@ -1,7 +1,7 @@
 package minit_simple {
     inst T2 with
-        TA => PSuper,
-        TB => PChild;
+        TX => PSuper,
+        TY => PChild;
 
     class PSuper adds {
         PSuper() {

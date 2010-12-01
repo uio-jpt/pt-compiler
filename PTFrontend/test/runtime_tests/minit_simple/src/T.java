@@ -17,7 +17,7 @@ template T1 {
 template T2 {
     inst T1 with
         TA => TX,
-        TY => TB;
+        TB => TY;
     
     class TX adds {
         TX(){
