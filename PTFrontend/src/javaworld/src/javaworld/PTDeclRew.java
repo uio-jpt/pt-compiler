@@ -65,20 +65,9 @@ public class PTDeclRew {
 	 * and therefore a superclass must be extended before its child.
 	 */
 	protected void extendAddClassesWithInstantiatons() {
-		/* this comparator is created to let the ordering of non-interfering
-		 * minit calls be consistent.
-		 */
-		Comparator<SimpleClassRew> cmp = new Comparator<SimpleClassRew>() {
-			
-			@Override
-			public int compare(SimpleClassRew o1, SimpleClassRew o2) {
-				return o1.getName().compareTo(o2.getName());
-			}
-		};
-		 ImmutableList<SimpleClassRew> classes = Ordering.from(cmp).immutableSortedCopy(simpleClasses);
 		Set<String> visited = Sets.newHashSet();
-		while (visited.size() < classes.size()) {
-			for (SimpleClassRew decl : classes) {
+		while (visited.size() < simpleClasses.size()) {
+			for (SimpleClassRew decl : simpleClasses) {
 				String superName = decl.getSuperClassname();
 				if (!visited.contains(decl.getName())) {
 					if (superName == null || visited.contains(superName)) {
