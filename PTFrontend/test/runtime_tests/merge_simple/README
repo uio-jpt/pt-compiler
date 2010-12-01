@@ -1,0 +1,2 @@
+Checks that renaming of field and methods works.
+Checks that its possible to call tsuper methods

@@ -4,7 +4,7 @@ package merge_simple {
 
     class X adds {
         int m(){
-            return tsuper[T.TA].m() + tsuper[T.TX].m();
+            return tsuper[TA].m() + tsuper[TX].m();
         }
 
         public static void main(String[] args) {
