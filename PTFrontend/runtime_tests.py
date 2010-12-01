@@ -35,6 +35,7 @@ class RuntimeTest(object):
 
     def compile(self):
         retval = subprocess.call('ant',cwd=os.path.join(self.basePath,self.default_generate_name), stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
+        assert retval == 0
 
     @property
     def referenceOutputFiles(self):
@@ -43,7 +44,7 @@ class RuntimeTest(object):
 
     @property
     def classesWithMain(self):
-        return [x.split('.')[0] for x in self.referenceOutputFiles]
+        return [x.rsplit('.',1)[0] for x in self.referenceOutputFiles]
 
     def asOutputName(self,name):
         return os.path.join(self.basePath,name + self.default_actual_ext)
@@ -54,7 +55,7 @@ class RuntimeTest(object):
     def runProgram(self):
         for x in self.classesWithMain:
             self.total += 1
-            cmd = '%s.%s' % (self.name,x)
+            cmd = x
             jar = os.path.join(self.basePath,self.default_jar_loc)
             test_output_name = self.asOutputName(x)
             f = open(test_output_name,'w')
@@ -66,7 +67,7 @@ class RuntimeTest(object):
     def compare(self,basename):
         inputname = self.asInputName(basename)
         outputname = self.asOutputName(basename)
-        print (('\t%s.%s' % (self.name,basename)).ljust(40) + ':'),
+        print (('\t%s' % basename).ljust(40) + ':'),
         if filecmp.cmp(inputname,outputname):
             print 'ok.'
         else:
@@ -80,6 +81,7 @@ class RunTest(object):
         self.withErrors = []
 
     def __call__(self,path,x):
+        print '%s:' % x
         test = RuntimeTest(os.path.join(path,x),generateCmd=run_jpt)
         test.generate()
         test.compile()

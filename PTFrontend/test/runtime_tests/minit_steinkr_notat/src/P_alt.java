@@ -1,5 +1,5 @@
-package as_drawing {
-    inst T3 with
+package as_drawing_with_ext {
+    inst T3_alt with
         U => K,
         V => L,
         W => M;    
