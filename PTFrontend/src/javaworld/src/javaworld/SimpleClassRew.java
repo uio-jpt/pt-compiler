@@ -107,10 +107,16 @@ public class SimpleClassRew {
 			
 			@Override
 			public int compare(PTInstTuple o1, PTInstTuple o2) {
-				return o1.getID().compareTo(o2.getID());
+				String x = instName(o1);
+				String y = instName(o2);
+				return x.compareTo(y);
 			}
 		};
 		return Ordering.from(byName).immutableSortedCopy(x);
+	}
+
+	protected String instName(PTInstTuple x) {
+		return String.format("%s.%s",x.getTemplate().getID(),x.getOrgID());
 	}
 
 	private void expandDepsWith(LinkedHashMap<String, String> deps,
