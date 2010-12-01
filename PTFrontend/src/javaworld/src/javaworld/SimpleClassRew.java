@@ -1,6 +1,7 @@
 package javaworld;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -35,11 +36,13 @@ import AST.VarAccess;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
 public class SimpleClassRew {
@@ -79,7 +82,7 @@ public class SimpleClassRew {
 
 	private void computeTSuperDeps() {
 		LinkedHashMap<String, String> deps = decl.getClassDecl().allTDeps;
-		for (PTInstTuple instTuple : instTuples) {
+		for (PTInstTuple instTuple : sorted(instTuples)) {
 			expandDepsWith(deps, instTuple.getTemplate().getID(),
 					instTuple.getOriginator());
 		}
@@ -91,6 +94,23 @@ public class SimpleClassRew {
 				deps.put(superDep, value);
 			}
 		}
+	}
+
+	/**
+	 * Created to ensure a stable ordering of non-interfering elements.
+	 * Used to support the testscript.
+	 * @param x
+	 * @return
+	 */
+	private Iterable<PTInstTuple> sorted(Collection<PTInstTuple> x) {
+		Comparator<PTInstTuple> byName = new Comparator<PTInstTuple>() {
+			
+			@Override
+			public int compare(PTInstTuple o1, PTInstTuple o2) {
+				return o1.getID().compareTo(o2.getID());
+			}
+		};
+		return Ordering.from(byName).immutableSortedCopy(x);
 	}
 
 	private void expandDepsWith(LinkedHashMap<String, String> deps,
