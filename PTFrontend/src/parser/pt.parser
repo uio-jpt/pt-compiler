@@ -32,23 +32,10 @@ PTDecl pt_template =
           ;
 
 PTDecl pt_package =
- PACKAGE IDENTIFIER LBRACE inst_or_class_single.l+ RBRACE
-          {:
-                AST.List<SimpleClass> simpleClassList = new AST.List<SimpleClass>();
-                AST.List<PTInstDecl> instDeclList = new AST.List<PTInstDecl>();
-
-                for (int i=0; i<l.getNumChildNoTransform(); i++) {
-                    ASTNode n = l.getChildNoTransform(i);
-                    if (n instanceof PTInstDecl) {
-                        instDeclList.add( (PTInstDecl) n);
-                    }
-                    else {
-                        simpleClassList.add( (SimpleClass) n);
-                    }
-                }
-                return new PTPackage(IDENTIFIER, instDeclList, simpleClassList);
-          :}
-          ;
+ PACKAGE IDENTIFIER LBRACE pt_inst_decl.pt_inst* pt_simple_declaration.pt_class* RBRACE
+ {:
+                return new PTPackage(IDENTIFIER, pt_inst, pt_class);
+ :};
 
 ASTNode inst_or_class_single =
      pt_inst_decl.pt_inst {: return pt_inst; :}
