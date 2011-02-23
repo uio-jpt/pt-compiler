@@ -14,7 +14,7 @@ class SubprocException(Exception):
 class RuntimeTest(object):
     default_generate_name = 'src_output'
     default_test_ext = '.expected_output'
-    default_actual_ext = '.acutal_output'
+    default_actual_ext = '.actual_output'
     default_jar_loc = 'src_output/build/jar/src_output.jar'
 
     def __init__(self,path,generateCmd):
@@ -123,7 +123,9 @@ class Cleanup(object):
 
 parser = optparse.OptionParser(description='Compile and run tests in test/runtime_tests/.')
 parser.add_option('--cleanup', dest='cleanup', action='store_true',default=False,
+
                    help='Perform Cleanup from previous tests')
+parser.add_option("-s", "--single", default=False, dest="singleFile",help="Only test a single folder")
 
 (options,args) = parser.parse_args()
 
@@ -138,14 +140,20 @@ path = os.path.join(bpath,'test','runtime_tests')
 jpt_path = os.path.abspath(os.path.join(bpath,'build','jar','JPT.jar'))
 run_jpt = ['java','-jar',jpt_path,'src']
 
+if options.singleFile:
+    assert os.path.isdir(os.path.join(path,options.singleFile))
+    files = [options.singleFile]
+else:
+    files = os.listdir(path)
+
 try:
-    for x in os.listdir(path):
+    for x in files:
         f(path,x)
     f.printSummary()    
 except SubprocException, e:
     print '%sError Message for: %s %s' % ('*'*10,e.name,'*'*10)
     print
-    print e.message
+    print e
     print
     print '%sEnd Error Message for: %s %s' % ('*'*10,e.name,'*'*10)
     print 'aborting'
