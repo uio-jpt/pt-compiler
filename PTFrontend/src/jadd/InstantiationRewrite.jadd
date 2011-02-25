@@ -12,7 +12,7 @@ aspect InstantiationRewrite {
     private Multimap<String,String> ClassDecl.templateClassIDTotemplateID;
 
     /** Template.TopmostSupername <-> Template.LowestSupername
-     *  used to compute Package class konstruktur minit call
+     *  used to compute Package class constructor minit call
      *  dependencies..
      */
     public LinkedHashMap<String,String> ClassDecl.allTDeps = Maps.newLinkedHashMap();

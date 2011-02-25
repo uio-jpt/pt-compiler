@@ -11,7 +11,7 @@ PTClassAddsDecl : SimpleClass;
 
 
 PTInstDecl ::= <ID> PTInstTuple*; // inst T with A => X;
-                                   //      ID    PTInstTuple
+                                  //      ID    PTInstTuple
 
 PTInstTuple ::= <OrgID> <ID> PTDummyRename*;
 
@@ -22,16 +22,32 @@ PTFieldRename : PTDummyRename;
 
 abstract PTMethodAccess : MethodAccess;
 
+// e.g. tsuper[<templateName>.<ClassName>].f()
 TemplateMethodAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
+// e.g. tsuper[<ClassName>].f()
+// will be converted to superType if unambigous
 TemplateMethodAccessShort : TemplateMethodAccess;
 
+// tja. disse to er vel strengt tatt ikke brukandes lenger
+// TODO cleanup
 TemplateConstructorAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
 TemplateConstructorAccessShort : TemplateConstructorAccess;
 
+/* A copied constructor defined in a template will be transformed to a 
+ * method of type TemplateConstructor when it is instantiated.
+ */
 TemplateConstructor : MethodDecl ::= <TClassID> <TemplateID>;
+
+/* Constructors of a class in a package will be transformed to this type.
+ * PackageConstructors acceps arguments as opposed to TemplateConstructor.
+ */
 PackageConstructor : MethodDecl ::= <TClassID> <TemplateID>;
 
+/* Deprecated... I'll remove or rewrite+document this asap
+ */
 TemplateAncestor : MethodDecl;
 TemplateAncestorAccess : PTMethodAccess;
 
+/* Type that marks a method as tabstract.
+ */ 
 TabstractMethodDecl : MethodDecl;
