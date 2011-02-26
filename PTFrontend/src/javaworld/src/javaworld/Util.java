@@ -16,11 +16,6 @@ import com.google.common.base.Preconditions;
 public class Util {
 	final static boolean debugMode = true;
 
-	public static void print(String data) {
-		if (debugMode)
-			System.out.println("DM: " + data);
-	}
-
 	public static String toName(String id) {
 		Preconditions.checkArgument(id != null);
 		return String.format("tsuper[%s]", id);
@@ -43,6 +38,11 @@ public class Util {
 		return methodSignature.substring(0, splitIdx);
 	}
 
+	/*
+	 * Is called from InstantiationRewrite.jrag
+	 * Try to unambiguously resolve a tsuper call in short from to standard form.
+	 * e.g. tsuper[<ClassID>].f() --> tsuper[<TemplateID>.<ClassID>].f()
+	 */
 	public static TemplateConstructorAccess rewriteConstructorAccess(
 			TemplateConstructorAccessShort from) {
 		String templateID = "";

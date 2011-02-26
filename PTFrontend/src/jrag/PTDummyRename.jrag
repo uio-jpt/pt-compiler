@@ -64,7 +64,6 @@ aspect PTDummyRename {
         renameMap.put(getOldSignature(), getNewSignature());
     }
     
-    // TODO error here!
     public void PTMethodRenameAll.addSelfTo(Map<String,String> renameMap) {
         String methodName = getOrgID();
         for (String originalSignature : getOriginatorClass().methodSignatures())
