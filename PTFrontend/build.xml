@@ -27,8 +27,6 @@
   <property name="src.gen.parser.filename_lalr" location="${src.gen.parser}/JavaParser.all" />
   <property name="src.gen.parser.filename" location="${src.gen.parser}/JavaParser.beaver" />
   <property name="src.gen.beaver" location="${src.gen}/beaver" />
-  <property name="resources" location="resources" />    
-  <property name="txt" location="${resources}/txt" />    
   <property name="txt.generic-build.xml" location="${txt}/generic-build.xml" />
   <property name="txt.generic-launcher" location="${txt}/PTCompiler.py" />
   <!-- jastadd properties -->
@@ -60,7 +58,6 @@
       <zipfileset src="${lib}/commons-io-1.4.jar" />
       <zipfileset src="${lib}/guava-r06.jar" />      
       <zipfileset src="${lib}/jargs.jar" />
-      <fileset dir="${resources}" />
       <manifest>
         <attribute name="Main-Class" value="testutils.PTToJavaPackage"/>
       </manifest>
