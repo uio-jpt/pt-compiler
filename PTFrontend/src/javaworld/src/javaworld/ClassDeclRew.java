@@ -1,6 +1,5 @@
 package javaworld;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -8,30 +7,24 @@ import java.util.Set;
 import AST.BodyDecl;
 import AST.ClassDecl;
 import AST.ConstructorDecl;
-import AST.ExprStmt;
 import AST.FieldDeclaration;
 import AST.List;
 import AST.MethodAccess;
 import AST.MethodDecl;
 import AST.PTInstTuple;
 import AST.SimpleSet;
-import AST.TemplateAncestor;
-import AST.TemplateAncestorAccess;
-import AST.TemplateConstructor;
-import AST.TemplateConstructorAccess;
 import AST.VarAccess;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class ClassDeclRew {
+class ClassDeclRew {
 	protected final ClassDecl ext;
 	private final String sourceTemplateID;
 
-	public ClassDeclRew(ClassDecl ext, String sourceTemplateID) {
+	ClassDeclRew(ClassDecl ext, String sourceTemplateID) {
 		this.sourceTemplateID = sourceTemplateID;
 		Preconditions.checkArgument(sourceTemplateID != null);
 		this.ext = ext;
@@ -60,52 +53,6 @@ public class ClassDeclRew {
 					cd.error("Could not rewrite constructor " + cd.dumpString()
 							+ " to method during class merging.\n");
 				}
-			}
-		}
-	}
-
-	public void degradeTSuperToAncestor() {
-		degradeAncestors();
-		degradeTemplateConstructorAccesses();
-		degradeTemplateConstructors();
-	}
-
-	private void degradeAncestors() {
-		for (TemplateAncestor x : ext.getAncestors()) {
-			x.setID(Util.toAncestorName(ext.getID(), sourceTemplateID, x.getID()));
-		}
-		for (TemplateAncestorAccess x : ext.getAncestorAccesses()) {
-			x.setID(Util.toAncestorName(ext.getID(), sourceTemplateID, x.getID()));
-		}
-		
-	}
-
-	private void degradeTemplateConstructorAccesses() {
-		Collection<TemplateConstructorAccess> col = Lists.newLinkedList();
-		for (ConstructorDecl x : ext.getConstructorDeclList())
-			col.addAll(x.getTemplateConstructorAccesses());
-		
-		for (TemplateConstructorAccess x : col) {
-			String newID = Util.toAncestorName(ext.getID(),sourceTemplateID,x.getID());
-			TemplateAncestorAccess y = new TemplateAncestorAccess(newID, x.getArgList());
-			ExprStmt s = (ExprStmt) x.getParent();
-			s.setExpr(y);
-		}
-	}
-
-	private void degradeTemplateConstructors() {
-		for (TemplateConstructor tcons : ext.getTemplateConstructors()) {
-			Ancestor cdRew = new Ancestor(tcons, sourceTemplateID, ext.getID());
-			List<BodyDecl> l = (List<BodyDecl>) tcons.getParent();
-			int idx = l.getIndexOfChild(tcons);
-			BodyDecl decl;
-			try {
-				decl = cdRew.toAncestorDecl();
-				ext.setBodyDecl(decl, idx);
-			} catch (Exception e) {
-				tcons.error("Could not rewrite templatemethod/constructor "
-						+ tcons.dumpString()
-						+ " to 'ancient' method during class merging.\n");
 			}
 		}
 	}

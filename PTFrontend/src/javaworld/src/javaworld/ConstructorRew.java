@@ -2,13 +2,13 @@ package javaworld;
 
 import AST.*;
 
-public class ConstructorRew {
+class ConstructorRew {
 
 	private final ConstructorDecl cd;
 	private final String templateID;
 	private final String tclassID;
 
-	public ConstructorRew(ConstructorDecl cd, String templateID, String tclassID) {
+	ConstructorRew(ConstructorDecl cd, String templateID, String tclassID) {
 		this.cd = cd;
 		this.templateID = templateID;
 		this.tclassID = tclassID;

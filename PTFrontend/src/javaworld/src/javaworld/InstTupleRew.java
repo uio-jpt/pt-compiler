@@ -8,9 +8,9 @@ import AST.PTDummyRename;
 
 import com.google.common.collect.Maps;
 
-public class InstTupleRew {
+class InstTupleRew {
 
-	final PTInstTuple instantiator;
+	private final PTInstTuple instantiator;
 
 	public InstTupleRew(PTInstTuple dummy) {
 		this.instantiator = dummy;
@@ -21,8 +21,6 @@ public class InstTupleRew {
 		ClassDeclRew rewriteClass = new ClassDeclRew(ext, getSourceTemplateName());
 		rewriteClass.renameConstructors(instantiator);
 		rewriteClass.renameTypes(instantiator.getInstDecl().getRenamedClasses());
-		// TODO still relevant?
-//		x.degradeTSuperToAncestor();
 		rewriteClass.renameDefinitions(getExplicitlyRenamedDefinitions());
 		return rewriteClass;
 	}

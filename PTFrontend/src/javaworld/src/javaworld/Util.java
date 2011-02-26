@@ -13,10 +13,9 @@ import AST.TemplateMethodAccessShort;
 
 import com.google.common.base.Preconditions;
 
-
 public class Util {
 	final static boolean debugMode = true;
- 
+
 	public static void print(String data) {
 		if (debugMode)
 			System.out.println("DM: " + data);
@@ -61,29 +60,16 @@ public class Util {
 							+ "in template constructor call %s. msg: %s",
 					tclassID, toName(tclassID), e.getMessage()));
 		}
-		String methodName = toMinitName(templateID,tclassID);
+		String methodName = toMinitName(templateID, tclassID);
 		return new TemplateConstructorAccess(methodName, argList, tclassID,
 				templateID);
 	}
-	public static TemplateMethodAccess rewriteMethodAccess(TemplateMethodAccess from) {
-		// we have the form tsuper[T.C].m(); ..
-        // should we add some rewriting to support super calls?
-		
-		/* Possible extension:
-		 * Check if the method exists in adds class:
-		 * Search left to right..
-		 * then upwards in each super class?
-		 * 
-		 * Current method:
-		 * Never look in any super class.
-		 * 
-		 */
-		/* ClassDecl cd = from.getClassDecl(from.getTClassID());
-		System.out.println("Got classdecl: "+ from.getTClassID()+"=>" +cd);*/		
-		return from;
-	}
 
-	
+	/*
+	 * Is called from InstantiationRewrite.jrag
+	 * Try to unambiguously resolve a tsuper call in short from to standard form.
+	 * e.g. tsuper[<ClassID>].f() --> tsuper[<TemplateID>.<ClassID>].f()
+	 */
 	public static TemplateMethodAccess rewriteMethodAccess(
 			TemplateMethodAccessShort from) {
 		String templateID = "";
@@ -101,25 +87,17 @@ public class Util {
 							+ "in template method call %s. msg: ", tclassID,
 					from, e.getMessage()));
 		}
-		return new TemplateMethodAccess(toName(templateID,tclassID, methodName), argList, tclassID,
+		return new TemplateMethodAccess(
+				toName(templateID, tclassID, methodName), argList, tclassID,
 				templateID);
 	}
-	
-	public static ClassDecl toPTC(ClassDecl decl) {
-		return decl;
-	}
 
-	public static String toAncestorName(String id, String sourceTemplateID,
-			String id2) {
-		return String.format("%s$%s_%s",id,sourceTemplateID,id2);
-
-	}
 
 	public static String toMinitName(String templateID, String tclassID) {
-		return String.format("minit$%s$%s", templateID,tclassID);
+		return String.format("minit$%s$%s", templateID, tclassID);
 	}
-	
+
 	public static String toMinitName(String tclassID) {
-		return String.format("minit$%s",tclassID);
+		return String.format("minit$%s", tclassID);
 	}
 }
