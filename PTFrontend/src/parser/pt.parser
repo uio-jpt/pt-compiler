@@ -99,12 +99,12 @@ PTDummyRename definition_renaming =
 
 ClassDecl pt_adds_class = 
   CLASS IDENTIFIER ADDS class_body.b
-    {: return new PTC(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}
+    {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}
   ;
 
 ClassDecl pt_class_declaration =
     modifiers.m? CLASS IDENTIFIER super.s? interfaces.i? class_body.b 
-                                               {: return new PTC(new Modifiers(m), IDENTIFIER, s, i, b); :}
+                                               {: return new ClassDecl(new Modifiers(m), IDENTIFIER, s, i, b); :}
   ;
   
 

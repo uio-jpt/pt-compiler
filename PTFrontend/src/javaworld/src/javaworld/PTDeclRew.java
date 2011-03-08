@@ -12,7 +12,6 @@ import AST.List;
 import AST.Modifier;
 import AST.Modifiers;
 import AST.Opt;
-import AST.PTC;
 import AST.PTClassAddsDecl;
 import AST.PTClassDecl;
 import AST.PTDecl;
@@ -107,7 +106,7 @@ public class PTDeclRew {
 				destinationClassIDsWithInstTuples.keySet(), addClasses);
 
 		for (String name : missingAddsClass) {
-			ClassDecl cls = new PTC(new Modifiers(), name, new Opt<Access>(),
+			ClassDecl cls = new ClassDecl(new Modifiers(), name, new Opt<Access>(),
 					new List<Access>(), new List<BodyDecl>());
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			ptDeclToBeRewritten.addSimpleClass(addClass);

@@ -4,7 +4,6 @@ abstract PTDecl ::= <ID> PTInstDecl* SimpleClass*;
 PTTemplate : PTDecl;
 PTPackage : PTDecl;
 
-PTC : ClassDecl;
 abstract SimpleClass ::= ClassDecl;
 PTClassDecl : SimpleClass;
 PTClassAddsDecl : SimpleClass;
