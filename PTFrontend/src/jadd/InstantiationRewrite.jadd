@@ -77,12 +77,5 @@ aspect InstantiationRewrite {
         }
     }
 
-    rewrite TemplateConstructorAccessShort {
-        when (hostIsRewritten())
-        to TemplateConstructorAccess {
-            return Util.rewriteConstructorAccess(this);
-        }
-    }            
-
     syn boolean PTMethodAccess.hostIsRewritten() = hasParentClass(PTClassDecl.class);
 }

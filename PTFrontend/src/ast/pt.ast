@@ -27,10 +27,8 @@ TemplateMethodAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
 // will be converted to superType if unambigous
 TemplateMethodAccessShort : TemplateMethodAccess;
 
-// tja. disse to er vel strengt tatt ikke brukandes lenger
-// TODO cleanup
+// 
 TemplateConstructorAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
-TemplateConstructorAccessShort : TemplateConstructorAccess;
 
 /* A copied constructor defined in a template will be transformed to a 
  * method of type TemplateConstructor when it is instantiated.

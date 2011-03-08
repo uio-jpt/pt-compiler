@@ -21,7 +21,6 @@ package AddPackage {
         int x;
         
         Xylofon() {
-            tsuper[A]();
         }
     }
 }

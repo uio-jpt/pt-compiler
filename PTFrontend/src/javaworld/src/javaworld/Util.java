@@ -2,12 +2,9 @@ package javaworld;
 
 import java.util.NoSuchElementException;
 
-import AST.ClassDecl;
 import AST.Expr;
 import AST.List;
 import AST.PTClassDecl;
-import AST.TemplateConstructorAccess;
-import AST.TemplateConstructorAccessShort;
 import AST.TemplateMethodAccess;
 import AST.TemplateMethodAccessShort;
 
@@ -36,33 +33,6 @@ public class Util {
 	public static String getName(String methodSignature) {
 		int splitIdx = methodSignature.indexOf('(');
 		return methodSignature.substring(0, splitIdx);
-	}
-
-	/*
-	 * Is called from InstantiationRewrite.jrag
-	 * Try to unambiguously resolve a tsuper call in short from to standard form.
-	 * e.g. tsuper[<ClassID>].f() --> tsuper[<TemplateID>.<ClassID>].f()
-	 */
-	public static TemplateConstructorAccess rewriteConstructorAccess(
-			TemplateConstructorAccessShort from) {
-		String templateID = "";
-		PTClassDecl host = (PTClassDecl) from.getParentClass(PTClassDecl.class);
-
-		List<Expr> argList = from.getArgList(); // getArgListNoTransform??
-		String tclassID = from.getTClassID();
-		try {
-			templateID = host.getClassDecl().lookupTemplateForTClass(tclassID);
-		} catch (NoSuchElementException e) {
-			from.error("Unknown template superclass: " + tclassID);
-		} catch (IllegalArgumentException e) {
-			from.error(String.format(
-					"Multiple possible templates with class %s "
-							+ "in template constructor call %s. msg: %s",
-					tclassID, toName(tclassID), e.getMessage()));
-		}
-		String methodName = toMinitName(templateID, tclassID);
-		return new TemplateConstructorAccess(methodName, argList, tclassID,
-				templateID);
 	}
 
 	/*

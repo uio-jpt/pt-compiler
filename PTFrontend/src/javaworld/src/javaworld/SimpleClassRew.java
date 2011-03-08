@@ -27,16 +27,13 @@ import AST.ParameterDeclaration;
 import AST.SimpleClass;
 import AST.Stmt;
 import AST.SuperConstructorAccess;
-import AST.TabstractMethodDecl;
 import AST.TemplateConstructorAccess;
-import AST.TemplateConstructorAccessShort;
 import AST.TypeAccess;
 import AST.TypeDecl;
 import AST.VarAccess;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -373,10 +370,6 @@ public class SimpleClassRew {
 				Expr expr = exprstmt.getExpr();
 				if (expr instanceof TemplateConstructorAccess) {
 					TemplateConstructorAccess x = (TemplateConstructorAccess) expr;
-					if (x instanceof TemplateConstructorAccessShort)
-						replaceImplicitTSuperCall(
-								(TemplateConstructorAccessShort) x, callChain);
-					else
 						replaceGeneric(x, callChain);
 				} else {
 					otherStatements.add(stmt);
@@ -419,17 +412,6 @@ public class SimpleClassRew {
 			}
 		}
 
-	}
-
-	private void replaceImplicitTSuperCall(TemplateConstructorAccessShort x,
-			LinkedList<TemplateConstructorAccess> callChain) {
-		String name = x.getTClassID();
-		for (int i = 0; i < callChain.size(); i++) {
-			TemplateConstructorAccess cur = callChain.get(i);
-			if (cur.getTClassID().equals(name)) {
-				callChain.set(i, x);
-			}
-		}
 	}
 
 	public String getSuperClassname() {
