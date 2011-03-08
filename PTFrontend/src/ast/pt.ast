@@ -31,7 +31,7 @@ TemplateMethodAccessShort : TemplateMethodAccess;
 // possible for the end user to call those constructors/methods
 TemplateConstructorAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
 
-/* A copied constructor defined in a template will be transformed to a 
+/* A constructor defined in a template will be transformed to a 
  * method of type TemplateConstructor when it is instantiated.
  */
 TemplateConstructor : MethodDecl ::= <TClassID> <TemplateID>;
@@ -40,11 +40,6 @@ TemplateConstructor : MethodDecl ::= <TClassID> <TemplateID>;
  * PackageConstructors acceps arguments as opposed to TemplateConstructor.
  */
 PackageConstructor : MethodDecl ::= <TClassID> <TemplateID>;
-
-/* Deprecated... I'll remove or rewrite+document this asap
- */
-TemplateAncestor : MethodDecl;
-TemplateAncestorAccess : PTMethodAccess;
 
 /* Type that marks a method as tabstract.
  */ 
