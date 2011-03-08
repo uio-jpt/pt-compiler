@@ -27,7 +27,8 @@ TemplateMethodAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
 // will be converted to superType if unambigous
 TemplateMethodAccessShort : TemplateMethodAccess;
 
-// 
+// The template constructors call chain is generated and it's not legal or
+// possible for the end user to call those constructors/methods
 TemplateConstructorAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
 
 /* A copied constructor defined in a template will be transformed to a 
