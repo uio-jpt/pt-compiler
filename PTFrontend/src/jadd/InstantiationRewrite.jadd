@@ -50,14 +50,11 @@ aspect InstantiationRewrite {
             // PTInstDecl, which again refer to templates. So in effect it
             // means all the templates this template depends on.
         to PTDecl {
-            StringBuffer sb;
-            sb = new StringBuffer();
-            this.toString(sb);
+            flushCaches();
             InstantiationRewriter x = new InstantiationRewriter();            
             x.run(this);
-            this.isRewritten = true;            
-            sb = new StringBuffer();
-            this.toString(sb);
+            this.isRewritten = true;
+            flushCaches();
             return this;
         }
     }
