@@ -1,5 +1,15 @@
 /* NB: Remember to clean/rebuild. The parser will behave strange otherwise.
 */
+
+/* Solving the internal interface problem seems somewhat tricky.
+   Do we need a wrapper class for interface declarations, like
+   PTClassDecl for normal classes? Should it inherit from
+   SimpleClass even though it's technically not exactly a class?
+   Otherwise, are there any problems with renaming something
+   that's not a SimpleClass?
+    -svk
+*/
+
 CompilationUnit compilation_unit =
 package_declaration.p import_declarations.i? pt_declaration.pt+ {: return new PTCompilationUnit(p.getID(), i, new List<TypeDecl>(), pt); :}
 | import_declarations.i? pt_declaration.pt+ {: return new PTCompilationUnit("", i, new List<TypeDecl>(), pt); :}
