@@ -1,0 +1,16 @@
+Denne mappen blir gjennomsøkt for filer av typen .java, og hver blir
+kompilert for seg.
+
+Det sjekkes at det ikke kommer kompileringsfeil eller advarsler, og
+at ikke CompilationUnit.errorCheck() rapporterer noen feil - det
+siste er en JastAdd-metode som sjekker ASTen.
+
+Koden i disse testene kjøres ikke. Output er vilkårlig og ignoreres.
+
+Dersom filnavnet inneholder "_fail" inverteres resultatet; en test
+som ville ha feilet under systemet over regnes som akseptert (og
+syntaksfeil etc. printes dermed ikke under testall etc.)
+
+Testrammeverket er i src/testutils.
+
+    -svk 17. mars, bør tas med en klype salt
