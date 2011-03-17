@@ -1,3 +1,6 @@
+/* Dette er "kompilatoren" (frontenden), som blir kjørt
+   med JPT.jar. -svk */
+
 package testutils;
 
 import jargs.gnu.CmdLineParser;

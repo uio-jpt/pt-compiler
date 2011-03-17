@@ -12,8 +12,18 @@ public class GenerateJava {
 	private CompileToPackage compilerInterface;
 	private FileIO outputSrcFolder;
 
+    private boolean writeToStdout;
+    private boolean squelchUninterestingToStdout;
+
 	public GenerateJava(String[] inputfileNames, String outputFolderName) {
-		outputBaseFolder = new FileIO(outputFolderName);
+        if( outputFolderName.equals( "-" ) ) {
+            writeToStdout = true;
+            outputBaseFolder = new FileIO( "" );
+            squelchUninterestingToStdout = true;
+        } else {
+            outputBaseFolder = new FileIO(outputFolderName);
+            writeToStdout = false;
+        }
 		compilerInterface = new CompileToPackage(inputfileNames);
 	}
 
@@ -36,10 +46,27 @@ public class GenerateJava {
 		return !compilerInterface.getErrorMsgs().equals("");
 	}
 
+    private static boolean filenameIsUninteresting( String filename ) {
+        return filename.endsWith( "build.xml" ) || filename.endsWith( "DUMMY$.java" );
+    }
+
+    private void writeToFile(FileIO f, String data) {
+        if( writeToStdout ) {
+            if( squelchUninterestingToStdout && filenameIsUninteresting( f.getName() ) ) {
+                return;
+            }
+            System.out.println( "==== " + f.getName() + " ====" );
+            System.out.println( data );
+        } else {
+            f.write( data );
+        }
+    }
+
 	private void writeBuildXML() {
 		FileIO buildFile = outputBaseFolder.createExtendedPath("build.xml");
 		String src = GenericBuildXML.generateBuildFile(outputBaseFolder.getName());
-		buildFile.write(src);
+
+        writeToFile( buildFile, src );
 	}
 
 	private void writePackages() {
@@ -59,7 +86,7 @@ public class GenerateJava {
 			String source = compilerInterface.getCompilableClassData(packageName,
 					classname);
 			source += "\n";
-			classFile.write(source);
+            writeToFile( classFile, source );
 		}
 	}
 

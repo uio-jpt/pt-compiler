@@ -86,7 +86,7 @@
   
   <target name="build" depends="PTGen">
     <mkdir dir="${build.classes}" />
-    <javac srcdir="${src.gen}" destdir="${build.classes}" classpathref="classpath.dependencies" debug="true" fork="true" memoryMaximumSize="${heap-max-value}" />
+    <javac srcdir="${src.gen}" destdir="${build.classes}" classpathref="classpath.dependencies" debug="true" fork="true" memoryMaximumSize="${heap-max-value}" includeAntRuntime="false" />
   </target>
 
   <target name="testall" depends="build" description="Perform semantic checks on all folders in the ./test directory">
