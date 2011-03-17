@@ -3,6 +3,7 @@ package javaworld;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 
 import AST.BodyDecl;
 import AST.ClassDecl;
@@ -83,6 +84,10 @@ class ClassDeclRew {
 		}
 		renameDefinitions(renamedVersion);
 	}
+
+    protected HashSet getImplementedInterfaces() {
+        return ext.implementedInterfaces();
+    }
 
 	protected String getSuperClassName() {
 		return ext.getSuperClassName();

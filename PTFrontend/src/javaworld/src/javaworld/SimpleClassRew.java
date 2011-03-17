@@ -13,6 +13,7 @@ import AST.Access;
 import AST.Block;
 import AST.BodyDecl;
 import AST.ClassDecl;
+import AST.InterfaceDecl;
 import AST.ClassInstanceExpr;
 import AST.ConstructorDecl;
 import AST.Expr;
@@ -66,6 +67,7 @@ public class SimpleClassRew {
 		possibleConflicts = getPossibleConflicts();
 		computeClassToTemplateMultimap();
 		updateSuperName();
+        updateImplementsNames();
 		computeTSuperDeps();
 
 		if (mergingIsPossible()) {
@@ -148,6 +150,30 @@ public class SimpleClassRew {
 		}
 		decl.getClassDecl().setClassToTemplateMap(classToTemplates);
 	}
+
+    /**
+      * Updates the implemented interfaces of this class to the union of the
+      * implemented interfaces of the merged classes.
+      */
+    private void updateImplementsNames() {
+		HashSet<String> names = Sets.newHashSet();
+        for( Object o : decl.getClassDecl().getImplementsList() ) {
+            TypeAccess ta = (TypeAccess) o; // xx! want try/catch?
+            names.add( ta.getID() );
+        }
+		for (ClassDeclRew x : renamedSources) {
+            for( Object o : x.getImplementedInterfaces() ) {
+                InterfaceDecl oi = (InterfaceDecl) o;
+                names.add( oi.name() );
+            }
+		}
+        AST.List<Access> accessList = new AST.List<Access>();
+        for( String name : names ) {
+            accessList.add( new TypeAccess( name ) );
+        }
+        decl.getClassDecl().setImplementsList( accessList );
+    }
+
 
 	/**
 	 * Sets the supername of this class to the supername of the merged classes.
