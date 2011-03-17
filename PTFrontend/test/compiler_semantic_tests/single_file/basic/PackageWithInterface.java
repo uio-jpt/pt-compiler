@@ -12,6 +12,7 @@ template T {
 }
 
 package P {
+    inst T;
 
     class R {
         void testrunner() {
