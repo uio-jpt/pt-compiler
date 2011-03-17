@@ -32,6 +32,7 @@ import AST.TemplateConstructorAccess;
 import AST.TypeAccess;
 import AST.TypeDecl;
 import AST.VarAccess;
+import AST.Modifier;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
@@ -47,7 +48,9 @@ public class SimpleClassRew {
 	private final SimpleClass decl;
 	private Collection<PTInstTuple> instTuples;
 	private Set<String> possibleConflicts;
-	private Collection<ClassDeclRew> renamedSources;
+	private Collection<ClassDeclRew> renamedSources; /* this doesn't actually seem to discriminate
+                                                        between renames and trivial "renames"
+                                                        e.g. X => X ? */
 
 	public SimpleClassRew(SimpleClass decl) {
 		this.decl = decl;
@@ -69,6 +72,8 @@ public class SimpleClassRew {
 		updateSuperName();
         updateImplementsNames();
 		computeTSuperDeps();
+
+        updateAbstractness();
 
 		if (mergingIsPossible()) {
 			renameResolvedConflicts();
@@ -150,6 +155,25 @@ public class SimpleClassRew {
 		}
 		decl.getClassDecl().setClassToTemplateMap(classToTemplates);
 	}
+
+    /** Updates the modifiers of this class such that it is set to abstract
+      * if _any_ of the merged classes are abstract. Note that the class
+      * stays abstract if it is already abstract, but all the merged classes
+      * are concrete. */
+    private void updateAbstractness() {
+        if( !decl.getClassDecl().isAbstract() ) {
+            boolean shouldBeAbstract = false;
+            for( ClassDeclRew x : renamedSources ) {
+                if( x.isAbstract() ) {
+                    shouldBeAbstract = true;
+                }
+            }
+
+            if( shouldBeAbstract ) {
+                decl.getClassDecl().getModifiers().addModifier( new Modifier( "abstract" ) );
+            }
+        }
+    }
 
     /**
       * Updates the implemented interfaces of this class to the union of the

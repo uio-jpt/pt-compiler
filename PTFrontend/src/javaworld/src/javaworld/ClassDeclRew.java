@@ -85,6 +85,10 @@ class ClassDeclRew {
 		renameDefinitions(renamedVersion);
 	}
 
+    protected boolean isAbstract() {
+        return ext.isAbstract();
+    }
+
     protected HashSet getImplementedInterfaces() {
         return ext.implementedInterfaces();
     }
