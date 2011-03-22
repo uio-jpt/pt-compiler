@@ -54,26 +54,29 @@ PTDecl pt_template =
           :}
           ;
 
-// Note that if there weren't possibly a requirement of inst being first in packages,
-// the below code would be almost identical to the above code.
-
+    // xx code duplication with above
 PTDecl pt_package =
- PACKAGE IDENTIFIER LBRACE pt_inst_decl.pt_inst* class_or_interface_single.l* RBRACE
- {:
+ PACKAGE IDENTIFIER LBRACE inst_class_or_interface_single.l* RBRACE
+          {:
                 AST.List<SimpleClass> simpleClassList = new AST.List<SimpleClass>();
+                AST.List<PTInstDecl> instDeclList = new AST.List<PTInstDecl>();
                 AST.List<PTInterfaceDecl> intfDeclList = new AST.List<PTInterfaceDecl>();
 
                 for (int i=0; i<l.getNumChildNoTransform(); i++) {
                     ASTNode n = l.getChildNoTransform(i);
-                    if (n instanceof PTInterfaceDecl) {
+                    if (n instanceof PTInstDecl) {
+                        instDeclList.add( (PTInstDecl) n);
+                    }
+                    else if (n instanceof PTInterfaceDecl) {
                         intfDeclList.add( (PTInterfaceDecl) n );
                     }
                     else {
                         simpleClassList.add( (SimpleClass) n);
                     }
                 }
-                return new PTPackage(IDENTIFIER, pt_inst, simpleClassList, intfDeclList );
- :};
+                return new PTPackage(IDENTIFIER, instDeclList, simpleClassList, intfDeclList);
+          :}
+          ;
 
 ASTNode inst_class_or_interface_single =
      pt_inst_decl.pt_inst {: return pt_inst; :}
