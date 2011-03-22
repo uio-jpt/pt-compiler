@@ -5,7 +5,7 @@ aspect RenameTypes {
             ASTNode child = getChild(i);
             boolean result = child.visitRename(ht);
             if (result) {
-                //System.out.println("renamed " + child.dumpString());
+//                System.out.println("renamed " + child.dumpString());
             }
             child.renameTypes(ht);
         }

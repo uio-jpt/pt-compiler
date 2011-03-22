@@ -2,9 +2,11 @@ package javaworld;
 
 import java.util.Map;
 
+import AST.TypeDecl;
 import AST.ClassDecl;
 import AST.PTInstTuple;
 import AST.PTDummyRename;
+import AST.PTInterfaceDecl;
 
 import com.google.common.collect.Maps;
 
@@ -16,8 +18,26 @@ class InstTupleRew {
 		this.instantiator = dummy;
 	}
 
+    protected boolean isInterface() {
+        return instantiator.getOriginator() instanceof AST.PTInterfaceDecl;
+    }
+
+    protected PTInterfaceDecl getRenamedSourceInterface() {
+        TypeDecl x = instantiator.getOriginator();
+		PTInterfaceDecl ext = ((PTInterfaceDecl)x).fullCopy();
+
+            // is this a wise way to do this? seems clumsy.
+            // renameTypes should evidently NOT automatically visitRename
+            //  as well, this breaks several tests -- should investigate why
+        ext.visitRename( instantiator.getInstDecl().getRenamedClasses() );
+        ext.renameTypes( instantiator.getInstDecl().getRenamedClasses() );
+
+        return ext;
+    }
+
 	protected ClassDeclRew getRenamedSourceClass() {
-		ClassDecl ext = instantiator.getOriginator().fullCopy();
+        TypeDecl x = instantiator.getOriginator();
+		ClassDecl ext = ((ClassDecl)x).fullCopy();
 		ClassDeclRew rewriteClass = new ClassDeclRew(ext, getSourceTemplateName());
 		rewriteClass.renameConstructors(instantiator);
 		rewriteClass.renameTypes(instantiator.getInstDecl().getRenamedClasses());

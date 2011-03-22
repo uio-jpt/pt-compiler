@@ -8,6 +8,15 @@
    Otherwise, are there any problems with renaming something
    that's not a SimpleClass?
     -svk
+
+   The way it's done now: we have a very shallow wrapper class,
+   PTInterfaceDecl, which I believe is useful for renaming,
+   but that might be wrong. SimpleClass is not involved, so
+   a lot of methods that previously returned SimpleClass now
+   return TypeDecl, and casts are required later after checking
+   with instanceof. I believe I've fixed this up so it _works_,
+   but many method/variable names should be updated for
+   readability, assuming this stays.
 */
 
 CompilationUnit compilation_unit =
@@ -23,33 +32,57 @@ PTDecl pt_declaration =
 ;
 
 PTDecl pt_template =
- TEMPLATE IDENTIFIER LBRACE inst_or_class_single.l+ RBRACE
+ TEMPLATE IDENTIFIER LBRACE inst_class_or_interface_single.l+ RBRACE
           {:
                 AST.List<SimpleClass> simpleClassList = new AST.List<SimpleClass>();
                 AST.List<PTInstDecl> instDeclList = new AST.List<PTInstDecl>();
+                AST.List<PTInterfaceDecl> intfDeclList = new AST.List<PTInterfaceDecl>();
 
                 for (int i=0; i<l.getNumChildNoTransform(); i++) {
                     ASTNode n = l.getChildNoTransform(i);
                     if (n instanceof PTInstDecl) {
                         instDeclList.add( (PTInstDecl) n);
                     }
+                    else if (n instanceof PTInterfaceDecl) {
+                        intfDeclList.add( (PTInterfaceDecl) n );
+                    }
                     else {
                         simpleClassList.add( (SimpleClass) n);
                     }
                 }
-                return new PTTemplate(IDENTIFIER, instDeclList, simpleClassList);
+                return new PTTemplate(IDENTIFIER, instDeclList, simpleClassList, intfDeclList);
           :}
           ;
 
+// Note that if there weren't possibly a requirement of inst being first in packages,
+// the below code would be almost identical to the above code.
+
 PTDecl pt_package =
- PACKAGE IDENTIFIER LBRACE pt_inst_decl.pt_inst* pt_simple_declaration.pt_class* RBRACE
+ PACKAGE IDENTIFIER LBRACE pt_inst_decl.pt_inst* class_or_interface_single.l* RBRACE
  {:
-                return new PTPackage(IDENTIFIER, pt_inst, pt_class);
+                AST.List<SimpleClass> simpleClassList = new AST.List<SimpleClass>();
+                AST.List<PTInterfaceDecl> intfDeclList = new AST.List<PTInterfaceDecl>();
+
+                for (int i=0; i<l.getNumChildNoTransform(); i++) {
+                    ASTNode n = l.getChildNoTransform(i);
+                    if (n instanceof PTInterfaceDecl) {
+                        intfDeclList.add( (PTInterfaceDecl) n );
+                    }
+                    else {
+                        simpleClassList.add( (SimpleClass) n);
+                    }
+                }
+                return new PTPackage(IDENTIFIER, pt_inst, simpleClassList, intfDeclList );
  :};
 
-ASTNode inst_or_class_single =
+ASTNode inst_class_or_interface_single =
      pt_inst_decl.pt_inst {: return pt_inst; :}
-   | pt_simple_declaration.pt_class {: return pt_class; :}
+   | class_or_interface_single.x {: return x; :}
+   ;
+
+ASTNode class_or_interface_single =
+     pt_simple_declaration.pt_class {: return pt_class; :}
+   | pt_intf_decl.intf_decl {: return intf_decl; :}
    ;
 
 
@@ -110,6 +143,10 @@ PTDummyRename definition_renaming =
 ClassDecl pt_adds_class = 
   CLASS IDENTIFIER ADDS class_body.b
     {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}
+  ;
+
+PTInterfaceDecl pt_intf_decl =
+  modifiers.m? INTERFACE IDENTIFIER extends_interfaces.i? interface_body.b {: return new PTInterfaceDecl(new Modifiers(m), IDENTIFIER, i, b); :}
   ;
 
 ClassDecl pt_class_declaration =

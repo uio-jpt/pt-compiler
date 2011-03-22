@@ -87,8 +87,11 @@ public class SimpleClassRew {
 	private void computeTSuperDeps() {
 		LinkedHashMap<String, String> deps = decl.getClassDecl().allTDeps;
 		for (PTInstTuple instTuple : sorted(instTuples)) {
-			expandDepsWith(deps, instTuple.getTemplate().getID(),
-					instTuple.getOriginator());
+            TypeDecl x = instTuple.getOriginator();
+            if( x instanceof ClassDecl ) {
+                expandDepsWith(deps, instTuple.getTemplate().getID(),
+                       (ClassDecl) x );
+            }
 		}
 		LinkedHashMap<String, String> superDeps = getSuperDepsCopy();
 		for (String superDep : superDeps.keySet()) {
@@ -149,7 +152,7 @@ public class SimpleClassRew {
 	private void computeClassToTemplateMultimap() {
 		Multimap<String, String> classToTemplates = HashMultimap.create();
 		for (PTInstTuple dummy : instTuples) {
-			String classID = dummy.getOriginator().getID();
+			String classID = dummy.getOrgID();
 			String templateID = dummy.getTemplate().getID();
 			classToTemplates.put(classID, templateID);
 		}
@@ -186,9 +189,8 @@ public class SimpleClassRew {
             names.add( ta.getID() );
         }
 		for (ClassDeclRew x : renamedSources) {
-            for( Object o : x.getImplementedInterfaces() ) {
-                InterfaceDecl oi = (InterfaceDecl) o;
-                names.add( oi.name() );
+            for( String name : x.getImplementsList() ) {
+                names.add( name );
             }
 		}
         AST.List<Access> accessList = new AST.List<Access>();
@@ -310,9 +312,11 @@ public class SimpleClassRew {
 	private Collection<ClassDeclRew> getRenamedInstClassesRewriters() {
 		Collection<ClassDeclRew> instClasses = Lists.newLinkedList();
 		for (PTInstTuple x : instTuples) {
-			InstTupleRew instTupleRew = new InstTupleRew(x);
-			ClassDeclRew ext = instTupleRew.getRenamedSourceClass();
-			instClasses.add(ext);
+            if( x.getOriginator() instanceof ClassDecl ) {
+                InstTupleRew instTupleRew = new InstTupleRew(x);
+                ClassDeclRew ext = instTupleRew.getRenamedSourceClass();
+                instClasses.add(ext);
+            }
 		}
 		return instClasses;
 	}

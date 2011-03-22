@@ -24,12 +24,18 @@ aspect PrettyPrint {
     public void PTDecl.toString(StringBuffer sb) {
         sb.append(indent());
         sb.append(getDeclType() + " " + getID() + " {");
-        for (PTInstDecl inst : getPTInstDecls())
+        for (PTInstDecl inst : getPTInstDecls()) {
             inst.toString(sb);
-        for (PTClassAddsDecl ptclass : getAdditionClassList())
-            ptclass.toString(sb);        
-        for (ClassDecl ptclass : getClassList())
+        }
+        for (PTInterfaceDecl ptclass : getPTInterfaceDeclList()) {
             ptclass.toString(sb);
+        }
+        for (PTClassAddsDecl ptclass : getAdditionClassList()) {
+            ptclass.toString(sb);        
+        }
+        for (ClassDecl ptclass : getClassList()) {
+            ptclass.toString(sb);
+        }
 
         sb.append(indent() + "}");
     }

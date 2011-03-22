@@ -15,6 +15,8 @@ import AST.MethodDecl;
 import AST.PTInstTuple;
 import AST.SimpleSet;
 import AST.VarAccess;
+import AST.TypeAccess;
+import AST.Access;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -31,6 +33,16 @@ class ClassDeclRew {
 		this.ext = ext;
 
 	}
+
+    public HashSet<String> getImplementsList() {
+        HashSet<String> rv = new HashSet<String> ();
+        for( Access x : ext.getImplementsList() ) {
+            TypeAccess iface = (TypeAccess) x ;
+            rv.add( iface.getID() );
+        }
+        return rv;
+    }
+
 
 	/* TODO not very pretty 
 	 * 

@@ -1,4 +1,7 @@
-template T {
+package P {
+    /* Looks silly and has nothing to do with templates, but it
+       used to fail. -svk */
+
     interface TestI {
         public int add(int x, int y);
     }
@@ -9,10 +12,6 @@ template T {
             return x + y;
         }
     }
-}
-
-package P {
-    inst T;
 
     class R {
         void testrunner() {

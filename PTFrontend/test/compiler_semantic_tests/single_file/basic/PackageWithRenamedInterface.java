@@ -12,11 +12,11 @@ template T {
 }
 
 package P {
-    inst T;
+    inst T with TestI => TestX;
 
     class R {
         void testrunner() {
-            TestI t = new TC();
+            TestX t = new TC();
             System.out.println(t.add(1,2));
         }
     }

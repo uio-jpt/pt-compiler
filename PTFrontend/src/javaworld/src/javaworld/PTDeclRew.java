@@ -2,7 +2,9 @@ package javaworld;
 
 import java.util.Comparator;
 import java.util.Set;
+import java.util.TreeSet;
 
+import AST.PTInterfaceDecl;
 import AST.Access;
 import AST.BodyDecl;
 import AST.ClassDecl;
@@ -26,6 +28,18 @@ import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
+
+/** TODO after my work on interfaces:
+  *   - check for various illegal situations such as
+  *     merging interfaces with classes
+  *   - normalize the names of things that are now
+  *     referred to as "classes" in method names but
+  *     could really also be interfaces
+  *     (e.g. destinationClassIDsWithInstTuples
+  *     and friends).
+  * -svk
+  */
+
 
 public class PTDeclRew {
 
@@ -59,6 +73,20 @@ public class PTDeclRew {
 		}
 	}
 
+    /** Create interfaces 'inherited' from templates, with their new names.
+     */
+
+	protected void createRenamedInterfaces() {
+        /* Interfaces can't have adds-classes, so it makes little sense
+           to generalize the "create an empty adds-class and merge"
+           for interfaces. Instead we just iterate through the
+           instantiation tuples and rename as we go.
+           Note, very very WIP. */
+        for( String name : getDestinationIDsForInterfaces() ) {
+            ptDeclToBeRewritten.getPTInterfaceDeclList().add( getRenamedInterfaceByName( name ) );
+        }
+    }
+
 	/**
 	 * Needs extended classes in correct order. Minit dependencies are inherited
 	 * and therefore a superclass must be extended before its child.
@@ -79,6 +107,52 @@ public class PTDeclRew {
 		}
 	}
 
+    // XXX note that in the next few methods we only test the first element.
+    //     it is assumed that all the types are equal -- trying to merge an
+    //     interface with a class is obviously nonsensical and an error.
+
+
+    /** Get IDs for the destination _classes_ -- that is, stripping away
+      * the IDs of any interfaces among the renamed elements.
+      */
+
+    protected Set<String> getDestinationIDsForClasses() {
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
+        Set<String> rv = new TreeSet<String>();
+        for( String x : destinationClassIDsWithInstTuples.keySet() ) {
+            if( destinationClassIDsWithInstTuples.get(x).iterator().next().getOriginator() instanceof ClassDecl ) {
+                rv.add( x );
+            }
+        }
+        return rv;
+    }
+
+    /** Get IDs for the destination _interfaces_.
+      */
+
+    protected Set<String> getDestinationIDsForInterfaces() {
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
+        Set<String> rv = new TreeSet<String>();
+        for( String x : destinationClassIDsWithInstTuples.keySet() ) {
+            if( destinationClassIDsWithInstTuples.get(x).iterator().next().getOriginator() instanceof PTInterfaceDecl ) {
+                rv.add( x );
+            }
+        }
+        return rv;
+    }
+
+    /** Get a renamed interface by (new) name.
+     */
+
+    protected PTInterfaceDecl getRenamedInterfaceByName(String name) {
+        // again, this just gets the first element. there should be only one.
+        // xxx I saw a fancy google method for doing that somewhere
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
+        Set<String> rv = new TreeSet<String>();
+        PTInstTuple tup = destinationClassIDsWithInstTuples.get(name).iterator().next();
+        return new InstTupleRew(tup).getRenamedSourceInterface();
+    }
+
 	protected void createEmptyMissingAddClasses() {
 
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
@@ -88,8 +162,9 @@ public class PTDeclRew {
 		 * Add the explicitly defined classes residing in this PTDecl to our
 		 * rewrite list.
 		 */
-		for (SimpleClass decl : ptDeclToBeRewritten.getSimpleClassList())
+		for (SimpleClass decl : ptDeclToBeRewritten.getSimpleClassList()) {
 			lb.add(new SimpleClassRew(decl));
+        }
 		/*
 		 * Does SimpleClassRew really need the whole
 		 * destinationClassIDsWithInstTuples? Why?
@@ -103,13 +178,21 @@ public class PTDeclRew {
 		 */
 		Set<String> addClasses = ptDeclToBeRewritten.getAdditionClassNamesSet();
 		Set<String> missingAddsClass = Sets.difference(
-				destinationClassIDsWithInstTuples.keySet(), addClasses);
+                getDestinationIDsForClasses(), addClasses );
 
 		for (String name : missingAddsClass) {
 			ClassDecl cls = new ClassDecl(new Modifiers(), name, new Opt<Access>(),
 					new List<Access>(), new List<BodyDecl>());
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
-			ptDeclToBeRewritten.addSimpleClass(addClass);
+
+			ptDeclToBeRewritten.addSimpleClass(addClass); /* Code understanding note:
+                                                             this is the line where the actual magic happens;
+                                                             something is added to the AST. "simpleClasses"
+                                                             just keeps track of rewriters internally which
+                                                             have references to this addClass.
+                                                             addSimpleClass() is a method generated by the
+                                                             parser. */
+
 			lb.add(new SimpleClassRew(addClass));
 		}
 		simpleClasses = lb.build();

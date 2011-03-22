@@ -1,3 +1,9 @@
+/* This might be worth going over with git blame to check
+ * everything added with this commit, as at this point I'm
+ * really not even sure about the JastAdd syntax used here.
+ * Pretty much all I've added with this commit to this file
+ * is cargo cult code, should be checked. -svk */
+
 
 aspect LookupType {
 
@@ -15,6 +21,15 @@ aspect LookupType {
         return lookupType(packageName, typeName);
     }
 
+    eq PTDecl.getPTInterfaceDecl(int i).lookupType(String packageName, String typeName) {
+        String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
+        for (PTInterfaceDecl cls : getPTInterfaceDeclList()) {
+            if (cls.fullName().equals(fullName)) {
+                return cls;
+            }
+        }
+        return lookupType(packageName, typeName);
+    }
 
     syn TypeDecl PTTemplate.lookupType(String name) {
         for (TypeDecl cls: getClassList()) {
@@ -22,10 +37,15 @@ aspect LookupType {
                 return cls;
             }
         }
+        for (PTInterfaceDecl cls : getPTInterfaceDeclList()) {
+            if (cls.getID().equals(name)) {
+                return cls;
+            }
+        }
         return null;
     }
 
-    syn ClassDecl PTInstTuple.getOriginator() = (ClassDecl) getTemplate().lookupType(getOrgID());
+    syn TypeDecl PTInstTuple.getOriginator() = (TypeDecl) getTemplate().lookupType(getOrgID());
 
     syn PTTemplate PTDecl.lookupTemplate(String name) = null;
     eq PTTemplate.lookupTemplate(String name) = name.equals(getID()) ? this : null;
@@ -46,6 +66,11 @@ aspect LookupType {
             ClassDecl cd = s.getClassDecl();
             if (cd.getID().equals(name))
                 return SimpleSet.emptySet.add(cd);
+        }
+        for (PTInterfaceDecl s : getPTInterfaceDeclList()) {
+            if (s.getID().equals(name)) {
+                return SimpleSet.emptySet.add(s);
+            }
         }
         TypeDecl t = lookupType("", name);
         if (t!=null) return SimpleSet.emptySet.add(t);

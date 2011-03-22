@@ -20,7 +20,7 @@ aspect JastAddAspectRefinements {
         return constructors;
     }
 
-    syn Set<String> ClassDecl.methodSignatures() {
+    syn Set<String> TypeDecl.methodSignatures() {
         Set<String> signatures = localMethodsSignatureMap().keySet();
         return ImmutableSet.copyOf(signatures);
     }
@@ -30,7 +30,7 @@ aspect JastAddAspectRefinements {
         return ImmutableSet.copyOf(names);
     }
 
-    syn Set<String> ClassDecl.methodNames() {
+    syn Set<String> TypeDecl.methodNames() {
         Set<String> methodNames = Sets.newHashSet();
         for (String methodSignature : methodSignatures()) {
             String name = Util.getName(methodSignature);

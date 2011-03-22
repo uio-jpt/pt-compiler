@@ -11,6 +11,14 @@ aspect PTInstDecl {
                     addPTInstTuple(instTuple);
                 } 
             }
+            for (PTInterfaceDecl intfDecl: getTemplate().getPTInterfaceDeclList()) {
+                String templateClassID = intfDecl.getID();
+                if (!renamedClasses.containsKey(templateClassID)) {
+                    PTInstTuple instTuple;                                
+                    instTuple = new PTInstTuple(templateClassID,templateClassID, new List());
+                    addPTInstTuple(instTuple);
+                } 
+            }
         } catch(NullPointerException e) {
             error(String.format("No template with name %s found.\n",getID()));
         }

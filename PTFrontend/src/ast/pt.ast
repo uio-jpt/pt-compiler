@@ -1,6 +1,6 @@
 PTCompilationUnit : CompilationUnit ::= PTDecl*;
 
-abstract PTDecl ::= <ID> PTInstDecl* SimpleClass*;
+abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* PTInterfaceDecl*;
 PTTemplate : PTDecl;
 PTPackage : PTDecl;
 
@@ -8,6 +8,7 @@ abstract SimpleClass ::= ClassDecl;
 PTClassDecl : SimpleClass;
 PTClassAddsDecl : SimpleClass;
 
+PTInterfaceDecl : InterfaceDecl;
 
 PTInstDecl ::= <ID> PTInstTuple*; // inst T with A => X;
                                   //      ID    PTInstTuple

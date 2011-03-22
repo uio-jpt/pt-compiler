@@ -3,6 +3,14 @@ import javaworld.Util;
 import com.google.common.collect.*;
 import testutils.tester.Log;
 
+/* Note that these rewrites do NOT get us all the way to pure Java.
+   We end up with each package as a PTPackage node.
+   CompileToPackage in the testutils performs the last step by
+   transforming this node into a standard multiple-files Java package.
+   This step is never reached when all we do is testing.
+    -svk
+*/
+
 
 aspect InstantiationRewrite {
 
