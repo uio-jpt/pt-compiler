@@ -1,5 +1,10 @@
 import com.google.common.collect.Sets;
 
+import java.util.Set;
+import java.util.HashSet;
+
+import AST.SimpleSet;
+
 aspect Tabstractness {
     syn lazy boolean Modifiers.isTabstract() {
         return numModifier("tabstract") != 0;
@@ -43,7 +48,7 @@ aspect Tabstractness {
     refine TypeCheck public void MethodDecl.typeCheck() {
         TypeCheck.MethodDecl.typeCheck();
         if( isTabstract() && getParentClass(PTPackage.class) != null) {
-            System.out.println( "checking tabstract v" );
+            System.out.println( "checking tabstract " + signature() );
             SimpleSet matchingMethods = hostType().methodsSignature( signature() );
             Iterator i = matchingMethods.iterator();
             boolean foundImplementation = false;
@@ -62,5 +67,48 @@ aspect Tabstractness {
                 error("Tabstract method must be implemented before or in the instantiating package class.");
             }
         }
+    }
+
+    // below more at home in a jadd file? the distinction seems subtle
+    // could we hook into the constructor? that would make this cleaner
+
+    private HashSet<String> SimpleClass.tabstractSignatures = null;
+
+    public HashSet<String> SimpleClass.getTabstractSignatures() {
+        if( tabstractSignatures == null ) {
+            tabstractSignatures = new HashSet<String> ();
+        }
+        return tabstractSignatures;
+    }
+
+    public void SimpleClass.addTabstractSignature( String sig ) {
+        System.out.println( "adding signature: " + sig + " to class: " + getID() + " (" + getClass().getName() + ")" );
+        getTabstractSignatures().add( sig );
+    }
+
+    public void SimpleClass.checkTabstractsInstantiated() {
+        System.out.println( "Checking tabstract instantiation errors in: " + getID() + " (" + getClass().getName() + ")" );
+        for( String sig : getTabstractSignatures() ) {
+            System.out.println( "Checking " + sig );
+            if( getClassDecl().hostType().methodsSignature( sig ) == SimpleSet.emptySet ) {
+                System.out.println( "DISCOVERED ERROR" );
+                error( "tabstract with signature " + sig + " was never instantiated" );
+            }
+        }
+        System.out.println( "Done" );
+    }
+
+    public void PTPackage.checkTabstractsInstantiated() {
+        System.out.println( "Checking tabstract instantiation errors in package" );
+        for( SimpleClass sc : getSimpleClassList() ) {
+            sc.checkTabstractsInstantiated();
+        }
+    }
+
+    public void PTPackage.collectErrors() {
+        System.out.println( "Checking errors in package" );
+        checkTabstractsInstantiated();
+
+        super.collectErrors();
     }
 }

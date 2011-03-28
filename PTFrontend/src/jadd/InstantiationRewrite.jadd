@@ -71,6 +71,11 @@ aspect InstantiationRewrite {
         when (getPTDecl().isRewritten)
         to PTClassDecl {
             PTClassDecl newClassDecl = new PTClassDecl(getClassDecl());
+
+            for( String sig : getTabstractSignatures() ) { // hax
+                newClassDecl.addTabstractSignature( sig );
+            }
+
             return newClassDecl;
         }
     }

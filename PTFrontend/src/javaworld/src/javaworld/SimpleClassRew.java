@@ -24,6 +24,7 @@ import AST.Opt;
 import AST.PTInstTuple;
 import AST.PTTemplate;
 import AST.PTPackage;
+import AST.PTClassAddsDecl;
 import AST.PackageConstructor;
 import AST.ParameterDeclaration;
 import AST.SimpleClass;
@@ -287,18 +288,22 @@ public class SimpleClassRew {
 
 	private void addDecls(List<BodyDecl> bodyDecls) {
 		ClassDecl target = decl.getClassDecl();
+
         boolean isInPackage = target.getParentClass( PTPackage.class ) != null;
 		for (BodyDecl bodyDecl : bodyDecls) {
             boolean isConstructorDecl = bodyDecl instanceof ConstructorDecl;
             boolean isUnneededTabstractMethodDecl = false;
             if(bodyDecl instanceof MethodDecl) {
                 MethodDecl meth = (MethodDecl) bodyDecl;
-                if( meth.isTabstract()
-                    && (isInPackage
-                        || target.hostType().methodsSignature( meth.signature() ) == SimpleSet.emptySet ) ) {
-                    System.out.println( "" + bodyDecl + " is an unneeded abstract" );
-                    System.out.println( " with sig " + meth.signature() );
-                    isUnneededTabstractMethodDecl = true;
+                if( meth.isTabstract() ) {
+                    if (isInPackage
+                        || target.hostType().methodsSignature( meth.signature() ) == SimpleSet.emptySet ) {
+                        System.out.println( "" + bodyDecl + " is an unneeded abstract" );
+                        System.out.println( " with sig " + meth.signature() );
+                        isUnneededTabstractMethodDecl = true;
+                    }
+
+                    decl.addTabstractSignature( meth.signature() );
                 }
             }
 
