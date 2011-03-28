@@ -31,6 +31,12 @@ public class GenerateJava {
 		compilerInterface.process();
 		
 		if (hasErrors()) {
+            /* It seems to me like all the errors have already been
+               printed at this point, so ideally we don't want to
+               print them twice as part of a backtrace. But it's
+               good in principle to pass the information along with
+               the exception. In the main cli compiler context,
+               we just catch this error later. */
 			String errorMsg = getErrorReport();
 			throw new CompileErrorException(errorMsg);
 		}

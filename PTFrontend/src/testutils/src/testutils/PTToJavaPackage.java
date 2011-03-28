@@ -37,6 +37,21 @@ public class PTToJavaPackage {
 		} catch (FatalErrorException e) {
 			errorCause = e.getMessage();
 			printUsage(errorCause);
+		} catch (CompileErrorException e) {
+            // the compile errors have already been printed at this point (?)
+
+            // note that printing the exception also prints a prettyprinted
+            // source code dump, which I mostly found confusing since
+            // it was a code form of an AST during rewriting treatment
+            // (which was not necessarily a complete representation of
+            //  the AST) and e.g. gave the impression that internal things
+            // were ending up in the final code when they were really
+            // just used internally (e.g. tabstract, notwithstanding that
+            // at one point there _was_ a bug where that was printed to the
+            // final code). feel free to add exception printing back if you find
+            // this information useful.
+
+            System.out.println( "Compilation failed: fatal errors." );
 		}
 	}
 
