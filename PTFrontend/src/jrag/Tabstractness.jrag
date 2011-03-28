@@ -5,6 +5,28 @@ import java.util.HashSet;
 
 import AST.SimpleSet;
 
+/* This file contains as much as possible of everything in
+   JastAdd code that is related to tabstractness, including
+   the methods required for the modifiers, and error checking.
+
+   Things related to tabstractness that I haven't been able
+   to cram into this file:
+     - (ugliest part) in InstantiationRewrite.jadd, when
+       rewriting PTClassAddsDecl -> PTClassDecl, we _manually_
+       transfer all the tabstract-method signatures to
+       the new class.
+     - there is code in javaworld for transferring
+       tabstract-method signatures over to adds-classes when
+       merging.
+
+  The error-checking phase begins with collectErrors(), which
+  is hooked below (note that when doing something like this,
+  we need to pass on a call to super.collectErrors() -- which
+  mostly calls collectErrors on subnodes -- otherwise we're
+  overriding all the error checking to only check for this _one_
+  type of error.)
+*/
+
 aspect Tabstractness {
     syn lazy boolean Modifiers.isTabstract() {
         return numModifier("tabstract") != 0;
@@ -45,30 +67,6 @@ aspect Tabstractness {
           error("only abstract, native or tabstract methods may have an empty semicolon body");
     }
 
-    refine TypeCheck public void MethodDecl.typeCheck() {
-        TypeCheck.MethodDecl.typeCheck();
-        if( isTabstract() && getParentClass(PTPackage.class) != null) {
-            System.out.println( "checking tabstract " + signature() );
-            SimpleSet matchingMethods = hostType().methodsSignature( signature() );
-            Iterator i = matchingMethods.iterator();
-            boolean foundImplementation = false;
-            while( i.hasNext() ) {
-                Object o = i.next();
-                try {
-                    MethodDecl meth = (MethodDecl) o;
-                    System.out.println( "is abstract? " + meth.isTabstract() );
-                    System.out.println( meth );
-                }
-                catch( ClassCastException e ) {
-                }
-            }
-            if(hostType().methodsSignature(signature()) == SimpleSet.emptySet) {
-                System.out.println( "oops sig not found" );
-                error("Tabstract method must be implemented before or in the instantiating package class.");
-            }
-        }
-    }
-
     // below more at home in a jadd file? the distinction seems subtle
     // could we hook into the constructor? that would make this cleaner
 
@@ -82,31 +80,24 @@ aspect Tabstractness {
     }
 
     public void SimpleClass.addTabstractSignature( String sig ) {
-        System.out.println( "adding signature: " + sig + " to class: " + getID() + " (" + getClass().getName() + ")" );
         getTabstractSignatures().add( sig );
     }
 
     public void SimpleClass.checkTabstractsInstantiated() {
-        System.out.println( "Checking tabstract instantiation errors in: " + getID() + " (" + getClass().getName() + ")" );
         for( String sig : getTabstractSignatures() ) {
-            System.out.println( "Checking " + sig );
             if( getClassDecl().hostType().methodsSignature( sig ) == SimpleSet.emptySet ) {
-                System.out.println( "DISCOVERED ERROR" );
                 error( "tabstract with signature " + sig + " was never instantiated" );
             }
         }
-        System.out.println( "Done" );
     }
 
     public void PTPackage.checkTabstractsInstantiated() {
-        System.out.println( "Checking tabstract instantiation errors in package" );
         for( SimpleClass sc : getSimpleClassList() ) {
             sc.checkTabstractsInstantiated();
         }
     }
 
     public void PTPackage.collectErrors() {
-        System.out.println( "Checking errors in package" );
         checkTabstractsInstantiated();
 
         super.collectErrors();
