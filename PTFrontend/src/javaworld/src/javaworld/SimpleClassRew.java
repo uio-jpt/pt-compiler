@@ -297,7 +297,7 @@ public class SimpleClassRew {
                 MethodDecl meth = (MethodDecl) bodyDecl;
                 if( meth.isTabstract() ) {
                     if (isInPackage
-                        || target.hostType().methodsSignature( meth.signature() ) == SimpleSet.emptySet ) {
+                        || target.hostType().methodsSignature( meth.signature() ) != SimpleSet.emptySet ) {
                         System.out.println( "" + bodyDecl + " is an unneeded abstract" );
                         System.out.println( " with sig " + meth.signature() );
                         isUnneededTabstractMethodDecl = true;
