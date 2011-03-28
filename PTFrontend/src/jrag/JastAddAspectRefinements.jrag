@@ -49,7 +49,7 @@ aspect JastAddAspectRefinements {
         for(int i = 0; i < getNumBodyDecl(); i++) {
             if(getBodyDecl(i) instanceof MethodDecl) {
                 MethodDecl decl = (MethodDecl)getBodyDecl(i);
-                if( decl.isTabstract() ) {
+                if( false && decl.isTabstract() ) {
                     System.out.println( "excluded because tabstract (is this really wise?)" );
                 } else {
                     map.put(decl.signature(), decl);

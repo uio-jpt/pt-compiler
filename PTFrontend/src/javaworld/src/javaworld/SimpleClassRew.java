@@ -23,9 +23,11 @@ import AST.Modifiers;
 import AST.Opt;
 import AST.PTInstTuple;
 import AST.PTTemplate;
+import AST.PTPackage;
 import AST.PackageConstructor;
 import AST.ParameterDeclaration;
 import AST.SimpleClass;
+import AST.SimpleSet;
 import AST.Stmt;
 import AST.SuperConstructorAccess;
 import AST.TemplateConstructorAccess;
@@ -33,6 +35,7 @@ import AST.TypeAccess;
 import AST.TypeDecl;
 import AST.VarAccess;
 import AST.Modifier;
+import AST.MethodDecl;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
@@ -284,8 +287,22 @@ public class SimpleClassRew {
 
 	private void addDecls(List<BodyDecl> bodyDecls) {
 		ClassDecl target = decl.getClassDecl();
+        boolean isInPackage = target.getParentClass( PTPackage.class ) != null;
 		for (BodyDecl bodyDecl : bodyDecls) {
-			if (!(bodyDecl instanceof ConstructorDecl)) {
+            boolean isConstructorDecl = bodyDecl instanceof ConstructorDecl;
+            boolean isUnneededTabstractMethodDecl = false;
+            if(bodyDecl instanceof MethodDecl) {
+                MethodDecl meth = (MethodDecl) bodyDecl;
+                if( meth.isTabstract()
+                    && (isInPackage
+                        || target.hostType().methodsSignature( meth.signature() ) == SimpleSet.emptySet ) ) {
+                    System.out.println( "" + bodyDecl + " is an unneeded abstract" );
+                    System.out.println( " with sig " + meth.signature() );
+                    isUnneededTabstractMethodDecl = true;
+                }
+            }
+
+            if( !isConstructorDecl && !isUnneededTabstractMethodDecl) {
 				target.addBodyDecl(bodyDecl);
 			}
 		}

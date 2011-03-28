@@ -119,6 +119,10 @@ class ClassDeclRew {
 		Map<String, SimpleSet> fields = ext.memberFieldsMap();
 
 		for (MethodDecl decl : methods.values()) {
+                /* If we rename the tabstracts we have trouble recognizing
+                   their signatures later. More elegant way? */
+            if( decl.isTabstract() ) continue; // XXX HAX
+
 			if (namesMap.containsKey(decl.signature())) {
 				String newID = namesMap.get(decl.signature());
 				newID = newID.split("\\(")[0];

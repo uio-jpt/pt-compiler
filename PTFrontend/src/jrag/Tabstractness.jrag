@@ -44,6 +44,19 @@ aspect Tabstractness {
         TypeCheck.MethodDecl.typeCheck();
         if( isTabstract() && getParentClass(PTPackage.class) != null) {
             System.out.println( "checking tabstract v" );
+            SimpleSet matchingMethods = hostType().methodsSignature( signature() );
+            Iterator i = matchingMethods.iterator();
+            boolean foundImplementation = false;
+            while( i.hasNext() ) {
+                Object o = i.next();
+                try {
+                    MethodDecl meth = (MethodDecl) o;
+                    System.out.println( "is abstract? " + meth.isTabstract() );
+                    System.out.println( meth );
+                }
+                catch( ClassCastException e ) {
+                }
+            }
             if(hostType().methodsSignature(signature()) == SimpleSet.emptySet) {
                 System.out.println( "oops sig not found" );
                 error("Tabstract method must be implemented before or in the instantiating package class.");
