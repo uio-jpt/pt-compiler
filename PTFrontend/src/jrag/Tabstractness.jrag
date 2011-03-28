@@ -1,0 +1,53 @@
+import com.google.common.collect.Sets;
+
+aspect Tabstractness {
+    syn lazy boolean Modifiers.isTabstract() {
+        return numModifier("tabstract") != 0;
+    }
+    syn boolean TypeDecl.isTabstract() {
+        return getModifiers().isTabstract();
+    }
+    syn boolean MethodDecl.isTabstract() {
+        return getModifiers().isTabstract();
+    }
+
+    // todo refine checkModifiers to identify new illegal modifier combos
+
+    refine NameCheck public void MethodDecl.nameCheck() {
+        /* We need to account for tabstract-ness. This is simply a copy of
+           NameCheck.MethodDecl.nameCheck where this is done.
+         */
+
+        // 8.4
+        // 8.4.2
+        if( !isTabstract() ) { // ??xxx todo check conditional appropriate
+            if(!hostType().methodsSignature(signature()).contains(this))
+              error("method with signature " + signature() + " is multiply declared in type " + hostType().typeName());
+        }
+
+        // 8.4.3.4
+        if(isNative() && hasBlock())
+          error("native methods must have an empty semicolon body");
+        // 8.4.5
+        if(isAbstract() && hasBlock())
+          error("abstract methods must have an empty semicolon body");
+
+        if(isTabstract() && hasBlock())
+          error("abstract methods must have an empty semicolon body");
+
+        // 8.4.5
+        if(!hasBlock() && !(isNative() || isAbstract() || isTabstract()))
+          error("only abstract, native or tabstract methods may have an empty semicolon body");
+    }
+
+    refine TypeCheck public void MethodDecl.typeCheck() {
+        TypeCheck.MethodDecl.typeCheck();
+        if( isTabstract() && getParentClass(PTPackage.class) != null) {
+            System.out.println( "checking tabstract v" );
+            if(hostType().methodsSignature(signature()) == SimpleSet.emptySet) {
+                System.out.println( "oops sig not found" );
+                error("Tabstract method must be implemented before or in the instantiating package class.");
+            }
+        }
+    }
+}

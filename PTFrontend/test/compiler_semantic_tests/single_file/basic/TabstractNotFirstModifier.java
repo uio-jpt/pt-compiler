@@ -8,6 +8,7 @@ package P {
     inst T;
 
     class X adds {
-        public void foo();
+        public void foo() {
+        }
     }
 }

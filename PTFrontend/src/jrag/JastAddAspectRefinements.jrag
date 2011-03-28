@@ -47,10 +47,14 @@ aspect JastAddAspectRefinements {
     refine MemberMethods eq TypeDecl.localMethodsSignatureMap() {
         HashMap map = new HashMap(getNumBodyDecl());
         for(int i = 0; i < getNumBodyDecl(); i++) {
-            if(getBodyDecl(i) instanceof MethodDecl && !(getBodyDecl(i) instanceof TabstractMethodDecl)) {
-            MethodDecl decl = (MethodDecl)getBodyDecl(i);
-            map.put(decl.signature(), decl);
-          }
+            if(getBodyDecl(i) instanceof MethodDecl) {
+                MethodDecl decl = (MethodDecl)getBodyDecl(i);
+                if( decl.isTabstract() ) {
+                    System.out.println( "excluded because tabstract (is this really wise?)" );
+                } else {
+                    map.put(decl.signature(), decl);
+                }
+            }
         }
         return map;
     }
