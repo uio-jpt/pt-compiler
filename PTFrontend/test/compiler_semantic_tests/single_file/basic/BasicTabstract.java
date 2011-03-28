@@ -2,7 +2,7 @@ template T {
     class X {
         tabstract String getString();
 
-        void printString() {
+        public void printString() {
             System.out.println( getString() );
         }
     }
@@ -12,12 +12,10 @@ package P {
     inst T;
 
     class X adds {
-        String getString() {
-            return "Hello";
-        }
+        String getString() { return "Hello"; }
 
         public static void main(String args[]) {
-            printString();
+            new X().printString();
         }
     }
 }
