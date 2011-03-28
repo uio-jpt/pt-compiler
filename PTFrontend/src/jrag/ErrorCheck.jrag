@@ -20,7 +20,7 @@ aspect ErrorCheck {
     public void TemplateConstructor.typeCheck() {
         super.typeCheck();
         if (getNumParameter() > 0) {
-            error("Template Constructor aren't allowed to have parameters.");
+            error("Template Constructors aren't allowed to have parameters.");
         }
     }
 
@@ -48,8 +48,10 @@ aspect ErrorCheck {
     }
 
     public void TabstractMethodDecl.typeCheck() {
-        if (getParentClass(PTPackage.class) != null)
-            if(hostType().methodsSignature(signature()) == SimpleSet.emptySet)
-            error("Tabstract method must be implemented before or in the instantiating package class.");
+        if (getParentClass(PTPackage.class) != null) {
+            if(hostType().methodsSignature(signature()) == SimpleSet.emptySet) {
+                error("Tabstract method must be implemented before or in the instantiating package class.");
+            }
+        }
     }
 }
