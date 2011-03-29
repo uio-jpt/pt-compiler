@@ -1,5 +1,3 @@
-// might not be a valid test
-
 template V {
     public class X {
         public tabstract String getString();
@@ -15,10 +13,8 @@ template B {
 }
 
 package P {
-    // should this require explicit renaming for the methods?
-
-    inst V with X => Z;
-    inst B with Y => Z;
+    inst V with X => Z ( getString() -> getString );
+    inst B with Y => Z ( getString () -> getString );
 
     class Z adds {
         public static void main(String args[]) {
