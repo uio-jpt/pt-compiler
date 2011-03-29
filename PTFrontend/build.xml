@@ -12,6 +12,7 @@
   <property name="heap-max" value="-Xmx${heap-max-value}"/>
   
   <property name="src" location="src"/>
+  <property name="autodoc" location="autodoc"/>
   <property name="src.gen" location="src-gen"/>
   <property name="src.testutils" location="${src}/testutils/src"/>
   <property name="build" location="build"/>
@@ -312,6 +313,9 @@
     <beaver file="${src.gen.parser.filename}" terminalNames="yes" compress="yes" useSwitch="yes"/>
   </target>
 
+  <target name="autodoc-ast" depends="build">
+    <javadoc sourcepath="${src.gen}" destdir="${autodoc}/AST" packagenames="AST" />
+  </target>
   
 </project>
 
