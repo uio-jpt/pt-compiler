@@ -17,6 +17,8 @@ import AST.SimpleSet;
 import AST.VarAccess;
 import AST.TypeAccess;
 import AST.Access;
+import AST.PTDecl;
+import AST.SimpleClass;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -26,6 +28,20 @@ import com.google.common.collect.Maps;
 class ClassDeclRew {
 	protected final ClassDecl ext;
 	private final String sourceTemplateID;
+
+    public PTDecl getContainingPTDecl() {
+        return (PTDecl) ext.getParentClass( PTDecl.class );
+    }
+
+    public SimpleClass getContainingSimpleClass() {
+        // this juggling of simpleclasses is a mess, I'm starting
+        // to be convinced the alternative without them is better
+        return (SimpleClass) ext.getParentClass( SimpleClass.class );
+    }
+
+    public ClassDecl getClassDecl() {
+        return ext;
+    }
 
 	ClassDeclRew(ClassDecl ext, String sourceTemplateID) {
 		this.sourceTemplateID = sourceTemplateID;

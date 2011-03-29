@@ -37,6 +37,7 @@ import AST.TypeDecl;
 import AST.VarAccess;
 import AST.Modifier;
 import AST.MethodDecl;
+import AST.PTDecl;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
@@ -52,9 +53,7 @@ public class SimpleClassRew {
 	private final SimpleClass decl;
 	private Collection<PTInstTuple> instTuples;
 	private Set<String> possibleConflicts;
-	private Collection<ClassDeclRew> renamedSources; /* this doesn't actually seem to discriminate
-                                                        between renames and trivial "renames"
-                                                        e.g. X => X ? */
+	private Collection<ClassDeclRew> renamedSources; /* renaming may be trivial */
 
 	public SimpleClassRew(SimpleClass decl) {
 		this.decl = decl;
@@ -85,6 +84,7 @@ public class SimpleClassRew {
 				addDecls(source.getBodyDecls());
 			}
 		}
+
 		// decl.getClassDecl().getConstructorDeclList()
 	}
 
@@ -250,12 +250,30 @@ public class SimpleClassRew {
 	 */
 	private Set<String> getPossibleConflicts() {
 		Set<String> collisions = ImmutableSet.of();
-		Set<String> hostMethods = ImmutableSet.copyOf((decl.getClassDecl().methodSignatures()));
+
+        // try to keep only nontabstracts, as tabstracts aren't conflicts in this sense
+        // xx any corner cases that slip through this?
+		Set<String> hostMethods = Sets.difference(decl.getClassDecl().methodSignatures(),
+                                                  decl.getTabstractSignatures() );
+
 		Set<String> hostFields = ImmutableSet.copyOf((decl.getClassDecl().fieldNames()));
 		Set<String> allDefinitions = Sets.union(hostMethods,hostFields);
 		
-		for (ClassDeclRew decl : renamedSources) {
-			Set<String> instanceDecls = decl.getSignatures();
+		for (ClassDeclRew renamedDecl : renamedSources) {
+            Set<String> abstractInstanceDecls = new HashSet<String> ();
+            // horrible, horrible hack below. class-hopping, there must be a more direct way
+            for( BodyDecl bd : renamedDecl.getClassDecl().getBodyDecls() ) {
+                if( bd instanceof MethodDecl ) {
+                    MethodDecl md = (MethodDecl) bd;
+                    if( md.isTabstract() ) {
+                        abstractInstanceDecls.add( md.signature() );
+                    }
+                }
+            }
+
+			Set<String> instanceDecls = Sets.difference( renamedDecl.getSignatures(),
+                                                         abstractInstanceDecls );
+
 			Set<String> localCollisions = Sets.intersection(instanceDecls,
 					allDefinitions);
 			allDefinitions = Sets.union(allDefinitions,
@@ -263,6 +281,7 @@ public class SimpleClassRew {
 			collisions = Sets.union(collisions,
 					localCollisions);
 		}
+
 		return collisions;
 	}
 
@@ -298,8 +317,8 @@ public class SimpleClassRew {
                 if( meth.isTabstract() ) {
                     if (isInPackage
                         || target.hostType().methodsSignature( meth.signature() ) != SimpleSet.emptySet ) {
-                        System.out.println( "" + bodyDecl + " is an unneeded abstract" );
-                        System.out.println( " with sig " + meth.signature() );
+//                        System.out.println( "" + bodyDecl + " is an unneeded abstract" );
+//                        System.out.println( " with sig " + meth.signature() );
                         isUnneededTabstractMethodDecl = true;
                     }
 
