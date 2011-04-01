@@ -94,7 +94,7 @@ ASTNode class_or_interface_single =
 
 
 SimpleClass pt_simple_declaration =
-  pt_class_declaration.cd
+  class_declaration.cd				// fjernet "pt_"-prefiksen og tilhørende ikke-terminal.
               {: return new PTClassDecl(cd); :}
 | pt_adds_class.pt_ac 
               {: return new PTClassAddsDecl(pt_ac); :}
@@ -152,15 +152,11 @@ ClassDecl pt_adds_class =
     {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}
   ;
 
+
 PTInterfaceDecl pt_intf_decl =
+  // overflødig ?!
   modifiers.m? INTERFACE IDENTIFIER extends_interfaces.i? interface_body.b {: return new PTInterfaceDecl(new Modifiers(m), IDENTIFIER, i, b); :}
   ;
-
-ClassDecl pt_class_declaration =
-    modifiers.m? CLASS IDENTIFIER super.s? interfaces.i? class_body.b 
-                                               {: return new ClassDecl(new Modifiers(m), IDENTIFIER, s, i, b); :}
-  ;
-  
 
 Access method_invocation =  explicit_merged_method_invocation.e {: return e; :}
 ;
