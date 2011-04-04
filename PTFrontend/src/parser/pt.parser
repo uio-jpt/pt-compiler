@@ -155,6 +155,20 @@ ClassDecl pt_adds_class =
 
 PTInterfaceDecl pt_intf_decl =
   // overflødig ?!
+  /* hm, hvordan da? rent direkte, ikketerminalen brukes på linje 92, i class_or_interface_single (kunne
+     jo bare inlina den der, men synes dette er ryddigere, siden den er lang)
+
+     om du mener at PTInterfaceDecl er overflødig og at vi bare kunne brukt InterfaceDecl i stedet, kanskje;
+     har ikke tenkt helt igjennom det, men PTInterfaceDecl arver jo direkte fra InterfaceDecl, så det er ikke
+     noe særlig ekstra trøbbel. det er ikke helt trivielt at vi bare kan kutte ut PTInterfaceDecl; selv om
+     den ikke legger til noen nye metoder eller variabler, bruker vi "instanceof PTInterfaceDecl" noen steder
+     i koden. dette sjekker vel at vi bare finner interfaces som vi har laget her (altså som er barn av
+     en templat eller en PT-package, noe vi senere kan bruke ved å kalle getParentClass). om PTInterfaceDecl
+     er overflødig vil det vel være fordi vi på en eller annen måte kan vise at denne sjekken er overflødig
+     og aldri vil slå feil, men hvorfor ikke være eksplisitt? dessuten gir dette oss mulighet til å legge til
+     util-metoder i PTInterfaceDecl med et jastadd-aspekt.
+        -svk
+  */
   modifiers.m? INTERFACE IDENTIFIER extends_interfaces.i? interface_body.b {: return new PTInterfaceDecl(new Modifiers(m), IDENTIFIER, i, b); :}
   ;
 
