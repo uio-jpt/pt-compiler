@@ -94,8 +94,10 @@ ASTNode class_or_interface_single =
 
 
 SimpleClass pt_simple_declaration =
-  class_declaration.cd				// fjernet "pt_"-prefiksen og tilhørende ikke-terminal.
+  class_declaration.cd
               {: return new PTClassDecl(cd); :}
+| enum_declaration.ed
+              {: return new PTEnumDecl(ed); :}
 | pt_adds_class.pt_ac 
               {: return new PTClassAddsDecl(pt_ac); :}
 ;
