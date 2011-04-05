@@ -13,6 +13,20 @@ import AST.ClassDecl;
 import AST.CompilationUnit;
 import AST.ImportDecl;
 import AST.PTPackage;
+import AST.PTInterfaceDecl;
+import AST.PTEnumDecl;
+
+/* This is the file that ultimately rewrites PT-code to Java code.
+   The package name is misleading, this is not a "testutil".
+
+   The rewriting is partially done with string replacements, which
+   seems inelegant and surely must lead to some edge cases.
+   We should aim to replace this with printing by traversing the
+   AST eventually, but for now this should do.
+
+   (Fun TODO that will lead to depressing hard-to-fix tests: write
+   some tests that break because we do raw string replacements.)
+*/
 
 public class CompileToPackage extends PTFrontend {
 
@@ -44,6 +58,29 @@ public class CompileToPackage extends PTFrontend {
 		Collection<PTPackage> localPackages = unit.getPTPackages();
 		for (PTPackage p : localPackages) {
 			List<String> classNames = new LinkedList<String>();
+                // actually now not just classes, but everything
+                // that should (or at least might) go in its own file.
+
+			for (PTEnumDecl pted : p.getPTEnumDeclList()) {
+                classNames.add( pted.getID() );
+				StringBuffer source = new StringBuffer();
+				source.append(String.format("package %s;\n\n",p.getID()));
+				for (ImportDecl id : unit.getImportDeclList())
+					source.append(id.toString() + "\n");
+				source.append(pted.toString() + "\n");
+				addSource(p.getID(), pted.getID(), source.toString());
+            }
+
+			for (PTInterfaceDecl ptid : p.getPTInterfaceDeclList()) {
+                classNames.add( ptid.getID() );
+				StringBuffer source = new StringBuffer();
+				source.append(String.format("package %s;\n\n",p.getID()));
+				for (ImportDecl id : unit.getImportDeclList())
+					source.append(id.toString() + "\n");
+				source.append(ptid.toString() + "\n");
+				addSource(p.getID(), ptid.getID(), source.toString());
+            }
+
 			for (ClassDecl c : p.getClassList()) {
 				classNames.add(c.getID());
 				StringBuffer source = new StringBuffer();

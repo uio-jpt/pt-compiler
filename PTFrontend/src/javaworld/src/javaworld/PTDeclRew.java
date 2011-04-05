@@ -81,7 +81,7 @@ public class PTDeclRew {
     protected void createRenamedEnums() {
         for( String name : getDestinationIDsForEnums() ) {
             System.out.println( "will add renamed enum: " + name );
-            ptDeclToBeRewritten.getPTEnumDeclList().add( getRenamedEnumByName( name ) );
+//            ptDeclToBeRewritten.getPTEnumDeclList().add( getRenamedEnumByName( name ) );
         }
     }
 
@@ -95,6 +95,7 @@ public class PTDeclRew {
            instantiation tuples and rename as we go.
            Note, very very WIP. */
         for( String name : getDestinationIDsForInterfaces() ) {
+            System.out.println( "creating a renamed interface: " + name );
             ptDeclToBeRewritten.getPTInterfaceDeclList().add( getRenamedInterfaceByName( name ) );
         }
     }
