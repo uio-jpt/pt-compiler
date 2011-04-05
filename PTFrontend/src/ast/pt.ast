@@ -10,7 +10,7 @@ PTClassAddsDecl : SimpleClass;
 
 PTInterfaceDecl : InterfaceDecl;
 
-PTEnumDecl : PTClassDecl;
+PTEnumDecl : EnumDecl;
 
 PTInstDecl ::= <ID> PTInstTuple*; // inst T with A => X;
                                   //      ID    PTInstTuple
