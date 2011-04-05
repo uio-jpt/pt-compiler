@@ -6,6 +6,14 @@ import subprocess
 import filecmp
 import shutil
 
+class GenerationFailedException(Exception):
+    def __init__(self):
+        Exception.__init__(self, "generation failed")
+
+class CompileFailedException(Exception):
+    def __init__(self):
+        Exception.__init__(self, "compilation failed")
+
 class SubprocException(Exception):
     def __init__(self,name,msg):
         self.name = name
@@ -29,13 +37,14 @@ class RuntimeTest(object):
                                   stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         output,_ = proc.communicate()
         hasError = proc.wait()
-        
+
         if hasError:
             raise SubprocException(self.name,output)
 
     def compile(self):
         retval = subprocess.call('ant',cwd=os.path.join(self.basePath,self.default_generate_name), stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
-        assert retval == 0
+        if retval != 0:
+            raise CompileFailedException()
 
     @property
     def referenceOutputFiles(self):
@@ -83,12 +92,16 @@ class RunTest(object):
     def __call__(self,path,x):
         print '%s:' % x
         test = RuntimeTest(os.path.join(path,x),generateCmd=run_jpt)
-        test.generate()
-        test.compile()
-        test.runProgram()
+        try:
+            test.generate()
+            test.compile()
+            test.runProgram()
+            self.withErrors.extend(test.withErrors)
+        except (GenerationFailedException, OSError):
+            self.withErrors.extend([ "failed to generate" ] )
+        except CompileFailedException:
+            self.withErrors.extend([ "failed to compile" ] )
         self.total += test.total
-        self.withErrors.extend(test.withErrors)
-
     def printSummary(self):
         print '*'*10,'Summary','*'*10
         print 'total number of tests:'.ljust(30),self.total
