@@ -37,6 +37,11 @@ aspect LookupType {
                 return cls;
             }
         }
+        for (PTEnumDecl cls : getPTEnumDeclList()) {
+            if (cls.getID().equals(name)) {
+                return cls;
+            }
+        }
         for (PTInterfaceDecl cls : getPTInterfaceDeclList()) {
             if (cls.getID().equals(name)) {
                 return cls;

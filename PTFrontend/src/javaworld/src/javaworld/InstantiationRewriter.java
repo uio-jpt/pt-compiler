@@ -16,6 +16,7 @@ public class InstantiationRewriter {
 	public void run(PTDecl decl) {
 		PTDeclRew target = new PTDeclRew(decl);
         target.createRenamedInterfaces();
+        target.createRenamedEnums();
         target.createEmptyMissingAddClasses();
 		target.extendAddClassesWithInstantiatons();
 		target.copyImportDecls();

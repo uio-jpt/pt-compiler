@@ -39,7 +39,7 @@ PTDecl pt_template =
  TEMPLATE IDENTIFIER LBRACE inst_class_or_interface_single.l+ RBRACE
           {:
                 javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
-                return new PTTemplate(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces());
+                return new PTTemplate(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums());
           :}
           ;
 
@@ -47,7 +47,7 @@ PTDecl pt_package =
  PACKAGE IDENTIFIER LBRACE inst_class_or_interface_single.l* RBRACE
           {:
                 javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
-                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces());
+                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums());
           :}
           ;
 

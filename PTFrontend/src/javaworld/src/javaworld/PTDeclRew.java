@@ -21,6 +21,8 @@ import AST.PTInstDecl;
 import AST.PTInstTuple;
 import AST.PTTemplate;
 import AST.SimpleClass;
+import AST.TypeDecl;
+import AST.EnumDecl;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
@@ -73,6 +75,16 @@ public class PTDeclRew {
 		}
 	}
 
+    /** Create enums 'inherited' from templates, with their new names.
+     */
+
+    protected void createRenamedEnums() {
+        for( String name : getDestinationIDsForEnums() ) {
+            System.out.println( "will add renamed enum: " + name );
+            ptDeclToBeRewritten.getPTEnumDeclList().add( getRenamedEnumByName( name ) );
+        }
+    }
+
     /** Create interfaces 'inherited' from templates, with their new names.
      */
 
@@ -111,16 +123,32 @@ public class PTDeclRew {
     //     it is assumed that all the types are equal -- trying to merge an
     //     interface with a class is obviously nonsensical and an error.
 
-
-    /** Get IDs for the destination _classes_ -- that is, stripping away
-      * the IDs of any interfaces among the renamed elements.
+    /** Get IDs for the destination _enums_.
       */
-
-    protected Set<String> getDestinationIDsForClasses() {
+    protected Set<String> getDestinationIDsForEnums() {
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
         Set<String> rv = new TreeSet<String>();
         for( String x : destinationClassIDsWithInstTuples.keySet() ) {
-            if( destinationClassIDsWithInstTuples.get(x).iterator().next().getOriginator() instanceof ClassDecl ) {
+            TypeDecl typeDecl = destinationClassIDsWithInstTuples.get(x).iterator().next().getOriginator();
+            if( typeDecl instanceof EnumDecl ) {
+                rv.add( x );
+            }
+        }
+        return rv;
+    }
+
+    /** Get IDs for the destination _classes_ -- that is, stripping away
+      * the IDs of any interfaces (and enums, although they are technically
+      * classdecls) among the renamed elements.
+      */
+
+    protected Set<String> getDestinationIDsForNonEnumClasses() {
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
+        Set<String> rv = new TreeSet<String>();
+        for( String x : destinationClassIDsWithInstTuples.keySet() ) {
+            TypeDecl typeDecl = destinationClassIDsWithInstTuples.get(x).iterator().next().getOriginator();
+            if( typeDecl instanceof EnumDecl ) continue;
+            if( typeDecl instanceof ClassDecl ) {
                 rv.add( x );
             }
         }
@@ -178,7 +206,7 @@ public class PTDeclRew {
 		 */
 		Set<String> addClasses = ptDeclToBeRewritten.getAdditionClassNamesSet();
 		Set<String> missingAddsClass = Sets.difference(
-                getDestinationIDsForClasses(), addClasses );
+                getDestinationIDsForNonEnumClasses(), addClasses );
 
 		for (String name : missingAddsClass) {
 			ClassDecl cls = new ClassDecl(new Modifiers(), name, new Opt<Access>(),

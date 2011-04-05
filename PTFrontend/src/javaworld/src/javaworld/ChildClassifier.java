@@ -10,15 +10,18 @@ public class ChildClassifier {
     private AST.List<SimpleClass> simpleClassList;
     private AST.List<PTInstDecl> instDeclList;
     private AST.List<PTInterfaceDecl> intfDeclList;
+    private AST.List<PTEnumDecl> enumDeclList;
 
     public AST.List<SimpleClass> getSimpleClasses() { return simpleClassList; }
     public AST.List<PTInstDecl> getInstDecls() { return instDeclList; }
     public AST.List<PTInterfaceDecl> getInterfaces() { return intfDeclList; }
+    public AST.List<PTEnumDecl> getEnums() { return enumDeclList; }
 
     public ChildClassifier( AST.List<ASTNode> nodes ) {
         simpleClassList = new AST.List<SimpleClass>();
         instDeclList = new AST.List<PTInstDecl>();
         intfDeclList = new AST.List<PTInterfaceDecl>();
+        enumDeclList = new AST.List<PTEnumDecl>();
 
         for (int i=0; i<nodes.getNumChildNoTransform(); i++) {
             ASTNode n = nodes.getChildNoTransform(i);
@@ -29,8 +32,7 @@ public class ChildClassifier {
                 intfDeclList.add( (PTInterfaceDecl) n );
             }
             else if(n instanceof PTEnumDecl ) {
-                PTEnumDecl ed = (PTEnumDecl) n;
-                System.out.println( "warning: ignoring enum \"" + ed.getID() + "\"" );
+                enumDeclList.add( (PTEnumDecl) n );
             }
             else if(n instanceof SimpleClass ) {
                 simpleClassList.add( (SimpleClass) n);

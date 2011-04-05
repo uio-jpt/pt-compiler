@@ -1,13 +1,31 @@
 aspect PTInstDecl {
+    /* This method adds "trivial" renames (X renamed to X) to the PTInstDecl,
+       which is the AST object that represents the "inst" statement.
+       After rewriting PTInstDecl with this, we can assume that every
+       renamable object was actually renamed (possibly trivially of course).
+    */
+
     public void PTInstDecl.addMissingDummyClassNodes() {
         try { 
             Map<String,String> renamedClasses = getRenamedClasses();
             Collection<ClassDecl> templateClasses = getTemplate().getClassList();
             for (ClassDecl templateClass: templateClasses) {
+                // this list does NOT currently contain enums, even though PTEnumDecl
+                // inherits from ClassDecl. Enums are checked separately below.
+
                 String templateClassID = templateClass.getID();
                 if (!renamedClasses.containsKey(templateClassID)) {
                     PTInstTuple instTuple;                                
                     instTuple = new PTInstTuple(templateClassID,templateClassID, new List());
+                    addPTInstTuple(instTuple);
+                } 
+            }
+            for (PTEnumDecl enumDecl: getTemplate().getPTEnumDeclList()) {
+                String templateEnumID = enumDecl.getID();
+                if (!renamedClasses.containsKey(templateEnumID)) {
+                    System.out.println( "adding trivial rename for enum: " + templateEnumID );
+                    PTInstTuple instTuple;                                
+                    instTuple = new PTInstTuple(templateEnumID,templateEnumID, new List());
                     addPTInstTuple(instTuple);
                 } 
             }
