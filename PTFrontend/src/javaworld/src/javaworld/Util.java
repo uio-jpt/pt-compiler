@@ -8,6 +8,7 @@ import AST.PTClassDecl;
 import AST.TemplateMethodAccess;
 import AST.TemplateMethodAccessShort;
 
+
 import com.google.common.base.Preconditions;
 
 public class Util {
@@ -70,4 +71,5 @@ public class Util {
 	public static String toMinitName(String tclassID) {
 		return String.format("minit$%s", tclassID);
 	}
+
 }

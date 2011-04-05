@@ -38,61 +38,16 @@ Modifier modifier =
 PTDecl pt_template =
  TEMPLATE IDENTIFIER LBRACE inst_class_or_interface_single.l+ RBRACE
           {:
-                AST.List<SimpleClass> simpleClassList = new AST.List<SimpleClass>();
-                AST.List<PTInstDecl> instDeclList = new AST.List<PTInstDecl>();
-                AST.List<PTInterfaceDecl> intfDeclList = new AST.List<PTInterfaceDecl>();
-
-                for (int i=0; i<l.getNumChildNoTransform(); i++) {
-                    ASTNode n = l.getChildNoTransform(i);
-                    if (n instanceof PTInstDecl) {
-                        instDeclList.add( (PTInstDecl) n);
-                    }
-                    else if (n instanceof PTInterfaceDecl) {
-                        intfDeclList.add( (PTInterfaceDecl) n );
-                    }
-                    else if(n instanceof PTEnumDecl ) {
-                        PTEnumDecl ed = (PTEnumDecl) n;
-                        System.out.println( "warning: ignoring enum \"" + ed.getID() + "\"" );
-                    }
-                    else if(n instanceof SimpleClass ) {
-                        simpleClassList.add( (SimpleClass) n);
-                    } else {
-                        throw new IllegalStateException( "child of ptdecl could not be classified" );
-                    }
-                }
-
-                return new PTTemplate(IDENTIFIER, instDeclList, simpleClassList, intfDeclList);
+                javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
+                return new PTTemplate(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces());
           :}
           ;
 
-    // xx code duplication with above
 PTDecl pt_package =
  PACKAGE IDENTIFIER LBRACE inst_class_or_interface_single.l* RBRACE
           {:
-                AST.List<SimpleClass> simpleClassList = new AST.List<SimpleClass>();
-                AST.List<PTInstDecl> instDeclList = new AST.List<PTInstDecl>();
-                AST.List<PTInterfaceDecl> intfDeclList = new AST.List<PTInterfaceDecl>();
-
-                for (int i=0; i<l.getNumChildNoTransform(); i++) {
-                    ASTNode n = l.getChildNoTransform(i);
-                    if (n instanceof PTInstDecl) {
-                        instDeclList.add( (PTInstDecl) n);
-                    }
-                    else if (n instanceof PTInterfaceDecl) {
-                        intfDeclList.add( (PTInterfaceDecl) n );
-                    }
-                    else if(n instanceof PTEnumDecl ) {
-                        PTEnumDecl ed = (PTEnumDecl) n;
-                        System.out.println( "warning: ignoring enum \"" + ed.getID() + "\"" );
-                    }
-                    else if(n instanceof SimpleClass ) {
-                        simpleClassList.add( (SimpleClass) n);
-                    } else {
-                        throw new IllegalStateException( "child of ptdecl could not be classified" );
-                    }
-                }
-
-                return new PTPackage(IDENTIFIER, instDeclList, simpleClassList, intfDeclList);
+                javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
+                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces());
           :}
           ;
 
