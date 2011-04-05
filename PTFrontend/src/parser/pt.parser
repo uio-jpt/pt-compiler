@@ -51,7 +51,8 @@ PTDecl pt_template =
                         intfDeclList.add( (PTInterfaceDecl) n );
                     }
                     else if(n instanceof PTEnumDecl ) {
-                        System.out.println( "warning: ignoring enum \"" + n.getId() + "\"" );
+                        PTEnumDecl ed = (PTEnumDecl) n;
+                        System.out.println( "warning: ignoring enum \"" + ed.getID() + "\"" );
                     }
                     else if(n instanceof SimpleClass ) {
                         simpleClassList.add( (SimpleClass) n);
@@ -81,7 +82,8 @@ PTDecl pt_package =
                         intfDeclList.add( (PTInterfaceDecl) n );
                     }
                     else if(n instanceof PTEnumDecl ) {
-                        System.out.println( "warning: ignoring enum \"" + n.getId() + "\"" );
+                        PTEnumDecl ed = (PTEnumDecl) n;
+                        System.out.println( "warning: ignoring enum \"" + ed.getID() + "\"" );
                     }
                     else if(n instanceof SimpleClass ) {
                         simpleClassList.add( (SimpleClass) n);
