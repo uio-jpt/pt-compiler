@@ -10,6 +10,10 @@ package P  {
     class V {
         public static void main(String args[]) {
             MyEnum y = MyEnum.RISKOKER;
+            switch( y ) {
+                case KAKE: System.out.println( "kake" ); break;
+                default: System.out.println( "ingen kake" ); break;
+            }
         }
     }
 

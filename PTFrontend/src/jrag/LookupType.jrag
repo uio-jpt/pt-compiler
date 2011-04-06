@@ -4,11 +4,47 @@
  * Pretty much all I've added with this commit to this file
  * is cargo cult code, should be checked. -svk */
 
+/* Note to self and others on the mysterious-looking syntax:
+
+   eq A.getB(int j).C() {
+       ...
+   }
+
+   This is explained here:
+   http://jastadd.org/jastadd-reference-manual/attributes
+   under "broadcasting inherited attributes".
+
+   This is an equation specifying C for each B in a list.
+   However, the context (where ... executes) is NOT that of
+   B, but instead that of A, with additionally j bound to
+   the index of the B in the list. So "this" refers to _A_,
+   not a B, and the specific B you're most likely looking for
+   can be found by doing "getB(j)" within the context.
+*/
 
 aspect LookupType {
 
     inh TypeDecl PTDecl.lookupType(String packageName, String typeName);
-    eq PTCompilationUnit.getPTDecl(int i).lookupType(String packageName, String typeName) = lookupType(packageName, typeName);
+    eq PTCompilationUnit.getPTDecl(int i).lookupType(String packageName, String typeName) {
+            /* Beware: it seems tempting to do something like the following here:
+               if( packageName.equals( "" ) ) {
+                    TypeDecl td = getPTDecl(i).lookupType( typeName );
+               }
+               This would, seemingly, return the right RESULT (the name of the enum
+               when needed).
+
+               However, this breaks absolutely everything else, even if you don't do
+               anything further in response to this information. This seems
+               impossible, but is likely due to 'lazy' attributes (lookupType is
+               one) -- they cache the first value calculated. Unluckily, these
+               are Java functions that depend on their environment, so by caching
+               like this we are asserting that nothing further will change.
+               Evidently, a call to PTDecl.lookupType() here is simply too early.
+
+               (???) .flushCaches doesn't help. Mysterious..?
+            */
+        return lookupType(packageName, typeName);
+    }
 
     eq PTDecl.getSimpleClass(int i).lookupType(String packageName, String typeName) {
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
@@ -16,6 +52,16 @@ aspect LookupType {
             TypeDecl type = cls.getClassDecl();
             if (type.fullName().equals(fullName)) {
                 return type;
+            }
+        }
+        return lookupType(packageName, typeName);
+    }
+
+    eq PTDecl.getPTEnumDecl(int i).lookupType(String packageName, String typeName) {
+        String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
+        for (PTEnumDecl cls : getPTEnumDeclList()) {
+            if (cls.fullName().equals(fullName)) {
+                return cls;
             }
         }
         return lookupType(packageName, typeName);
@@ -31,7 +77,7 @@ aspect LookupType {
         return lookupType(packageName, typeName);
     }
 
-    syn TypeDecl PTTemplate.lookupType(String name) {
+    syn TypeDecl PTDecl.lookupType(String name) {
         for (TypeDecl cls: getClassList()) {
             if (cls.getID().equals(name)) {
                 return cls;
@@ -71,6 +117,11 @@ aspect LookupType {
             ClassDecl cd = s.getClassDecl();
             if (cd.getID().equals(name))
                 return SimpleSet.emptySet.add(cd);
+        }
+        for (PTEnumDecl s : getPTEnumDeclList()) {
+            if (s.getID().equals(name)) {
+                return SimpleSet.emptySet.add(s);
+            }
         }
         for (PTInterfaceDecl s : getPTInterfaceDeclList()) {
             if (s.getID().equals(name)) {

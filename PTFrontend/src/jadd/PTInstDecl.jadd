@@ -23,7 +23,6 @@ aspect PTInstDecl {
             for (PTEnumDecl enumDecl: getTemplate().getPTEnumDeclList()) {
                 String templateEnumID = enumDecl.getID();
                 if (!renamedClasses.containsKey(templateEnumID)) {
-                    System.out.println( "adding trivial rename for enum: " + templateEnumID );
                     PTInstTuple instTuple;                                
                     instTuple = new PTInstTuple(templateEnumID,templateEnumID, new List());
                     addPTInstTuple(instTuple);

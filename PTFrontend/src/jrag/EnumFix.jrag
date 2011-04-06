@@ -1,0 +1,186 @@
+aspect PTEnumWorkaround {
+
+  public void PTEnumDecl.fixupAfterCopy() {
+
+      flushCaches();
+
+      java.util.HashMap< String, AST.EnumConstant > enumConstants = new java.util.HashMap< String, AST.EnumConstant >() ;
+
+      for( BodyDecl bd : getBodyDeclList() ) {
+          if( bd instanceof AST.EnumConstant ) {
+              AST.EnumConstant ec = (AST.EnumConstant) bd;
+              enumConstants.put( ec.getID(), ec );
+          }
+      }
+
+      /* We've renamed the types, but deep within the structure we have copied remains
+         a reference to the original, non-copy object. This loop (an iterative variant
+         of basically what renameTypes does recursively) fixes those. It turns out
+         the references are the RHSs of AST.BoundFieldAccess nodes.
+
+         ( This loop was what I used to iterate through everything to FIND this, so
+         it might be massively overcomplicated for correcting the actual problem
+         in hindsight. )
+
+         Also, this is clearly all sort of ad hoc and not very desirable. Let's hope
+         there aren't any more references not of _exactly_ the same sort! (That's
+         a TODO for test-writing, break this with more complex enums.)
+      */
+      for( BodyDecl bd : getBodyDeclList() ) {
+          bd.flushCaches();
+
+          java.util.HashSet<AST.ASTNode> visited = new java.util.HashSet<AST.ASTNode>();
+          java.util.LinkedList<AST.ASTNode> q = new java.util.LinkedList<AST.ASTNode>();
+          q.addLast( bd );
+          visited.add( bd );
+          while( !q.isEmpty() ) {
+              AST.ASTNode p = q.removeFirst();
+              for(int i=0;i<p.getNumChild();i++) {
+                  AST.ASTNode c = p.getChild(i);
+                  if( !visited.contains(c) ) {
+                      visited.add( c );
+                      q.addLast( c );
+                  }
+              }
+
+              if( p instanceof AST.Dot ) {
+                  AST.Dot t = (AST.Dot) p;
+                  t.flushCaches();
+                  if( t.getRight() instanceof AST.BoundFieldAccess ) {
+                      AST.BoundFieldAccess bfa = (AST.BoundFieldAccess) t.getRight();
+                      AST.FieldDeclaration fdeclAuthority = enumConstants.get( bfa.getID() );
+                      if( fdeclAuthority == null ) {
+                          throw new RuntimeException( "enum fix-up became confused -- unknown BFA ID: " + bfa.getID() );
+                      } else {
+                          bfa.setFieldDeclaration( fdeclAuthority );
+                      }
+                  } 
+              }
+          }
+      }
+
+  }
+
+  refine Enums private void EnumDecl.addValues() {
+    int numConstants = enumConstants().size();
+    List initValues = new List();
+    for(Iterator iter = enumConstants().iterator(); iter.hasNext(); ) {
+      EnumConstant c = (EnumConstant)iter.next();
+      initValues.add(c.createBoundFieldAccess());
+    }
+    FieldDeclaration values = new FieldDeclaration(
+      new Modifiers(new List().add(
+        new Modifier("private")).add(
+        new Modifier("static")).add(
+        new Modifier("final")).add(
+        new Modifier("synthetic"))
+      ),
+      arrayType().createQualifiedAccess(),
+      "$VALUES",
+      new Opt(
+          new ArrayCreationExpr(
+            new ArrayTypeWithSizeAccess(
+              createQualifiedAccess(),
+              new IntegerLiteral(Integer.toString(enumConstants().size()))
+            ),
+            new Opt(
+              new ArrayInit(
+                initValues
+              )
+            )
+          )
+      )
+    );
+    addBodyDecl(values);
+    // public static final Test[] values() { return (Test[])$VALUES.clone(); }
+    addBodyDecl(
+      new MethodDecl(
+        new Modifiers(new List().add(
+          new Modifier("public")).add(
+          new Modifier("static")).add(
+          new Modifier("final")).add(
+          new Modifier("synthetic"))
+        ),
+        arrayType().createQualifiedAccess(),
+        "values",
+        new List(),
+        new List(),
+        new Opt(
+          new Block(
+            new List().add(
+              new ReturnStmt(
+                new Opt(
+                  new CastExpr(
+                    arrayType().createQualifiedAccess(),
+                    values.createBoundFieldAccess().qualifiesAccess(
+                      new MethodAccess(
+                        "clone",
+                        new List()
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    );
+    // public static Test valueOf(String s) { return (Test)java.lang.Enum.valueOf(Test.class, s); }
+/*
+    // TODO fix so we can include this method as we should.
+    // Including it gets us a method lookup error;
+    //   no method "java.lang.Enum.valueOf(Class<Test>, String)", however
+    //   one exists "java.lang.Enum.valueOf(Class, String)"
+    // Surely these should really match, just not clear how to get that idea
+    // across to jastadd
+
+    addBodyDecl(
+      new MethodDecl(
+        new Modifiers(new List().add(
+          new Modifier("public")).add(
+          new Modifier("static")).add(
+          new Modifier("synthetic"))
+        ),
+        createQualifiedAccess(),
+        "valueOf",
+        new List().add(
+          new ParameterDeclaration(
+            new Modifiers(new List()),
+            typeString().createQualifiedAccess(),
+            "s"
+          )
+        ),
+        new List(),
+        new Opt(
+          new Block(
+            new List().add(
+              new ReturnStmt(
+                new Opt(
+                  new CastExpr(
+                    createQualifiedAccess(),
+                    lookupType("java.lang", "Enum").createQualifiedAccess().qualifiesAccess(
+                      new MethodAccess(
+                        "valueOf",
+                        new List().add(
+                          createQualifiedAccess().qualifiesAccess(new ClassAccess())
+                        ).add(
+                          new VarAccess(
+                            "s"
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    );
+*/
+  }
+
+
+}

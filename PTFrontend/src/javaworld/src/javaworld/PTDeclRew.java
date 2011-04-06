@@ -23,6 +23,7 @@ import AST.PTTemplate;
 import AST.SimpleClass;
 import AST.TypeDecl;
 import AST.EnumDecl;
+import AST.PTEnumDecl;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
@@ -30,6 +31,7 @@ import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Iterables;
 
 /** TODO after my work on interfaces:
   *   - check for various illegal situations such as
@@ -80,8 +82,7 @@ public class PTDeclRew {
 
     protected void createRenamedEnums() {
         for( String name : getDestinationIDsForEnums() ) {
-            System.out.println( "will add renamed enum: " + name );
-//            ptDeclToBeRewritten.getPTEnumDeclList().add( getRenamedEnumByName( name ) );
+            ptDeclToBeRewritten.getPTEnumDeclList().add( getRenamedEnumByName( name ) );
         }
     }
 
@@ -95,7 +96,6 @@ public class PTDeclRew {
            instantiation tuples and rename as we go.
            Note, very very WIP. */
         for( String name : getDestinationIDsForInterfaces() ) {
-            System.out.println( "creating a renamed interface: " + name );
             ptDeclToBeRewritten.getPTInterfaceDeclList().add( getRenamedInterfaceByName( name ) );
         }
     }
@@ -170,15 +170,23 @@ public class PTDeclRew {
         return rv;
     }
 
+    /** Get a renamed enum by (new) name.
+     */
+
+    protected PTEnumDecl getRenamedEnumByName(String name) {
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
+        Set<String> rv = new TreeSet<String>();
+        PTInstTuple tup = Iterables.getOnlyElement( destinationClassIDsWithInstTuples.get(name));
+        return new InstTupleRew(tup).getRenamedSourceEnum();
+    }
+
     /** Get a renamed interface by (new) name.
      */
 
     protected PTInterfaceDecl getRenamedInterfaceByName(String name) {
-        // again, this just gets the first element. there should be only one.
-        // xxx I saw a fancy google method for doing that somewhere
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
         Set<String> rv = new TreeSet<String>();
-        PTInstTuple tup = destinationClassIDsWithInstTuples.get(name).iterator().next();
+        PTInstTuple tup = Iterables.getOnlyElement( destinationClassIDsWithInstTuples.get(name));
         return new InstTupleRew(tup).getRenamedSourceInterface();
     }
 

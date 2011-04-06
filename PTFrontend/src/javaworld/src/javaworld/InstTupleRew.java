@@ -7,6 +7,7 @@ import AST.ClassDecl;
 import AST.PTInstTuple;
 import AST.PTDummyRename;
 import AST.PTInterfaceDecl;
+import AST.PTEnumDecl;
 
 import com.google.common.collect.Maps;
 
@@ -31,6 +32,23 @@ class InstTupleRew {
             //  as well, this breaks several tests -- should investigate why
         ext.visitRename( instantiator.getInstDecl().getRenamedClasses() );
         ext.renameTypes( instantiator.getInstDecl().getRenamedClasses() );
+
+        return ext;
+    }
+
+    protected PTEnumDecl getRenamedSourceEnum() {
+        // straight rewrite of getRenamedSourceInterface, above concerns apply
+
+        TypeDecl x = instantiator.getOriginator();
+		PTEnumDecl ext = ((PTEnumDecl)x).fullCopy();
+
+        ext.fixupAfterCopy();
+
+            // do we need both?
+        ext.visitRename( instantiator.getInstDecl().getRenamedClasses() );
+        ext.renameTypes( instantiator.getInstDecl().getRenamedClasses() );
+
+        ext.fixupAfterCopy();
 
         return ext;
     }

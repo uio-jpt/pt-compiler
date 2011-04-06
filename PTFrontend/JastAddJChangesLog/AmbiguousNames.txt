@@ -1,0 +1,28 @@
+diff --git a/JastAddJ/Java1.4Frontend/ResolveAmbiguousNames.jrag b/JastAddJ/Java1.4Frontend/ResolveAmbiguousNames.jrag
+index 2fdf9df..507e648 100644
+--- a/JastAddJ/Java1.4Frontend/ResolveAmbiguousNames.jrag
++++ b/JastAddJ/Java1.4Frontend/ResolveAmbiguousNames.jrag
+@@ -169,7 +169,10 @@ aspect NameResolution {
+     */
+     when(!duringSyntacticClassification())
+     to Access{
+-      if(!lookupType(name()).isEmpty())
++      if(!lookupType(name()).isEmpty() ||
++        ( (getParentClass( PTDecl.class ) != null) &&
++          ((PTDecl)getParentClass( PTDecl.class )).typeIsIncomingByInstantiation( name() ))
++      )
+         return new TypeAccess(name(), start(), end());
+       else
+         return new PackageAccess(name(), start(), end());
+@@ -191,7 +194,10 @@ aspect NameResolution {
+       if(!lookupVariable(name()).isEmpty()) {
+         return new VarAccess(name(), start(), end());
+       }
+-      else if(!lookupType(name()).isEmpty()) {
++      else if(!lookupType(name()).isEmpty() ||
++        ( (getParentClass( PTDecl.class ) != null) &&
++          ((PTDecl)getParentClass( PTDecl.class )).typeIsIncomingByInstantiation( name() ))
++      ) {
+         return new TypeAccess(name(), start(), end());
+       }
+       else {

@@ -1,0 +1,15 @@
+aspect PTAmbiguousNames {
+    public boolean PTDecl.typeIsIncomingByInstantiation(String name) {
+//        System.out.print( "Type incoming by instantiation: " + name + "? ");
+        for( PTInstDecl ptid : getPTInstDeclList() ) {
+            for( PTInstTuple ptit : ptid.getPTInstTupleList() ) {
+                if( name.equals( ptit.getID() ) ) {
+//                    System.out.println( "yes" );
+                    return true;
+                }
+            }
+        }
+//        System.out.println( "no" );
+        return false;
+    }
+}
