@@ -324,6 +324,30 @@ public class SimpleClassRew {
 
                     decl.addTabstractSignature( meth.signature() );
                 }
+
+				// Sjekk for "unintentional override" her:
+				// Det holder (?) å sjekke at hver virtuell metode ikke har fått noen supermetode.
+
+				if (meth.isVirtual) {
+					ClassDecl c = target.superclass();
+					// hasMethod doesn't seem to stick, so we'll have to go thru it manually for now
+					// if (c != null && c.hasMethod(meth.signature())) 
+					
+					while (c != null) {
+						for (BodyDecl d: c.getBodyDecls()) {
+							if (d instanceof MethodDecl == false)
+								continue;
+
+							if (meth.sameSignature((MethodDecl)d))
+								// TODO: Finne klassenavn.
+								decl.error(String.format("Merging causes virtual method %s in class "+
+									"%s to overload existing method in class %s.",
+									meth.signature(), target.getID(), c.getID()));
+						}
+						c = c.superclass();
+					}
+				} 
+
             }
 
             if( !isConstructorDecl && !isUnneededTabstractMethodDecl) {
