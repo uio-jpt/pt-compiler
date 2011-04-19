@@ -326,7 +326,7 @@ public class SimpleClassRew {
                 }
 
 				// Sjekk for "unintentional override" her:
-				// Det holder (?) å sjekke at hver virtuell metode ikke har fått noen supermetode.
+				// Det holder (?) Ã¥ sjekke at hver virtuell metode ikke har fÃ¥tt noen supermetode.
 
 				if (meth.isVirtual) {
 					ClassDecl c = target.superclass();

@@ -16,8 +16,8 @@ public class InstantiationRewriter {
 
 	public void run(PTDecl decl) { 
 		
-		// Går igjennom decl sine ClassDecls for å beregne hva som er
-		// "virtuelle" metoder som det siste som skjer før omskrivinga starter.
+		// GÃ¥r igjennom decl sine ClassDecls for Ã¥ beregne hva som er
+		// "virtuelle" metoder som det siste som skjer fÃ¸r omskrivinga starter.
 		for (ClassDecl c: decl.getClassList()) {
 			c.findVirtualMethods();
 		}
