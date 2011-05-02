@@ -1,24 +1,6 @@
 /* NB: Remember to clean/rebuild. The parser will behave strange otherwise.
 */
 
-/* Solving the internal interface problem seems somewhat tricky.
-   Do we need a wrapper class for interface declarations, like
-   PTClassDecl for normal classes? Should it inherit from
-   SimpleClass even though it's technically not exactly a class?
-   Otherwise, are there any problems with renaming something
-   that's not a SimpleClass?
-    -svk
-
-   The way it's done now: we have a very shallow wrapper class,
-   PTInterfaceDecl, which I believe is useful for renaming,
-   but that might be wrong. SimpleClass is not involved, so
-   a lot of methods that previously returned SimpleClass now
-   return TypeDecl, and casts are required later after checking
-   with instanceof. I believe I've fixed this up so it _works_,
-   but many method/variable names should be updated for
-   readability, assuming this stays.
-*/
-
 CompilationUnit compilation_unit =
 package_declaration.p import_declarations.i? pt_declaration.pt+ {: return new PTCompilationUnit(p.getID(), i, new List<TypeDecl>(), pt); :}
 | import_declarations.i? pt_declaration.pt+ {: return new PTCompilationUnit("", i, new List<TypeDecl>(), pt); :}
