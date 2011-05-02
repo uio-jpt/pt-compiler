@@ -1,4 +1,4 @@
-template T <class V implements Runnable> {
+template T <V implements Runnable> {
     class A {
         V v;
 

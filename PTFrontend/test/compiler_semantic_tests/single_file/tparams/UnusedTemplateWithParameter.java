@@ -13,17 +13,9 @@ template T <V> {
 }
 
 package P {
-    inst T<W>;
-
-    class W {
-        public String getString() {
-            return "Hello world!";
-        }
-    };
-
     class X {
         public static void main(String args[]) {
-            System.out.println( new A(new W()).getV().getString() );
+            System.out.println( "Hello world!" );
         }
     }
 }
