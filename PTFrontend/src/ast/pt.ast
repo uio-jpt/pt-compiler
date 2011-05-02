@@ -1,7 +1,8 @@
 PTCompilationUnit : CompilationUnit ::= PTDecl*;
 
 abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* PTInterfaceDecl* PTEnumDecl*;
-PTTemplate : PTDecl;
+PTTemplate : PTDecl ::= TypeParameter:TypeVariable*; // TODO should really have another name such as TypeParameters
+                                       // I'd check how to this with jastadd but jastadd.org is down at the moment
 PTPackage : PTDecl;
 
 abstract SimpleClass ::= ClassDecl;

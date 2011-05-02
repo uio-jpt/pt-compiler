@@ -23,6 +23,7 @@ public class InstantiationRewriter {
 		}
 
 		PTDeclRew target = new PTDeclRew(decl);
+        target.debugTypeParameters();
         target.createRenamedInterfaces();
         target.createRenamedEnums();
         target.createEmptyMissingAddClasses();

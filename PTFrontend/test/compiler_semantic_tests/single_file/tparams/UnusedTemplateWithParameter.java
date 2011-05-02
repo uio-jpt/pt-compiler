@@ -1,13 +1,6 @@
 template T <V> {
     class A {
-        V v;
-
-        V getV() {
-            return v;
-        }
-
-        A(V v) {
-            this.v = v;
+        A() {
         }
     }
 }

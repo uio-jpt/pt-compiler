@@ -28,6 +28,10 @@ aspect GenericTypeVariables {
   public void TypeVariable.nameCheck() {
     if(extractSingleType(lookupType(name())) != this)
       error("*** Semantic Error: type variable " + name() + " is multiply declared");
+    if(extractSingleType(lookupType(name())) != this) {
+        System.out.println( this );
+        System.out.println( extractSingleType( lookupType( name() ) ) );
+    }
   }
 
   syn TypeDecl TypeVariable.lowerBound() = getTypeBound(0).type();

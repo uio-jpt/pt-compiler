@@ -1,0 +1,16 @@
+/* Generics.jrag er brukt som eksempel til etterfølgelse her. */
+
+aspect PTTypeParameters {
+
+  // util-metode for de andre som kommer under. følger Generics.jrag
+  public SimpleSet PTTemplate.addTypeVariables(SimpleSet c, String name) {
+    for(int i = 0; i < this.getNumTypeParameter(); i++) {
+      TypeVariable p = this.getTypeParameter(i);
+      if(p.name().equals(name))
+        c = c.add(p);
+    }
+    return c;
+  }
+
+
+}

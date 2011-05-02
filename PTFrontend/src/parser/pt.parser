@@ -1,6 +1,37 @@
 /* NB: Remember to clean/rebuild. The parser will behave strange otherwise.
 */
 
+/* Mhp templatparametre er korrekt parsing av dette tilsynelatende (ut fra
+   hvordan det er løst i JastAddJ) litt vanskelig, grunnet trøbbel med
+   at f.eks. < etterfulgt av < blir <<, som er et annet token (shift).
+   Dette er et kjent problem på brukernivå fra C++, men i Java må
+   parseren altså tydeligvis leve med dette. Prøver derfor så langt som
+   det er mulig å gjenbruke de allerede eksisterende produksjonene
+   for type_arguments (aktualparametre) og type_parameters (formalparametre).
+*/
+
+/* Erfaring som kan være nyttig under debugging når man legger til
+   nye type-lignende ting: JastAdd bruker konvensjonen for navnesjekking
+   at hvert navn sjekker at
+        extractSingleType(lookupType(this.name())) == this
+   eller lignende. Dette er en sjekk for multippeldeklarasjon (det antas
+   at extractSingleType er deterministisk så hvis to typer har samme navn
+   i samme skop kan dette ikke holde for begge).
+
+   Imidlertid: når man legger inn nye typer, før man har lagt inn den
+   nødvendige koden for å la lookupType finne disse, vil lookupType()
+   returnere null, som heller ikke er this. JastAdd vil da gi en
+   forvirrende feilmelding om at noe er multippelt deklarert; problemet
+   kan da altså også være at det ikke engang selv er synlig i sitt
+   eget skop, selv om det har et unikt navn.
+
+   Jastadd "finner" typedeklarasjonene som skal navnesjekkes ved å
+   gå igjennom hele treet, og en trenger ikke å gjøre noe spesielt
+   for at de nye typene en legger til skal finnes igjen. Derfor får
+   en gjerne denne feilmeldingen når en legger til en ny type, før
+   den er skikkelig implementert.
+*/
+
 CompilationUnit compilation_unit =
 package_declaration.p import_declarations.i? pt_declaration.pt+ {: return new PTCompilationUnit(p.getID(), i, new List<TypeDecl>(), pt); :}
 | import_declarations.i? pt_declaration.pt+ {: return new PTCompilationUnit("", i, new List<TypeDecl>(), pt); :}
@@ -21,7 +52,29 @@ PTDecl pt_template =
  TEMPLATE IDENTIFIER LBRACE inst_class_or_interface_single.l+ RBRACE
           {:
                 javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
-                return new PTTemplate(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums());
+                return new PTTemplate(IDENTIFIER,
+                                      cc.getInstDecls(),
+                                      cc.getSimpleClasses(),
+                                      cc.getInterfaces(),
+                                      cc.getEnums(),
+                                      new AST.List<AST.TypeVariable>()
+                                      );
+          :}
+ | TEMPLATE IDENTIFIER type_parameters.ps LBRACE inst_class_or_interface_single.l+ RBRACE
+          {:
+                javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
+                if( ps != null ) {
+                    for( Object o : ps ) {
+                        System.out.println( "Got type parameter, class: " + o.getClass().getName() );
+                    }
+                }
+                return new PTTemplate(IDENTIFIER,
+                                      cc.getInstDecls(),
+                                      cc.getSimpleClasses(),
+                                      cc.getInterfaces(),
+                                      cc.getEnums(),
+                                      ps
+                                      );
           :}
           ;
 

@@ -20,6 +20,7 @@ import AST.PTDecl;
 import AST.PTInstDecl;
 import AST.PTInstTuple;
 import AST.PTTemplate;
+import AST.PTPackage;
 import AST.SimpleClass;
 import AST.TypeDecl;
 import AST.EnumDecl;
@@ -252,14 +253,21 @@ public class PTDeclRew {
 		return destinationClassIDsWithInstTuples;
 	}
 
+    public boolean isPackage() {
+        return ptDeclToBeRewritten instanceof PTPackage;
+    }
+
+    public boolean isTemplate() {
+        return ptDeclToBeRewritten instanceof PTTemplate;
+    }
+
 	public void createInitIfPackage() {
-		if (ptDeclToBeRewritten instanceof PTTemplate)
-			return;
-		String dummyName = addDummyClass();
-		for (SimpleClassRew x : simpleClasses) {
-			x.createInitConstructor(dummyName);
-			x.createDummyConstructor(dummyName);
-		}
+        if( !isPackage() ) return;
+        String dummyName = addDummyClass();
+        for (SimpleClassRew x : simpleClasses) {
+            x.createInitConstructor(dummyName);
+            x.createDummyConstructor(dummyName);
+        }
 	}
 
 	private String addDummyClass() {
@@ -269,4 +277,9 @@ public class PTDeclRew {
 		ptDeclToBeRewritten.getSimpleClassList().add(new PTClassDecl(dummy));
 		return dummyName;
 	}
+
+    public void debugTypeParameters() {
+        if( !isTemplate() ) return;
+
+    }
 }
