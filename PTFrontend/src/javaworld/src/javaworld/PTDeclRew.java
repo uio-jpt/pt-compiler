@@ -1,9 +1,12 @@
 package javaworld;
 
+import testutils.utils.CriticalPTException;
+
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Iterator;
+import java.util.HashSet;
 
 import AST.PTInterfaceDecl;
 import AST.Access;
@@ -112,18 +115,38 @@ public class PTDeclRew {
 	 */
 	protected void extendAddClassesWithInstantiatons() {
 		Set<String> visited = Sets.newHashSet();
+        boolean didMakeProgress;
 		while (visited.size() < simpleClasses.size()) {
+            // This loop is a bit of a wart as it's apt to go infinite-loop
+            // during testing if something is wrong elsewhere so its
+            // assumptions fail, which is confusing.
+            // added the didMakeProgress to fail instead of looping infinitely.
+            // Better ideas welcome.
+            // [example of fail: ExtendExternal test]
+
+            didMakeProgress = false;
+
 			for (SimpleClassRew decl : simpleClasses) {
 				String superName = decl.getSuperClassname();
 				if (!visited.contains(decl.getName())) {
 					if (superName == null || visited.contains(superName)) {
 						visited.add(decl.getName());
+                        didMakeProgress = true;
 						decl.extendClass(getDestinationClassIDsWithInstTuples(),
                                          getParameterRewriter()
                         );
 					}
 				}
 			}
+
+            if( !didMakeProgress ) {
+                /* Confusingly, throwing a CriticalPTException is not in itself an indication
+                   of an error. This is perhaps for the best since it means we must call
+                   .error() with something more descriptive to be output to the screen.
+                */
+                ptDeclToBeRewritten.error( "internal compiler error (extendAddClassesWithInstantiatons() is confused and would loop infinitely)" );
+                throw new CriticalPTException( "extendAddClassesWithInstantiatons() is confused -- would loop infinitely" );
+            }
 
 		}
 	}
@@ -291,7 +314,6 @@ public class PTDeclRew {
 
             for (PTInstDecl templateInst : ptDeclToBeRewritten.getPTInstDecls()) {
                 PTTemplate ptt = templateInst.getTemplate();
-                System.out.println( "Instantiation of template: " + templateInst.getID() );
 
                 List formalp = ptt.getTypeParameterList();
                 List actualp = templateInst.getTypeArgumentList();
@@ -299,25 +321,76 @@ public class PTDeclRew {
 
                 if( formalp.getNumChild() != actualp.getNumChild() ) {
                     templateInst.error( "arity mismatch when instantiating " + templateInst.getID() + ": takes " + formalp.getNumChild() + " type argument(s), not " + actualp.getNumChild() );
-                    continue;
                 }
 
                 Iterator fpi = formalp.iterator();
                 Iterator api = actualp.iterator();
+                
+                int argcount = 0;
 
-                // this is basically zipWith, more elegant way to write in Java?
-                while( fpi.hasNext() ) {
-                    assert( api.hasNext() );
+                // this loop is basically zipWith, more elegant way to write in Java?
+                while( fpi.hasNext() && api.hasNext() ) {
                     TypeVariable fparam = (TypeVariable) fpi.next();
                     TypeAccess aparam = (TypeAccess) api.next();
+                    argcount++;
 
-                    // TODO should check here that constraints are satisfied
+                    TypeDecl tdecl = aparam.decl();
+
+                    // check constraints:
+                    //   - if fparam claims to inherit from a class C,
+                    //     tdecl must represent a class V and V must
+                    //     inherit from C.
+                    //   - for any interface I fparam claims to implement,
+                    //     tdecl must represent a class C and C must
+                    //     implement I
+
+                    // this may be complicated by the fact that tdecl
+                    // might be either a pt-class or a non-pt class. (?)
+                    // (never seems to be a SimpleClass, always (rewritten
+                    //  to a?) plain ClassDecl. figure out why, make
+                    //  sure this is not dangerously ordering-dependent)
+                    if( !(tdecl instanceof ClassDecl) ) {
+                        templateInst.error( "when instantiating " + templateInst.getID() + ", argument " + argcount + " does not satisfy constraints: does not refer to a class" );
+                        continue;
+                    }
+                    ClassDecl classDecl = (ClassDecl) tdecl;
+
+                    HashSet<ClassDecl> extendedClasses = new HashSet<ClassDecl>();
+                    extendedClasses.add( classDecl );
+                    ClassDecl x = classDecl;
+                    while( x.hasSuperclass() ) {
+                        x = x.superclass();
+                        extendedClasses.add( x );
+                    }
+
+                    boolean okay = true;
+
+                    for( Access constraintAcc : fparam.getTypeBoundList() ) {
+                        TypeDecl constraint = constraintAcc.type();
+                        if( constraint.isClassDecl() ) {
+                            if( !extendedClasses.contains( constraint ) ) {
+                                templateInst.error( "when instantiating " + templateInst.getID() + ", argument " + argcount + " does not satisfy constraints: does not extend class " + constraint.fullName() );
+                                okay = false;
+                            }
+                        }
+                        if( constraint.isInterfaceDecl() ) {
+                            if( !tdecl.implementedInterfaces().contains( constraint ) ) {
+                                templateInst.error( "when instantiating " + templateInst.getID() + ", argument " + argcount + " does not satisfy constraints: does not implement interface " + constraint.fullName() );
+                                okay = false;
+                            }
+                        }
+                    }
+
+                    // we try to add as many rewrites as possible, even if
+                    // we've encountered errors along the way.
+                    // this seems to give more informative error messages
+                    // (and eliminates in some but not all cases confusing
+                    //  ones about there being no visible type with the
+                    //  type variable name (in the generated Java AST))
 
                     pr.addRewrite( fparam, aparam );
                 }
             }
-
-            pr.debugPrint();
 
             paramRewriter = pr;
         }

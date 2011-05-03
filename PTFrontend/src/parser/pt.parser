@@ -52,11 +52,6 @@ PTDecl pt_template =
  TEMPLATE IDENTIFIER type_parameters.ps? LBRACE inst_class_or_interface_single.l+ RBRACE
           {:
                 javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
-                if( ps != null ) {
-                    for( Object o : ps ) {
-                        System.out.println( "Got type parameter, class: " + o.getClass().getName() );
-                    }
-                }
                 return new PTTemplate(IDENTIFIER,
                                       cc.getInstDecls(),
                                       cc.getSimpleClasses(),
@@ -100,7 +95,7 @@ SimpleClass pt_simple_declaration =
 ;
 
 
-/* Does not handle all the >> token subtleties yet. TODO */
+/* Does not handle all the >> token subtleties yet. TODO TODO TODO*/
 List pt_type_arguments =
  LT pt_type_argument.t pt_type_rest_of_arguments.ts GT
  {: return ts.add( t ); :}

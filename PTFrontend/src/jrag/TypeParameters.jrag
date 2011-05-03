@@ -21,8 +21,7 @@ aspect PTTypeParameters {
             TypeAccess swapWith = child.visitReplaceTypeVariableAccesses(ht);
             if ( swapWith != null ) {
                 child.replaceSelfWith( swapWith );
-                System.out.println( "swapped " + child + " for " + swapWith );
-//                System.out.println("renamed " + child.dumpString());
+//                System.out.println( "swapped " + child + " for " + swapWith );
             }
             child.replaceTypeVariableAccesses(ht);
         }
