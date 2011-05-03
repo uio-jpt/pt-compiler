@@ -13,8 +13,9 @@ PTInterfaceDecl : InterfaceDecl;
 
 PTEnumDecl : EnumDecl;
 
-PTInstDecl ::= <ID> PTInstTuple*; // inst T with A => X;
-                                  //      ID    PTInstTuple
+PTInstDecl ::= <ID> TypeArgument:Access* PTInstTuple*;
+// inst T<...> with A => X;
+//      ID  typevariables   PTInstTuple
 
 PTInstTuple ::= <OrgID> <ID> PTDummyRename*;
 

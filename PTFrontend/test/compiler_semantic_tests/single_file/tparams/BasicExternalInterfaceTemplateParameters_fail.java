@@ -6,8 +6,9 @@ template T <V implements Runnable> {
             return v;
         }
 
-        A(V v) {
+        public A setV(V v) {
             this.v = v;
+            return this;
         }
     }
 }
@@ -19,11 +20,11 @@ package P {
         public String getString() {
             return "Hello world!";
         }
-    };
+    }
 
     class X {
         public static void main(String args[]) {
-            System.out.println( new A(new W()).getV().getString() );
+            System.out.println( new A().setV(new W()).getV().getString() );
         }
     }
 }

@@ -22,8 +22,13 @@ public class InstantiationRewriter {
 			c.findVirtualMethods();
 		}
 
+        // could we use clone and then _mutate_ the objects we're
+        // _copying_ from, to subject them to extensive treatment, e.g.
+        // parametrization?
+
 		PTDeclRew target = new PTDeclRew(decl);
         target.debugTypeParameters();
+        // todo add another type of renaming; 
         target.createRenamedInterfaces();
         target.createRenamedEnums();
         target.createEmptyMissingAddClasses();

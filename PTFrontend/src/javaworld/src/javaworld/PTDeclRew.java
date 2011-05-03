@@ -279,7 +279,22 @@ public class PTDeclRew {
 	}
 
     public void debugTypeParameters() {
-        if( !isTemplate() ) return;
-
+        System.out.println( "===" );
+        // note that the two things being printed in the same method here are not matched!
+        if( isTemplate() ) {
+            PTTemplate ptt = (PTTemplate) ptDeclToBeRewritten;
+            for( Object o : ptt.getTypeParameterList() ) {
+                // these are TypeVariables
+                System.out.println( "Formal parameter: " + o + ", " + o.getClass().getName() );
+            }
+        }
+		for (PTInstDecl templateInst : ptDeclToBeRewritten.getPTInstDecls()) {
+            System.out.println( "InstDecl:" );
+            for( Object o : templateInst.getTypeArgumentList() ) {
+                // these are TypeAccesses.
+                System.out.println( "\tActual parameter: " + o + ", " + o.getClass().getName() );
+            }
+        }
+        System.out.println( "===" );
     }
 }

@@ -12,5 +12,5 @@ aspect PTTypeParameters {
     return c;
   }
 
-
+  eq PTInstDecl.getTypeArgument().nameType() = NameType.TYPE_NAME;
 }

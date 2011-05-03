@@ -2,12 +2,13 @@ template T <V implements Runnable> {
     class A {
         V v;
 
-        V getV() {
+        public V getV() {
             return v;
         }
 
-        A(V v) {
+        public A setV(V v) {
             this.v = v;
+            return this;
         }
     }
 }
@@ -19,12 +20,11 @@ package P {
         public void run() {
             System.out.println( "Hello world!" );
         }
-    };
+    }
 
     class X {
         public static void main(String args[]) {
-            new A( new W() ).getV().run();
-            System.out.println( new A(new W()).getString() );
+            new A().setV( new W() ).getV().run();
         }
     }
 }

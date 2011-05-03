@@ -111,9 +111,12 @@ aspect LookupType {
 
     inh SimpleSet SimpleClass.lookupType(String name);
 
-    eq PTTemplate.getTypeParameter().lookupType(String name) {
-        System.out.println( "looking up type in template for type param: " + name );
+    /* TODO: below is obvious code duplication, eliminate it.
+       Not as easy as it looks, probably just because the
+       jastadd system is still somewhat unfamiliar.
+    */
 
+    eq PTTemplate.getTypeParameter().lookupType(String name) {
         SimpleSet c = SimpleSet.emptySet;
         c = addTypeVariables(c, name);
         if(!c.isEmpty()) return c;
@@ -138,8 +141,6 @@ aspect LookupType {
     }
 
     eq PTDecl.getSimpleClass(int i).lookupType(String name) {
-        System.out.println( "looking up type in decl: " + name );
-
         if( this instanceof PTTemplate ) {
             SimpleSet c = SimpleSet.emptySet;
             PTTemplate ptt = (PTTemplate) this;
@@ -164,8 +165,33 @@ aspect LookupType {
         }
         TypeDecl t = lookupType("", name);
         if (t!=null) return SimpleSet.emptySet.add(t);
+    }
 
-        System.out.println( "ending up returning null from decl");
+    eq PTDecl.getPTInstDecl(int i).lookupType(String name) {
+        if( this instanceof PTTemplate ) {
+            SimpleSet c = SimpleSet.emptySet;
+            PTTemplate ptt = (PTTemplate) this;
+            c = ptt.addTypeVariables(c, name);
+            if(!c.isEmpty()) return c;
+        }
+
+        for (SimpleClass s : getSimpleClassList()) {
+            ClassDecl cd = s.getClassDecl();
+            if (cd.getID().equals(name))
+                return SimpleSet.emptySet.add(cd);
+        }
+        for (PTEnumDecl s : getPTEnumDeclList()) {
+            if (s.getID().equals(name)) {
+                return SimpleSet.emptySet.add(s);
+            }
+        }
+        for (PTInterfaceDecl s : getPTInterfaceDeclList()) {
+            if (s.getID().equals(name)) {
+                return SimpleSet.emptySet.add(s);
+            }
+        }
+        TypeDecl t = lookupType("", name);
+        if (t!=null) return SimpleSet.emptySet.add(t);
     }
 
     inh ClassDecl TemplateMethodAccess.getClassDecl(String className);

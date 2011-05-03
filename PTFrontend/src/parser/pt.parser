@@ -49,18 +49,7 @@ Modifier modifier =
     ;
 
 PTDecl pt_template =
- TEMPLATE IDENTIFIER LBRACE inst_class_or_interface_single.l+ RBRACE
-          {:
-                javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
-                return new PTTemplate(IDENTIFIER,
-                                      cc.getInstDecls(),
-                                      cc.getSimpleClasses(),
-                                      cc.getInterfaces(),
-                                      cc.getEnums(),
-                                      new AST.List<AST.TypeVariable>()
-                                      );
-          :}
- | TEMPLATE IDENTIFIER type_parameters.ps LBRACE inst_class_or_interface_single.l+ RBRACE
+ TEMPLATE IDENTIFIER type_parameters.ps? LBRACE inst_class_or_interface_single.l+ RBRACE
           {:
                 javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
                 if( ps != null ) {
@@ -73,7 +62,7 @@ PTDecl pt_template =
                                       cc.getSimpleClasses(),
                                       cc.getInterfaces(),
                                       cc.getEnums(),
-                                      ps
+                                      (ps == null) ? new AST.List<TypeVariable>() : ps
                                       );
           :}
           ;
@@ -110,11 +99,34 @@ SimpleClass pt_simple_declaration =
               {: return new PTClassAddsDecl(pt_ac); :}
 ;
 
+
+/* Does not handle all the >> token subtleties yet. TODO */
+List pt_type_arguments =
+ LT pt_type_argument.t pt_type_rest_of_arguments.ts GT
+ {: return ts.add( t ); :}
+ ;
+
+List pt_type_rest_of_arguments =
+ COMMA pt_type_argument.t pt_type_rest_of_arguments.ts
+ {: return ts.add( t ); :}
+ |
+ {: return new List(); :}
+ ;
+
+Access pt_type_argument =
+ class_or_interface_type.coit
+ {: return coit; // hacky
+ :}
+ ;
+
 PTInstDecl pt_inst_decl =
-  INST IDENTIFIER SEMICOLON
-       {: return new PTInstDecl(IDENTIFIER, new List()); :}
-| INST IDENTIFIER WITH dummy_class_list.dcl SEMICOLON
-       {: return new PTInstDecl(IDENTIFIER, dcl); :}
+  INST IDENTIFIER pt_type_arguments.ts? SEMICOLON
+       {:
+          return new PTInstDecl(IDENTIFIER, (ts == null) ? new List<Access>() : ts, new List());
+       :}
+| INST IDENTIFIER pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
+       {:
+          return new PTInstDecl(IDENTIFIER, (ts == null) ? new List<Access>() : ts, dcl); :}
 ;
 
 List dummy_class_list =
