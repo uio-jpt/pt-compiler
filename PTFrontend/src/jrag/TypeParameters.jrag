@@ -6,11 +6,38 @@ aspect PTTypeParameters {
   public SimpleSet PTTemplate.addTypeVariables(SimpleSet c, String name) {
     for(int i = 0; i < this.getNumTypeParameter(); i++) {
       TypeVariable p = this.getTypeParameter(i);
-      if(p.name().equals(name))
+      if(p.name().equals(name)) {
         c = c.add(p);
+      }
     }
     return c;
   }
 
   eq PTInstDecl.getTypeArgument().nameType() = NameType.TYPE_NAME;
+  
+  public void ASTNode.replaceTypeVariableAccesses(Map<TypeVariable,TypeAccess> ht) {
+        for(int i = 0; i < getNumChild(); i++) {
+            ASTNode child = getChild(i);
+            TypeAccess swapWith = child.visitReplaceTypeVariableAccesses(ht);
+            if ( swapWith != null ) {
+                child.replaceSelfWith( swapWith );
+                System.out.println( "swapped " + child + " for " + swapWith );
+//                System.out.println("renamed " + child.dumpString());
+            }
+            child.replaceTypeVariableAccesses(ht);
+        }
+  }
+
+  public TypeAccess ASTNode.visitReplaceTypeVariableAccesses(Map<TypeVariable,TypeAccess> ht) {
+    return null;
+  }
+
+  public TypeAccess TypeAccess.visitReplaceTypeVariableAccesses(Map<TypeVariable,TypeAccess> ht) {
+    TypeDecl myDecl = decl();
+    if( myDecl instanceof TypeVariable) {
+        TypeVariable v = (TypeVariable) myDecl;
+        return ht.get( v );
+    }
+    return null;
+  }
 }

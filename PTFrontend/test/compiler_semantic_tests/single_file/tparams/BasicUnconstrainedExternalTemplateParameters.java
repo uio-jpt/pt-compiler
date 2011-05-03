@@ -14,7 +14,7 @@ template T <V> {
 }
 
 package P {
-    inst T<Object>;
+    inst T<String>;
 
     class X {
         public static void main(String args[]) {

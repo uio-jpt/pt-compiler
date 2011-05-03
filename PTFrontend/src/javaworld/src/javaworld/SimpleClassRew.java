@@ -64,7 +64,9 @@ public class SimpleClassRew {
 	 * scope.
 	 */
 	public void extendClass(
-			Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples) {
+			Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples,
+            ParameterRewriter parameterRewriter
+            ) {
 		if (!checkIfSane(destinationClassIDsWithInstTuples)) {
 			return;
 		}
@@ -77,6 +79,10 @@ public class SimpleClassRew {
 		computeTSuperDeps();
 
         updateAbstractness();
+
+        for (ClassDeclRew source : renamedSources) {
+            source.applyMutator( parameterRewriter );
+        }
 
 		if (mergingIsPossible()) {
 			renameResolvedConflicts();

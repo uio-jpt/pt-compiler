@@ -3,6 +3,7 @@ package javaworld;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Iterator;
 
 import AST.PTInterfaceDecl;
 import AST.Access;
@@ -25,6 +26,8 @@ import AST.SimpleClass;
 import AST.TypeDecl;
 import AST.EnumDecl;
 import AST.PTEnumDecl;
+import AST.TypeVariable;
+import AST.TypeAccess;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
@@ -47,6 +50,8 @@ import com.google.common.collect.Iterables;
 
 
 public class PTDeclRew {
+
+    private ParameterRewriter paramRewriter;
 
 	private final PTDecl ptDeclToBeRewritten;
 
@@ -113,7 +118,9 @@ public class PTDeclRew {
 				if (!visited.contains(decl.getName())) {
 					if (superName == null || visited.contains(superName)) {
 						visited.add(decl.getName());
-						decl.extendClass(getDestinationClassIDsWithInstTuples());
+						decl.extendClass(getDestinationClassIDsWithInstTuples(),
+                                         getParameterRewriter()
+                        );
 					}
 				}
 			}
@@ -278,23 +285,43 @@ public class PTDeclRew {
 		return dummyName;
 	}
 
-    public void debugTypeParameters() {
-        System.out.println( "===" );
-        // note that the two things being printed in the same method here are not matched!
-        if( isTemplate() ) {
-            PTTemplate ptt = (PTTemplate) ptDeclToBeRewritten;
-            for( Object o : ptt.getTypeParameterList() ) {
-                // these are TypeVariables
-                System.out.println( "Formal parameter: " + o + ", " + o.getClass().getName() );
+    public ParameterRewriter getParameterRewriter() {
+        if( paramRewriter == null ) {
+            ParameterRewriter pr = new ParameterRewriter();
+
+            for (PTInstDecl templateInst : ptDeclToBeRewritten.getPTInstDecls()) {
+                PTTemplate ptt = templateInst.getTemplate();
+                System.out.println( "Instantiation of template: " + templateInst.getID() );
+
+                List formalp = ptt.getTypeParameterList();
+                List actualp = templateInst.getTypeArgumentList();
+
+
+                if( formalp.getNumChild() != actualp.getNumChild() ) {
+                    templateInst.error( "arity mismatch when instantiating " + templateInst.getID() + ": takes " + formalp.getNumChild() + " type argument(s), not " + actualp.getNumChild() );
+                    continue;
+                }
+
+                Iterator fpi = formalp.iterator();
+                Iterator api = actualp.iterator();
+
+                // this is basically zipWith, more elegant way to write in Java?
+                while( fpi.hasNext() ) {
+                    assert( api.hasNext() );
+                    TypeVariable fparam = (TypeVariable) fpi.next();
+                    TypeAccess aparam = (TypeAccess) api.next();
+
+                    // TODO should check here that constraints are satisfied
+
+                    pr.addRewrite( fparam, aparam );
+                }
             }
+
+            pr.debugPrint();
+
+            paramRewriter = pr;
         }
-		for (PTInstDecl templateInst : ptDeclToBeRewritten.getPTInstDecls()) {
-            System.out.println( "InstDecl:" );
-            for( Object o : templateInst.getTypeArgumentList() ) {
-                // these are TypeAccesses.
-                System.out.println( "\tActual parameter: " + o + ", " + o.getClass().getName() );
-            }
-        }
-        System.out.println( "===" );
+        assert( paramRewriter != null );
+        return paramRewriter;
     }
 }

@@ -86,6 +86,12 @@ class ClassDeclRew {
 		}
 	}
 
+    /* A general way to say, e.g. ".renameTypes". */
+
+    protected void applyMutator(NodeMutator mutator) {
+        mutator.mutate( ext );
+    }
+
 	protected void renameTypes(Map<String, String> renamedClasses) {
 		ext.renameTypes(renamedClasses);
 	}
