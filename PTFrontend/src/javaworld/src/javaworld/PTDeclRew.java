@@ -132,9 +132,14 @@ public class PTDeclRew {
 					if (superName == null || visited.contains(superName)) {
 						visited.add(decl.getName());
                         didMakeProgress = true;
-						decl.extendClass(getDestinationClassIDsWithInstTuples(),
-                                         getParameterRewriter()
-                        );
+                        try {
+                            decl.extendClass(getDestinationClassIDsWithInstTuples(),
+                                             getParameterRewriter());
+                        }
+                        catch( CriticalPTException e ) {
+                            ptDeclToBeRewritten.error( "internal compiler error (extendAddClassesWithInstantiatons() is confused and would fail with exception)" );
+                            return;
+                        }
 					}
 				}
 			}
@@ -145,7 +150,8 @@ public class PTDeclRew {
                    .error() with something more descriptive to be output to the screen.
                 */
                 ptDeclToBeRewritten.error( "internal compiler error (extendAddClassesWithInstantiatons() is confused and would loop infinitely)" );
-                throw new CriticalPTException( "extendAddClassesWithInstantiatons() is confused -- would loop infinitely" );
+                return; // TODO: this will probably lead to some confusing error messages
+//                throw new CriticalPTException( "extendAddClassesWithInstantiatons() is confused -- would loop infinitely" );
             }
 
 		}

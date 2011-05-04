@@ -1,5 +1,7 @@
 package javaworld;
 
+import testutils.utils.CriticalPTException;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -139,8 +141,14 @@ public class SimpleClassRew {
 	private void expandDepsWith(LinkedHashMap<String, String> deps,
 			String templateName, ClassDecl originator) {
 		deps.putAll(originator.allTDeps);
-		String key = Util.toMinitName(templateName,
-				originator.getTopMostSuperName());
+        String tmSuperName;
+        try {
+            tmSuperName = originator.getTopMostSuperName();
+        }
+        catch( NullPointerException e ) {
+            throw new CriticalPTException( "internal failure in expandDepsWith() [assumption failed]" );
+        }
+		String key = Util.toMinitName(templateName, tmSuperName );
 		String value = Util.toMinitName(templateName, originator.getID());
 		deps.put(key, value);
 	}
