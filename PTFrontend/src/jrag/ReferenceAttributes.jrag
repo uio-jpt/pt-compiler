@@ -22,18 +22,15 @@ aspect ReferenceAttributes {
         return null;
     }
 
-    syn String ClassDecl.getTopMostSuperName() {
-        SimpleClass x = (SimpleClass) getParentClass(SimpleClass.class);
-        return x.getTopMostSuperName();
-    }
-    
-    syn String SimpleClass.getTopMostSuperName() {
-        ClassDecl c = getClassDecl();
-        String superclassName = c.getSuperClassName();
-        if (superclassName == null)
-            return c.getID();
-        SimpleClass sc = getPTDecl().getSimpleClass(superclassName);
-        return sc.getTopMostSuperName();
+    syn String ClassDecl.getTopMostInternalSuperName() {
+        if( !isPtInternalClass() ) {
+            return null;
+        }
+        ClassDecl superclass = superclass();
+        if( !superclass.isPtInternalClass() ) {
+            return getID();
+        }
+        return superclass.getTopMostInternalSuperName();
     }
 
     eq PTCompilationUnit.getPTDecl(int i).hasImportDecl(String name) {

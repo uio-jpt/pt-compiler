@@ -139,6 +139,15 @@ class ClassDeclRew {
 	void renameDefinitions(Map<String, String> namesMap) {
 		Map<String, MethodDecl> methods = ext.methodsSignatureMap();
 		Map<String, SimpleSet> fields = ext.memberFieldsMap();
+        
+        if( namesMap.isEmpty() ) {
+            return;
+        }
+
+        if( ext.inheritsFromExtendsExternal() ) {
+            ext.error( "cannot rename definitions in " + ext.getID() + " which inherits from external" );
+            return;
+        }
 
 		for (MethodDecl decl : methods.values()) {
                 /* If we rename the tabstracts we have trouble recognizing

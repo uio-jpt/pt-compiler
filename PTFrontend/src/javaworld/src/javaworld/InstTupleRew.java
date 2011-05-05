@@ -8,6 +8,7 @@ import AST.PTInstTuple;
 import AST.PTDummyRename;
 import AST.PTInterfaceDecl;
 import AST.PTEnumDecl;
+import AST.BodyDecl;
 
 import com.google.common.collect.Maps;
 

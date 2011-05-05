@@ -1,0 +1,24 @@
+template T {
+    class V extends external Exception {
+    }
+
+    class W extends V {
+        public void foo() {
+        }
+    }
+}
+
+package P {
+    inst T with W => Y ( foo() -> bar ); // fails: renaming something within a class extending external (even indirectly) fails
+
+    class X {
+        public static void main(String args[]) {
+            try {
+                throw new Y();
+            }
+            catch( Exception e ) {
+                System.out.println( "ok!" );
+            }
+        }
+    }
+}

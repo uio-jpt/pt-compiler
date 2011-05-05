@@ -8,10 +8,14 @@ import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.HashSet;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import AST.PTInterfaceDecl;
 import AST.Access;
 import AST.BodyDecl;
 import AST.ClassDecl;
+import AST.ClassAccess;
 import AST.CompilationUnit;
 import AST.ImportDecl;
 import AST.List;
@@ -129,18 +133,20 @@ public class PTDeclRew {
 			for (SimpleClassRew decl : simpleClasses) {
 				String superName = decl.getSuperClassname();
 				if (!visited.contains(decl.getName())) {
-					if (superName == null || visited.contains(superName)) {
-						visited.add(decl.getName());
-                        didMakeProgress = true;
-                        try {
+                    try {
+                        if ( superName == null
+                            || visited.contains(superName)
+                            || decl.hasExternalSuperclass() ) {
+                            visited.add(decl.getName());
+                            didMakeProgress = true;
                             decl.extendClass(getDestinationClassIDsWithInstTuples(),
                                              getParameterRewriter());
                         }
-                        catch( CriticalPTException e ) {
-                            ptDeclToBeRewritten.error( "internal compiler error (extendAddClassesWithInstantiatons() is confused and would fail with exception)" );
-                            return;
-                        }
-					}
+                    }
+                    catch( CriticalPTException e ) {
+                        ptDeclToBeRewritten.error( "internal compiler error (extendAddClassesWithInstantiatons() is confused and would fail with exception)" );
+                        return;
+                    }
 				}
 			}
 
@@ -174,6 +180,23 @@ public class PTDeclRew {
         }
         return rv;
     }
+
+    protected Map<String,ClassDecl> getDestinationForExtendingExternals() {
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
+        Map<String,ClassDecl> rv = new HashMap<String,ClassDecl> ();
+        for( String x : destinationClassIDsWithInstTuples.keySet() ) {
+            TypeDecl typeDecl = destinationClassIDsWithInstTuples.get(x).iterator().next().getOriginator();
+            if( typeDecl instanceof EnumDecl ) continue;
+            if( typeDecl instanceof ClassDecl ) {
+                ClassDecl cd = (ClassDecl) typeDecl;
+                if( cd.getModifiers().isExtendsExternal() ) {
+                    rv.put( x, cd );
+                }
+            }
+        }
+        return rv;
+    }
+
 
     /** Get IDs for the destination _classes_ -- that is, stripping away
       * the IDs of any interfaces (and enums, although they are technically
@@ -251,12 +274,31 @@ public class PTDeclRew {
 		 * adds .. given later }
 		 */
 		Set<String> addClasses = ptDeclToBeRewritten.getAdditionClassNamesSet();
-		Set<String> missingAddsClass = Sets.difference(
-                getDestinationIDsForNonEnumClasses(), addClasses );
+        Map<String, ClassDecl> extendingExternalsClasses = getDestinationForExtendingExternals();
+		Set<String> missingAddsClass =
+                Sets.difference(
+                Sets.difference( getDestinationIDsForNonEnumClasses(),
+                                 addClasses ),
+                                 extendingExternalsClasses.keySet() );
+        for(String name : extendingExternalsClasses.keySet() ) {
+            Modifiers mods = new Modifiers();
+            mods.addModifier( new Modifier( "extendsexternal" ) );
+            ClassDecl cls = new ClassDecl(mods,
+                                          name,
+                                          new Opt<Access>( extendingExternalsClasses.get(name).getSuperClassAccess() ),
+                                          new List<Access>(),
+                                          new List<BodyDecl>());
+			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
+			ptDeclToBeRewritten.addSimpleClass(addClass);
+			lb.add(new SimpleClassRew(addClass));
+        }
 
 		for (String name : missingAddsClass) {
-			ClassDecl cls = new ClassDecl(new Modifiers(), name, new Opt<Access>(),
-					new List<Access>(), new List<BodyDecl>());
+            ClassDecl cls = new ClassDecl(new Modifiers(),
+                                          name,
+                                          new Opt<Access>(),
+                                          new List<Access>(),
+                                          new List<BodyDecl>());
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 
 			ptDeclToBeRewritten.addSimpleClass(addClass); /* Code understanding note:
@@ -301,8 +343,10 @@ public class PTDeclRew {
         if( !isPackage() ) return;
         String dummyName = addDummyClass();
         for (SimpleClassRew x : simpleClasses) {
-            x.createInitConstructor(dummyName);
-            x.createDummyConstructor(dummyName);
+            if( !x.inheritsFromExtendsExternal() ) {
+                x.createInitConstructor(dummyName);
+                x.createDummyConstructor(dummyName);
+            }
         }
 	}
 

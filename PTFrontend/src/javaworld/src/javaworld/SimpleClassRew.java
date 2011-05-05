@@ -142,12 +142,12 @@ public class SimpleClassRew {
 			String templateName, ClassDecl originator) {
 		deps.putAll(originator.allTDeps);
         String tmSuperName;
-        try {
-            tmSuperName = originator.getTopMostSuperName();
-        }
-        catch( NullPointerException e ) {
-            throw new CriticalPTException( "internal failure in expandDepsWith() [assumption failed]" );
-        }
+//        try {
+            tmSuperName = originator.getTopMostInternalSuperName();
+//        }
+//        catch( NullPointerException e ) {
+//            throw new CriticalPTException( "internal failure in expandDepsWith() [assumption failed]" );
+//        }
 		String key = Util.toMinitName(templateName, tmSuperName );
 		String value = Util.toMinitName(templateName, originator.getID());
 		deps.put(key, value);
@@ -155,8 +155,13 @@ public class SimpleClassRew {
 
 	private LinkedHashMap<String, String> getSuperDepsCopy() {
 		String superName = decl.getClassDecl().getSuperClassName();
-		if (superName != null) {
-			return decl.getPTDecl().getSimpleClass(superName).getClassDecl().allTDeps;
+		if (!decl.getClassDecl().getModifiers().isExtendsExternal() && superName != null) {
+            SimpleClass sc = decl.getPTDecl().getSimpleClass(superName);
+            if( sc == null ) {
+                decl.error( "cannot find internal superclass " + superName + "(did you mean \"extends external\"?)");
+                return Maps.newLinkedHashMap();
+            }
+            return sc.getClassDecl().allTDeps;
 		} else {
 			return Maps.newLinkedHashMap();
 		}
@@ -224,19 +229,31 @@ public class SimpleClassRew {
 	 */
 	private void updateSuperName() {
 		HashSet<String> names = Sets.newHashSet();
+        boolean oneExternal = false;
 		for (ClassDeclRew x : renamedSources) {
 			names.add(x.getSuperClassName());
+            ClassDecl sup = x.getClassDecl().superclass();
+            if( sup != null && !sup.isPtInternalClass() ) {
+                oneExternal = true;
+            }
 		}
 		names.remove(null); // classes without superclass
-		try {
-			decl.getClassDecl().setSuperClassAccess(
-					new TypeAccess(Iterables.getOnlyElement(names)));
-		} catch (NoSuchElementException e) { // no superclasses
-		} catch (IllegalArgumentException e) {
-			decl.error(String.format(
-					"Merge error for %s. Superclasses %s must be merged.\n",
-					decl.getID(), Joiner.on(" and ").join(names)));
-		}
+        if( oneExternal && names.size() > 1 ) {
+            // note that per spec we do not even check whether these all extend each other
+            decl.error(String.format(
+                    "Merge error for %s: distinct external superclasses %s cannot be merged\n",
+                    decl.getID(), Joiner.on(" and ").join(names)));
+        } else {
+            try {
+                decl.getClassDecl().setSuperClassAccess(
+                        new TypeAccess(Iterables.getOnlyElement(names)));
+            } catch (NoSuchElementException e) { // no superclasses
+            } catch (IllegalArgumentException e) {
+                decl.error(String.format(
+                        "Merge error for %s. Superclasses %s must be merged.\n",
+                        decl.getID(), Joiner.on(" and ").join(names)));
+            }
+        }
 	}
 
 	private boolean addsResolvesConflict() {
@@ -352,11 +369,12 @@ public class SimpleClassRew {
 							if (d instanceof MethodDecl == false)
 								continue;
 
-							if (meth.sameSignature((MethodDecl)d))
+							if (meth.sameSignature((MethodDecl)d)) {
 								// TODO: Finne klassenavn.
 								decl.error(String.format("Merging causes virtual method %s in class "+
 									"%s to overload existing method in class %s.",
 									meth.signature(), target.getID(), c.getID()));
+                            }
 						}
 						c = c.superclass();
 					}
@@ -554,4 +572,19 @@ public class SimpleClassRew {
 	public String getName() {
 		return decl.getID();
 	}
+
+    public boolean inheritsFromExtendsExternal() {
+        ClassDecl cd = decl.getClassDecl();
+        return cd.inheritsFromExtendsExternal();
+    }
+
+    public boolean isExtendsExternal() {
+        ClassDecl cd = decl.getClassDecl();
+        return cd.getModifiers().isExtendsExternal();
+    }
+
+    public boolean hasExternalSuperclass() {
+        ClassDecl cd = decl.getClassDecl();
+        return cd.hasSuperclass() && !cd.superclass().isPtInternalClass();
+    }
 }

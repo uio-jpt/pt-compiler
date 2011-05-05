@@ -22,7 +22,10 @@ class ConstructorRew {
 						cd.getBlock()), tclassID, templateID);
 		md.setBlock(new Block(new List<Stmt>()));
 		String supername = cd.getClassDecl().getSuperClassName();
-		if (supername != null) {
+		if (
+            supername != null
+            && !cd.getClassDecl().inheritsFromExtendsExternal()
+            ) {
 			String methodName = Util.toMinitName(templateID, supername);
 			MethodAccess supercall = new MethodAccess(methodName, new List<Expr>());
 			md.getBlock().addStmt(new ExprStmt(supercall));

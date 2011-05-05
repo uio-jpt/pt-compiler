@@ -1,0 +1,94 @@
+/* A major wart of this system is that we use a Modifier
+   extendsexternal to indicate "extends external".
+
+   This needs to be stripped out before we get to Java code.
+   This is done by a horrible hack: we overload the
+   PrettyPrinter toString of Modifier to map
+   that specific modifier to the empty string.
+   This is a poor solution (e.g. very confusing when writing
+   debugging output) but we probably shouldn't be using
+   a Modifier, so we can fix both at the same time later.
+*/
+
+
+aspect ExtendsExternal {
+    // this being an attribute of every ASTNode is a hack for
+    // the same issue that gave us SimpleClass, I think
+
+    inh boolean ASTNode.isPtInternalClass();
+    eq ASTNode.getChild(int i).isPtInternalClass() = false;
+    eq SimpleClass.getClassDecl().isPtInternalClass() = true;
+
+    /* XXX hack. TODO fix */
+    refine PrettyPrint public void Modifier.toString( StringBuffer sb ) {
+        if( !getID().equals( "extendsexternal" ) ) {
+            sb.append( getID() );
+        }
+    }
+
+    syn lazy boolean Modifiers.isExtendsExternal() = numModifier( "extendsexternal" ) != 0;
+
+    syn ClassDecl PTDecl.getUltimateExternalSuperclassByName( String name ) {
+        TypeDecl td = lookupType( name );
+        if( !(td instanceof ClassDecl) ) return null;
+        ClassDecl cd = (ClassDecl) td;
+        return cd.getUltimateExternalSuperclass();
+    }
+
+    syn Access PTDecl.getUltimateExternalSuperclassAccessByName( String name ) {
+        TypeDecl td = lookupType( name );
+        if( !(td instanceof ClassDecl) ) return null;
+        ClassDecl cd = (ClassDecl) td;
+        return cd.getUltimateExternalSuperclassAccess();
+    }
+
+    public Access ClassDecl.getUltimateExternalSuperclassAccess() {
+        ClassDecl x = this;
+        while( x != null ) {
+            if( x.getModifiers().isExtendsExternal() ) return x.getSuperClassAccess();
+            x = x.superclass();
+        }
+        return null;
+    }
+
+    public ClassDecl ClassDecl.getUltimateExternalSuperclass() {
+        ClassDecl x = this;
+        while( x != null ) {
+            if( x.getModifiers().isExtendsExternal() ) return x.superclass();
+            x = x.superclass();
+        }
+        return null;
+    }
+
+    public boolean ClassDecl.inheritsFromExtendsExternal() { // inherits from or is itself, really
+        return getUltimateExternalSuperclass() != null;
+    }
+
+    public void ClassDecl.checkExtendsExternalRules() {
+        if( !isPtInternalClass() ) {
+            return; // no restrictions on classes that are not inside pt code
+        }
+        if( !hasSuperclass() ) {
+            return; // can't break the rules if you don't have a superclass
+        }
+
+        ClassDecl directSuper = superclass(); 
+        if( !directSuper.hasSuperclass() ) {
+            return; // the only class that doesn't have a superclass is Object, which we're not counting (otherwise every class would have to be extends external Object)
+        }
+
+        if( !directSuper.isPtInternalClass() && !getModifiers().isExtendsExternal() ) {
+            error( "PT-internal class " + getID() + " cannot extend from external class " + directSuper.getID() + ", use \"extend external\"" );
+        }
+
+        if( directSuper.isPtInternalClass() && getModifiers().isExtendsExternal() ) {
+            error( "PT-internal class " + getID() + " cannot extend external from internal class " + directSuper.getID() );
+        }
+    }
+
+    public void SimpleClass.collectErrors() {
+        getClassDecl().checkExtendsExternalRules();
+        super.collectErrors();
+    }
+
+}

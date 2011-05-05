@@ -87,8 +87,19 @@ PTEnumDecl pt_enum_declaration =
     {: return new PTEnumDecl(new Modifiers(m), id, i, b); :}
     ;
 
+ClassDecl pt_class_declaration =
+  modifiers.m? CLASS IDENTIFIER super.s? interfaces.i? class_body.b 
+   {: return new ClassDecl(new Modifiers(m), IDENTIFIER, s, i, b); :}
+  | modifiers.m? CLASS IDENTIFIER EXTENDS EXTERNAL class_type.c interfaces.i? class_body.b 
+   {: 
+     Modifiers my = new Modifiers(m);
+     my.addModifier( new Modifier( "extendsexternal" ) );
+     return new ClassDecl(my, IDENTIFIER, new Opt(c), i, b);
+   :}
+  ;
+
 SimpleClass pt_simple_declaration =
-  class_declaration.cd
+  pt_class_declaration.cd
               {: return new PTClassDecl(cd); :}
 | pt_adds_class.pt_ac 
               {: return new PTClassAddsDecl(pt_ac); :}

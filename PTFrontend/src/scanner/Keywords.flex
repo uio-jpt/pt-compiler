@@ -11,4 +11,5 @@
   "(\*)"                     { return sym(Terminals.ASTERISK_PAR); }
   "tsuper"                        { return sym(Terminals.TSUPER); }
   "tabstract"                { return sym(Terminals.TABSTRACT); }
+  "external"                 { return sym(Terminals.EXTERNAL); }
 }
