@@ -35,6 +35,7 @@ import AST.Stmt;
 import AST.SuperConstructorAccess;
 import AST.TemplateConstructorAccess;
 import AST.TypeAccess;
+import AST.ParTypeAccess;
 import AST.TypeDecl;
 import AST.VarAccess;
 import AST.Modifier;
@@ -208,8 +209,24 @@ public class SimpleClassRew {
     private void updateImplementsNames() {
 		HashSet<String> names = Sets.newHashSet();
         for( Object o : decl.getClassDecl().getImplementsList() ) {
-            TypeAccess ta = (TypeAccess) o; // xx! want try/catch?
-            names.add( ta.getID() );
+            if( o instanceof TypeAccess ) {
+                TypeAccess ta = (TypeAccess) o;
+                TypeDecl td = ta.decl();
+                if( td != null && td.getParentClass( PTDecl.class ) == null ) {
+                    // preemptive bugfix -- might fix some classpath errors?
+                    names.add( td.fullName() );
+                } else {
+                    names.add( ta.getID() );
+                }
+            } else if( o instanceof ParTypeAccess ) {
+                ParTypeAccess pta = (ParTypeAccess) o; // parametrized type
+                TypeDecl gd = pta.genericDecl();
+                    // XXX TODO for now, we _strip_ the arguments -- that probably breaks something
+                names.add( gd.fullName() );
+                decl.warning( "stripping arguments from generic interface in implements-list " + gd.fullName() + " (implementing generic interfaces not yet fully handled in compiler)" );
+            } else {
+                decl.error( "internal compiler error: in implements-list, encountered unexpected type " + o.getClass().getName() );
+            }
         }
 		for (ClassDeclRew x : renamedSources) {
             for( String name : x.getImplementsList() ) {
