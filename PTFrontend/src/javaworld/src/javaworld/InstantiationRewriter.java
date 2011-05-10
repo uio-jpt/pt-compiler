@@ -34,6 +34,7 @@ public class InstantiationRewriter {
         target.createRenamedInterfaces();
         target.createRenamedEnums();
         target.createEmptyMissingAddClasses();
+
 		target.extendAddClassesWithInstantiatons();
 		target.copyImportDecls();
 		target.createInitIfPackage();

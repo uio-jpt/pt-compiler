@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 
+import AST.SimpleSet;
 import AST.PTInterfaceDecl;
 import AST.Access;
 import AST.BodyDecl;
@@ -358,6 +359,67 @@ public class PTDeclRew {
 		return dummyName;
 	}
 
+    /* Find, by destination name, a class being instantiated within a
+       template being instantiated (this is not the same as the class this
+       class will end up being copied into). This class is within the template
+       part of the AST and should not be mutated. It is useful for
+       resolving self-references in type parameters.
+    */
+
+    public ClassDecl getPrecopyClass( String className ) {
+        for (PTInstDecl templateInst : ptDeclToBeRewritten.getPTInstDecls()) {
+            for(PTInstTuple instTup : templateInst.getPTInstTuples()) {
+                if( !instTup.getID().equals( className ) ) continue;
+
+                SimpleSet typeDecs = templateInst.getTemplate().lookupType( instTup.getOrgID() );
+
+                Iterator<TypeDecl> i = typeDecs.iterator();
+                // ambiguity is really an error, but should be dealt with elsewhere
+                while( i.hasNext() ) {
+                    TypeDecl td = i.next();
+                    if( td instanceof ClassDecl ) {
+                        return (ClassDecl) td;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /* Add the extended classes of a class (we consider a class as extending itself)
+       to a set. This is nontrivial because the classes extended might not be
+       local yet -- classes referenced may be inside templates, in which case the
+       class in the template should be returned. (As such, this may not give
+       the expected results post-copy.) This is useful for self-referencing
+       type parameters.
+    */
+
+    public void precopyAddExtendedClassesOf( ClassDecl classDecl, Set<ClassDecl> extendedClasses ) {
+        boolean didTryTemplateLookup = false;
+        extendedClasses.add( classDecl );
+        ClassDecl x = classDecl;
+        while( x.hasSuperclass() ) {
+            if( !x.superclass().isUnknown() ) {
+                x = x.superclass();
+                extendedClasses.add( x );
+            } else if( !didTryTemplateLookup ) {
+                // lookup failed. try by name.. but only once (if this works, any further references won't be to something instantiated in this ptdecl)
+                ClassDecl cd = getPrecopyClass( x.getSuperClassName() );
+                if( cd == null ) {
+                    // certainly an error, but should probably be caught/reported somewhere else.
+                    break;
+                }
+                x = cd; // continue exploring superclasses
+                extendedClasses.add( cd );
+                didTryTemplateLookup = true;
+            } else {
+                classDecl.warning( "compiler confused while computing pre-copy superclasses" );
+                break;
+            }
+        }
+    }
+
     public ParameterRewriter getParameterRewriter() {
         if( paramRewriter == null ) {
             ParameterRewriter pr = new ParameterRewriter();
@@ -406,12 +468,7 @@ public class PTDeclRew {
                     ClassDecl classDecl = (ClassDecl) tdecl;
 
                     HashSet<ClassDecl> extendedClasses = new HashSet<ClassDecl>();
-                    extendedClasses.add( classDecl );
-                    ClassDecl x = classDecl;
-                    while( x.hasSuperclass() ) {
-                        x = x.superclass();
-                        extendedClasses.add( x );
-                    }
+                    precopyAddExtendedClassesOf( classDecl, extendedClasses );
 
                     boolean okay = true;
 
