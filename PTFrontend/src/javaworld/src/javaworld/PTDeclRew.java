@@ -36,6 +36,9 @@ import AST.EnumDecl;
 import AST.PTEnumDecl;
 import AST.TypeVariable;
 import AST.TypeAccess;
+import AST.ParTypeAccess;
+import AST.InterfaceDecl;
+import AST.GenericInterfaceDecl;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
@@ -386,6 +389,30 @@ public class PTDeclRew {
         return null;
     }
 
+    /* Find, by destination name, an interface being instantiated within a
+       template being instantiated. See equivalent for classes above.
+    */
+
+    public InterfaceDecl getPrecopyInterface( String className ) {
+        for (PTInstDecl templateInst : ptDeclToBeRewritten.getPTInstDecls()) {
+            for(PTInstTuple instTup : templateInst.getPTInstTuples()) {
+                if( !instTup.getID().equals( className ) ) continue;
+
+                SimpleSet typeDecs = templateInst.getTemplate().lookupType( instTup.getOrgID() );
+
+                Iterator<TypeDecl> i = typeDecs.iterator();
+                // ambiguity is really an error, but should be dealt with elsewhere
+                while( i.hasNext() ) {
+                    TypeDecl td = i.next();
+                    if( td instanceof InterfaceDecl ) {
+                        return (InterfaceDecl) td;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 
     /* Add the extended classes of a class (we consider a class as extending itself)
        to a set. This is nontrivial because the classes extended might not be
@@ -470,6 +497,38 @@ public class PTDeclRew {
                     HashSet<ClassDecl> extendedClasses = new HashSet<ClassDecl>();
                     precopyAddExtendedClassesOf( classDecl, extendedClasses );
 
+                    HashSet<InterfaceDecl> implementedInterfaces = new HashSet<InterfaceDecl>();
+                    for( Access a : classDecl.getImplementsList() ) {
+                        if( a instanceof TypeAccess ) {
+                            TypeAccess ta = (TypeAccess) a;
+                            String name = ta.name();
+                            TypeDecl td = ta.decl();
+                            if( td.isUnknown() ) {
+                                InterfaceDecl id = getPrecopyInterface( name );
+                                if( id != null ) {
+                                    implementedInterfaces.add( id );
+                                }
+                            } else if( td instanceof InterfaceDecl ) {
+                                implementedInterfaces.add( (InterfaceDecl) td );
+                            } else {
+                                // implementing non-interface. error elsewhere.
+                            }
+                        } else if( a instanceof ParTypeAccess ) {
+                            ParTypeAccess pta = (ParTypeAccess) a;
+                            TypeDecl td = pta.genericDecl();
+                            if( !td.isUnknown() && td instanceof GenericInterfaceDecl ) {
+                                // TODO: what are we actually to do with this GenericInterfaceDecl?
+                                //       what we probably want is what is usually in .implementedInterfaces(),
+                                //       which is a ParInterfaceDecl (parametrized interface decl?).
+                                //       requires further study of interfaces (and I think this
+                                //       is more or less the same problem as issue 13)
+                                implementedInterfaces.add( (InterfaceDecl) td );
+                            }
+                        } else {
+                            classDecl.warning( "compiler confused -- something unexpected in implements-list: " + a.getClass().getName() );
+                        }
+                    }
+
                     boolean okay = true;
 
                     for( Access constraintAcc : fparam.getTypeBoundList() ) {
@@ -481,7 +540,7 @@ public class PTDeclRew {
                             }
                         }
                         if( constraint.isInterfaceDecl() ) {
-                            if( !tdecl.implementedInterfaces().contains( constraint ) ) {
+                            if( !implementedInterfaces.contains( constraint ) ) {
                                 templateInst.error( "when instantiating " + templateInst.getID() + ", argument " + argcount + " does not satisfy constraints: does not implement interface " + constraint.fullName() );
                                 okay = false;
                             }
