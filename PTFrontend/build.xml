@@ -113,7 +113,11 @@
       <arg value="test/compiler_semantic_tests/multiple_files"/>
       <arg value="--compileTestsFolder"/>
       <arg value="${debug}"/>               
-      <arg value="--verbose" />
+<!--
+    This used to be "verbose", but that generates loads of spurious output
+    (reasons why tests that are meant to fail, fail). Are we missing anything
+    by compiling non-verbosely?
+-->
     </java>
   </target>
 

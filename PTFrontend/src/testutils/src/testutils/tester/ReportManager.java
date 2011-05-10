@@ -7,14 +7,14 @@ public class ReportManager {
 
 	private List<SemanticReport> passedTests;
 	private List<SemanticReport> failedTests;
-	private List<SemanticReport> withPackages;
+	private List<SemanticReport> compilableTests;
 	private List<SimpleReport> compileReports;
 	private List<SimpleReport> compileReportErrors;
 
 	public ReportManager() {
 		passedTests = new LinkedList<SemanticReport>();
 		failedTests = new LinkedList<SemanticReport>();
-		withPackages = new LinkedList<SemanticReport>();
+		compilableTests = new LinkedList<SemanticReport>();
 		compileReports = new LinkedList<SimpleReport>();
 		compileReportErrors = new LinkedList<SimpleReport>();
 	}
@@ -22,11 +22,12 @@ public class ReportManager {
 	public void addReport(SemanticReport report) {
 		if (report.hasPassed()) {
 			passedTests.add(report);
-			if (report.shouldBeOk && report.containsPTPackage)
-				withPackages.add(report);
-		} else
+			if (report.shouldBeOk && report.containsPTPackage) {
+				compilableTests.add(report);
+            }
+		} else {
 			failedTests.add(report);
-
+        }
 	}
 
 	public int getNumberOfPassedTests() {
@@ -50,7 +51,7 @@ public class ReportManager {
 	}
 
 	public List<SemanticReport> getCompilableTests() {
-		return withPackages;
+		return compilableTests;
 	}
 	
 	public List<SimpleReport> getFailedCompilations() {

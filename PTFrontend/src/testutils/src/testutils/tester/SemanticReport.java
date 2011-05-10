@@ -24,4 +24,4 @@ public class SemanticReport extends SimpleReport {
 		return shouldBeOk == actual;
 	}
 
-	}
+}
