@@ -121,6 +121,26 @@
     </java>
   </target>
 
+  <target name="testcompileverbose" depends="build" description="Tries to compile all test files that are error free and have a PTPackage.">
+    <mkdir dir="${debug}" />
+    <java classname="testutils.TestScenario" classpathref="classpath.runtest" fork="true">      
+
+      <jvmarg value="${heap-max}" />      
+
+      <arg value="--testSingleFiles"/>          
+      <arg value="test/compiler_semantic_tests/single_file"/>
+      <arg value="--testFolderAsUnit"/>                      
+      <arg value="test/compiler_semantic_tests/multiple_files"/>
+      <arg value="--compileTestsFolder"/>
+      <arg value="${debug}"/>               
+      <arg value="--verbose"/>
+<!--
+    As far as I can see there is one reason to run testcompileverbose: you
+    _are_ interested in why the _fail tests fail.
+-->
+    </java>
+  </target>
+
   <target name="compilesingle" depends="build">
     <mkdir dir="${debug}" />    
     <java classname="testutils.TestScenario" classpathref="classpath.runtest" fork="true">
