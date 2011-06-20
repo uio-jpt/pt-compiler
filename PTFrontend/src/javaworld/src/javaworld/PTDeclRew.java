@@ -2,6 +2,7 @@ package javaworld;
 
 import testutils.utils.CriticalPTException;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -107,13 +108,26 @@ public class PTDeclRew {
      */
 
 	protected void createRenamedInterfaces() {
-        /* Interfaces can't have adds-classes, so it makes little sense
-           to generalize the "create an empty adds-class and merge"
-           for interfaces. Instead we just iterate through the
-           instantiation tuples and rename as we go.
-           Note, very very WIP. */
         for( String name : getDestinationIDsForInterfaces() ) {
-            ptDeclToBeRewritten.getPTInterfaceDeclList().add( getRenamedInterfaceByName( name ) );
+            Collection<PTInstTuple> idecls = getDestinationClassIDsWithInstTuples().get( name );
+            PTInterfaceDecl idecl = null;
+            if( idecls.size() == 1 ) {
+                // TODO this is the solution I had before, just as a quick fix. However,
+                // it seems my assumptions about what could not be done with interfaces
+                // were wrong, so this is likely to be wrongheaded. The correct solution
+                // is likely to emulate the (possibly empty) adds-class approach,
+                // since contrary to the comment that was here before, interfaces _can_
+                // be merged.
+
+                idecl = new InstTupleRew( Iterables.getOnlyElement( idecls ) ).getRenamedSourceInterface();
+
+
+            } else {
+                ptDeclToBeRewritten.error( "TODO - merging interfaces not yet implemented" );
+            }
+            if( idecl != null ) {
+                ptDeclToBeRewritten.getPTInterfaceDeclList().add( idecl );
+            }
         }
     }
 
@@ -235,6 +249,8 @@ public class PTDeclRew {
     }
 
     /** Get a renamed enum by (new) name.
+        
+        Note: this assumes that enums cannot be merged. That's reasonable, I think?
      */
 
     protected PTEnumDecl getRenamedEnumByName(String name) {
@@ -245,6 +261,8 @@ public class PTDeclRew {
     }
 
     /** Get a renamed interface by (new) name.
+
+        Note: this assumes that interfaces cannot be merged. This is an invalid assumption, do not use. (Method to be removed.)
      */
 
     protected PTInterfaceDecl getRenamedInterfaceByName(String name) {
