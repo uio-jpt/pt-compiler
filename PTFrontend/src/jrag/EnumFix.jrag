@@ -127,7 +127,7 @@ aspect PTEnumWorkaround {
       )
     );
     // public static Test valueOf(String s) { return (Test)java.lang.Enum.valueOf(Test.class, s); }
-/*
+
     // TODO fix so we can include this method as we should.
     // Including it gets us a method lookup error;
     //   no method "java.lang.Enum.valueOf(Class<Test>, String)", however
@@ -179,8 +179,13 @@ aspect PTEnumWorkaround {
         )
       )
     );
-*/
+
   }
 
-
+  eq PTEnumDecl.subtype(TypeDecl type) {
+            // slightly voodolike, but this fixes the bug. & makes sense in a vague way
+            // in making PTEnumDecl work more like EnumDecl. why it does no harm is
+            // fairly obvious, why it does help is at this point beyond me
+    return super.subtype( type );
+  }
 }

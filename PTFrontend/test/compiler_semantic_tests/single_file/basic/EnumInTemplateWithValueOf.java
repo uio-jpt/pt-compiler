@@ -12,7 +12,7 @@ package P  {
             /* dette fungerer ikke fordi jeg spesifikt har ekskludert metoden
                som får det til å fungere, fordi det skapte trøbbel. TODO,
                se jastadd-tilleggsfilen "EnumFixup"  */
-            AnyOldEnumName y = java.lang.Enum.valueOf( AnyOldEnumName, "KAKE" );
+            AnyOldEnumName y = java.lang.Enum.valueOf( AnyOldEnumName.class, "KAKE" );
         }
     }
 

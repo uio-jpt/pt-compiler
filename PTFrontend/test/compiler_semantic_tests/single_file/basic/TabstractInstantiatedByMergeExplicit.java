@@ -18,7 +18,7 @@ package P {
 
     class Z adds {
         public static void main(String args[]) {
-            System.out.println( getString() );
+            System.out.println( new Z().getString() );
         }
     }
 }
