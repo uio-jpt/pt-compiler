@@ -50,6 +50,14 @@ class ClassDeclRew {
 
 	}
 
+    /*
+        Deprecated: implements-list cannot be fully expressed as a set of strings,
+                    must use accesses.
+
+        Replace with simply .getImplementsList() in ClassDecl, corresponding
+        to .setImplementsList(). These operate on Accesses.
+    */
+
     public HashSet<String> getImplementsList() {
         HashSet<String> rv = new HashSet<String> ();
         for( Access x : ext.getImplementsList() ) {
