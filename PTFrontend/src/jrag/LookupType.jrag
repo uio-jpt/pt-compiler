@@ -101,6 +101,15 @@ aspect LookupType {
     syn PTTemplate PTDecl.lookupTemplate(String name) = null;
     eq PTTemplate.lookupTemplate(String name) = name.equals(getID()) ? this : null;
 
+    syn PTInterfaceAddsDecl PTDecl.lookupAddsInterface(String name) {
+        for (PTInterfaceAddsDecl decl: getAdditionInterfaceList()) {
+            if (decl.getID().equals(name)) {
+                return decl;
+            }
+        }
+        return null;
+    }
+
     syn PTClassAddsDecl PTDecl.lookupAddClass(String name) {
         for (PTClassAddsDecl decl: getAdditionClassList()) {
             if (decl.getID().equals(name))

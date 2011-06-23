@@ -31,9 +31,10 @@ public class InstantiationRewriter {
         target.getParameterRewriter();
         // this creates the mappings at a well-defined time
 
-        target.createRenamedInterfaces();
         target.createRenamedEnums();
         target.createEmptyMissingAddClasses();
+
+        target.createMergedInterfaces();
 
 		target.extendAddClassesWithInstantiatons();
 		target.copyImportDecls();

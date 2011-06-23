@@ -9,6 +9,7 @@ PTClassDecl : SimpleClass;
 PTClassAddsDecl : SimpleClass;
 
 PTInterfaceDecl : InterfaceDecl;
+PTInterfaceAddsDecl : PTInterfaceDecl;
 
 PTEnumDecl : EnumDecl;
 

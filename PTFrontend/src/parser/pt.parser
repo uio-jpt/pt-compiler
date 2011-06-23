@@ -78,6 +78,7 @@ ASTNode inst_class_or_interface_single =
 ASTNode class_or_interface_single =
      pt_simple_declaration.pt_class {: return pt_class; :}
    | pt_intf_decl.intf_decl {: return intf_decl; :}
+   | pt_adds_intf.ia_decl {: return ia_decl; :}
    | pt_enum_declaration.enum_decl {: return enum_decl; :}
    ;
 
@@ -175,11 +176,16 @@ PTDummyRename definition_renaming =
       | IDENTIFIER.a LPAREN def_opt_rename_params.pl RPAREN  SIMPLERIGHTARROW IDENTIFIER.b {: return new PTMethodRename(a,b,pl); :}
 ;
 
+// should this be missing modifiers?
 ClassDecl pt_adds_class = 
   CLASS IDENTIFIER ADDS class_body.b
     {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}
   ;
 
+PTInterfaceDecl pt_adds_intf = 
+  INTERFACE IDENTIFIER ADDS interface_body.b
+    {: return new PTInterfaceAddsDecl(new Modifiers(), IDENTIFIER, new List() , b); :}
+  ;
 
 PTInterfaceDecl pt_intf_decl =
   modifiers.m? INTERFACE IDENTIFIER extends_interfaces.i? interface_body.b {: return new PTInterfaceDecl(new Modifiers(m), IDENTIFIER, i, b); :}

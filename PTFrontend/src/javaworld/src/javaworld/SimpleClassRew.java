@@ -207,75 +207,28 @@ public class SimpleClassRew {
       * implemented interfaces of the merged classes.
       */
     private void updateImplementsNames() {
-        class ComparableAccess {
-            Access acc;
-
-            ComparableAccess( Access acc ) {
-                this.acc = acc;
-            }
-
-            public Access getAccess() {
-                return acc;
-            }
-
-            public boolean equals( ComparableAccess that ) {
-                if( acc instanceof TypeAccess ) {
-                    if( !(that.acc instanceof TypeAccess) ) return false;
-                    TypeAccess ta1 = (TypeAccess) acc;
-                    TypeAccess ta2 = (TypeAccess) that.acc;
-
-                    return ta1.getID().equals( ta2.getID() );
-                }
-
-                if( acc instanceof ParTypeAccess ) {
-                    if( !(that.acc instanceof ParTypeAccess) ) return false;
-                    ParTypeAccess pta1 = (ParTypeAccess) acc;
-                    ParTypeAccess pta2 = (ParTypeAccess) that.acc;
-                    if( !new ComparableAccess( pta1.getTypeAccess() ).equals( new ComparableAccess( pta2.getTypeAccess() ) ) ) return false;
-                    if( pta1.getNumTypeArgument() != pta2.getNumTypeArgument() ) return false;
-                    int n = pta1.getNumTypeArgument();
-                    for(int i=0;i<n;i++) {
-                        if( !new ComparableAccess( pta1.getTypeArgument(i) ).equals( new ComparableAccess( pta2.getTypeArgument(i) ) ) ) return false;
-                    }
-
-                    return true;
-                }
-
-    
-                // if we get here we've failed to anticipate some sort of
-                // access type, so we better fail loudly so we can fix that
-                throw new RuntimeException( "unexpected access type in ComparableAccess: " + acc.getClass().getName() );
-            }
-        }
-
-        HashSet<ComparableAccess> accessSet = Sets.newHashSet();
+        HashSet<JastaddTypeDescriptor> accessSet = Sets.newHashSet();
 
 
         for( Object o : decl.getClassDecl().getImplementsList() ) {
             if( o instanceof TypeAccess ) {
                 TypeAccess ta = (TypeAccess) o;
-                TypeDecl td = ta.decl();
-                if( td != null && td.getParentClass( PTDecl.class ) == null ) {
-                    // preemptive bugfix -- might fix some classpath errors?
-                    accessSet.add( new ComparableAccess( new TypeAccess( td.fullName() ) ) );
-                } else {
-                    accessSet.add( new ComparableAccess( new TypeAccess( ta.getID() ) ) );
-                }
+                accessSet.add( new JastaddTypeDescriptor( ta ) );
             } else if( o instanceof ParTypeAccess ) {
                 ParTypeAccess pta = (ParTypeAccess) o; // parametrized type
-                accessSet.add( new ComparableAccess( (ParTypeAccess) pta.fullCopy() ) );
+                accessSet.add( new JastaddTypeDescriptor( pta ) );
             } else {
                 decl.error( "internal compiler error: in implements-list, encountered unexpected type " + o.getClass().getName() );
             }
         }
 		for (ClassDeclRew x : renamedSources) {
             for( Access acc : x.getClassDecl().getImplementsList() ) {
-                accessSet.add( new ComparableAccess( (Access) acc.fullCopy() ) );
+                accessSet.add( new JastaddTypeDescriptor( acc ) );
             }
 		}
 
         List<Access> accessList = new List<Access>();
-        for( ComparableAccess acc : accessSet ) {
+        for( JastaddTypeDescriptor acc : accessSet ) {
             accessList.add( acc.getAccess() );
         }
 

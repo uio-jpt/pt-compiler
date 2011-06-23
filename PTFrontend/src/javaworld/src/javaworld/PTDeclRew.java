@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 
+import AST.PTInterfaceAddsDecl;
 import AST.SimpleSet;
 import AST.PTInterfaceDecl;
 import AST.Access;
@@ -104,32 +105,52 @@ public class PTDeclRew {
         }
     }
 
-    /** Create interfaces 'inherited' from templates, with their new names.
-     */
+	protected void createMergedInterfaces() {
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
+        Set<String> addInterfaces = ptDeclToBeRewritten.getAdditionInterfaceNamesSet();
+        Set<String> missingAddsInterfaceNames = Sets.difference( getDestinationIDsForInterfaces(), addInterfaces );
 
-	protected void createRenamedInterfaces() {
+        for(String name : missingAddsInterfaceNames ) {
+            PTInterfaceAddsDecl ptiad = new PTInterfaceAddsDecl( new Modifiers(),
+                                                                 name,
+                                                                 new List<Access>(),
+                                                                 new List<BodyDecl>() );
+            ptDeclToBeRewritten.addPTInterfaceDecl( ptiad );
+        }
+
+
         for( String name : getDestinationIDsForInterfaces() ) {
-            Collection<PTInstTuple> idecls = getDestinationClassIDsWithInstTuples().get( name );
-            PTInterfaceDecl idecl = null;
-            if( idecls.size() == 1 ) {
-                // TODO this is the solution I had before, just as a quick fix. However,
-                // it seems my assumptions about what could not be done with interfaces
-                // were wrong, so this is likely to be wrongheaded. The correct solution
-                // is likely to emulate the (possibly empty) adds-class approach,
-                // since contrary to the comment that was here before, interfaces _can_
-                // be merged.
+            Collection<PTInstTuple> ituples = getDestinationClassIDsWithInstTuples().get( name );
+            PTInterfaceAddsDecl target = ptDeclToBeRewritten.lookupAddsInterface( name );
+            TypeConstraint otc = JastaddTypeConstraints.fromInterfaceDecl( target );
+            TypeConstraint tc = new TypeConstraint();
+            boolean hadAddsInteface = !missingAddsInterfaceNames.contains( name );
+            boolean printDebugStuff = false;
 
-                idecl = new InstTupleRew( Iterables.getOnlyElement( idecls ) ).getRenamedSourceInterface();
-
-
-            } else {
-                ptDeclToBeRewritten.error( "TODO - merging interfaces not yet implemented" );
+            for(PTInstTuple ituple : ituples) {
+                InterfaceDecl idecl = new InstTupleRew( ituple ).getRenamedSourceInterface();
+                tc.absorb( JastaddTypeConstraints.fromInterfaceDecl( idecl ) );
             }
-            if( idecl != null ) {
-                ptDeclToBeRewritten.getPTInterfaceDeclList().add( idecl );
+
+            for(Iterator<MethodDescriptor> it = tc.getMethodsIterator(); it.hasNext(); ) {
+                MethodDescriptor method = it.next();
+
+                if( otc.hasMethod( method ) ) continue;
+
+                target.addMemberMethod( JastaddTypeConstraints.simpleToMethodDecl( method ) );
+            }
+
+            if( printDebugStuff ) {
+                int sources = ituples.size();
+                System.out.print( "From " + sources + " sources ");
+                if( hadAddsInteface ) {
+                    System.out.print( "plus adds class " );
+                }
+                System.out.println( "created interface " + name + ": " + target );
             }
         }
     }
+
 
 	/**
 	 * Needs extended classes in correct order. Minit dependencies are inherited
