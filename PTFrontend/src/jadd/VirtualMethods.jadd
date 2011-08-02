@@ -59,6 +59,8 @@ aspect VirtualMethods {
 
 	public boolean MethodDecl.isVirtual; // first time defined [in this package/template]?
 
+	//public boolean ClassDecl.wasRewrittenToAddsClass;
+
 	///
 	// De fire neste greiene fikk jeg ikke bruk for allikevel, siden det holder å
 	// sjekke på kun virtuelle metoder i SimpleClassRew:

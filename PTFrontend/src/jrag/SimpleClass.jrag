@@ -21,6 +21,25 @@ aspect SimpleClass {
     PTClassAddsDecl contributes getID() to PTDecl.getAdditionClassNamesSet() for getPTDecl();
     syn String SimpleClass.getID() = getClassDecl().getID();
 
+    /**
+     * This method works merely as a shortcut for "x instanceof PTClassAddsDecl" and does NOT tell us
+     * whether the SimlpeClass was created from an adds clause by the user. Will at some point return
+     * true regardless of origin.
+     */
     syn boolean SimpleClass.isAddsClass() = false;
     eq PTClassAddsDecl.isAddsClass() = true;
+
+    /**
+     * Tells us if this SimpleClass was defined as an AddsClass by the user with an adds clause.
+     * Like isAddsClass, only usefull.
+     * This isn't tested very well and may be buggy, but works for my purposes atm.
+     * @return true if and only if this class was created by the user with an adds clause ("class X adds { ... }").
+     */
+     syn boolean SimpleClass.wasAddsClass() = false;
+     eq PTClassAddsDecl.wasAddsClass() = wasAddsClass;
+
+     protected boolean SimpleClass.wasAddsClass = true; // set to false in createEmptyMissingAddClasses() in PTDeclRew.java
+
+     public void SimpleClass.setWasAddsClass(boolean was) { }
+     public void PTClassAddsDecl.setWasAddsClass(boolean was) { wasAddsClass = was; }
 }

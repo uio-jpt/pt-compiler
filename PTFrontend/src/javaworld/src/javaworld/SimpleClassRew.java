@@ -355,6 +355,7 @@ public class SimpleClassRew {
 		for (BodyDecl bodyDecl : bodyDecls) {
             boolean isConstructorDecl = bodyDecl instanceof ConstructorDecl;
             boolean isUnneededTabstractMethodDecl = false;
+
             if(bodyDecl instanceof MethodDecl) {
                 MethodDecl meth = (MethodDecl) bodyDecl;
                 if( meth.isTabstract() ) {
@@ -368,21 +369,22 @@ public class SimpleClassRew {
                     decl.addTabstractSignature( meth.signature() );
                 }
 
-				// Sjekk for "unintentional override" her:
-				// Det holder (?) å sjekke at hver virtuell metode ikke har fått noen supermetode.
+				/* Sjekk for "unintentional override": */
 
 				if (meth.isVirtual) {
 					ClassDecl c = target.superclass();
-					// hasMethod doesn't seem to stick, so we'll have to go thru it manually for now
-					// if (c != null && c.hasMethod(meth.signature())) 
 					
 					while (c != null) {
 						for (BodyDecl d: c.getBodyDecls()) {
-							if (d instanceof MethodDecl == false)
-								continue;
+							if (d instanceof MethodDecl && meth.sameSignature((MethodDecl)d)) {
 
-							if (meth.sameSignature((MethodDecl)d)) {
-								// TODO: Finne klassenavn.
+								if (decl.wasAddsClass()) {
+									// TODO: Mer utfyllende sjekk her om meth faktisk ble omdefinert i decl?
+									// Kan se ut som dette løser seg selv med "unresolved conflict during merging".
+
+									/* if (sjekk ok) */ continue;
+								}
+
 								decl.error(String.format("Merging causes virtual method %s in class "+
 									"%s to overload existing method in class %s.",
 									meth.signature(), target.getID(), c.getID()));
