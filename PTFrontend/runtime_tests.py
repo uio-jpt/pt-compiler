@@ -33,17 +33,21 @@ class RuntimeTest(object):
         self.total = 0
 
     def generate(self):
+        if not os.path.exists(self.basePath + '/src_output'):
+            os.mkdir(self.basePath + '/src_output')
         proc = subprocess.Popen(self.generateCmd,cwd=self.basePath,
                                   stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-        output,_ = proc.communicate()
+        output,error = proc.communicate()
         hasError = proc.wait()
-
-        if hasError:
-            raise SubprocException(self.name,output)
+        #ajj, JPT skriver ikke til stderr eller returner noen feilverdi (?)
+        if hasError or not os.path.exists(self.basePath + '/src_output/build.xml'):
+            print '\t'.ljust(40) + ': compilation error (JPT.jar).'
+            raise SubprocException(self.name,error)
 
     def compile(self):
         retval = subprocess.call('ant',cwd=os.path.join(self.basePath,self.default_generate_name), stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
         if retval != 0:
+            print '\t'.ljust(40) + ': compilation error (javac).'
             raise CompileFailedException()
 
     @property
@@ -80,7 +84,7 @@ class RuntimeTest(object):
         if filecmp.cmp(inputname,outputname):
             print 'ok.'
         else:
-            self.withErrors.append((self.basePath,basename))
+            self.withErrors.append((self.basePath,"Wrong output from " + basename))
             print 'failed...'
 
 class RunTest(object):
@@ -97,10 +101,12 @@ class RunTest(object):
             test.compile()
             test.runProgram()
             self.withErrors.extend(test.withErrors)
-        except (GenerationFailedException, OSError):
-            self.withErrors.extend([ "failed to generate" ] )
+        except (GenerationFailedException, SubprocException):
+            self.withErrors.extend([ (test.basePath,"Error reported by JPT.jar") ])
+        except (OSError) as e:
+            self.withErrors.extend([ (test.basePath,e.strerror) ] )
         except CompileFailedException:
-            self.withErrors.extend([ "failed to compile" ] )
+            self.withErrors.extend([ (test.basePath,"Error reported by javac") ] )
         self.total += test.total
     def printSummary(self):
         print '*'*10,'Summary','*'*10
@@ -109,11 +115,10 @@ class RunTest(object):
         print 'failed:'.ljust(30),len(self.withErrors)
         print
         if len(self.withErrors):
-            print 'see the following files for more information on the failed tests:'
-            out = [os.path.join(bp,'{%s%s,%s%s}' % (name,RuntimeTest.default_test_ext,
-                                                    name,RuntimeTest.default_actual_ext))
-                   for (bp,name) in self.withErrors]
-            print '\n'.join('\t' + x for x in out)
+            print 'The following tests failed:'
+            for t in self.withErrors:
+                print t[0] + ':'
+                print '\t' + t[1]
         
 
 class Cleanup(object):

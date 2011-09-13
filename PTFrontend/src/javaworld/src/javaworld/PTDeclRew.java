@@ -343,6 +343,7 @@ public class PTDeclRew {
                                           new List<Access>(),
                                           new List<BodyDecl>());
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
+			addClass.setWasAddsClass(false);
 
 			ptDeclToBeRewritten.addSimpleClass(addClass); /* Code understanding note:
                                                              this is the line where the actual magic happens;

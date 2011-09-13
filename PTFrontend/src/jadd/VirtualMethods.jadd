@@ -20,11 +20,6 @@ aspect VirtualMethods {
 	 */
 	 	
 	public void ClassDecl.findVirtualMethods() {
-		// Oi.. For alle metoder i denne klassen må vi sjekke
-		// alle metoder til alle superklasser..
-		// Kanskje det hadde vært bedre å putte bodyDecls'ene i et
-		// hashmap e.l.? Kunne dermed bare hentet ut de som har samme navn
-		// som metoden vi i øyeblikket skal sjekke. Burde være en god del kjappere.
 
 		for (BodyDecl d: getBodyDecls()) { // the infamous getMethodDecls hack:
 			if (d instanceof MethodDecl) {
@@ -51,76 +46,11 @@ aspect VirtualMethods {
 				if (c == null) // fant ingen supermetode
 					myMeth.isVirtual = true;
 				
-				// addMethod(myMeth.signature()); // funker ikke atm
 			}
 		}
 
 	}
 
 	public boolean MethodDecl.isVirtual; // first time defined [in this package/template]?
-
-	///
-	// De fire neste greiene fikk jeg ikke bruk for allikevel, siden det holder å
-	// sjekke på kun virtuelle metoder i SimpleClassRew:
-	///
-
-	/**
-	 *  Indicate that this method overrides an existing method from a
-	 *  superclass (duh).
-	 */
-	// public void MethodDecl.setOverrides() {
-	// 	overrides = true;
-	// 	virtual = false;
-	// }
-
-	/**
-	 * Indicate that this method is virtual.
-	 */
-	// public void MethodDecl.setVirtual() {
-	// 	overrides = false;
-	// 	virtual = true;
-	// }
-
-	/**
-	 * Has a containing class visited this method through 
-	 * ClassDecl.setMethodsOrigin()?
-	 * (false for minit* methods etc)
-	 */
-	// public boolean MethodDecl.OriginIsChecked() {
-	// 	return overrides ^ virtual;
-	// }
-
-	// public boolean MethodDecl.overrides; // Does this method override another?
-
-
-	///
-	// Følgende hadde vært fint å ha med, men atm virker det ikke som classdecl
-	// "husker" metodene sine når den kommer til SimpleClassRew, så jeg bruker
-	// ikke dette ennå:
-	///
-
-	/**
-	 * A Set to lookup if this class has a certain method.
-	 * The keys are signature strings.
-	 */
-	// public HashSet<String> ClassDecl.methods;
-
-	// public void ClassDecl.addMethod(String signature) {
-	// 	if (methods == null) 
-	// 		methods = new HashSet<String>();
-	// 	methods.add(signature);
-	// }
-
-	/**
-	 * Checks if a method with the given signature exists in this class or any
-	 * of its superclasses.
-	 * (Similar method may allready exist(?))
-	 */
-	// public boolean ClassDecl.hasMethod(String signature) {
-	// 	if (methods != null && methods.contains(signature)) 
-	// 		return true;
-	// 	else
-	// 		return superclass() != null && superclass().hasMethod(signature);
-	// }	
-
 }
+
