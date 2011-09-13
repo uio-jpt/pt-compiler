@@ -1,4 +1,33 @@
 aspect RenameTypes {
+    public void ASTNode.visitRenameAccesses(Map<ASTNode,String> m) {
+        final int N = getNumChild();
+        for(int i=0;i<N;i++) {
+            getChild(i).visitRenameAccesses( m );
+        }
+    }
+
+    public void ASTNode.visitRenameDeclarations(Map<ASTNode,String> m) {
+        final int N = getNumChild();
+        for(int i=0;i<N;i++) {
+            getChild(i).visitRenameDeclarations( m );
+        }
+    }
+
+    public void MethodAccess.visitRenameAccesses(Map<ASTNode,String> m) {
+        String t = m.get( decl() );
+        if( t != null ) {
+            setID( t );
+        }
+        super.visitRenameAccesses(m);
+    }
+
+    public void MethodDecl.visitRenameDeclarations(Map<ASTNode,String> m) {
+        String t = m.get( this );
+        if( t != null ) {
+            setID( t );
+        }
+        super.visitRenameAccesses(m);
+    }
 
     public void ASTNode.renameTypes(Map<String,String> ht) {
         for(int i = 0; i < getNumChild(); i++) {

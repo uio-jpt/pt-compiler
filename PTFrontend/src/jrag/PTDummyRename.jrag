@@ -36,6 +36,14 @@ aspect PTDummyRename {
     syn String PTMethodRename.getOldSignature() = getCustomSignature(getOrgID());
     syn String PTMethodRename.getNewSignature() = getCustomSignature(getID());    
 
+/*
+
+    // These have been disabled because they give false positives, e.g.:
+    // java.lang.Runnable vs Runnable. They have been disabled instead of
+    // "repaired" because I believe that a String-based model is fundamentally
+    // flawed. Functionality is moving into javaworld as suggested by
+    // top comment.
+
     public void PTMethodRename.nameCheck() {
         if (!getOriginatorClass().methodsSignatureMap().containsKey(getSignature()))
             error("Method with signature " + getSignature() + " not found in originating class " +
@@ -47,7 +55,8 @@ aspect PTDummyRename {
             error("No method with name " + getOrgID() + " found in originating class " +
                   getOriginatorClass().getID() + ".\n");
     }
-    
+
+    */
 
     public void PTFieldRename.nameCheck() {
         if (!getOriginatorClass().memberFieldsMap().containsKey(getSignature()))

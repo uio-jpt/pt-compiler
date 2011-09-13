@@ -78,12 +78,7 @@ public class JastaddTypeConstraints {
 
     }
 
-    static TypeConstraint fromInterfaceDecl( InterfaceDecl idecl ) {
-        TypeConstraint tc = new TypeConstraint();
-
-        // since conceptually classes can satisfy interfaces
-        // I'm not sure I should .require anything here
-
+    static void fromInterfaceDeclInto( InterfaceDecl idecl, TypeConstraint tc ) {
         for( BodyDecl bd : idecl.getBodyDecls() ) {
             if( bd instanceof MethodDecl ) {
                 MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd );
@@ -93,13 +88,25 @@ public class JastaddTypeConstraints {
             }
         }
 
+        for( Object superio : idecl.implementedInterfaces() ) {
+            InterfaceDecl superi = (InterfaceDecl) superio;
+            // these are really _extended_, not implemented
+            fromInterfaceDeclInto( superi, tc );
+        }
+    }
+
+    static TypeConstraint fromInterfaceDecl( InterfaceDecl idecl ) {
+        TypeConstraint tc = new TypeConstraint();
+
+        // since conceptually classes can satisfy interfaces
+        // I'm not sure I should .require anything here
+
+        fromInterfaceDeclInto( idecl, tc );
+
         return tc;
     }
 
-    static TypeConstraint fromClassDecl( ClassDecl cdecl ) {
-        TypeConstraint tc = new TypeConstraint();
-        tc.requireClass();
-
+    static void fromClassDeclInto( ClassDecl cdecl, TypeConstraint tc ) {
         for( BodyDecl bd : cdecl.getBodyDecls() ) {
             if( bd instanceof MethodDecl ) {
                 MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd );
@@ -111,6 +118,18 @@ public class JastaddTypeConstraints {
                 // warn?
             }
         }
+
+        ClassDecl sc = cdecl.superclass();
+        if( sc != null ) {
+            fromClassDeclInto( sc, tc );
+        }
+    }
+
+    static TypeConstraint fromClassDecl( ClassDecl cdecl ) {
+        TypeConstraint tc = new TypeConstraint();
+        tc.requireClass();
+
+        fromClassDeclInto( cdecl, tc );
 
         return tc;
     }
