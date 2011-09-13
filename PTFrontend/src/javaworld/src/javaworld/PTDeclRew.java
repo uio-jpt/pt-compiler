@@ -200,6 +200,10 @@ public class PTDeclRew {
             }
 
 		}
+
+        // TODO: here (?) is the appropriate place to fix --
+        //       the different updated classes may have stale references to other's originals.
+        //       see -Dname=test/compiler_semantic_tests/single_file/interface/InterfaceInTemplateRenameExplicit3.java
 	}
 
     // XXX note that in the next few methods we only test the first element.

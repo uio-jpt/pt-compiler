@@ -39,7 +39,7 @@ class InstTupleRew {
     protected static TypeDecl lookupUnambiguousTypeIn( TypeDecl root, String name ) {
         SimpleSet matches = root.lookupType( name );
         if( matches.size() != 1 ) {
-            throw new RuntimeException( "unexpectedly unable to find type -- " + name );
+            throw new RuntimeException( "unexpectedly unable to find supposedly unambiguous type -- " + name + "(" + matches.size() + " matches)" );
         }
         return (TypeDecl) matches.iterator().next();
     }
@@ -59,6 +59,7 @@ class InstTupleRew {
             } else if( ptdr instanceof PTMethodRename ) {
                 PTMethodRename ptmr = (PTMethodRename) ptdr;
                 AST.List<Access> args = ptmr.getAccessList();
+
                 boolean foundMethod = false;
                 for( Object declo : target.memberMethods( originalId ) ) {
                     MethodDecl mdecl = (MethodDecl) declo;
@@ -165,6 +166,7 @@ class InstTupleRew {
 		rewriteClass.renameConstructors(instantiator);
 		rewriteClass.renameTypes(instantiator.getInstDecl().getRenamedClasses());
 		rewriteClass.renameDefinitions(getExplicitlyRenamedDefinitions());
+
 		return rewriteClass;
 	}
 
