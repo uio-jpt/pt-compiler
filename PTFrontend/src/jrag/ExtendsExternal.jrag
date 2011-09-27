@@ -29,14 +29,14 @@ aspect ExtendsExternal {
     syn lazy boolean Modifiers.isExtendsExternal() = numModifier( "extendsexternal" ) != 0;
 
     syn ClassDecl PTDecl.getUltimateExternalSuperclassByName( String name ) {
-        TypeDecl td = lookupType( name );
+        TypeDecl td = ptLookupSpecificType( name );
         if( !(td instanceof ClassDecl) ) return null;
         ClassDecl cd = (ClassDecl) td;
         return cd.getUltimateExternalSuperclass();
     }
 
     syn Access PTDecl.getUltimateExternalSuperclassAccessByName( String name ) {
-        TypeDecl td = lookupType( name );
+        TypeDecl td = ptLookupSpecificType( name );
         if( !(td instanceof ClassDecl) ) return null;
         ClassDecl cd = (ClassDecl) td;
         return cd.getUltimateExternalSuperclassAccess();

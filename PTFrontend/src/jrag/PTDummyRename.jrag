@@ -2,6 +2,11 @@
    This part might be rewritten.. maybe even put in javaworld.
    much of this signature stuff is done elsewhere.
  */
+
+import com.google.common.base.Joiner;
+import java.util.ArrayList;
+
+
 aspect PTDummyRename {
 
     inh TypeDecl PTDummyRename.getOriginatorClass();
@@ -21,11 +26,42 @@ aspect PTDummyRename {
 
     eq PTFieldRename.getSignature() = getOrgID();
 
+    syn String MethodDecl.getPTEarlySignature() {
+        java.util.List<String> args = new ArrayList<String> ();
+        for( ParameterDeclaration d : getParameterList() ) {
+            Access acc = d.getTypeAccess();
+            String s;
+            System.out.println( "foo: " + d + " " + acc.type().getClass().getName() + ": " + acc.type().getID() );
+            if( acc instanceof PrimitiveTypeAccess ) {
+                s = acc.toString();
+            } else {
+                if( acc.type() instanceof UnknownType ) {
+                    s = acc.toString();
+                } else {
+                    s = acc.type().fullName();
+                }
+            }
+            System.out.println( " --> " + s );
+            args.add( s );
+        }
+        return getID() + "(" + Joiner.on( ", " ).join( args ) + ")";
+    }
+
     syn String PTMethodRename.getCustomSignature(String name) {
         StringBuffer sig = new StringBuffer(name + "(" );
-        Iterator iter = getAccessList().iterator();
+        Iterator<Access> iter = getAccessList().iterator();
         while (iter.hasNext()) {
-            sig.append(iter.next());
+            Access acc = iter.next();
+            if( acc instanceof PrimitiveTypeAccess ) {
+                sig.append( acc.toString() );
+            } else {
+                assert( acc instanceof TypeAccess ); 
+                if( acc.type() instanceof UnknownType ) {
+                    sig.append( acc.toString() );
+                } else {
+                    sig.append( acc.type().fullName() );
+                }
+            }
             if (iter.hasNext())
                 sig.append(", ");
         }
@@ -36,33 +72,46 @@ aspect PTDummyRename {
     syn String PTMethodRename.getOldSignature() = getCustomSignature(getOrgID());
     syn String PTMethodRename.getNewSignature() = getCustomSignature(getID());    
 
-/*
 
-    // These have been disabled because they give false positives, e.g.:
-    // java.lang.Runnable vs Runnable. They have been disabled instead of
-    // "repaired" because I believe that a String-based model is fundamentally
-    // flawed. Functionality is moving into javaworld as suggested by
-    // top comment.
+    // re-enabled. it looks like a string model might be viable, given
+    // that there are methods from declarations to get all accesses
 
     public void PTMethodRename.nameCheck() {
-        if (!getOriginatorClass().methodsSignatureMap().containsKey(getSignature()))
+
+        System.out.println( "namechecking PTMethodRename -- originator class: " + getOriginatorClass() );
+        System.out.println( "signature map: " + getOriginatorClass().methodsSignatureMap() );
+
+        String needle = getSignature();
+        boolean didFind = false;
+        for( Object o : getOriginatorClass().methodsSignatureMap().values() ) {
+            MethodDecl decl = (MethodDecl) o;
+            // the normal signature tends to have types devolve into "Unknown" -- TODO not quite sure why types cannot be fully resolved
+            String signature = decl.getPTEarlySignature();
+            if( signature.equals( needle ) ) {
+                didFind = true;
+                break;
+            }
+        }
+        if( !didFind ) {
+//        if (!getOriginatorClass().methodsSignatureMap().containsKey(getSignature())) {
             error("Method with signature " + getSignature() + " not found in originating class " +
                   getOriginatorClass().getID() + ".\n");
+        }
+        System.out.println( "END namecheck" );
     }
 
     public void PTMethodRenameAll.nameCheck() {
-        if (!getOriginatorClass().methodNames().contains(getOrgID()))
+        if (!getOriginatorClass().methodNames().contains(getOrgID())) {
             error("No method with name " + getOrgID() + " found in originating class " +
                   getOriginatorClass().getID() + ".\n");
+        }
     }
 
-    */
-
     public void PTFieldRename.nameCheck() {
-        if (!getOriginatorClass().memberFieldsMap().containsKey(getSignature()))
+        if (!getOriginatorClass().memberFieldsMap().containsKey(getSignature())) {
             error("Field " + getSignature() + " not found in originating class " +
                   getOriginatorClass().getID() + ".\n");
-
+        }
     }
 
     public void PTDummyRename.addSelfTo(Map<String,String> renameMap) {

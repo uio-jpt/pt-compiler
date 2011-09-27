@@ -145,6 +145,8 @@ class ClassDeclRew {
 	 * TODO make pretty
 	 */
 	void renameDefinitions(Map<String, String> namesMap) {
+        DefinitionsRenamer.renameDefinitions( ext, namesMap );
+        /*
 		Map<String, MethodDecl> methods = ext.methodsSignatureMap();
 		Map<String, SimpleSet> fields = ext.memberFieldsMap();
         
@@ -157,18 +159,32 @@ class ClassDeclRew {
             return;
         }
 
+        Set<String> namesToRename = new HashSet<String>();
+        for( String key : namesMap.keySet() ) {
+            System.out.println( "expecting to rename: " + key );
+            namesToRename.add( key );
+        }
+        System.out.println( "expecting in this: " + ext );
+
 		for (MethodDecl decl : methods.values()) {
-                /* If we rename the tabstracts we have trouble recognizing
-                   their signatures later. More elegant way? */
+                * If we rename the tabstracts we have trouble recognizing
+                   their signatures later. More elegant way? *
             if( decl.isTabstract() ) continue; // XXX HAX
 
 			if (namesMap.containsKey(decl.signature())) {
 				String newID = namesMap.get(decl.signature());
 				newID = newID.split("\\(")[0];
-				for (MethodAccess x : decl.methodAccess())
+				for (MethodAccess x : decl.methodAccess()) { // <-- note, very handy JaJ method
 					x.setID(newID);
+                }
+
+                String oldSig = decl.signature();
+
 				decl.setID(newID);
-				
+
+                if( namesToRename.contains( oldSig ) ) {
+                    namesToRename.remove( oldSig );
+                }
 			}
 		}
 
@@ -177,12 +193,21 @@ class ClassDeclRew {
 				FieldDeclaration fieldDecl = (FieldDeclaration) iter.next();
 				if (namesMap.containsKey(fieldDecl.getID())) {
 					String newID = namesMap.get(fieldDecl.getID());
-					for (VarAccess x : fieldDecl.fieldAccess())
+					for (VarAccess x : fieldDecl.fieldAccess()) { // <-- similarly, very handy JaJ method
 						x.setID(newID);
+                    }
+                    String oldId = fieldDecl.getID();
+
 					fieldDecl.setID(newID);
+                    System.out.println( "renamed: " + oldId + " -> " + newID );
+
+                    if( namesToRename.contains( oldId ) ) {
+                        namesToRename.remove( oldId );
+                    }
 				}
 			}
 		}
+        */
 	}
 
 	@Override

@@ -3,35 +3,3 @@ Implisitt renaming ved renaming ved rot
         test/compiler_semantic_tests/single_file/interface/InterfaceInTemplateRename.java
         test/compiler_semantic_tests/single_file/interface/InterfaceInTemplateRenameExplicit1.java
     Status quo er at den siste fungerer, den første fungerer ikke.
-
-===
-
-Interface-problem #2
-    Dette fungerer (fint):
-        template T {
-            class A {
-            }
-
-            class B {
-                public void f(A x) {}
-            }
-        }
-
-        package P {
-            inst T with A => X, B => Y ( f(A) -> g );
-        }
-
-    Dette fungerer ikke (ikke fint):
-        template T {
-            class A {
-            }
-
-            interface B {
-                public void f(A x);
-            }
-        }
-
-        package P {
-            inst T with A => X, B => Y ( f(A) -> g );
-        }
-

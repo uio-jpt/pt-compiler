@@ -418,7 +418,9 @@ public class PTDeclRew {
             for(PTInstTuple instTup : templateInst.getPTInstTuples()) {
                 if( !instTup.getID().equals( className ) ) continue;
 
-                SimpleSet typeDecs = templateInst.getTemplate().lookupType( instTup.getOrgID() );
+                SimpleSet typeDecs = templateInst.getTemplate().ptLookupTypeIn( instTup.getOrgID() );
+                System.out.println( "looking for " + className + " in " + templateInst.getTemplate() );
+                System.out.println( "trying to find precopyclass " + className + " got " + typeDecs + "wize" + typeDecs.size());
 
                 Iterator<TypeDecl> i = typeDecs.iterator();
                 // ambiguity is really an error, but should be dealt with elsewhere
@@ -442,7 +444,7 @@ public class PTDeclRew {
             for(PTInstTuple instTup : templateInst.getPTInstTuples()) {
                 if( !instTup.getID().equals( className ) ) continue;
 
-                SimpleSet typeDecs = templateInst.getTemplate().lookupType( instTup.getOrgID() );
+                SimpleSet typeDecs = templateInst.getTemplate().ptLookupTypeIn( instTup.getOrgID() );
 
                 Iterator<TypeDecl> i = typeDecs.iterator();
                 // ambiguity is really an error, but should be dealt with elsewhere
@@ -476,6 +478,7 @@ public class PTDeclRew {
                 extendedClasses.add( x );
             } else if( !didTryTemplateLookup ) {
                 // lookup failed. try by name.. but only once (if this works, any further references won't be to something instantiated in this ptdecl)
+                System.out.println( "trying to find precopyclass " + x.getSuperClassName() );
                 ClassDecl cd = getPrecopyClass( x.getSuperClassName() );
                 if( cd == null ) {
                     // certainly an error, but should probably be caught/reported somewhere else.
@@ -489,6 +492,21 @@ public class PTDeclRew {
                 break;
             }
         }
+    }
+
+    public void removeInstStatements() {
+        int i = 0;
+        ptDeclToBeRewritten.setPTInstDeclList( new AST.List<PTInstDecl> () );
+        /*
+        while( i < ptDeclToBeRewritten.getNumChild() ) {
+            if( ptDeclToBeRewritten.getChild(i) instanceof PTInstDecl ) {
+                System.out.println( "removing child "  + ptDeclToBeRewritten.getChild(i) );
+                ptDeclToBeRewritten.removeChild( i );
+            } else {
+                i++;
+            }
+        }
+        */
     }
 
     public ParameterRewriter getParameterRewriter() {
@@ -579,6 +597,7 @@ public class PTDeclRew {
                         TypeDecl constraint = constraintAcc.type();
                         if( constraint.isClassDecl() ) {
                             if( !extendedClasses.contains( constraint ) ) {
+                                System.out.println( "extended classes: " + extendedClasses );
                                 templateInst.error( "when instantiating " + templateInst.getID() + ", argument " + argcount + " does not satisfy constraints: does not extend class " + constraint.fullName() );
                                 okay = false;
                             }

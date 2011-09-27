@@ -21,7 +21,23 @@ aspect RenameTypes {
         super.visitRenameAccesses(m);
     }
 
+    public void VarAccess.visitRenameAccesses(Map<ASTNode,String> m) {
+        String t = m.get( decl() );
+        if( t != null ) {
+            setID( t );
+        }
+        super.visitRenameAccesses(m);
+    }
+
     public void MethodDecl.visitRenameDeclarations(Map<ASTNode,String> m) {
+        String t = m.get( this );
+        if( t != null ) {
+            setID( t );
+        }
+        super.visitRenameAccesses(m);
+    }
+
+    public void FieldDeclaration.visitRenameDeclarations(Map<ASTNode,String> m) {
         String t = m.get( this );
         if( t != null ) {
             setID( t );

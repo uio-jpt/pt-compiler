@@ -16,6 +16,7 @@ import AST.PTFieldRename;
 import AST.Access;
 import AST.MethodDecl;
 import AST.SimpleSet;
+import AST.FieldDeclaration;
 
 
 import java.util.Iterator;
@@ -101,12 +102,17 @@ class InstTupleRew {
     protected PTInterfaceDecl getRenamedSourceInterface() {
         TypeDecl x = instantiator.getOriginator();
 
+        System.out.println( "ORIGINAL INTERFACE: " + x );
+        System.out.println( "ORIGINAL INTERFACE SIGNATURE MAP: " + x.methodsSignatureMap() );
+
 		PTInterfaceDecl ext = ((PTInterfaceDecl)x).fullCopy();
 
+/*
         HashMap<ASTNode,String> internalRenames = findInternalRenames( ext );
 
         ext.visitRenameAccesses( internalRenames );
         ext.visitRenameDeclarations( internalRenames );
+        */
 
 //        ext.renameMethods()
 
@@ -114,6 +120,12 @@ class InstTupleRew {
             // renameTypes should evidently NOT automatically visitRename
             //  as well, this breaks several tests -- should investigate why
         ext.visitRename( instantiator.getInstDecl().getRenamedClasses() );
+
+        System.out.println( "RENAMING DEFINITIONS : " + getExplicitlyRenamedDefinitions() );
+        System.out.println( "IN : " + ext );
+		DefinitionsRenamer.renameDefinitions( ext, getExplicitlyRenamedDefinitions());
+        System.out.println( "AND DONE" );
+
         ext.renameTypes( instantiator.getInstDecl().getRenamedClasses() );
 
         ext.flushCaches();
@@ -156,36 +168,28 @@ class InstTupleRew {
                 }
             */
 
+
+        System.out.println( "original: " + ext );
 		ClassDeclRew rewriteClass = new ClassDeclRew(ext, getSourceTemplateName());
 
-        HashMap<ASTNode,String> internalRenames = findInternalRenames( ext );
+//        HashMap<ASTNode,String> internalRenames = findInternalRenames( ext );
+//
+//        ext.visitRenameAccesses( internalRenames );
+//        ext.visitRenameDeclarations( internalRenames );
 
-        ext.visitRenameAccesses( internalRenames );
-        ext.visitRenameDeclarations( internalRenames );
+        System.out.println( "altered (1): " + rewriteClass.getClassDecl() );
 
 		rewriteClass.renameConstructors(instantiator);
-		rewriteClass.renameTypes(instantiator.getInstDecl().getRenamedClasses());
 		rewriteClass.renameDefinitions(getExplicitlyRenamedDefinitions());
+		rewriteClass.renameTypes(instantiator.getInstDecl().getRenamedClasses());
+        System.out.println( "altered (2): " + rewriteClass.getClassDecl() );
+        System.out.println( "altered (3): " + rewriteClass.getClassDecl() );
+
+        System.out.println( "altered: " + rewriteClass.getClassDecl() );
 
 		return rewriteClass;
 	}
 
-    /* This seems to be based on reducing the signature to a string, which
-       seems to me like it might be impossible because of e.g.:
-
-            class V {
-                class B {
-                    class X {
-                    }
-                }
-                class I {
-                    class X {
-                    }
-                }
-            }
-
-        As such, deprecated. TODO replace all references to this system.
-    */
 	private Map<String, String> getExplicitlyRenamedDefinitions() {
 		// TODO addsselfto... move it here!!!
 		Map<String, String> map = Maps.newHashMap();

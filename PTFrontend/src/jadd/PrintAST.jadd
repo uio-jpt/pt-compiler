@@ -1,0 +1,21 @@
+aspect PrintAST {
+    public void ASTNode.debugPrintAST() {
+        System.out.print( "(" );
+        System.out.print( getClass().getName() );
+        System.out.print( " " + hashCode() );
+        debugPrintASTLocalExtras();
+        int n = getNumChild();
+        for(int i=0;i<n;i++) {
+            System.out.print( " " );
+            getChild(i).debugPrintAST();
+        }
+        System.out.print( ")" );
+    }
+
+    public void ASTNode.debugPrintASTLocalExtras() {
+    }
+
+    public void TypeAccess.debugPrintASTLocalExtras() {
+        System.out.print( " " + getID() );
+    }
+}

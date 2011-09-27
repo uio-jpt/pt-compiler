@@ -77,7 +77,8 @@ aspect LookupType {
         return lookupType(packageName, typeName);
     }
 
-    syn TypeDecl PTDecl.lookupType(String name) {
+    syn TypeDecl PTDecl.ptLookupSpecificType(String name) {
+        System.out.println( "IN SUSPICIOUS NON-SIMPLE-SET LOOKUPTYPE X " + name );
         for (TypeDecl cls: getClassList()) {
             if (cls.getID().equals(name)) {
                 return cls;
@@ -93,10 +94,11 @@ aspect LookupType {
                 return cls;
             }
         }
+        System.out.println( "WAIT WHAT RETURNING NULL FOR " + name );
         return null;
     }
 
-    syn TypeDecl PTInstTuple.getOriginator() = (TypeDecl) getTemplate().lookupType(getOrgID());
+    syn TypeDecl PTInstTuple.getOriginator() = getTemplate().ptLookupSpecificType(getOrgID());
 
     syn PTTemplate PTDecl.lookupTemplate(String name) = null;
     eq PTTemplate.lookupTemplate(String name) = name.equals(getID()) ? this : null;
@@ -119,13 +121,42 @@ aspect LookupType {
     }
 
     inh SimpleSet SimpleClass.lookupType(String name);
+    inh SimpleSet PTTemplate.lookupType(String name);
+    inh SimpleSet PTDecl.lookupType(String name);
 
-//  inh SimpleSet PTInstDecl.lookupType(String name); // do we really need .lookupType() here? but instructively, this is necessary for that to work.
+//  inh SimpleSet PTInstDecl.ptLookupSpecificType(String name); // do we really need .lookupType() here? but instructively, this is necessary for that to work.
 
     /* TODO: below is obvious code duplication, eliminate it.
        Not as easy as it looks, probably just because the
        jastadd system is still somewhat unfamiliar.
     */
+
+    syn SimpleSet PTTemplate.ptLookupTypeIn(String name) {
+        SimpleSet c = SimpleSet.emptySet;
+        c = addTypeVariables(c, name);
+        if(!c.isEmpty()) return c;
+
+        for (SimpleClass s : getSimpleClassList()) {
+            ClassDecl cd = s.getClassDecl();
+            if (cd.getID().equals(name))
+                return SimpleSet.emptySet.add(cd);
+        }
+        for (PTEnumDecl s : getPTEnumDeclList()) {
+            if (s.getID().equals(name)) {
+                return SimpleSet.emptySet.add(s);
+            }
+        }
+        for (PTInterfaceDecl s : getPTInterfaceDeclList()) {
+            if (s.getID().equals(name)) {
+                return SimpleSet.emptySet.add(s);
+            }
+        }
+        TypeDecl t = lookupType("", name);
+        if (t!=null) return SimpleSet.emptySet.add(t);
+
+        return lookupType( name );
+    }
+
 
     eq PTTemplate.getTypeParameter().lookupType(String name) {
         SimpleSet c = SimpleSet.emptySet;
@@ -176,6 +207,39 @@ aspect LookupType {
         }
         TypeDecl t = lookupType("", name);
         if (t!=null) return SimpleSet.emptySet.add(t);
+    }
+
+    eq PTDecl.getPTInterfaceDecl(int i).lookupType(String name) {
+        if( this instanceof PTTemplate ) {
+            SimpleSet c = SimpleSet.emptySet;
+            PTTemplate ptt = (PTTemplate) this;
+            c = ptt.addTypeVariables(c, name);
+            if(!c.isEmpty()) return c;
+        }
+
+        for (SimpleClass s : getSimpleClassList()) {
+            ClassDecl cd = s.getClassDecl();
+            if (cd.getID().equals(name))
+                return SimpleSet.emptySet.add(cd);
+        }
+
+        for (PTEnumDecl s : getPTEnumDeclList()) {
+            if (s.getID().equals(name)) {
+                return SimpleSet.emptySet.add(s);
+            }
+        }
+
+        for (PTInterfaceDecl s : getPTInterfaceDeclList()) {
+            if (s.getID().equals(name)) {
+                return SimpleSet.emptySet.add(s);
+            }
+        }
+
+        TypeDecl t = lookupType("", name);
+        if (t!=null) return SimpleSet.emptySet.add(t);
+
+        SimpleSet rv = lookupType( name ); // ?
+        return rv;
     }
 
     eq PTDecl.getPTInstDecl(int i).lookupType(String name) {
@@ -230,4 +294,11 @@ aspect LookupType {
     eq ClassDecl.getInnerClassDecl(String className) = 
         getID().equals(className) ? this : null;
 
+/*
+    eq PTPackage.getChild().lookupType(String name) {
+        System.out.println( "O HAI " + name );
+        return lookupType( name );
+    }
+
+*/
 }

@@ -149,7 +149,8 @@ aspect ReferenceAttributes {
         for ((FieldDeclaration) decl());
 
     coll Set<MethodAccess> MethodDecl.methodAccess()
-        [new HashSet<MethodAccess>()] with add root ClassDecl;
+//        [new HashSet<MethodAccess>()] with add root ClassDecl;
+        [new HashSet<MethodAccess>()] with add root TypeDecl;
 
     MethodAccess contributes this 
         to MethodDecl.methodAccess()
