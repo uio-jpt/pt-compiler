@@ -45,6 +45,7 @@ import AST.PTDummyRename;
 import AST.PTMethodRename;
 import AST.PTMethodRenameAll;
 import AST.PTFieldRename;
+import AST.MethodDecl;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
@@ -689,11 +690,8 @@ public class PTDeclRew {
     }
 
     private void addImpliedRenamesToPTInstDecl( PTInstDecl instDecl ) {
-        System.out.println( "That ain't my reality" );
         for( PTInstTuple ptit : instDecl.getPTInstTupleList() ) {
-        System.out.println( "That ain't my realixxty" );
             TypeDecl base = ptit.getOriginator();
-        System.out.println( "That ain't my realityyy" );
             String baseID = base.getID();
         System.out.println( "I think this line's" );
             Set<String> rootIDs = getRootIDsOf( base );
@@ -707,6 +705,47 @@ public class PTDeclRew {
                     for( PTDummyRename ptdr : ptitRoot.getPTDummyRenameList() ) {
                         String orgId = ptdr.getOrgID();
                         boolean overspecified = false;
+
+                        /* TODO CHECK should field renames be inherited like this at all? */
+
+                        /* First check whether this is a field/method we actually have in the class/interface
+                           (locally, as in "physically" code-wise there, not just inherited) -- otherwise
+                           it doesn't need to be renamed here.
+                        */
+                        if( ptdr instanceof PTMethodRenameAll ) {
+                            boolean found = false;
+                            for( Object o : base.localMethodsSignatureMap().values() ) {
+                                MethodDecl md = (MethodDecl) o;
+                                if( md.getID().equals( ptdr.getOrgID() ) ) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if( !found ) {
+                                continue;
+                            }
+                        } else if( ptdr instanceof PTMethodRename ) {
+                            PTMethodRename ptmr = (PTMethodRename) ptdr;
+                            boolean found = false;
+                            System.out.println( "CHECK THIS: " + ptmr.getOldSignature() );
+                            for( Object o : base.localMethodsSignatureMap().values() ) {
+                                MethodDecl md = (MethodDecl) o;
+                                System.out.println( "CHECK: " + md.getPTEarlySignature()  );
+                                if( md.getPTEarlySignature().equals( ptmr.getOldSignature() ) ) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if( !found ) {
+                                continue;
+                            }
+                        } else {
+                            assert( ptdr instanceof PTFieldRename );
+                            boolean found = !base.localFields( ptdr.getOrgID() ).isEmpty();
+                            if( ! found ) {
+                                continue;
+                            }
+                        }
 
                         for( PTDummyRename ptdrExisting : ptit.getPTDummyRenameList() ) {
                             if( orgId.equals( ptdrExisting.getOrgID() ) ) {
@@ -753,6 +792,8 @@ public class PTDeclRew {
                         if( overspecified ) continue;
 
                         PTDummyRename newRename = (PTDummyRename) ptdr.fullCopy();
+
+                        System.out.println( "INTRODUCING NEW RENAME INTO " + ptit + " : " + newRename );
 
                         ptit.addPTDummyRename( newRename );
                     }
