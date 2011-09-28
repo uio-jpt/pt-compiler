@@ -37,7 +37,7 @@ aspect PTDummyRename {
                 if( acc.type() instanceof UnknownType ) {
                     s = acc.toString();
                 } else {
-                    s = acc.type().fullName();
+                    s = acc.type().erasure().fullName();
                 }
             }
             args.add( s );
@@ -57,7 +57,7 @@ aspect PTDummyRename {
                 if( acc.type() instanceof UnknownType ) {
                     sig.append( acc.toString() );
                 } else {
-                    sig.append( acc.type().fullName() );
+                    sig.append( acc.type().erasure().fullName() );
                 }
             }
             if (iter.hasNext())

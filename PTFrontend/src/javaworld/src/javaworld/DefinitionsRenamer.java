@@ -43,12 +43,12 @@ public class DefinitionsRenamer {
                 /* If we rename the tabstracts we have trouble recognizing
                    their signatures later. More elegant way? */
             if( decl.isTabstract() ) continue; // XXX MISSINGFEATURE?
-            
+
 			if (namesMap.containsKey(decl.signature())) {
 				String newID = namesMap.get(decl.signature());
 				newID = newID.split("\\(")[0];
 
-				for (MethodAccess x : decl.methodAccess()) { // <-- note, very handy JaJ method
+				for (MethodAccess x : decl.methodAccess()) { // <-- note, very handy JaJ method (our own..)
 					x.setID(newID);
                 }
 
