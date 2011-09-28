@@ -44,7 +44,7 @@ syn keyword javaBranch          break continue nextgroup=javaUserLabelRef skipwh
 syn match   javaUserLabelRef    "\k\+" contained
 syn keyword javaScopeDecl       public protected private abstract
 syn keyword javaPTDecl          template package
-syn keyword javaPTKeywords      with inst
+syn keyword javaPTKeywords      with inst adds
 syn match javaPTBroadArrow    "=>"
 syn match javaPTArrow         "->"
 
