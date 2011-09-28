@@ -5,7 +5,7 @@ package P  {
 
     class V {
         public static void main(String args[]) {
-            Test y = RISKOKER;
+            Test y = Test.RISKOKER;
             switch( y ) {
                 case FOO: System.out.println( "foo" ); break;
                 case BAR: System.out.println( "bar" ); break;
