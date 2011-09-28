@@ -693,6 +693,10 @@ public class PTDeclRew {
                         boolean overspecified = false;
 
                         /* TODO CHECK should field renames be inherited like this at all? */
+                        // Conclusion: no, I don't think so
+                        if( ptdr instanceof PTFieldRename ) {
+                            continue;
+                        }
 
                         /* First check whether this is a field/method we actually have in the class/interface
                            (locally, as in "physically" code-wise there, not just inherited) -- otherwise
@@ -736,14 +740,18 @@ public class PTDeclRew {
                                 /* We need to check that these are consistent, otherwise this
                                    is an error. */
 
-                                if( ((ptdrExisting instanceof PTMethodRename) && (ptdr instanceof PTFieldRename) )
+                                if( (((ptdrExisting instanceof PTMethodRename) || (ptdrExisting instanceof PTMethodRenameAll) )
+                                      && (ptdr instanceof PTFieldRename) )
                                     ||
-                                    ((ptdr instanceof PTMethodRename) && (ptdrExisting instanceof PTFieldRename))
+                                    (((ptdr instanceof PTMethodRename) || (ptdr instanceof PTMethodRenameAll)) && (ptdrExisting instanceof PTFieldRename))
                                     ) {
                                     continue;
-                                }
-
-                                if( (ptdrExisting instanceof PTMethodRenameAll) || (ptdr instanceof PTMethodRenameAll) ) {
+                                } else if( (ptdr instanceof PTFieldRename) && (ptdr instanceof PTFieldRename ) ) {
+                                    if( ptdr.getID().equals( ptdrExisting.getID() ) ) {
+                                        overspecified = true;
+                                        continue;
+                                    }
+                                } else if( (ptdrExisting instanceof PTMethodRenameAll) || (ptdr instanceof PTMethodRenameAll) ) {
                                     // logic feels a bit too clever, CHECK covers everything?
                                     // this is supposed to cover three cases: all/all, one/all, all/one.
                                     if( ptdrExisting.getID().equals( ptdr.getID() ) ) {
