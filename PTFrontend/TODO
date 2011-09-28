@@ -1,5 +1,7 @@
-Implisitt renaming ved renaming ved rot
-    Første test her skal implisitt bety det samme som andre:
-        test/compiler_semantic_tests/single_file/interface/InterfaceInTemplateRename.java
-        test/compiler_semantic_tests/single_file/interface/InterfaceInTemplateRenameExplicit1.java
-    Status quo er at den siste fungerer, den første fungerer ikke.
+* Bytt tilbake til baklengs E.
+
+* Tillat argumenter i konstruktører igjen
+
+* Implementer assumed constructors.
+
+* Implementer Eivinds typeskranker.
