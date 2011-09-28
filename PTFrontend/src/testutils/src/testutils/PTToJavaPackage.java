@@ -94,7 +94,8 @@ public class PTToJavaPackage {
 			error("Missing sourceFolder");
 		}
 		if (sourceFolder.isDirectory()) {
-			inputfilenames = sourceFolder.getFilePaths("java");
+            String[] extensions = { "java", "javapt", "jpt", "ptjava" };
+			inputfilenames = sourceFolder.getFilePaths( extensions );
 			verbose("Input is a directory.");
 		} else if (sourceFolder.isFile()) {
 			String[] tmp = { sourceFolder.getPath() };

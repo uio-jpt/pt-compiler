@@ -1,10 +1,5 @@
 " Vim syntax file
 " Language:	JavaPT
-" Maintainer:	Steinar Vittersø Kaldager <steinarvk@gmail.com>
-" Last Change:  2011 Sep 28
-
-" Based on java.vim by Claudio Fleiner:
-"   http://www.fleiner.com/vim/syntax/html.vim
 
 " Please check :help java.vim for comments on some of the options available.
 
@@ -26,7 +21,7 @@ endif
 
 
 " keyword definitions
-syn keyword javaExternal        import native package
+syn keyword javaExternal        import native
 syn keyword javaError           goto const
 syn keyword javaConditional     if else switch
 syn keyword javaRepeat          while for do
@@ -48,7 +43,7 @@ syn match   javaClassDecl       "[^.]\s*\<class\>"ms=s+1
 syn keyword javaBranch          break continue nextgroup=javaUserLabelRef skipwhite
 syn match   javaUserLabelRef    "\k\+" contained
 syn keyword javaScopeDecl       public protected private abstract
-syn keyword javaPTTemplate      template
+syn keyword javaPTDecl          template package
 syn keyword javaPTKeywords      with inst
 syn match javaPTBroadArrow    "=>"
 syn match javaPTArrow         "->"
@@ -120,7 +115,7 @@ if !exists("java_allow_cpp_keywords")
 endif
 
 " The following cluster contains all java groups except the contained ones
-syn cluster javaTop add=javaExternal,javaError,javaError,javaBranch,javaLabelRegion,javaLabel,javaConditional,javaRepeat,javaBoolean,javaConstant,javaTypedef,javaOperator,javaType,javaType,javaStatement,javaStorageClass,javaExceptions,javaMethodDecl,javaClassDecl,javaClassDecl,javaClassDecl,javaScopeDecl,javaError,javaError2,javaUserLabel,javaLangObject,javaPTTemplate
+syn cluster javaTop add=javaExternal,javaError,javaError,javaBranch,javaLabelRegion,javaLabel,javaConditional,javaRepeat,javaBoolean,javaConstant,javaTypedef,javaOperator,javaType,javaType,javaStatement,javaStorageClass,javaExceptions,javaMethodDecl,javaClassDecl,javaClassDecl,javaClassDecl,javaScopeDecl,javaError,javaError2,javaUserLabel,javaLangObject,javaPTDecl
 
 
 " Comments
@@ -264,7 +259,7 @@ if !exists("did_java_syntax_inits")
   hi link javaMethodDecl                    javaStorageClass
   hi link javaClassDecl                     javaStorageClass
   hi link javaScopeDecl                     javaStorageClass
-  hi link javaPTTemplate                    javaStorageClass
+  hi link javaPTDecl                        javaStorageClass
   hi link javaBoolean                       Boolean
   hi link javaSpecial                       Special
   hi link javaSpecialError                  Error

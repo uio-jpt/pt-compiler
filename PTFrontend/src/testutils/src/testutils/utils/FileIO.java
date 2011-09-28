@@ -16,23 +16,22 @@ public class FileIO extends File {
 		super(filename);
 	}
 
-	public String[] getFilePaths(String extension) {
+	public String[] getFilePaths(String[] extensions) {
 		ArrayList<String> filenames = new ArrayList<String>();
-		Collection<File> files = getFilesInFolderAndSubFolders(extension);
+		Collection<File> files = getFilesInFolderAndSubFolders(extensions);
 		for (File file : files) 
 			filenames.add(file.getPath());
 		return filenames.toArray(new String[filenames.size()]);
 	}
 
-	public Collection<File> getFilesInFolderAndSubFolders(String extension) {
-		String[] filter = { extension };
+	public Collection<File> getFilesInFolderAndSubFolders(String[] extensions) {
 		boolean recursive = true;
-		return FileUtils.listFiles(this, filter, recursive);
+		return FileUtils.listFiles(this, extensions, recursive);
 	}
 
 	public Map<String, LinkedList<String>> createFolderMap(
-			String extensionFilter) {
-		Collection<File> files = getFilesInFolderAndSubFolders(extensionFilter);
+			String[] extensions ) {
+		Collection<File> files = getFilesInFolderAndSubFolders( extensions );
 		Map<String, LinkedList<String>> folderMap = new HashMap<String, LinkedList<String>>();
 		for (File file : files) {
 			String absPath = file.getAbsolutePath();

@@ -11,7 +11,8 @@ public class FileInFolderIsSingleUnitSuite extends FolderTestSuite implements
 	}
 
 	public void runSuite(ReportManager testReports) {
-		Collection<File> files = folder.getFilesInFolderAndSubFolders("java");
+        String [] extensions = { "java", "jpt", "javapt", "ptjava" };
+		Collection<File> files = folder.getFilesInFolderAndSubFolders( extensions );
 		for (File file : files) {
 			String fileName = file.getPath();
 			TestCase test = new TestRunner(fileName);
