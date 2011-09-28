@@ -76,7 +76,9 @@ public class PTDeclRew {
 
 	public PTDeclRew(PTDecl ptDeclToBeRewritten) {
 		this.ptDeclToBeRewritten = ptDeclToBeRewritten;
+        System.out.println( "ADDING IMPLIED RENAMES");
         addImpliedRenames();
+        System.out.println( "ADDED IMPLIED RENAMES");
 	}
 
 	protected void flushCaches() {
@@ -646,6 +648,7 @@ public class PTDeclRew {
         Set<String> rv = new HashSet<String>();
 
         for( Object o : t.implementedInterfaces() ) {
+            System.out.println( "." );
             InterfaceDecl idecl = (InterfaceDecl) o;
             PTDecl enclosingDecl = (PTDecl) idecl.getParentClass( PTDecl.class );
             // be aware that enclosingDecl might well be null!
@@ -655,18 +658,23 @@ public class PTDeclRew {
             }
         }
 
+            System.out.println( "!" );
         if( t instanceof ClassDecl ) {
             ClassDecl cd = ((ClassDecl) t).superclass();
 
             while( cd != null ) {
+                System.out.println( "?" );
                 PTDecl enclosingDecl = (PTDecl) cd.getParentClass( PTDecl.class );
                 if( enclosingDecl != myEnclosingDecl ) {
                     break;
                 }
 
                 rv.add( cd.getID() );
+
+                cd = cd.superclass();
             }
         }
+            System.out.println( "!" );
 
         return rv;
     }
@@ -681,12 +689,18 @@ public class PTDeclRew {
     }
 
     private void addImpliedRenamesToPTInstDecl( PTInstDecl instDecl ) {
+        System.out.println( "That ain't my reality" );
         for( PTInstTuple ptit : instDecl.getPTInstTupleList() ) {
+        System.out.println( "That ain't my realixxty" );
             TypeDecl base = ptit.getOriginator();
+        System.out.println( "That ain't my realityyy" );
             String baseID = base.getID();
+        System.out.println( "I think this line's" );
             Set<String> rootIDs = getRootIDsOf( base );
+        System.out.println( "mostly filler" );
 
             for( String rootID : rootIDs ) {
+                System.out.println( "MARK ONE rootID " + rootID );
                 PTInstTuple ptitRoot = getPTInstTupleByOriginatorName( instDecl, rootID );
                 if( ptitRoot != null ) {
                     System.out.println( "will import rename from " + rootID + " into " + baseID );
@@ -749,6 +763,7 @@ public class PTDeclRew {
 
     private void addImpliedRenames() {
         for( PTInstDecl ptid : ptDeclToBeRewritten.getPTInstDecls() ) {
+            System.out.println( "MARK OONE ptid " + ptid );
             addImpliedRenamesToPTInstDecl( ptid );
         }
     }
