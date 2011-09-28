@@ -1,8 +1,12 @@
-/* This might be worth going over with git blame to check
- * everything added with this commit, as at this point I'm
- * really not even sure about the JastAdd syntax used here.
- * Pretty much all I've added with this commit to this file
- * is cargo cult code, should be checked. -svk */
+/* This is messy code, lots of duplication.
+
+   The important thing here is lookupType(String name) and
+   lookupType(String packageName,String name).
+   These are called by JastAdd and must work correctly.
+   Note that the former returns a SimpleSet; the latter
+   cannot get multiple results, so it returns a TypeDecl.
+*/
+
 
 /* Note to self and others on the mysterious-looking syntax:
 

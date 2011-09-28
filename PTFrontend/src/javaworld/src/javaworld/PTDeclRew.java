@@ -41,6 +41,10 @@ import AST.TypeAccess;
 import AST.ParTypeAccess;
 import AST.InterfaceDecl;
 import AST.GenericInterfaceDecl;
+import AST.PTDummyRename;
+import AST.PTMethodRename;
+import AST.PTMethodRenameAll;
+import AST.PTFieldRename;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
@@ -72,6 +76,7 @@ public class PTDeclRew {
 
 	public PTDeclRew(PTDecl ptDeclToBeRewritten) {
 		this.ptDeclToBeRewritten = ptDeclToBeRewritten;
+        addImpliedRenames();
 	}
 
 	protected void flushCaches() {
@@ -626,4 +631,126 @@ public class PTDeclRew {
         assert( paramRewriter != null );
         return paramRewriter;
     }
+
+    /** Get the before-rename IDs (the names in the template context) all
+      * the interfaces and classes extended by the class or interface being
+      * renamed that are inside the same template.
+      *
+      * This is useful because an explicit rename (e.g. method rename) in one
+      * of these roots should mean an implicit rename here.
+      **/
+    private static Set<String> getRootIDsOf( TypeDecl t ) {
+        PTDecl myEnclosingDecl = (PTDecl) t.getParentClass( PTDecl.class );
+        assert( myEnclosingDecl instanceof PTTemplate );
+
+        Set<String> rv = new HashSet<String>();
+
+        for( Object o : t.implementedInterfaces() ) {
+            InterfaceDecl idecl = (InterfaceDecl) o;
+            PTDecl enclosingDecl = (PTDecl) idecl.getParentClass( PTDecl.class );
+            // be aware that enclosingDecl might well be null!
+
+            if( enclosingDecl == myEnclosingDecl ) {
+                rv.add( idecl.getID() );
+            }
+        }
+
+        if( t instanceof ClassDecl ) {
+            ClassDecl cd = ((ClassDecl) t).superclass();
+
+            while( cd != null ) {
+                PTDecl enclosingDecl = (PTDecl) cd.getParentClass( PTDecl.class );
+                if( enclosingDecl != myEnclosingDecl ) {
+                    break;
+                }
+
+                rv.add( cd.getID() );
+            }
+        }
+
+        return rv;
+    }
+
+    private static PTInstTuple getPTInstTupleByOriginatorName( PTInstDecl ptid, String name ) {
+        for( PTInstTuple ptit : ptid.getPTInstTupleList() ) {
+            if( ptit.getOrgID().equals( name ) ) {
+                return ptit;
+            }
+        }
+        return null;
+    }
+
+    private void addImpliedRenamesToPTInstDecl( PTInstDecl instDecl ) {
+        for( PTInstTuple ptit : instDecl.getPTInstTupleList() ) {
+            TypeDecl base = ptit.getOriginator();
+            String baseID = base.getID();
+            Set<String> rootIDs = getRootIDsOf( base );
+
+            for( String rootID : rootIDs ) {
+                PTInstTuple ptitRoot = getPTInstTupleByOriginatorName( instDecl, rootID );
+                if( ptitRoot != null ) {
+                    System.out.println( "will import rename from " + rootID + " into " + baseID );
+                    for( PTDummyRename ptdr : ptitRoot.getPTDummyRenameList() ) {
+                        String orgId = ptdr.getOrgID();
+                        boolean overspecified = false;
+
+                        for( PTDummyRename ptdrExisting : ptit.getPTDummyRenameList() ) {
+                            if( orgId.equals( ptdrExisting.getOrgID() ) ) {
+                                /* We need to check that these are consistent, otherwise this
+                                   is an error. */
+
+                                if( ((ptdrExisting instanceof PTMethodRename) && (ptdr instanceof PTFieldRename) )
+                                    ||
+                                    ((ptdr instanceof PTMethodRename) && (ptdrExisting instanceof PTFieldRename))
+                                    ) {
+                                    continue;
+                                }
+
+                                if( (ptdrExisting instanceof PTMethodRenameAll) || (ptdr instanceof PTMethodRenameAll) ) {
+                                    // logic feels a bit too clever, CHECK covers everything?
+                                    // this is supposed to cover three cases: all/all, one/all, all/one.
+                                    if( ptdrExisting.getID().equals( ptdr.getID() ) ) {
+                                        overspecified = true;
+                                        continue;
+                                    }
+                                } else {
+                                    assert( ptdr instanceof PTMethodRename );
+                                    assert( ptdrExisting instanceof PTMethodRename );
+
+                                    PTMethodRename ptmr = (PTMethodRename) ptdr;
+                                    PTMethodRename ptmrExisting = (PTMethodRename) ptdrExisting;
+
+                                    if( !ptmr.getOldSignature().equals( ptmrExisting.getOldSignature() ) ) {
+                                        // these are renames for different methods, so there's no consistency issue.
+                                        continue;
+                                    }
+
+                                    if( ptmr.getID().equals( ptmrExisting.getID() ) ) {
+                                        overspecified = true;
+                                        continue;
+                                    }
+                                }
+                            } else {
+                                continue;
+                            }
+                            ptdrExisting.error( "" + ptdrExisting + " conflicts with implied rename from root " + rootID + ": " + ptdr );
+                        }
+
+                        if( overspecified ) continue;
+
+                        PTDummyRename newRename = (PTDummyRename) ptdr.fullCopy();
+
+                        ptit.addPTDummyRename( newRename );
+                    }
+                }
+            }
+        }
+    }
+
+    private void addImpliedRenames() {
+        for( PTInstDecl ptid : ptDeclToBeRewritten.getPTInstDecls() ) {
+            addImpliedRenamesToPTInstDecl( ptid );
+        }
+    }
+
 }
