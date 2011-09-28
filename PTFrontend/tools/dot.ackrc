@@ -1,0 +1,17 @@
+# must be added to $HOME/.ackrc
+--type-add
+java=jadd
+--type-add
+java=jrag
+--ignore-dir
+src-gen
+--ignore-dir
+debug
+--ignore-dir
+autodoc
+--ignore-dir
+test
+--pager
+less -r
+--type
+java
