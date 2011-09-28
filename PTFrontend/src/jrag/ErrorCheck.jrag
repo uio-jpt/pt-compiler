@@ -24,6 +24,24 @@ aspect ErrorCheck {
         }
     }
 
+    refine Generics public void TypeDecl.typeCheck() {
+        Generics.TypeDecl.typeCheck();
+
+        PTDecl enclosingPTDecl = (PTDecl) getParentClass( PTDecl.class );
+        TypeDecl enclosingType = (TypeDecl) getParentClass( TypeDecl.class );
+        MethodDecl enclosingMethod = (MethodDecl) getParentClass( MethodDecl.class );
+        
+        if( enclosingPTDecl != null ) {
+            boolean isLocalToMethod = (enclosingMethod != null) && (enclosingMethod.getParentClass( TypeDecl.class ) == enclosingType); 
+            if( !isLocalToMethod ) {
+                boolean isLocalToType = enclosingType != null;
+                if( isLocalToType ) {
+                    error( "implementation restriction -- nested classes (" + getID() + " nested in " + enclosingType.getID() + ") are disallowed in JPT" );
+                }
+            }
+        }
+    }
+
     refine TypeCheck public void  ClassInstanceExpr.typeCheck() {
         TypeCheck.ClassInstanceExpr.typeCheck();
         // check that expr is not a template class if new expr is made

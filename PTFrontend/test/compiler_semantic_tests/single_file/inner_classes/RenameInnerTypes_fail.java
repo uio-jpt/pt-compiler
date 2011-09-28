@@ -1,3 +1,7 @@
+/* This test is _fail only while JPT disallows nested classes; after that it might
+   test something interesting. */
+
+
 template T {
     class X {
         int x;

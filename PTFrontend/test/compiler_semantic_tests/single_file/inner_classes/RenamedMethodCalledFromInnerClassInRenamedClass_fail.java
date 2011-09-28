@@ -1,3 +1,6 @@
+/* This test is _fail only while JPT disallows nested classes; after that it might
+   test something interesting. */
+
 template T {
     class X {
         private class Y {
@@ -17,5 +20,5 @@ template T {
 }
 
 package P {
-    inst T with X => X ( printMessage() -> f );
+    inst T with X => XX ( printMessage() -> f );
 }
