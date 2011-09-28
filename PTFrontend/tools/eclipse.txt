@@ -1,0 +1,46 @@
+Ting en må huske på for å få prosjektet til å fungere i Eclipse
+(som vil være nyttig for f.eks. en skikkelig debugger):
+    * Prosjektet må være satt opp til å bare kompilere koden i src-gen/.
+      En må altså passe på at src/ _ikke_ er i build path.
+      ../JastAddJ/ skal heller ikke med i build-path.
+
+      Alle filene fra src/ blir kopiert inn i src-gen/, så let etter den
+      tilsvarende koden i src-gen/ til den du jobber med for å sette
+      breakpoints etc., men sørg for å ikke endre på koden i src-gen/!
+      (Dette fordi src-gen/ vil bli overskrevet og ignorert av git, så
+      endringene vil gå tapt. Det går helt fint å endre på src-gen/-koden
+      for kjappe tester som ikke skal bli tatt vare på.)
+    * Sett JDK compliance level til 6.0.
+      ( Høyreklikk på prosjektet; Properties -> Java Compiler, Compiler
+        compliance level i seksjonen "JDK Compliance". )
+    * Sett opp kjørekonfigurasjoner under Run -> Run... .
+      Main-klassen er: testutils.CompileToPackage
+    * Main-klassen må kjøres i rotmappa (altså PTFrontend/) -- dette er
+      fordi den trenger tilgang til resources/txt/generic-build.xml
+      
+      Dette kan stilles inn i Eclipse under Run -> Run ... ->
+      (kjørekonfigurasjon) -> Arguments -> Working Directory -> Other.
+    * Sett argumentet "-o -" for å få koden til å bli skrevet til stdout,
+      som vil være Eclipse-kjørevinduet.
+      
+      Et fullt argumentsett kan da være f.eks. "-o - MyFile.ptjava".
+    * Jeg vet foreløpig ikke hvordan en får Eclipse til å utføre
+      kodegenereringsstadiet, så gjør dette manuelt:
+         ant PTGen
+      Dette er første del av "ant build", Eclipse vil så ta seg av det andre.
+      Arbeidssyklusen blir altså:
+            -> Endre på kode -> ant PTGen -> kjør og debug i Eclipse --
+            |                                                         |
+            -----------------------------------------------------------
+      Åpenbart forbedringspotensiale her, det burde vel være mulig å få
+      Eclipse til å utføre en enkel kommando fra shell eller ant som et
+      steg i build?
+    * Om du skal interagere med arbeid som du gjør i eget shell må du sørge
+      for at du ikke lar Eclipse kopiere alt inn i sitt eget workspace-område
+      (eller du kan begynne å jobbe fra shell inne i workspace, men jeg
+      kjenner ikke Eclipse godt nok til å kunne si at det nødvendigvis vil
+      gå bra).
+    * Eclipse kan få litt panikk når den merker at du sletter filer og endrer
+      dem med ant clean og ant PTGen. Høyreklikk og "refresh" er nøkkelen
+      til å få den til å synkronisere seg med filsystemet igjen; kanskje er
+      det også lurt å lukke filer i src-gen/ som du har åpne.
