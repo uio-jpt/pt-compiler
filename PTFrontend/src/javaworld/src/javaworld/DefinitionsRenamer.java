@@ -36,30 +36,17 @@ public class DefinitionsRenamer {
 
         Set<String> namesToRename = new HashSet<String>();
         for( String key : namesMap.keySet() ) {
-            System.out.println( "expecting to rename: " + key );
             namesToRename.add( key );
         }
-        System.out.println( "expecting in this: " + ext );
-        System.out.println( "LIST BEGIN" );
-        for( MethodDecl decl : methods.values() ) {
-            System.out.println( "LIST ELEMENT " + decl.signature() + "/" + decl.getPTEarlySignature() );
-        }
-        System.out.println( "LIST END" );
 
 		for (MethodDecl decl : methods.values()) {
                 /* If we rename the tabstracts we have trouble recognizing
                    their signatures later. More elegant way? */
             if( decl.isTabstract() ) continue; // XXX MISSINGFEATURE?
             
-            System.out.println( "LOOKING FOR " + decl.signature() );
-            System.out.println( "LOOKING FOR EARLYSIG " + decl.getPTEarlySignature() );
-
 			if (namesMap.containsKey(decl.signature())) {
 				String newID = namesMap.get(decl.signature());
-                System.out.println( "new id: " + newID );
 				newID = newID.split("\\(")[0];
-                System.out.println( "new id': " + newID );
-                System.out.println( "problem with decl? " + decl + " " + decl.getClass().getName() );
 
 				for (MethodAccess x : decl.methodAccess()) { // <-- note, very handy JaJ method
 					x.setID(newID);
@@ -86,7 +73,6 @@ public class DefinitionsRenamer {
                     String oldId = fieldDecl.getID();
 
 					fieldDecl.setID(newID);
-                    System.out.println( "renamed: " + oldId + " -> " + newID );
 
                     if( namesToRename.contains( oldId ) ) {
                         namesToRename.remove( oldId );

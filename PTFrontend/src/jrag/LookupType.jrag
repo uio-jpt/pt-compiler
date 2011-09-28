@@ -82,7 +82,6 @@ aspect LookupType {
     }
 
     syn TypeDecl PTDecl.ptLookupSpecificType(String name) {
-        System.out.println( "IN SUSPICIOUS NON-SIMPLE-SET LOOKUPTYPE X " + name );
         for (TypeDecl cls: getClassList()) {
             if (cls.getID().equals(name)) {
                 return cls;
@@ -98,7 +97,6 @@ aspect LookupType {
                 return cls;
             }
         }
-        System.out.println( "WAIT WHAT RETURNING NULL FOR " + name );
         return null;
     }
 
@@ -298,11 +296,4 @@ aspect LookupType {
     eq ClassDecl.getInnerClassDecl(String className) = 
         getID().equals(className) ? this : null;
 
-/*
-    eq PTPackage.getChild().lookupType(String name) {
-        System.out.println( "O HAI " + name );
-        return lookupType( name );
-    }
-
-*/
 }

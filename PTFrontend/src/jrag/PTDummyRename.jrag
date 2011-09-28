@@ -31,7 +31,6 @@ aspect PTDummyRename {
         for( ParameterDeclaration d : getParameterList() ) {
             Access acc = d.getTypeAccess();
             String s;
-            System.out.println( "foo: " + d + " " + acc.type().getClass().getName() + ": " + acc.type().getID() );
             if( acc instanceof PrimitiveTypeAccess ) {
                 s = acc.toString();
             } else {
@@ -41,7 +40,6 @@ aspect PTDummyRename {
                     s = acc.type().fullName();
                 }
             }
-            System.out.println( " --> " + s );
             args.add( s );
         }
         return getID() + "(" + Joiner.on( ", " ).join( args ) + ")";
@@ -77,10 +75,6 @@ aspect PTDummyRename {
     // that there are methods from declarations to get all accesses
 
     public void PTMethodRename.nameCheck() {
-
-        System.out.println( "namechecking PTMethodRename -- originator class: " + getOriginatorClass() );
-        System.out.println( "signature map: " + getOriginatorClass().methodsSignatureMap() );
-
         String needle = getSignature();
         boolean didFind = false;
         for( Object o : getOriginatorClass().methodsSignatureMap().values() ) {
@@ -97,7 +91,6 @@ aspect PTDummyRename {
             error("Method with signature " + getSignature() + " not found in originating class " +
                   getOriginatorClass().getID() + ".\n");
         }
-        System.out.println( "END namecheck" );
     }
 
     public void PTMethodRenameAll.nameCheck() {

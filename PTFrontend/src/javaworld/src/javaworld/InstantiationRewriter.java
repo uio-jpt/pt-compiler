@@ -30,23 +30,6 @@ public class InstantiationRewriter {
         // _copying_ from, to subject them to extensive treatment, e.g.
         // parametrization?
 
-        System.out.println( "test BEFORE: " + decl );
-        for( ClassDecl cd : decl.getClassList() ) {
-            System.out.println( "test-class: " + cd );
-            Map<String,MethodDecl> map = cd.methodsSignatureMap();
-            for( String key : map.keySet() ) {
-                System.out.println( key + " -- " + map.get( key ) + " -- " + map.get(key).getClass().getName() + "-- abstract? " + map.get(key).isAbstract());
-            }
-
-            System.out.println( "unimplemented methods: " + cd.unimplementedMethods() );
-        }
-        for( InterfaceDecl cd : decl.getPTInterfaceDeclList() ) {
-            System.out.println( "test-interface: " + cd );
-            Map<String,MethodDecl> map = cd.methodsSignatureMap();
-            for( String key : map.keySet() ) {
-                System.out.println( key + " -- " + map.get( key ) + " -- " + map.get(key).getClass().getName() + "-- abstract? " + map.get(key).isAbstract() + " -- " + map.get( key ).getPTEarlySignature() );
-            }
-        }
         decl.flushCaches();
 
 		PTDeclRew target = new PTDeclRew(decl);
@@ -66,23 +49,6 @@ public class InstantiationRewriter {
 //        target.removeInstStatements();
 		target.flushCaches();
 
-        System.out.println( "test AFTER: " + decl );
-        for( ClassDecl cd : decl.getClassList() ) {
-            System.out.println( "test-class: " + cd );
-            Map<String,MethodDecl> map = cd.methodsSignatureMap();
-            for( String key : map.keySet() ) {
-                System.out.println( key + " -- " + map.get( key ) + " -- " + map.get(key).getClass().getName() + "-- abstract? " + map.get(key).isAbstract());
-            }
-
-            System.out.println( "unimplemented methods: " + cd.unimplementedMethods() );
-        }
-        for( InterfaceDecl cd : decl.getPTInterfaceDeclList() ) {
-            System.out.println( "test-interface: " + cd );
-            Map<String,MethodDecl> map = cd.methodsSignatureMap();
-            for( String key : map.keySet() ) {
-                System.out.println( key + " -- " + map.get( key ) + " -- " + map.get(key).getClass().getName() + "-- abstract? " + map.get(key).isAbstract());
-            }
-        }
         decl.flushCaches();
 	}
 }

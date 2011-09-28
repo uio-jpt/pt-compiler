@@ -102,9 +102,6 @@ class InstTupleRew {
     protected PTInterfaceDecl getRenamedSourceInterface() {
         TypeDecl x = instantiator.getOriginator();
 
-        System.out.println( "ORIGINAL INTERFACE: " + x );
-        System.out.println( "ORIGINAL INTERFACE SIGNATURE MAP: " + x.methodsSignatureMap() );
-
 		PTInterfaceDecl ext = ((PTInterfaceDecl)x).fullCopy();
 
 /*
@@ -121,10 +118,7 @@ class InstTupleRew {
             //  as well, this breaks several tests -- should investigate why
         ext.visitRename( instantiator.getInstDecl().getRenamedClasses() );
 
-        System.out.println( "RENAMING DEFINITIONS : " + getExplicitlyRenamedDefinitions() );
-        System.out.println( "IN : " + ext );
 		DefinitionsRenamer.renameDefinitions( ext, getExplicitlyRenamedDefinitions());
-        System.out.println( "AND DONE" );
 
         ext.renameTypes( instantiator.getInstDecl().getRenamedClasses() );
 
@@ -169,7 +163,6 @@ class InstTupleRew {
             */
 
 
-        System.out.println( "original: " + ext );
 		ClassDeclRew rewriteClass = new ClassDeclRew(ext, getSourceTemplateName());
 
 //        HashMap<ASTNode,String> internalRenames = findInternalRenames( ext );
@@ -177,15 +170,9 @@ class InstTupleRew {
 //        ext.visitRenameAccesses( internalRenames );
 //        ext.visitRenameDeclarations( internalRenames );
 
-        System.out.println( "altered (1): " + rewriteClass.getClassDecl() );
-
 		rewriteClass.renameConstructors(instantiator);
 		rewriteClass.renameDefinitions(getExplicitlyRenamedDefinitions());
 		rewriteClass.renameTypes(instantiator.getInstDecl().getRenamedClasses());
-        System.out.println( "altered (2): " + rewriteClass.getClassDecl() );
-        System.out.println( "altered (3): " + rewriteClass.getClassDecl() );
-
-        System.out.println( "altered: " + rewriteClass.getClassDecl() );
 
 		return rewriteClass;
 	}

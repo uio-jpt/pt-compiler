@@ -77,9 +77,7 @@ public class PTDeclRew {
 
 	public PTDeclRew(PTDecl ptDeclToBeRewritten) {
 		this.ptDeclToBeRewritten = ptDeclToBeRewritten;
-        System.out.println( "ADDING IMPLIED RENAMES");
         addImpliedRenames();
-        System.out.println( "ADDED IMPLIED RENAMES");
 	}
 
 	protected void flushCaches() {
@@ -427,8 +425,6 @@ public class PTDeclRew {
                 if( !instTup.getID().equals( className ) ) continue;
 
                 SimpleSet typeDecs = templateInst.getTemplate().ptLookupTypeIn( instTup.getOrgID() );
-                System.out.println( "looking for " + className + " in " + templateInst.getTemplate() );
-                System.out.println( "trying to find precopyclass " + className + " got " + typeDecs + "wize" + typeDecs.size());
 
                 Iterator<TypeDecl> i = typeDecs.iterator();
                 // ambiguity is really an error, but should be dealt with elsewhere
@@ -486,7 +482,6 @@ public class PTDeclRew {
                 extendedClasses.add( x );
             } else if( !didTryTemplateLookup ) {
                 // lookup failed. try by name.. but only once (if this works, any further references won't be to something instantiated in this ptdecl)
-                System.out.println( "trying to find precopyclass " + x.getSuperClassName() );
                 ClassDecl cd = getPrecopyClass( x.getSuperClassName() );
                 if( cd == null ) {
                     // certainly an error, but should probably be caught/reported somewhere else.
@@ -605,7 +600,6 @@ public class PTDeclRew {
                         TypeDecl constraint = constraintAcc.type();
                         if( constraint.isClassDecl() ) {
                             if( !extendedClasses.contains( constraint ) ) {
-                                System.out.println( "extended classes: " + extendedClasses );
                                 templateInst.error( "when instantiating " + templateInst.getID() + ", argument " + argcount + " does not satisfy constraints: does not extend class " + constraint.fullName() );
                                 okay = false;
                             }
@@ -649,7 +643,6 @@ public class PTDeclRew {
         Set<String> rv = new HashSet<String>();
 
         for( Object o : t.implementedInterfaces() ) {
-            System.out.println( "." );
             InterfaceDecl idecl = (InterfaceDecl) o;
             PTDecl enclosingDecl = (PTDecl) idecl.getParentClass( PTDecl.class );
             // be aware that enclosingDecl might well be null!
@@ -659,12 +652,10 @@ public class PTDeclRew {
             }
         }
 
-            System.out.println( "!" );
         if( t instanceof ClassDecl ) {
             ClassDecl cd = ((ClassDecl) t).superclass();
 
             while( cd != null ) {
-                System.out.println( "?" );
                 PTDecl enclosingDecl = (PTDecl) cd.getParentClass( PTDecl.class );
                 if( enclosingDecl != myEnclosingDecl ) {
                     break;
@@ -675,7 +666,6 @@ public class PTDeclRew {
                 cd = cd.superclass();
             }
         }
-            System.out.println( "!" );
 
         return rv;
     }
@@ -693,15 +683,11 @@ public class PTDeclRew {
         for( PTInstTuple ptit : instDecl.getPTInstTupleList() ) {
             TypeDecl base = ptit.getOriginator();
             String baseID = base.getID();
-        System.out.println( "I think this line's" );
             Set<String> rootIDs = getRootIDsOf( base );
-        System.out.println( "mostly filler" );
 
             for( String rootID : rootIDs ) {
-                System.out.println( "MARK ONE rootID " + rootID );
                 PTInstTuple ptitRoot = getPTInstTupleByOriginatorName( instDecl, rootID );
                 if( ptitRoot != null ) {
-                    System.out.println( "will import rename from " + rootID + " into " + baseID );
                     for( PTDummyRename ptdr : ptitRoot.getPTDummyRenameList() ) {
                         String orgId = ptdr.getOrgID();
                         boolean overspecified = false;
@@ -727,10 +713,8 @@ public class PTDeclRew {
                         } else if( ptdr instanceof PTMethodRename ) {
                             PTMethodRename ptmr = (PTMethodRename) ptdr;
                             boolean found = false;
-                            System.out.println( "CHECK THIS: " + ptmr.getOldSignature() );
                             for( Object o : base.localMethodsSignatureMap().values() ) {
                                 MethodDecl md = (MethodDecl) o;
-                                System.out.println( "CHECK: " + md.getPTEarlySignature()  );
                                 if( md.getPTEarlySignature().equals( ptmr.getOldSignature() ) ) {
                                     found = true;
                                     break;
@@ -793,8 +777,6 @@ public class PTDeclRew {
 
                         PTDummyRename newRename = (PTDummyRename) ptdr.fullCopy();
 
-                        System.out.println( "INTRODUCING NEW RENAME INTO " + ptit + " : " + newRename );
-
                         ptit.addPTDummyRename( newRename );
                     }
                 }
@@ -804,7 +786,6 @@ public class PTDeclRew {
 
     private void addImpliedRenames() {
         for( PTInstDecl ptid : ptDeclToBeRewritten.getPTInstDecls() ) {
-            System.out.println( "MARK OONE ptid " + ptid );
             addImpliedRenamesToPTInstDecl( ptid );
         }
     }
