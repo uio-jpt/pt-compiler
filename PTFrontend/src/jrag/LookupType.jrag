@@ -296,4 +296,6 @@ aspect LookupType {
     eq ClassDecl.getInnerClassDecl(String className) = 
         getID().equals(className) ? this : null;
 
+//    eq PTTSuperConstructorCall.getArg().lookupType(String name) = unqualifiedScope().lookupType(name);
+
 }

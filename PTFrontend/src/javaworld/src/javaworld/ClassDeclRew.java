@@ -87,6 +87,7 @@ class ClassDeclRew {
 					ext.setBodyDecl(decl, i);
 
 				} catch (Exception e) {
+                    e.printStackTrace();
 					cd.error("Could not rewrite constructor " + cd.dumpString()
 							+ " to method during class merging.\n");
 				}

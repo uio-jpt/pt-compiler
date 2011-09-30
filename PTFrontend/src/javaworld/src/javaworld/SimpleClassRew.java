@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -41,6 +42,9 @@ import AST.VarAccess;
 import AST.Modifier;
 import AST.MethodDecl;
 import AST.PTDecl;
+import AST.PTConstructorDecl;
+import AST.PTTSuperConstructorCall;
+import AST.MethodAccess;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
@@ -79,7 +83,8 @@ public class SimpleClassRew {
 		computeClassToTemplateMultimap();
 		updateSuperName();
         updateImplementsNames();
-		computeTSuperDeps();
+		computeTSuperDeps(); // the effect of this is to extend getClassDecl().allTDeps
+                            
 
         updateAbstractness();
 
@@ -600,5 +605,32 @@ public class SimpleClassRew {
     public boolean hasExternalSuperclass() {
         ClassDecl cd = decl.getClassDecl();
         return cd.hasSuperclass() && !cd.superclass().isPtInternalClass();
+    }
+
+    public void rewriteConstructorsInPackage() {
+        for( ConstructorDecl cdecl : decl.getClassDecl().getConstructorDeclList() ) {
+            if( !(cdecl instanceof PTConstructorDecl) ) {
+                // This must be an implicit, empty constructor.
+                // We have no tsuper statements to add, yet is it okay to just skip?
+                // We might still need to generate an error, but that can be done elsewhere?
+                continue;
+            }
+            PTConstructorDecl pcdecl = (PTConstructorDecl) cdecl;
+            java.util.List<Stmt> stmts = new ArrayList<Stmt>();
+
+            for(PTTSuperConstructorCall scc : pcdecl.getTSuperConstructorInvocationList() ) {
+                String superTemplateID = scc.getSuperTemplateID();
+                String tsuperClassID = scc.getTemplateSuperclassID();
+                String methodName = Util.toMinitName( superTemplateID, tsuperClassID );
+                AST.List<Expr> args = scc.getArgs(); /// ??? --- do we need to make a copy?
+                Stmt stmt = new ExprStmt( new MethodAccess( methodName, args ) );
+                stmts.add( stmt );
+            }
+
+            java.util.Collections.reverse( stmts );
+            for( Stmt stmt : stmts ) {
+                pcdecl.getBlock().getStmts().insertChild( stmt, 0 );
+            }
+        }
     }
 }

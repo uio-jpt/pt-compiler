@@ -397,10 +397,28 @@ public class PTDeclRew {
         if( !isPackage() ) return;
         String dummyName = addDummyClass();
         for (SimpleClassRew x : simpleClasses) {
+/*
             if( !x.inheritsFromExtendsExternal() ) {
                 x.createInitConstructor(dummyName);
                 x.createDummyConstructor(dummyName);
             }
+*/
+        /* With backwards-E, things become more explicit.
+           Package classes call super, then tsupers.
+           Template classes call tsupers.
+
+           The two things to note are:
+             - Template class MAY NOT call super, even though
+               the normal Java rule is that they HAVE to call
+               super.
+             - We must recognize the syntax
+               tsuper[TemplateName](args).
+               This must be converted to a minit call when
+               recognized in a constructor position.
+             - We need to _require_ tsuper in some places,
+               so we can generate the appropriate constructors.
+        */
+            x.rewriteConstructorsInPackage();
         }
 	}
 
@@ -485,6 +503,7 @@ public class PTDeclRew {
                 ClassDecl cd = getPrecopyClass( x.getSuperClassName() );
                 if( cd == null ) {
                     // certainly an error, but should probably be caught/reported somewhere else.
+                    // 1l 123456789
                     break;
                 }
                 x = cd; // continue exploring superclasses

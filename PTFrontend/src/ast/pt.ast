@@ -19,6 +19,9 @@ PTInstDecl ::= <ID> TypeArgument:Access* PTInstTuple*;
 
 PTInstTuple ::= <OrgID> <ID> PTDummyRename*;
 
+PTTSuperConstructorCall ::= <SuperTemplateID> <TemplateSuperclassID> Arg:Expr*;
+PTConstructorDecl : ConstructorDecl ::= TSuperConstructorInvocation:PTTSuperConstructorCall*;
+
 abstract PTDummyRename ::= <OrgID> <ID>;
 PTMethodRename : PTDummyRename ::= Access*;
 PTMethodRenameAll : PTDummyRename;

@@ -17,12 +17,15 @@ aspect ErrorCheck {
   //   }
   // }
 
+
+/* // disabled sep 30, going back to backwards E
     public void TemplateConstructor.typeCheck() {
         super.typeCheck();
         if (getNumParameter() > 0) {
             error("Template Constructors aren't allowed to have parameters.");
         }
     }
+*/
 
     refine Generics public void TypeDecl.typeCheck() {
         Generics.TypeDecl.typeCheck();
@@ -71,5 +74,17 @@ aspect ErrorCheck {
                 error("Tabstract method must be implemented before or in the instantiating package class.");
             }
         }
+    }
+
+    public void PTTSuperConstructorCall.collectErrors() {
+        /* This is a hack (XXX), yet still --
+           PTTSuperConstructorCall is simply a statement to the PT compiler, wrapping essentially a Java statement.
+           The Java statement is copied into the place where it belongs and will be errorchecked there.
+           So we don't really need error checking here (which would require giving the PTTSuperConstructorCall
+           proper scope and so on.
+
+           (To be clear, by overloading this method and not calling the overloaded method, we are
+           turning off error checking within the subtree of the AST rooted by PTTSuperConstructorCall)
+        */
     }
 }

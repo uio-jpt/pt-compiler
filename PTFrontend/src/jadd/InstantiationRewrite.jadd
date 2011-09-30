@@ -27,7 +27,8 @@ aspect InstantiationRewrite {
 
     /** Preserves order for minit calls
      */
-    public Collection<String> ClassDecl.tdepsOrder = Lists.newLinkedList();
+     // is this ever used?
+//    public Collection<String> ClassDecl.tdepsOrder = Lists.newLinkedList();
     
     public void ClassDecl.setClassToTemplateMap(Multimap<String,String> x) {
         templateClassIDTotemplateID = x;

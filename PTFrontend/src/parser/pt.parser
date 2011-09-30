@@ -89,9 +89,9 @@ PTEnumDecl pt_enum_declaration =
     ;
 
 ClassDecl pt_class_declaration =
-  modifiers.m? CLASS IDENTIFIER super.s? interfaces.i? class_body.b 
+  modifiers.m? CLASS IDENTIFIER super.s? interfaces.i? pt_class_body.b 
    {: return new ClassDecl(new Modifiers(m), IDENTIFIER, s, i, b); :}
-  | modifiers.m? CLASS IDENTIFIER EXTENDS EXTERNAL class_type.c interfaces.i? class_body.b 
+  | modifiers.m? CLASS IDENTIFIER EXTENDS EXTERNAL class_type.c interfaces.i? pt_class_body.b 
    {: 
      Modifiers my = new Modifiers(m);
      my.addModifier( new Modifier( "extendsexternal" ) );
@@ -178,7 +178,7 @@ PTDummyRename definition_renaming =
 
 // should this be missing modifiers?
 ClassDecl pt_adds_class = 
-  CLASS IDENTIFIER ADDS class_body.b
+  CLASS IDENTIFIER ADDS pt_class_body.b
     {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}
   ;
 
@@ -216,3 +216,44 @@ Access explicit_merged_method_invocation =
 String merged_method_name =
       DOT IDENTIFIER {: return IDENTIFIER; :}
     ;
+
+/* TODO: the more implicit variant T[A]() instead of T[A.C]() should be allowed,
+   possibly only that one. */
+
+PTTSuperConstructorCall explicit_tsuper_invocation =
+    TSUPER LBRACK IDENTIFIER.superTemplateName DOT IDENTIFIER.superClassName RBRACK LPAREN argument_list.args? RPAREN SEMICOLON
+    {:
+        PTTSuperConstructorCall m = new PTTSuperConstructorCall( superTemplateName, superClassName, args );
+        return m;
+    :}
+    ;
+    
+List pt_class_body =
+    LBRACE pt_class_body_declarations.c? RBRACE    {: return c; :}
+  ;
+
+List pt_class_body_declarations =
+    pt_class_body_declaration.c                           {: return new List().add(c); :}
+  | pt_class_body_declarations.l pt_class_body_declaration.c {: return l.add(c); :}
+  ;
+BodyDecl pt_class_body_declaration =
+    class_member_declaration.c                 {: return c; :}
+  | instance_initializer.i                     {: return i; :}
+  | static_initializer.si                      {: return si; :}
+  | pt_constructor_declaration.c                  {: return c; :}
+  ;
+
+ConstructorDecl pt_constructor_declaration =
+    modifiers.m? IDENTIFIER LPAREN formal_parameter_list.pl? RPAREN throws.tl? 
+		LBRACE explicit_constructor_invocation.c?
+               explicit_tsuper_invocations.tsc?
+               block_statements.l?
+        RBRACE
+    {: Block b = new Block(l); l.setStart(LBRACE.getStart() + 1); b.setStart(LBRACE.getStart()); b.setEnd(RBRACE.getEnd());
+       return new PTConstructorDecl(new Modifiers(m), IDENTIFIER, pl, tl, c, b, tsc); :}
+ ;
+
+List explicit_tsuper_invocations =
+    explicit_tsuper_invocation.c                           {: return new List().add(c); :}
+  | explicit_tsuper_invocations.l explicit_tsuper_invocation.c {: return l.add(c); :}
+  ;
