@@ -48,21 +48,18 @@ template T2 {
 template T3 {
     class A3 {
         public A3() {
-            super();
             System.out.println("A3");
         }
     }
 
     class B3 {
         public B3() {
-            super();
             System.out.println("B3" );
         }
     }
 
     class C3 {
         public C3() {
-            super();
             System.out.println("C3" );
         }
     }
