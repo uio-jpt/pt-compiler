@@ -93,6 +93,119 @@ aspect ErrorCheck {
         }
     }
 
+    protected boolean PTConstructorDecl.tsupersWereExpanded = false;
+
+    rewrite PTConstructorDecl {
+            when (this.tsupersWereExpanded == false)
+            to PTConstructorDecl {
+                PTDecl parentPt = (PTDecl) getParentClass( PTDecl.class );
+                java.util.List<ASTNode> tparents = parentPt.getTemplateDeclarationsMergedTo( getClassDecl().getID() );
+                java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
+                java.util.Map<PTTemplate, ASTNode> uncalled = new java.util.HashMap<PTTemplate, ASTNode>();
+
+                for( ASTNode tparent : tparents ) {
+                    PTTemplate template = (PTTemplate) tparent.getParentClass( PTTemplate.class );
+                    uncalled.put( template, tparent );
+                }
+                for( PTTSuperConstructorCall scc : getTSuperConstructorInvocationList() ) {
+                    PTTemplate template = templatesMap.get( scc.getSuperTemplateID() );
+                    uncalled.remove( template );
+                }
+                for( PTTemplate template : uncalled.keySet() ) {
+                    ASTNode node = uncalled.get( template );
+                    ClassDecl cd = (ClassDecl) node;
+                    boolean hasZeroArityConstructor = false;
+                    for( ConstructorDecl consd : cd.getConstructorDeclList() ) {
+                        if( consd.arity() > 0 ) continue;
+                        hasZeroArityConstructor = true;
+                    }
+
+                    if( hasZeroArityConstructor ) {
+                        PTTSuperConstructorCall myCall = new PTTSuperConstructorCall( template.getID(), cd.getID(), new AST.List() );
+
+                        // added in arbitrary order!
+                        addTSuperConstructorInvocation( myCall );
+                    }
+                }
+
+                this.tsupersWereExpanded = true;
+                return this;
+            }
+    }
+
+    public void PTConstructorDecl.checkTSuperConstructorInvocations() {
+        PTDecl parentPt = (PTDecl) getParentClass( PTDecl.class );
+
+        boolean hasDelegatedToThis = false;
+
+        if( hasConstructorInvocation() ) {
+            Stmt invoc = getConstructorInvocation();
+            if( invoc instanceof ExprStmt ) {
+                ExprStmt einvoc = (ExprStmt) invoc;
+                Expr expr = einvoc.getExpr();
+                if( expr instanceof ConstructorAccess ) {
+                    ConstructorAccess cacc = (ConstructorAccess) expr;
+
+                    if( cacc.getID().equals( "this" ) ) {
+                        hasDelegatedToThis = true;
+                    }
+                }
+            }
+        }
+
+        if( hasDelegatedToThis ) {
+            if( getNumTSuperConstructorInvocation() > 0 ) {
+                error( "constructor contains both call to this() and tsuper constructor invocation(s)" );
+            }
+            return;
+        }
+
+        if( parentPt != null ) {
+            java.util.List<ASTNode> tparents = parentPt.getTemplateDeclarationsMergedTo( getClassDecl().getID() );
+
+            java.util.Set<PTTemplate> uncalled = new java.util.HashSet<PTTemplate>();
+            java.util.Set<ASTNode> called = new java.util.HashSet<ASTNode>();
+
+            java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
+
+            for( ASTNode tparent : tparents ) {
+                PTTemplate template = (PTTemplate) tparent.getParentClass( PTTemplate.class );
+                uncalled.add( template );
+            }
+
+            for( PTTSuperConstructorCall scc : getTSuperConstructorInvocationList() ) {
+                PTTemplate template = templatesMap.get( scc.getSuperTemplateID() );
+                SimpleSet decls = template.ptLookupTypeIn( scc.getTemplateSuperclassID() );
+                if( decls.size() == 1 ) {
+                    ASTNode decl = (ASTNode) decls.iterator().next();
+
+                    uncalled.remove( template );
+
+                    if( called.contains( decl ) ) {
+                        scc.error( "tsuper-constructor called twice" );
+                    } else {
+                        called.add( decl );
+                    }
+
+
+                    // TODO check that there's a constructor with matching parameters
+                    // not urgent, because this leads to an error message
+                    // involving minit$ methods later already
+                }
+            }
+            
+            for( PTTemplate decl : uncalled ) {
+                error( "tsuper constructor from " + decl.getID() + " not called" );
+            }
+        }
+    }
+
+    public void PTConstructorDecl.collectErrors() {
+        super.collectErrors();
+
+        checkTSuperConstructorInvocations();
+    }
+
     public void PTTSuperConstructorCall.collectErrors() {
         /* This is a hack (XXX), yet still --
            PTTSuperConstructorCall is simply a statement to the PT compiler, wrapping essentially a Java statement.

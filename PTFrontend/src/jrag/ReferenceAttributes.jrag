@@ -156,4 +156,29 @@ aspect ReferenceAttributes {
         to MethodDecl.methodAccess()
         for ((MethodDecl) decl());
 
+
+    public java.util.Map<String, PTTemplate> PTDecl.getInstantiatedTemplatesMap() {
+        java.util.Map<String,PTTemplate> rv = new java.util.HashMap<String,PTTemplate>();
+        for( PTInstDecl ptid : getPTInstDeclList() ) {
+            rv.put( ptid.getID(), ptid.getTemplate() );
+        }
+        return rv;
+    }
+
+    public java.util.List<ASTNode> PTDecl.getTemplateDeclarationsMergedTo(String name) {
+        java.util.ArrayList<ASTNode> rv = new java.util.ArrayList<ASTNode>();
+        for( PTInstDecl ptid : getPTInstDeclList() ) {
+            for( PTInstTuple ptit : ptid.getPTInstTupleList() ) {
+                if( name.equals( ptit.getID() ) ) {
+                    String declID = ptit.getOrgID();
+                    SimpleSet decls = ptid.getTemplate().ptLookupTypeIn( declID );
+                    if( decls.size() == 1 ) { // otherwise, compilation error, but we should nevertheless not crash
+                        rv.add( (ASTNode) decls.iterator().next() );
+                    }
+                }
+            }
+        }
+        return rv;
+    }
+
 }
