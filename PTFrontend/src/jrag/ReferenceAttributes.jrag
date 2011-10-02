@@ -157,6 +157,7 @@ aspect ReferenceAttributes {
         for ((MethodDecl) decl());
 
 
+    //
     public java.util.Map<String, PTTemplate> PTDecl.getInstantiatedTemplatesMap() {
         java.util.Map<String,PTTemplate> rv = new java.util.HashMap<String,PTTemplate>();
         for( PTInstDecl ptid : getPTInstDeclList() ) {

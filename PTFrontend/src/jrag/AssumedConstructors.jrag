@@ -1,0 +1,87 @@
+aspect AssumedConstructors {
+
+    /* These have to be empty; used for code output [TODO -- change that!] */
+    public String PTConstructorPromise.toString() {
+        return "";
+    }
+
+    public void PTConstructorPromise.toString(StringBuffer sb) {
+        sb.append( toString() );
+    }
+
+    public String PTConstructorPromise.getPrettyName() {
+        return "assumed constructor"; // TODO make more pretty (this is used e.g. for error messages)
+    }
+
+    public boolean PTConstructorPromise.satisfiedByConstructor( ConstructorDecl cons ) {
+        if( cons.getNumParameter() != getNumParameter() ) {
+            return false;
+        }
+
+        for(int i=0;i<getNumParameter();i++) {
+            if( !getParameter(i).type().subtype( cons.getParameter(i).type() ) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean PTConstructorPromise.matchesConstructorInvocation( ClassInstanceExpr cie ) {
+        if( cie.getNumArg() != getNumParameter() ) {
+            return false;
+        }
+
+        for(int i=0;i<getNumParameter();i++) {
+            if( !cie.getArg(i).type().subtype( getParameter(i).type() ) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void ClassDecl.checkConstructorPromises() {
+        if( getParentClass( PTPackage.class ) == null ) {
+            /* Promises don't need to be fulfilled until package-time. */
+            return;
+        }
+
+        for( BodyDecl bd : getBodyDeclList() ) {
+            if( !(bd instanceof PTConstructorPromise) ) {
+                continue;
+            }
+            PTConstructorPromise ptcp = (PTConstructorPromise) bd;
+            boolean isSatisfied = false;
+
+            for( ConstructorDecl cd : getConstructorDeclList() ) {
+                if( ptcp.satisfiedByConstructor( cd ) ) {
+                    isSatisfied = true;
+                    break;
+                }
+            }
+
+            if( !isSatisfied ) {
+                bd.error( "fails to satisfy assumed constructor: " + ptcp.getPrettyName() );
+            }
+        }
+    }
+
+    coll java.util.List<PTConstructorPromise> TypeDecl.promisedConstructors()
+        [ new java.util.ArrayList<PTConstructorPromise>() ]
+        with add root TypeDecl;
+
+    PTConstructorPromise contributes this
+        to TypeDecl.promisedConstructors()
+        for (TypeDecl) getParentClass( TypeDecl.class );
+
+    public void PTConstructorPromise.nameCheck() {
+        ClassDecl cd = (ClassDecl) getParentClass( ClassDecl.class );
+        if( cd == null ) {
+            getParent().getParent().getParent().debugPrintAST();
+        }
+        if( !cd.getID().equals( getID() ) ) {
+            error( "constructor assumption name mismatch" );
+        }
+    }
+}

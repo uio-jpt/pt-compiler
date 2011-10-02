@@ -1,0 +1,14 @@
+aspect PTConstructorDecl {
+    rewrite ConstructorDecl {
+        when ( !(this instanceof PTConstructorDecl) && getParentClass( PTDecl.class ) != null )
+        to PTConstructorDecl {
+            return new PTConstructorDecl( getModifiers().fullCopy(),
+                                          getID(),
+                                          getParameters().fullCopy(),
+                                          getExceptions().fullCopy(),
+                                          getConstructorInvocationOpt().fullCopy(),
+                                          getBlock().fullCopy(),
+                                          new List<PTTSuperConstructorCall>() );
+        }
+    }
+}

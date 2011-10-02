@@ -1,3 +1,12 @@
+* Løs problemet i minit_steinkr_notat (ext).
+  Her har vi et problem med "skjev merging"; en superklasse som bare
+  inkluderes "indirekte" (A) får et problem -- hvorfor?
+  Generert A.java mangler minit-linker.
+  TODO for å få orden i baklengs-E.
+
+* Noen andre runtime-tester (InstChild) er muligens utdaterte, siden
+  rekkefølgen endret seg da vi gikk til baklengs E?
+
 * Tillat "extends" på syntaksnivå for addsklasser, så lenge det er redundant.
 
 * Implementer Eivinds typeskranker.

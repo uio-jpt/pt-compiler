@@ -28,6 +28,8 @@ class ConstructorRew {
         if( cd instanceof PTConstructorDecl ) {
             PTConstructorDecl pcd = (PTConstructorDecl) cd;
 
+            System.out.println( "ptcd : " + pcd );
+
 /*
 		if (
             supername != null
@@ -51,8 +53,13 @@ class ConstructorRew {
                 String methodName = Util.toMinitName( superTemplateID, tsuperClassID );
                 AST.List<Expr> args = scc.getArgs(); /// ??? --- do we need to make a copy?
 
-                md.getBlock().addStmt( new ExprStmt( new MethodAccess( methodName, args ) ) );
+                Stmt stmt =  new ExprStmt( new MethodAccess( methodName, args ) );
+                System.out.println( "adding new methodaccess: " + stmt );
+
+                md.getBlock().addStmt( stmt );
             }
+        } else {
+            System.out.println( "this is NOT a ptcd: " + cd );
         }
 		
 		for (Stmt s : cd.getBlock().getStmtList()) {

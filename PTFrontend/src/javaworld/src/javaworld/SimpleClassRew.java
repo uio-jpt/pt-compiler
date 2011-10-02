@@ -619,6 +619,7 @@ public class SimpleClassRew {
                 // This must be an implicit, empty constructor.
                 // We have no tsuper statements to add, yet is it okay to just skip?
                 // We might still need to generate an error, but that can be done elsewhere?
+                System.out.println( "SKIPPING" );
                 continue;
             }
             PTConstructorDecl pcdecl = (PTConstructorDecl) cdecl;
@@ -635,6 +636,7 @@ public class SimpleClassRew {
 
             java.util.Collections.reverse( stmts );
             for( Stmt stmt : stmts ) {
+                System.out.println( "added : " + stmt );
                 pcdecl.getBlock().getStmts().insertChild( stmt, 0 );
             }
         }

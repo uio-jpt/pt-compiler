@@ -101,19 +101,27 @@ aspect ErrorCheck {
                 PTDecl parentPt = (PTDecl) getParentClass( PTDecl.class );
                 java.util.List<ASTNode> tparents = parentPt.getTemplateDeclarationsMergedTo( getClassDecl().getID() );
                 java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
-                java.util.Map<PTTemplate, ASTNode> uncalled = new java.util.HashMap<PTTemplate, ASTNode>();
+                java.util.Set<ASTNode> uncalled = new java.util.HashSet<ASTNode>();
+
+                System.out.println( "expanding in " + this );
+                System.out.println( templatesMap );
+
 
                 for( ASTNode tparent : tparents ) {
-                    PTTemplate template = (PTTemplate) tparent.getParentClass( PTTemplate.class );
-                    uncalled.put( template, tparent );
+                    uncalled.add( tparent );
                 }
                 for( PTTSuperConstructorCall scc : getTSuperConstructorInvocationList() ) {
                     PTTemplate template = templatesMap.get( scc.getSuperTemplateID() );
-                    uncalled.remove( template );
+                    SimpleSet decls = template.ptLookupTypeIn( scc.getTemplateSuperclassID() );
+                    if( decls.size() == 1 ) {
+                        ASTNode decl = (ASTNode) decls.iterator().next();
+                        uncalled.remove( decl );
+                    }
                 }
-                for( PTTemplate template : uncalled.keySet() ) {
-                    ASTNode node = uncalled.get( template );
+
+                for( ASTNode node : uncalled ) {
                     ClassDecl cd = (ClassDecl) node;
+                    PTTemplate template = (PTTemplate) node.getParentClass( PTTemplate.class );
                     boolean hasZeroArityConstructor = false;
                     for( ConstructorDecl consd : cd.getConstructorDeclList() ) {
                         if( consd.arity() > 0 ) continue;
@@ -127,6 +135,8 @@ aspect ErrorCheck {
                         addTSuperConstructorInvocation( myCall );
                     }
                 }
+
+                System.out.println( "expanded in " + this );
 
                 this.tsupersWereExpanded = true;
                 return this;
@@ -201,14 +211,13 @@ aspect ErrorCheck {
         if( parentPt != null ) {
             java.util.List<ASTNode> tparents = parentPt.getTemplateDeclarationsMergedTo( getClassDecl().getID() );
 
-            java.util.Set<PTTemplate> uncalled = new java.util.HashSet<PTTemplate>();
+            java.util.Set<ASTNode> uncalled = new java.util.HashSet<ASTNode>();
             java.util.Set<ASTNode> called = new java.util.HashSet<ASTNode>();
 
             java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
 
             for( ASTNode tparent : tparents ) {
-                PTTemplate template = (PTTemplate) tparent.getParentClass( PTTemplate.class );
-                uncalled.add( template );
+                uncalled.add( tparent );
             }
 
             for( PTTSuperConstructorCall scc : getTSuperConstructorInvocationList() ) {
@@ -217,7 +226,7 @@ aspect ErrorCheck {
                 if( decls.size() == 1 ) {
                     ASTNode decl = (ASTNode) decls.iterator().next();
 
-                    uncalled.remove( template );
+                    uncalled.remove( decl );
 
                     if( called.contains( decl ) ) {
                         scc.error( "tsuper-constructor called twice" );
@@ -232,8 +241,8 @@ aspect ErrorCheck {
                 }
             }
             
-            for( PTTemplate decl : uncalled ) {
-                error( "tsuper constructor from " + decl.getID() + " not called" );
+            for( ASTNode decl : uncalled ) {
+                error( "tsuper constructor not called" ); // TODO better message
             }
         }
     }
