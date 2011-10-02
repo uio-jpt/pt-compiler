@@ -22,6 +22,8 @@ PTInstTuple ::= <OrgID> <ID> PTDummyRename*;
 PTTSuperConstructorCall ::= <SuperTemplateID> <TemplateSuperclassID> Arg:Expr*;
 PTConstructorDecl : ConstructorDecl ::= TSuperConstructorInvocation:PTTSuperConstructorCall*;
 
+PTConstructorPromise : BodyDecl ::= Modifiers <ID:String> Parameter:ParameterDeclaration* Exception:Access*;
+
 abstract PTDummyRename ::= <OrgID> <ID>;
 PTMethodRename : PTDummyRename ::= Access*;
 PTMethodRenameAll : PTDummyRename;

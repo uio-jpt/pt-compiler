@@ -241,6 +241,7 @@ BodyDecl pt_class_body_declaration =
   | instance_initializer.i                     {: return i; :}
   | static_initializer.si                      {: return si; :}
   | pt_constructor_declaration.c                  {: return c; :}
+  | pt_constructor_assumption.ptcas {: return ptcas; :}
   ;
 
 ConstructorDecl pt_constructor_declaration =
@@ -257,3 +258,11 @@ List explicit_tsuper_invocations =
     explicit_tsuper_invocation.c                           {: return new List().add(c); :}
   | explicit_tsuper_invocations.l explicit_tsuper_invocation.c {: return l.add(c); :}
   ;
+
+PTConstructorPromise pt_constructor_assumption =
+    ASSUMED modifiers.m? IDENTIFIER LPAREN formal_parameter_list.pl? RPAREN throws.tl? SEMICOLON
+    {:
+        Modifiers ms = new Modifiers(m);
+        return new PTConstructorPromise( ms, IDENTIFIER, pl, tl );
+    :}
+ ;

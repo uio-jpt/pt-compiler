@@ -1,7 +1,3 @@
-* Bytt tilbake til baklengs E.
-
-* Tillat argumenter i konstruktører igjen
-
-* Implementer assumed constructors.
+* Tillat "extends" på syntaksnivå for addsklasser, så lenge det er redundant.
 
 * Implementer Eivinds typeskranker.

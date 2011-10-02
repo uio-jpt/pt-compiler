@@ -133,6 +133,44 @@ aspect ErrorCheck {
             }
     }
 
+    refine NameCheck public void ParameterDeclaration.nameCheck() {
+        if( getParentClass( PTConstructorPromise.class ) != null ) {
+            return;
+        } else {
+            NameCheck.ParameterDeclaration.nameCheck();
+        }
+    }
+
+    refine Enums public void ClassInstanceExpr.nameCheck() {
+        boolean doNormalChecking = true;
+
+        PTTemplate template = (PTTemplate) getParentClass( PTTemplate.class );
+        EnumDecl parentEnum = (EnumDecl) getParentClass( EnumDecl.class );
+        if( template != null && parentEnum == null ) {
+            TypeDecl t = getAccess().type();
+            if( t.getParentClass( PTTemplate.class ) == template ) {
+                doNormalChecking = false;
+
+                boolean foundGood = false;
+
+                for( PTConstructorPromise promise : t.promisedConstructors() ) {
+                    if( promise.matchesConstructorInvocation( this ) ) {
+                        foundGood = true;
+                    }
+                }
+
+                if( !foundGood ) {
+                    error( "no such constructor assumed" );
+                }
+            }
+
+        }
+
+        if( doNormalChecking ) {
+            Enums.TypeDecl.nameCheck();
+        }
+    }
+
     public void PTConstructorDecl.checkTSuperConstructorInvocations() {
         PTDecl parentPt = (PTDecl) getParentClass( PTDecl.class );
 
@@ -198,6 +236,12 @@ aspect ErrorCheck {
                 error( "tsuper constructor from " + decl.getID() + " not called" );
             }
         }
+    }
+
+    public void ClassDecl.collectErrors() {
+        super.collectErrors();
+
+        checkConstructorPromises();
     }
 
     public void PTConstructorDecl.collectErrors() {

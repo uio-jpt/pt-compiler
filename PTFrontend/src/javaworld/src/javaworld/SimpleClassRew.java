@@ -45,6 +45,7 @@ import AST.PTDecl;
 import AST.PTConstructorDecl;
 import AST.PTTSuperConstructorCall;
 import AST.MethodAccess;
+import AST.PTConstructorPromise;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
@@ -399,6 +400,11 @@ public class SimpleClassRew {
 					}
 				} 
 
+            }
+
+            if( bodyDecl instanceof PTConstructorPromise ) {
+                PTConstructorPromise ptcp = (PTConstructorPromise) bodyDecl;
+                bodyDecl = new PTConstructorPromise( ptcp.getModifiers().fullCopy(), target.getID(), ptcp.getParameterList().fullCopy(), ptcp.getExceptionList().fullCopy() );
             }
 
             if( !isConstructorDecl && !isUnneededTabstractMethodDecl) {

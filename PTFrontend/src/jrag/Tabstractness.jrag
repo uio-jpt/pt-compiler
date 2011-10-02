@@ -63,8 +63,11 @@ aspect Tabstractness {
           error("abstract methods must have an empty semicolon body");
 
         // 8.4.5
-        if(!hasBlock() && !(isNative() || isAbstract() || isTabstract()))
+        if(!hasBlock() && !(isNative() || isAbstract() || isTabstract())) {
+
+            System.out.println( this + " " + getClass().getName() );
           error("only abstract, native or tabstract methods may have an empty semicolon body");
+        }
     }
 
     // below more at home in a jadd file? the distinction seems subtle

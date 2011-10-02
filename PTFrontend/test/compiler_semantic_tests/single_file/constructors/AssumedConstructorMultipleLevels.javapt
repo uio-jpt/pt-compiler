@@ -1,0 +1,57 @@
+template S {
+    public class X {
+        assumed X(int foo);
+
+        public void g() {
+            new X(42);
+        }
+    }
+}
+
+template T {
+    inst S;
+
+    class X adds {
+        assumed X(String foo);
+
+        public void f() {
+            new X("hello world");
+        }
+    }
+}
+
+template U {
+    public class X {
+        assumed X(int x, int y);
+
+        public void h() {
+            new X(1,2);
+        }
+    }
+}
+
+package P {
+    inst T with X => Y;
+    inst U with X => Y;
+
+    class Y adds {
+        public Y() {
+            System.out.println( "<default>" );
+        }
+        public Y(String foo) {
+            System.out.println( foo );
+        }
+        public Y(int foo) {
+            System.out.println( foo );
+        }
+        public Y(int foo, int bar) {
+            System.out.println( foo + ", " + bar );
+        }
+
+        public static void main(String[] args) {
+            new Y().f();
+            new Y().g();
+            new Y().h();
+        }
+    }
+}

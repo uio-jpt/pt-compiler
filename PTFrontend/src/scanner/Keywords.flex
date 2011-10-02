@@ -12,4 +12,5 @@
   "tsuper"                        { return sym(Terminals.TSUPER); }
   "tabstract"                { return sym(Terminals.TABSTRACT); }
   "external"                 { return sym(Terminals.EXTERNAL); }
+  "assumed"                 { return sym(Terminals.ASSUMED); }
 }

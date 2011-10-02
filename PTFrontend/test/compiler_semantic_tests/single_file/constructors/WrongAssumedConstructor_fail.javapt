@@ -1,0 +1,26 @@
+template T {
+    public class X {
+        assumed X(int foo);
+
+        public void f() {
+            new X("hello world");
+        }
+    }
+}
+
+package P {
+    inst T with X => Y;
+
+    class Y adds {
+        public Y() {
+            System.out.println( "<default>" );
+        }
+        public Y(String foo) {
+            System.out.println( foo );
+        }
+
+        public static void main(String[] args) {
+            new Y().f();
+        }
+    }
+}
