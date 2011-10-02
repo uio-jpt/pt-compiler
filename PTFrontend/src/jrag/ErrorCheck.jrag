@@ -76,6 +76,23 @@ aspect ErrorCheck {
         }
     }
 
+    public void SuperConstructorAccess.collectErrors() {
+        super.collectErrors();
+        PTTemplate parentTemplate = (PTTemplate) getParentClass( PTTemplate.class );
+        EnumDecl parentEnum = (EnumDecl) getParentClass( EnumDecl.class );
+        if( parentEnum != null ) {
+            /* Exception for enums: these generate a class implicity, and in the code for
+               this call a superconstructor java.lang.Enum(String,int).
+
+               Being able to do this from templates seems like the only sensible choice?
+               */
+            return;
+        }
+        if( parentTemplate != null ) {
+            error( "calling super-constructor in template class (should be called from instantiating package)" );
+        }
+    }
+
     public void PTTSuperConstructorCall.collectErrors() {
         /* This is a hack (XXX), yet still --
            PTTSuperConstructorCall is simply a statement to the PT compiler, wrapping essentially a Java statement.

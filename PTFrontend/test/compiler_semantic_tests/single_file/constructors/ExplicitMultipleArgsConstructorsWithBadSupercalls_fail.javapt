@@ -29,6 +29,7 @@ template T2 {
 
     class B2 adds {
         public B2(double bar) {
+            super();
             tsuper[T1.B1](bar);
             System.out.println("B2" );
         }
@@ -36,6 +37,7 @@ template T2 {
 
     class C2 adds {
         public C2(String baz) {
+            super();
             tsuper[T1.C1](baz);
             System.out.println("C2" );
         }

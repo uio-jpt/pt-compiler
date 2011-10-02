@@ -1,0 +1,32 @@
+template T1 {
+    class X {
+        public X(int foo) {
+            System.out.println( "T1.X:" + foo );
+        }
+    }
+}
+
+template T2 {
+    inst T1;
+
+    class X adds {
+        public X(String message) {
+            tsuper[T1.X](42);
+            System.out.println( message );
+        }
+
+        public X() {
+            this( "hello world!" );
+        }
+    }
+}
+
+package P {
+    inst T2;
+
+    class X adds {
+        public static void main(String [] args) {
+            new X();
+        }
+    }
+}
