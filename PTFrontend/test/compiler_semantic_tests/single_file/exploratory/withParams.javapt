@@ -13,7 +13,6 @@ template T1 {
         int b;
 
         B() {
-            super();
             this.b = 42;
         }
     }
