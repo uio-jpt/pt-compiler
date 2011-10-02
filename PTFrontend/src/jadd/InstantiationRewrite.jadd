@@ -44,7 +44,7 @@ aspect InstantiationRewrite {
         when (this.isRewritten == false && templateIsRewritten())
             // templateIsRewritten() refers to the source template of this
             // PTInstDecl and not the template that contains it, meaning
-            // that PTInstDecl will be rewritten before it's containing
+            // that PTInstDecl will be rewritten before its containing
             // template or package is rewritten.
         to PTInstDecl {
             this.isRewritten = true;
