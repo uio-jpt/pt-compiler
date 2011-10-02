@@ -2,6 +2,8 @@ template Alpha {
     class A {
         int k;
 
+        assumed A();
+
         A getA() {
             return new A();
         }
@@ -16,6 +18,8 @@ template Alpha {
 template Beta {
     class B {
         int k;
+
+        assumed B();
 
         B getB() {
             return new B();

@@ -3,6 +3,8 @@ template SimpleTemplate {
     class A {
         int k;
 
+        assumed A();
+
         A getA() {
             return new A();
         }

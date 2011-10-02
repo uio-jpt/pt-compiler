@@ -1,6 +1,8 @@
 template SimpleTemplate {
     
     class A {
+        assumed A();
+
         A getA(int x) {
             return new A();
         }
@@ -11,6 +13,8 @@ template SimpleTemplate {
    }
 
     class B {
+        assumed B();
+
         B getA() {
             return new B();
         }
