@@ -1,0 +1,46 @@
+template A {
+    public class X {
+        public X(String foo) {
+            System.out.println( "A.X: " + foo );
+        }
+
+        public X() {
+            System.out.println( "A.X: no argument" );
+        }
+    }
+}
+
+template B {
+    public class X {
+        public X(double foo) {
+            System.out.println( "B.X: " + foo );
+        }
+    }
+}
+
+template C {
+    public class X {
+        public X(int foo) {
+            System.out.println( "C.X: " + foo );
+        }
+    }
+}
+
+package P {
+    inst A;
+    inst B;
+    inst C;
+
+    class X adds {
+        public X(int foo) {
+            tsuper[B.X]( (double) foo );
+            tsuper[C.X]( foo );
+        }
+
+        public X() {
+                // this is illegal and should fail
+            this(42);
+            tsuper[A.X]();
+        }
+    }
+}

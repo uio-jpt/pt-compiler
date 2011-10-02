@@ -1,0 +1,37 @@
+template A {
+    public class X {
+        public X(String foo) {
+            System.out.println( "A.X: " + foo );
+        }
+    }
+}
+
+template B {
+    public class X {
+        public X(double foo) {
+            System.out.println( "B.X: " + foo );
+        }
+    }
+}
+
+template C {
+    public class X {
+        public X(int foo) {
+            System.out.println( "C.X: " + foo );
+        }
+    }
+}
+
+package P {
+    inst A;
+    inst B;
+    inst C;
+
+    class X adds {
+        public X() {
+            tsuper[A.X]("hello world");
+            tsuper[B.X](42.0);
+            tsuper[C.X](42);
+        }
+    }
+}

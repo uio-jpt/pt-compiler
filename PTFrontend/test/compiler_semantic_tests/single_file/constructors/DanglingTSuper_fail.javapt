@@ -1,0 +1,5 @@
+package P {
+    public X() {
+        tsuper[Y](42);
+    }
+}
