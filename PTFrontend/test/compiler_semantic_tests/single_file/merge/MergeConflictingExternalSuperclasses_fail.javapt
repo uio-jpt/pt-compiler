@@ -1,0 +1,12 @@
+template T {
+	class C extends external Thread { }
+}
+
+template U {
+	class D extends external ThreadGroup { }
+}
+
+package P {
+	inst T with C => X;
+	inst U with D => X;
+}

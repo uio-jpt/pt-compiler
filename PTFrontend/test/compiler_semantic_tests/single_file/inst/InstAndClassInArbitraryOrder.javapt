@@ -1,12 +1,15 @@
+/* Lots of arbitraryness */
+
 template T {
-	class C { int i; }
-	class D { int j; }
+	abstract class C { int i; }
+	class D extends C { int j; }
 }
 
 package P {
-	class E { }
+	class C adds { abstract void m(); void n() { } }
+	class E { void o() { } }
 	class F adds { void m() { } }
+	class H { } 
 	inst T with D => F;
 	class G { }
-	class H { } 
 }

@@ -1,3 +1,6 @@
+/*
+   Bør ikke denne være tillatt?
+ */
 template T {
     class V extends external Exception {
     }
