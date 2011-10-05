@@ -1,0 +1,12 @@
+template T {
+	class C { int i; }
+	class D { int j; }
+}
+
+package P {
+	class E { }
+	class F adds { void m() { } }
+	inst T with D => F;
+	class G { }
+	class H { } 
+}
