@@ -1,0 +1,17 @@
+template T {
+
+	class C {
+
+		void m() {
+			
+			class MethodClass {
+				int i;
+				void n() { }
+			}
+
+			// so far so good, but this doesn't work atm:
+			MethodClass m = new MethodClass();
+			m.n();
+		}
+	}
+}

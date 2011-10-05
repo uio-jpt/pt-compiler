@@ -1,0 +1,13 @@
+template T {
+
+	class C {
+
+		void m() {
+			
+			class MethodClass {
+				int i;
+				void n() { }
+			}
+		}
+	}
+}

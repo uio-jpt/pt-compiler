@@ -1,0 +1,17 @@
+template T {
+
+	class C {
+
+		void m() {
+			int i = 0;
+
+			class MethodClass {
+				int j;
+				void n() {
+					j = i; // this is illegal because i is not final
+				}
+			}
+
+		}
+	}
+}
