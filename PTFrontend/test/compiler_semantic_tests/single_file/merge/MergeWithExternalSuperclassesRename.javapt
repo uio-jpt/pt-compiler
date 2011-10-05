@@ -1,6 +1,9 @@
 /*
-   Merger to klasser av samme type for å få dobbelt opp av funksjonaliteten
-   (medlem av to lister, etc).
+   Muligens en _fail.
+
+   Merger to klasser av hvor den ene har ekstern superklasse og den andre ikke
+   har noen oppgitt. Bør de ikke fortsatt kunne merges, siden D bare kunne
+   legge til funksjonalitet og ikke egentlig endre noe på klassehierarkiet?
  */
 template T {
 	class C extends external Thread {
