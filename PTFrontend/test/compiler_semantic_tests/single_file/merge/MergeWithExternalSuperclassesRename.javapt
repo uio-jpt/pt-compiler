@@ -3,12 +3,18 @@
    (medlem av to lister, etc).
  */
 template T {
-	class C {
+	class C extends external Thread {
+		void m() { }
+	}
+}
+
+template U {
+	class D {
 		void m() { }
 	}
 }
 
 package P {
-	inst T with C => D;
-	inst T with C => D (m() -> n);
+	inst T with C => X;
+	inst U with C => X (m() -> n);
 }
