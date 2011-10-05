@@ -156,9 +156,13 @@ aspect ErrorCheck {
 
         PTTemplate template = (PTTemplate) getParentClass( PTTemplate.class );
         EnumDecl parentEnum = (EnumDecl) getParentClass( EnumDecl.class );
+
         if( template != null && parentEnum == null ) {
             TypeDecl t = getAccess().type();
-            if( t.getParentClass( PTTemplate.class ) == template ) {
+            MethodDecl parentMethod = (MethodDecl) t.getParentClass( MethodDecl.class );
+            boolean isLocalClass = parentMethod != null;
+
+            if( !isLocalClass && t.getParentClass( PTTemplate.class ) == template ) {
                 doNormalChecking = false;
 
                 boolean foundGood = false;
