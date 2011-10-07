@@ -103,9 +103,6 @@ aspect ErrorCheck {
                 java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
                 java.util.Set<ASTNode> uncalled = new java.util.HashSet<ASTNode>();
 
-                System.out.println( "expanding in " + this );
-                System.out.println( templatesMap );
-
 
                 for( ASTNode tparent : tparents ) {
                     uncalled.add( tparent );
@@ -135,8 +132,6 @@ aspect ErrorCheck {
                         addTSuperConstructorInvocation( myCall );
                     }
                 }
-
-                System.out.println( "expanded in " + this );
 
                 this.tsupersWereExpanded = true;
                 return this;
@@ -247,6 +242,7 @@ aspect ErrorCheck {
             
             for( ASTNode decl : uncalled ) {
                 error( "tsuper constructor not called" ); // TODO better message
+                getParent().getParent().debugPrintAST();
             }
         }
     }
@@ -260,7 +256,15 @@ aspect ErrorCheck {
     public void PTConstructorDecl.collectErrors() {
         super.collectErrors();
 
-        checkTSuperConstructorInvocations();
+        boolean isConstructorInEnum = getParentClass( EnumDecl.class ) != null;
+        boolean hasPTDeclParent = getParentClass( PTDecl.class ) != null;
+        boolean hasMethodParent = getParentClass( MethodDecl.class ) != null;
+
+        boolean isInPTClass = hasPTDeclParent && !(hasMethodParent || isConstructorInEnum); // XX make more precise
+
+        if( isInPTClass ) {
+            checkTSuperConstructorInvocations();
+        }
     }
 
     public void PTTSuperConstructorCall.collectErrors() {

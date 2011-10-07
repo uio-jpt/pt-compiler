@@ -77,9 +77,6 @@ aspect AssumedConstructors {
 
     public void PTConstructorPromise.nameCheck() {
         ClassDecl cd = (ClassDecl) getParentClass( ClassDecl.class );
-        if( cd == null ) {
-            getParent().getParent().getParent().debugPrintAST();
-        }
         if( !cd.getID().equals( getID() ) ) {
             error( "constructor assumption name mismatch" );
         }

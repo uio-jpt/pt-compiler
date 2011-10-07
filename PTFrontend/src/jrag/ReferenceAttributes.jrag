@@ -6,6 +6,8 @@ aspect ReferenceAttributes {
         if (ans != null)
             return ans;
         error(String.format("Instantiation of non-existing template %s.",getID()));
+
+         // ugly, why?
         throw new CriticalPTException("egl test");
     }
     syn PTTemplate PTInstTuple.getTemplate() = getInstDecl().getTemplate();
@@ -161,7 +163,10 @@ aspect ReferenceAttributes {
     public java.util.Map<String, PTTemplate> PTDecl.getInstantiatedTemplatesMap() {
         java.util.Map<String,PTTemplate> rv = new java.util.HashMap<String,PTTemplate>();
         for( PTInstDecl ptid : getPTInstDeclList() ) {
-            rv.put( ptid.getID(), ptid.getTemplate() );
+            PTTemplate template = ptid.getTemplate( ptid.getID() );
+            if( template != null ) {
+                rv.put( ptid.getID(), template );
+            }
         }
         return rv;
     }

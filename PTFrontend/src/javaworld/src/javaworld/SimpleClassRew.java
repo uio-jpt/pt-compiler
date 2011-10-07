@@ -84,6 +84,8 @@ public class SimpleClassRew {
 		computeClassToTemplateMultimap();
 		updateSuperName();
         updateImplementsNames();
+
+        /* // obsolete now? XXX */
 		computeTSuperDeps(); // the effect of this is to extend getClassDecl().allTDeps
                             
 
@@ -636,7 +638,6 @@ public class SimpleClassRew {
 
             java.util.Collections.reverse( stmts );
             for( Stmt stmt : stmts ) {
-                System.out.println( "added : " + stmt );
                 pcdecl.getBlock().getStmts().insertChild( stmt, 0 );
             }
         }

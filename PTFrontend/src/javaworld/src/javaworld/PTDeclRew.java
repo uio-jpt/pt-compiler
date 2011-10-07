@@ -701,6 +701,12 @@ public class PTDeclRew {
     private void addImpliedRenamesToPTInstDecl( PTInstDecl instDecl ) {
         for( PTInstTuple ptit : instDecl.getPTInstTupleList() ) {
             TypeDecl base = ptit.getOriginator();
+
+            if( base == null ) { // something is very wrong! unable to proceed, this might be a duplicate error (?)
+                ptit.error( "unable to find instantiated class for inst: " + instDecl );
+                continue;
+            }
+
             String baseID = base.getID();
             Set<String> rootIDs = getRootIDsOf( base );
 
