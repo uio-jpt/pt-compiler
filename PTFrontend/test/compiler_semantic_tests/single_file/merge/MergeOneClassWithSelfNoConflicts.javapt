@@ -2,6 +2,8 @@
    Dumt exempel siden vi ikke får noe ny funksjonalitet av å instansiere en
    klasse to ganger, men sånn egentlig, siden det ikke er noen metoder eller
    variable som koliderer, burde ikke dette gå an?
+
+   Etter konsultasjon med Stein: Dette burde gå, som kodeskjelett.
  */
 template T {
 	class C extends external Thread { }
