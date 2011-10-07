@@ -1,3 +1,7 @@
+* Finn ut av
+    test/compiler_semantic_tests/single_file/merge/MergeWithExternalSuperclassesRename.javapt
+  Sørg for at dette blir deterministisk!
+
 * Løs problemet i minit_steinkr_notat (ext).
   Her har vi et problem med "skjev merging"; en superklasse som bare
   inkluderes "indirekte" (A) får et problem -- hvorfor?
