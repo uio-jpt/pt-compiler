@@ -177,7 +177,9 @@ aspect ReferenceAttributes {
             for( PTInstTuple ptit : ptid.getPTInstTupleList() ) {
                 if( name.equals( ptit.getID() ) ) {
                     String declID = ptit.getOrgID();
-                    SimpleSet decls = ptid.getTemplate().ptLookupTypeIn( declID );
+                    PTTemplate template = ptid.getTemplate();
+                    if( template == null ) continue;
+                    SimpleSet decls = template.ptLookupTypeIn( declID );
                     if( decls.size() == 1 ) { // otherwise, compilation error, but we should nevertheless not crash
                         rv.add( (ASTNode) decls.iterator().next() );
                     }

@@ -1,6 +1,7 @@
 package javaworld;
 
 import AST.*;
+import java.util.Set;
 
 class ConstructorRew {
 
@@ -46,14 +47,22 @@ class ConstructorRew {
 */
 
             for(PTTSuperConstructorCall scc : pcd.getTSuperConstructorInvocationList() ) {
-                String superTemplateID = scc.getSuperTemplateID();
-                String tsuperClassID = scc.getTemplateSuperclassID();
-                String methodName = Util.toMinitName( superTemplateID, tsuperClassID );
-                AST.List<Expr> args = scc.getArgs(); /// ??? --- do we need to make a copy?
+                Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( (PTDecl) scc.getParentClass( PTDecl.class ) );
+                
+                if( decls.size() == 1 ) {
+                    TypeDecl decl = (TypeDecl) decls.iterator().next();
+                    String tsuperClassID = decl.getID();
+                    PTTemplate template = (PTTemplate) decl.getParentClass( PTTemplate.class );
+                    if( template != null ) {
+                        String superTemplateID = template.getID();
 
-                Stmt stmt =  new ExprStmt( new MethodAccess( methodName, args ) );
+                        String methodName = Util.toMinitName( superTemplateID, tsuperClassID );
+                        AST.List<Expr> args = scc.getArgs().fullCopy();
 
-                md.getBlock().addStmt( stmt );
+                        Stmt stmt =  new ExprStmt( new MethodAccess( methodName, args ) );
+                        md.getBlock().addStmt( stmt );
+                    }
+                }
             }
         } else {
             System.out.println( "this is NOT a ptcd: " + cd  + "(shouldn't happen, temporary until cleanup)" );

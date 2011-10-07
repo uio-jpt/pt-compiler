@@ -13,13 +13,15 @@ PTInterfaceAddsDecl : PTInterfaceDecl;
 
 PTEnumDecl : EnumDecl;
 
-PTInstDecl ::= <ID> TypeArgument:Access* PTInstTuple*;
+TemplateClassIdentifier ::= <InstantiationName:String> <TemplateName:String> <TypeName:String>;
+
+PTInstDecl ::= <InstantiationName:String> <ID> TypeArgument:Access* PTInstTuple*;
 // inst T<...> with A => X;
 //      ID  typevariables   PTInstTuple
 
 PTInstTuple ::= <OrgID> <ID> PTDummyRename*;
 
-PTTSuperConstructorCall ::= <SuperTemplateID> <TemplateSuperclassID> Arg:Expr*;
+PTTSuperConstructorCall ::= TemplateClassIdentifier Arg:Expr*;
 PTConstructorDecl : ConstructorDecl ::= TSuperConstructorInvocation:PTTSuperConstructorCall*;
 
 PTConstructorPromise : BodyDecl ::= Modifiers <ID:String> Parameter:ParameterDeclaration* Exception:Access*;

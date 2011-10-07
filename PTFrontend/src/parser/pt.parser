@@ -127,13 +127,20 @@ Access pt_type_argument =
  ;
 
 PTInstDecl pt_inst_decl =
-  INST IDENTIFIER pt_type_arguments.ts? SEMICOLON
+   IDENTIFIER.name COLON INST IDENTIFIER.templateName pt_type_arguments.ts? SEMICOLON
        {:
-          return new PTInstDecl(IDENTIFIER, (ts == null) ? new List<Access>() : ts, new List());
+          return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, new List());
        :}
-| INST IDENTIFIER pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
+| IDENTIFIER.name COLON INST IDENTIFIER.templateName pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
        {:
-          return new PTInstDecl(IDENTIFIER, (ts == null) ? new List<Access>() : ts, dcl); :}
+          return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, dcl); :}
+| INST IDENTIFIER.templateName pt_type_arguments.ts? SEMICOLON
+       {:
+          return new PTInstDecl( "$noname$", templateName, (ts == null) ? new List<Access>() : ts, new List());
+       :}
+| INST IDENTIFIER.templateName pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
+       {:
+          return new PTInstDecl( "$noname$", templateName, (ts == null) ? new List<Access>() : ts, dcl); :}
 ;
 
 List dummy_class_list =
@@ -195,23 +202,21 @@ Access method_invocation =  explicit_merged_method_invocation.e {: return e; :}
 ;
 
 Access explicit_merged_method_invocation =
-     TSUPER LBRACK IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
+     TSUPER pt_tc_identifier.tci merged_method_name.methodName LPAREN argument_list.args? RPAREN
      {:
-        TemplateMethodAccessShort m = new TemplateMethodAccessShort(methodName, args, superClassName, "");
-        m.setStart(TSUPER.getStart());
-        m.setEnd(RPAREN.getEnd());
-        return m; :}
+        if( tci.hasTemplateName() ) {
+            TemplateMethodAccess m = new TemplateMethodAccess(javaworld.Util.toName( tci.getTemplateName(), tci.getTypeName(), methodName), args, tci.getTypeName(), tci.getTemplateName());
+            m.setStart(TSUPER.getStart());
+            m.setEnd(RPAREN.getEnd());
+            return m;
+        } else {
+            TemplateMethodAccessShort m = new TemplateMethodAccessShort(methodName, args, tci.getTypeName(), "");
+            m.setStart(TSUPER.getStart());
+            m.setEnd(RPAREN.getEnd());
+            return m;
+        }
+    :}
     ;
-
-Access explicit_merged_method_invocation =
-     TSUPER LBRACK IDENTIFIER.templateName DOT IDENTIFIER.superClassName RBRACK merged_method_name.methodName LPAREN argument_list.args? RPAREN
-     {:
-        TemplateMethodAccess m = new TemplateMethodAccess(javaworld.Util.toName(templateName,superClassName,methodName), args, superClassName, templateName);
-        m.setStart(TSUPER.getStart());
-        m.setEnd(RPAREN.getEnd());
-        return m; :}
-    ;
-
 
 String merged_method_name =
       DOT IDENTIFIER {: return IDENTIFIER; :}
@@ -221,9 +226,9 @@ String merged_method_name =
    possibly only that one. */
 
 PTTSuperConstructorCall explicit_tsuper_invocation =
-    TSUPER LBRACK IDENTIFIER.superTemplateName DOT IDENTIFIER.superClassName RBRACK LPAREN argument_list.args? RPAREN SEMICOLON
+    TSUPER pt_tc_identifier.tci LPAREN argument_list.args? RPAREN SEMICOLON
     {:
-        PTTSuperConstructorCall m = new PTTSuperConstructorCall( superTemplateName, superClassName, args );
+        PTTSuperConstructorCall m = new PTTSuperConstructorCall( tci, args );
         return m;
     :}
     ;
@@ -265,4 +270,13 @@ PTConstructorPromise pt_constructor_assumption =
         Modifiers ms = new Modifiers(m);
         return new PTConstructorPromise( ms, IDENTIFIER, pl, tl );
     :}
+ ;
+
+TemplateClassIdentifier pt_tc_identifier =
+    LBRACK IDENTIFIER.a COLON IDENTIFIER.b RBRACK
+    {: return new TemplateClassIdentifier( a, "" , b ); :}
+    | LBRACK IDENTIFIER.a DOT IDENTIFIER.b RBRACK
+    {: return new TemplateClassIdentifier( "", a , b ); :}
+    | LBRACK IDENTIFIER.a RBRACK
+    {: return new TemplateClassIdentifier( "", "" , a ); :}
  ;

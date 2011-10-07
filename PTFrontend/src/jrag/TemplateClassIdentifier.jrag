@@ -1,0 +1,53 @@
+aspect TemplateClassIdentifier {
+
+/* Major TODO: this class is not actually used to find methods, just constructors.
+   Convert to consistency.
+*/
+
+    public boolean TemplateClassIdentifier.hasInstantiationName() {
+        return getInstantiationName() != null && getInstantiationName().length() > 0;
+    }
+
+    public boolean TemplateClassIdentifier.hasTemplateName() {
+        return getTemplateName() != null && getTemplateName().length() > 0;
+    }
+
+    public boolean TemplateClassIdentifier.hasTypeName() {
+        return getTypeName() != null && getTypeName().length() > 0;
+    }
+
+    public static TemplateClassIdentifier TemplateClassIdentifier.extractFrom( PTInstDecl instDecl, String name ) {
+        return new TemplateClassIdentifier( instDecl.getInstantiationName(), instDecl.getID(),  name );
+    }
+
+    public String TemplateClassIdentifier.getDollarSuffix() {
+        return "$" + getInstantiationName() + "$" + getTemplateName() + "$" + getTypeName() + "$";
+    }
+
+    public Set<ASTNode> TemplateClassIdentifier.locateTemplateClass( PTDecl root ) {
+        Set<ASTNode> rv = new HashSet<ASTNode>();
+        for( PTInstDecl ptid : root.getPTInstDeclList() ) {
+            if( hasInstantiationName() && !ptid.getInstantiationName().equals( getInstantiationName() ) ) continue;
+    
+            if( hasTemplateName() && !ptid.getID().equals( getTemplateName() ) ) continue;
+            
+            for( PTInstTuple ptit : ptid.getPTInstTupleList() ) {
+
+                if( hasTypeName() && !ptit.getOrgID().equals( getTypeName() ) ) continue;
+                
+                String declID = ptit.getOrgID();
+                PTTemplate template = ptid.getTemplate();
+                if( template == null ) continue;
+                SimpleSet decls = template.ptLookupTypeIn( declID );
+
+                Iterator i = decls.iterator();
+                while( i.hasNext() ) {
+                    Object o = i.next();
+                    rv.add( (ASTNode) o );
+                }
+            }
+        }
+
+        return rv;
+    }
+}

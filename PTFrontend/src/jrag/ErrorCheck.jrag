@@ -76,6 +76,19 @@ aspect ErrorCheck {
         }
     }
 
+    public void TemplateClassIdentifier.collectErrors() {
+        super.collectErrors();
+
+        PTDecl parentPt = (PTDecl) getParentClass( PTDecl.class );
+        Set<ASTNode> rvs = locateTemplateClass( parentPt );
+
+        if( rvs.size() == 0 ) {
+            error( "template type identifier cannot be resolved" );
+        } else if( rvs.size() > 1 ) {
+            error( "template type identifier is ambiguous" );
+        }
+    }
+
     public void SuperConstructorAccess.collectErrors() {
         super.collectErrors();
         PTTemplate parentTemplate = (PTTemplate) getParentClass( PTTemplate.class );
@@ -107,9 +120,9 @@ aspect ErrorCheck {
                 for( ASTNode tparent : tparents ) {
                     uncalled.add( tparent );
                 }
+
                 for( PTTSuperConstructorCall scc : getTSuperConstructorInvocationList() ) {
-                    PTTemplate template = templatesMap.get( scc.getSuperTemplateID() );
-                    SimpleSet decls = template.ptLookupTypeIn( scc.getTemplateSuperclassID() );
+                    Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( parentPt );
                     if( decls.size() == 1 ) {
                         ASTNode decl = (ASTNode) decls.iterator().next();
                         uncalled.remove( decl );
@@ -126,7 +139,7 @@ aspect ErrorCheck {
                     }
 
                     if( hasZeroArityConstructor ) {
-                        PTTSuperConstructorCall myCall = new PTTSuperConstructorCall( template.getID(), cd.getID(), new AST.List() );
+                        PTTSuperConstructorCall myCall = new PTTSuperConstructorCall( new TemplateClassIdentifier( "", template.getID(), cd.getID() ) , new AST.List() );
 
                         // added in arbitrary order!
                         addTSuperConstructorInvocation( myCall );
@@ -220,8 +233,7 @@ aspect ErrorCheck {
             }
 
             for( PTTSuperConstructorCall scc : getTSuperConstructorInvocationList() ) {
-                PTTemplate template = templatesMap.get( scc.getSuperTemplateID() );
-                SimpleSet decls = template.ptLookupTypeIn( scc.getTemplateSuperclassID() );
+                Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( parentPt );
                 if( decls.size() == 1 ) {
                     ASTNode decl = (ASTNode) decls.iterator().next();
 
@@ -232,7 +244,6 @@ aspect ErrorCheck {
                     } else {
                         called.add( decl );
                     }
-
 
                     // TODO check that there's a constructor with matching parameters
                     // not urgent, because this leads to an error message

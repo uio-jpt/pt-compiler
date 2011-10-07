@@ -46,6 +46,7 @@ import AST.PTConstructorDecl;
 import AST.PTTSuperConstructorCall;
 import AST.MethodAccess;
 import AST.PTConstructorPromise;
+import AST.ASTNode;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
@@ -490,12 +491,22 @@ public class SimpleClassRew {
             java.util.List<Stmt> stmts = new ArrayList<Stmt>();
 
             for(PTTSuperConstructorCall scc : pcdecl.getTSuperConstructorInvocationList() ) {
-                String superTemplateID = scc.getSuperTemplateID();
-                String tsuperClassID = scc.getTemplateSuperclassID();
-                String methodName = Util.toMinitName( superTemplateID, tsuperClassID );
-                AST.List<Expr> args = scc.getArgs(); /// ??? --- do we need to make a copy?
-                Stmt stmt = new ExprStmt( new MethodAccess( methodName, args ) );
-                stmts.add( stmt );
+                Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( (PTDecl) scc.getParentClass( PTDecl.class ) );
+
+                if( decls.size() == 1 ) {
+                    TypeDecl decl = (TypeDecl) decls.iterator().next();
+                    String tsuperClassID = decl.getID();
+                    PTTemplate template = (PTTemplate) decl.getParentClass( PTTemplate.class );
+                    if( template != null ) {
+                        String superTemplateID = template.getID();
+
+                        String methodName = Util.toMinitName( superTemplateID, tsuperClassID );
+                        AST.List<Expr> args = scc.getArgs().fullCopy();
+
+                        Stmt stmt = new ExprStmt( new MethodAccess( methodName, args ) );
+                        stmts.add( stmt );
+                    }
+                }
             }
 
             java.util.Collections.reverse( stmts );
