@@ -242,7 +242,6 @@ aspect ErrorCheck {
             
             for( ASTNode decl : uncalled ) {
                 error( "tsuper constructor not called" ); // TODO better message
-                getParent().getParent().debugPrintAST();
             }
         }
     }
