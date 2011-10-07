@@ -230,16 +230,18 @@ public class PTDeclRew {
         return rv;
     }
 
-    protected Map<String,ClassDecl> getDestinationForExtendingExternals() {
+    protected Multimap<String,ClassDecl> getDestinationForExtendingExternals() {
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
-        Map<String,ClassDecl> rv = new HashMap<String,ClassDecl> ();
+        Multimap<String,ClassDecl> rv = HashMultimap.create();
         for( String x : destinationClassIDsWithInstTuples.keySet() ) {
-            TypeDecl typeDecl = destinationClassIDsWithInstTuples.get(x).iterator().next().getOriginator();
-            if( typeDecl instanceof EnumDecl ) continue;
-            if( typeDecl instanceof ClassDecl ) {
-                ClassDecl cd = (ClassDecl) typeDecl;
-                if( cd.getModifiers().isExtendsExternal() ) {
-                    rv.put( x, cd );
+            for( PTInstTuple ptit : destinationClassIDsWithInstTuples.get(x) ) {
+                TypeDecl typeDecl = ptit.getOriginator();
+                if( typeDecl instanceof EnumDecl ) continue;
+                if( typeDecl instanceof ClassDecl ) {
+                    ClassDecl cd = (ClassDecl) typeDecl;
+                    if( cd.getModifiers().isExtendsExternal() ) {
+                        rv.put( x, cd );
+                    }
                 }
             }
         }
@@ -327,7 +329,7 @@ public class PTDeclRew {
 		 * adds .. given later }
 		 */
 		Set<String> addClasses = ptDeclToBeRewritten.getAdditionClassNamesSet();
-        Map<String, ClassDecl> extendingExternalsClasses = getDestinationForExtendingExternals();
+        Multimap<String, ClassDecl> extendingExternalsClasses = getDestinationForExtendingExternals();
 		Set<String> missingAddsClass =
                 Sets.difference(
                 Sets.difference( getDestinationIDsForNonEnumClasses(),
@@ -336,9 +338,18 @@ public class PTDeclRew {
         for(String name : extendingExternalsClasses.keySet() ) {
             Modifiers mods = new Modifiers();
             mods.addModifier( new Modifier( "extendsexternal" ) );
+
+            /* I believe checking for clashes is done elsewhere, so here we just take the FIRST
+               extends-external class.
+               TODO make this deterministic. (Note that it is only nondeterministic if there IS
+               another error, though.)
+            */
+
+            Access superClassAccess = (Access) extendingExternalsClasses.get(name).iterator().next().getSuperClassAccess().fullCopy();
+
             ClassDecl cls = new ClassDecl(mods,
                                           name,
-                                          new Opt<Access>( extendingExternalsClasses.get(name).getSuperClassAccess() ),
+                                          new Opt<Access>( superClassAccess ),
                                           new List<Access>(),
                                           new List<BodyDecl>());
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
@@ -374,8 +385,7 @@ public class PTDeclRew {
 	 * more than one InstTuple if we are merging several source classes.
 	 */
 	private Multimap<String, PTInstTuple> getDestinationClassIDsWithInstTuples() {
-		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = HashMultimap
-				.create();
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = HashMultimap.create();
 		for (PTInstDecl templateInst : ptDeclToBeRewritten.getPTInstDecls()) {
 			for (PTInstTuple instTuple : templateInst.getPTInstTupleList()) {
 				destinationClassIDsWithInstTuples.put(instTuple.getID(),
@@ -395,7 +405,9 @@ public class PTDeclRew {
 
 	public void createInitIfPackage() {
         if( !isPackage() ) return;
+/* // obsolete?
         String dummyName = addDummyClass();
+*/
         for (SimpleClassRew x : simpleClasses) {
 /*
             if( !x.inheritsFromExtendsExternal() ) {
