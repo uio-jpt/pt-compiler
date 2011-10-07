@@ -19,5 +19,5 @@ template U {
 
 package P {
 	inst T with C => X;
-	inst U with C => X (m() -> n);
+	inst U with D => X (m() -> n);
 }
