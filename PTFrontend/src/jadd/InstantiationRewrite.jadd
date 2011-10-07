@@ -19,17 +19,6 @@ aspect InstantiationRewrite {
 
     private Multimap<String,String> ClassDecl.templateClassIDTotemplateID;
 
-    /** Template.TopmostSupername <-> Template.LowestSupername
-     *  used to compute Package class constructor minit call
-     *  dependencies..
-     */
-    public LinkedHashMap<String,String> ClassDecl.allTDeps = Maps.newLinkedHashMap();
-
-    /** Preserves order for minit calls
-     */
-     // is this ever used?
-//    public Collection<String> ClassDecl.tdepsOrder = Lists.newLinkedList();
-    
     public void ClassDecl.setClassToTemplateMap(Multimap<String,String> x) {
         templateClassIDTotemplateID = x;
     }

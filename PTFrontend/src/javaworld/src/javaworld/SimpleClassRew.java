@@ -85,10 +85,6 @@ public class SimpleClassRew {
 		updateSuperName();
         updateImplementsNames();
 
-        /* // obsolete now? XXX */
-		computeTSuperDeps(); // the effect of this is to extend getClassDecl().allTDeps
-                            
-
         updateAbstractness();
 
         for (ClassDeclRew source : renamedSources) {
@@ -103,25 +99,6 @@ public class SimpleClassRew {
 		}
 
 		// decl.getClassDecl().getConstructorDeclList()
-	}
-
-	private void computeTSuperDeps() {
-		LinkedHashMap<String, String> deps = decl.getClassDecl().allTDeps;
-		for (PTInstTuple instTuple : sorted(instTuples)) {
-            TypeDecl x = instTuple.getOriginator();
-            if( x instanceof ClassDecl ) {
-                expandDepsWith(deps, instTuple.getTemplate().getID(),
-                       (ClassDecl) x );
-            }
-		}
-		LinkedHashMap<String, String> superDeps = getSuperDepsCopy();
-		for (String superDep : superDeps.keySet()) {
-
-			if (!deps.containsKey(superDep)) {
-				String value = superDeps.get(superDep);
-				deps.put(superDep, value);
-			}
-		}
 	}
 
 	/**
@@ -145,35 +122,6 @@ public class SimpleClassRew {
 
 	protected String instName(PTInstTuple x) {
 		return String.format("%s.%s",x.getTemplate().getID(),x.getOrgID());
-	}
-
-	private void expandDepsWith(LinkedHashMap<String, String> deps,
-			String templateName, ClassDecl originator) {
-		deps.putAll(originator.allTDeps);
-        String tmSuperName;
-//        try {
-            tmSuperName = originator.getTopMostInternalSuperName();
-//        }
-//        catch( NullPointerException e ) {
-//            throw new CriticalPTException( "internal failure in expandDepsWith() [assumption failed]" );
-//        }
-		String key = Util.toMinitName(templateName, tmSuperName );
-		String value = Util.toMinitName(templateName, originator.getID());
-		deps.put(key, value);
-	}
-
-	private LinkedHashMap<String, String> getSuperDepsCopy() {
-		String superName = decl.getClassDecl().getSuperClassName();
-		if (!decl.getClassDecl().getModifiers().isExtendsExternal() && superName != null) {
-            SimpleClass sc = decl.getPTDecl().getSimpleClass(superName);
-            if( sc == null ) {
-                decl.error( "cannot find internal superclass " + superName + "(did you mean \"extends external\"?)");
-                return Maps.newLinkedHashMap();
-            }
-            return sc.getClassDecl().allTDeps;
-		} else {
-			return Maps.newLinkedHashMap();
-		}
 	}
 
 	/**
@@ -488,92 +436,6 @@ public class SimpleClassRew {
 		} else {
 			return new Opt<Stmt>();
 		}
-	}
-
-	/**
-	 * TODO: if real constructor has args, it'll already be renamed to a minit
-	 * method. So atm only the empty regenerated constructor will show here
-	 * (that's my guess anyway). For every original constructor (now minit), a
-	 * real constructor with the same params should be created that first will
-	 * call a init method (calls deps), and then call the the correct minit with
-	 * the correct args.
-	 */
-	public void createInitConstructor(String dummyName) {
-		ClassDecl h = decl.getClassDecl();
-		for (BodyDecl bdecl : h.getBodyDeclList()) {
-			if (bdecl instanceof ConstructorDecl) {
-				callDummySuperAndDeps(dummyName, (ConstructorDecl) bdecl);
-			}
-		}
-	}
-
-	private void callDummySuperAndDeps(String dummyName, ConstructorDecl c) {
-		Map<String, String> depsMap = c.getClassDecl().allTDeps;
-
-		// store supercall args for later usage
-		ExprStmt cinv = (ExprStmt) c.getConstructorInvocation();
-		SuperConstructorAccess superaccess = (SuperConstructorAccess) cinv
-				.getExpr();
-		List<Expr> superCallArgs = superaccess.getArgList();
-
-		c.setConstructorInvocationOpt(getDummySuperCall(dummyName));
-		List<Stmt> origStatements = c.getBlock().getStmtList();
-		List<Stmt> otherStatements = new List<Stmt>();
-		LinkedList<String> deps = Lists.newLinkedList(depsMap.values());
-		LinkedList<TemplateConstructorAccess> callChain = Lists.newLinkedList();
-
-		String supername = c.getClassDecl().getSuperClassName();
-		if (supername != null) {
-			String methodName = Util.toMinitName(decl.getPTDecl().getID(),
-					supername);
-			TemplateConstructorAccess supercall = new TemplateConstructorAccess(
-					methodName, superCallArgs, supername, decl.getPTDecl()
-							.getID());
-			otherStatements = otherStatements.add(new ExprStmt(supercall));
-		}
-
-		// add generic calls
-		for (String dep : deps) {
-			String[] parts = dep.split("\\$"); // TODO let dep be a data object
-			String templateID = parts[1];
-			String tclassID = parts[2];
-			TemplateConstructorAccess x = new TemplateConstructorAccess(dep,
-					new List<Expr>(), tclassID, templateID);
-			callChain.add(x);
-		}
-		// replace with explicit calls
-		for (Stmt stmt : origStatements) {
-			if (stmt instanceof ExprStmt) {
-				ExprStmt exprstmt = (ExprStmt) stmt;
-				Expr expr = exprstmt.getExpr();
-				if (expr instanceof TemplateConstructorAccess) {
-					TemplateConstructorAccess x = (TemplateConstructorAccess) expr;
-						replaceGeneric(x, callChain);
-				} else {
-					otherStatements.add(stmt);
-				}
-			}
-		}
-
-		// add modified call chain
-		List<Stmt> statements = new List<Stmt>();
-		for (TemplateConstructorAccess x : callChain) {
-			statements = statements.add(new ExprStmt(x));
-		}
-		String ownName = Util.toMinitName(decl.getPTDecl().getID(),
-				decl.getID());
-		PackageConstructor ownMinit = new PackageConstructor(c.getModifiers(),
-				new TypeAccess("void"), ownName, c.getParameterList(),
-				new List<Access>(), new Opt<Block>(new Block(otherStatements)),
-				decl.getPTDecl().getID(), decl.getID());
-		decl.getClassDecl().addBodyDecl(ownMinit);
-		List<Expr> args = new List<Expr>();
-		for (ParameterDeclaration p : c.getParameterList()) {
-			args = args.add(new VarAccess(p.getID()));
-		}
-		TemplateConstructorAccess x = new TemplateConstructorAccess(ownName,
-				args, decl.getPTDecl().getID(), decl.getID());
-		c.getBlock().setStmtList(statements.add(new ExprStmt(x)));
 	}
 
 	private void replaceGeneric(TemplateConstructorAccess x,
