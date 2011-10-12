@@ -1,6 +1,6 @@
 /*
    Merger to klasser av samme type for å få dobbelt opp av funksjonaliteten
-   (medlem av to lister, etc).
+   (medlem av to lister, etc). Skulle gå, i følge møtet 30/9-11.
  */
 template T {
 	class C {
