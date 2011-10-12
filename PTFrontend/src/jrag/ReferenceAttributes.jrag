@@ -109,11 +109,6 @@ aspect ReferenceAttributes {
         with add root ClassDecl;
     TemplateConstructor contributes getTClassID() to ClassDecl.getMergedClassesWithConstructors() for getClassDecl();    
     
-    coll Set<String> ConstructorDecl.getMergedSuperCallNames() [new HashSet<String>()]
-        with add root ClassDecl;
-    TemplateConstructorAccess contributes getTClassID() to ConstructorDecl.getMergedSuperCallNames()
-        for getConstructorDecl();
-
     coll Set<PTPackage> CompilationUnit.getPTPackages() [new HashSet<PTPackage>()]
         with add root CompilationUnit;
     PTPackage contributes this to CompilationUnit.getPTPackages() for getCompilationUnit();
@@ -122,9 +117,6 @@ aspect ReferenceAttributes {
 
     inh CompilationUnit PTDecl.getCompilationUnit();
     eq PTCompilationUnit.getPTDecl(int i).getCompilationUnit() = this;
-
-    syn ConstructorDecl TemplateConstructorAccess.getConstructorDecl() = ((ConstructorDecl)
-                                                                     getParentClass(ConstructorDecl.class));
 
     syn boolean TemplateConstructor.hasNoParameter() = getNumParameter() == 0;
 

@@ -19,13 +19,6 @@ aspect NameCheck {
             error("Template or Package with name " + getID() + " is multiply declared in compilation unit.\n");
     }
 
-    public void TemplateConstructorAccess.nameCheck() {
-        super.nameCheck();
-        if (getConstructorDecl() == null && getParentClass(PackageConstructor.class) == null)
-            error("A merged constructor may only be called from a constructor.\n");
-    }
-
-
     syn Set<String> PTDecl.getInstantiatorChain() circular [new HashSet<String>()] {
         Set<String> result = new HashSet<String>();
         for (PTInstDecl instDecl : getPTInstDecls()) {
