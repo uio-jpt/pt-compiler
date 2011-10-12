@@ -1,0 +1,15 @@
+template T {
+	class C { } 
+	class D extends external ThreadLocal<C> { }
+}
+
+package P {
+	inst T;
+
+	class C adds {
+		public static void main (String [] args) {
+			/* Linja under feiler fordi generics tydeligvis ikke funker så bra: */
+			// ThreadLocal<C> = new D();
+		}
+	}
+}
