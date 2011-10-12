@@ -4,6 +4,17 @@ aspect TemplateClassIdentifier {
    Convert to consistency.
 */
 
+    public String TemplateClassIdentifier.toString() {
+        String rv = getTypeName();
+        if( hasInstantiationName() ) {
+            rv = getInstantiationName() + ":" + rv;
+        }
+        if( hasTemplateName() ) {
+            rv = getTemplateName() + "." + rv;
+        }
+        return rv;
+    }
+
     public boolean TemplateClassIdentifier.hasInstantiationName() {
         return getInstantiationName() != null && getInstantiationName().length() > 0;
     }

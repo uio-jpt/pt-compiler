@@ -130,7 +130,7 @@ public class PTDeclRew {
             PTInterfaceAddsDecl target = ptDeclToBeRewritten.lookupAddsInterface( name );
             TypeConstraint otc = JastaddTypeConstraints.fromInterfaceDecl( target );
             TypeConstraint tc = new TypeConstraint();
-            boolean hadAddsInteface = !missingAddsInterfaceNames.contains( name );
+            boolean hadAddsInterface = !missingAddsInterfaceNames.contains( name );
             boolean printDebugStuff = false;
 
             for(PTInstTuple ituple : ituples) {
@@ -149,7 +149,7 @@ public class PTDeclRew {
             if( printDebugStuff ) {
                 int sources = ituples.size();
                 System.out.print( "From " + sources + " sources ");
-                if( hadAddsInteface ) {
+                if( hadAddsInterface ) {
                     System.out.print( "plus adds class " );
                 }
                 System.out.println( "created interface " + name + ": " + target );
