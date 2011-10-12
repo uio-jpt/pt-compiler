@@ -1,0 +1,24 @@
+template T {
+	class C implements Comparable<C> {
+
+		public int compareTo(C that) {
+			return this.getValue() - that.getValue();
+		}
+
+		public int getValue() { return 0; }
+	}
+}
+
+package P {
+	inst T;
+
+	class D extends C {
+		public int getValue() { return 1; }
+	}
+
+	class E implements Comparable<E> {
+		public int compareTo(E that) {
+			return 0;
+		}
+	}
+}
