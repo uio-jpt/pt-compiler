@@ -1,0 +1,11 @@
+template T {
+	interface I { void m(); }
+}
+
+package P {
+	inst T with I => J;
+
+	class C implements J {
+		public void m() { }
+	}
+}

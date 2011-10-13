@@ -1,4 +1,4 @@
-Denne mappen blir gjennomsøkt for filer av typen .java, og hver blir
+Denne mappen blir gjennomsøkt for filer av typen .javapt, og hver blir
 kompilert for seg.
 
 Det sjekkes at det ikke kommer kompileringsfeil eller advarsler, og

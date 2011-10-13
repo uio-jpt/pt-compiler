@@ -1,0 +1,9 @@
+template T {
+	interface I { void m(); }
+}
+
+package P {
+	inst T;
+
+	class C implements I { }
+}

@@ -1,0 +1,12 @@
+template T {
+	interface I { void m(); }
+}
+
+package P {
+	inst T with I => J (m() -> n);
+	inst T with I => I (m() -> n);
+
+	class C implements J,I {
+		public void n() { }
+	}
+}

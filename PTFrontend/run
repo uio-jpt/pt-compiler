@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Latsabb-script for å kjøre jar-fila.
+# Setter automatisk output-folder til ./output/ ved å sende "-o output/" til JPT.jar.
+# Dette kan igjen overstyres med "./run -o <annen-output-folder>".
+# Pga. getops må resten av argumentene (atm bare -v) settes etter navnet på inputfila.
+
+
+outfolder="output/"
+
+
+# Kompilerer hvis ikke jar-fila finnes
+if [[ ! -e build/jar/JPT.jar ]]
+then
+	ant
+fi
+
+# Behandle options:
+# (atm bare ett)
+while getopts "o:" OPTIONS
+do
+	case ${OPTIONS} in
+		o)
+			outfolder=$OPTARG
+			shift $((OPTIND-1)) ;;
+    esac
+done
+
+# ...
+java -jar build/jar/JPT.jar -o $outfolder $@
+
