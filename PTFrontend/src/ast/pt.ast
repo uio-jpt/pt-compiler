@@ -56,3 +56,7 @@ PackageConstructor : MethodDecl ::= <TClassID> <TemplateID>;
 /* Type that marks a method as tabstract.
  */ 
 TabstractMethodDecl : MethodDecl;
+
+RequiredType : TypeDecl ::= <TypeConstraint:TypeConstraint>;
+RequiredClass : RequiredType;
+RequiredInterface : RequiredType;

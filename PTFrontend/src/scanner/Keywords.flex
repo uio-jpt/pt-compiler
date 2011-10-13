@@ -13,4 +13,6 @@
   "tabstract"                { return sym(Terminals.TABSTRACT); }
   "external"                 { return sym(Terminals.EXTERNAL); }
   "assumed"                 { return sym(Terminals.ASSUMED); }
+  "required"                 { return sym(Terminals.REQUIRED); }
+  "type"                 { return sym(Terminals.TYPE); }
 }

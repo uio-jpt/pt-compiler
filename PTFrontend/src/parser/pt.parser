@@ -72,6 +72,7 @@ PTDecl pt_package =
 
 ASTNode inst_class_or_interface_single =
      pt_inst_decl.pt_inst {: return pt_inst; :}
+   | ptr_required_spec.pt_req {: return pt_req; :}
    | class_or_interface_single.x {: return x; :}
    ;
 
@@ -280,3 +281,51 @@ TemplateClassIdentifier pt_tc_identifier =
     | LBRACK IDENTIFIER.a RBRACK
     {: return new TemplateClassIdentifier( "", "" , a ); :}
  ;
+
+RequiredType ptr_required_spec =
+    REQUIRED ptr_r_type.a {: return a; :}
+    | REQUIRED ptr_r_class.a {: return a; :}
+    | REQUIRED ptr_r_interface.a {: return a; :}
+    ;
+
+RequiredType ptr_r_type =
+    TYPE IDENTIFIER ptr_extends_clause? LBRACE ptr_r_type_body_decl* RBRACE
+        {:
+            // TODO, dummy
+            javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
+            System.out.println( "[debug] parsed required type: " + tc );
+            return new RequiredType( new Modifiers(), IDENTIFIER, new List(), tc );
+        :}
+    ;
+
+RequiredInterface ptr_r_interface =
+    INTERFACE IDENTIFIER ptr_extends_clause? LBRACE ptr_r_type_body_decl* RBRACE
+        {:
+            // TODO, dummy
+            javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
+            tc.requireInterface();
+            System.out.println( "[debug] parsed required interface: " + tc );
+            return new RequiredInterface( new Modifiers(), IDENTIFIER, new List(), tc );
+        :}
+    ;
+
+RequiredClass ptr_r_class =
+    CLASS IDENTIFIER ptr_extends_clause? LBRACE ptr_r_type_body_decl* RBRACE
+        {:
+            // TODO, dummy
+            javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
+            tc.requireClass();
+            System.out.println( "[debug] parsed required class: " + tc );
+            return new RequiredClass( new Modifiers(), IDENTIFIER, new List(), tc );
+        :}
+    ;
+
+
+// TODO!!!
+ASTNode ptr_extends_clause =
+    SEMICOLON
+    ;
+
+ASTNode ptr_r_type_body_decl =
+    SEMICOLON
+    ;
