@@ -21,6 +21,7 @@ import AST.ClassDecl;
 import AST.ClassAccess;
 import AST.CompilationUnit;
 import AST.ImportDecl;
+import AST.GenericClassDecl;
 import AST.List;
 import AST.Modifier;
 import AST.Modifiers;
@@ -305,6 +306,66 @@ public class PTDeclRew {
         return new InstTupleRew(tup).getRenamedSourceInterface();
     }
 
+    protected ClassDecl createClassDeclForName( String name, java.util.Collection<PTInstTuple> instTuples, boolean addExtendsExternal, Access superClassAccess ) {
+        Modifiers mods = new Modifiers();
+
+        if( addExtendsExternal ) {
+            mods.addModifier( new Modifier( "extendsexternal" ) );
+        }
+
+        Opt<Access> optAccess;
+
+        if( superClassAccess != null ) {
+            optAccess = new Opt<Access>( superClassAccess );
+        } else {
+            optAccess = new Opt<Access>();
+        }
+
+
+        GenericClassDecl gtype = null;
+        int genericOrigins = 0, nonGenericOrigins = 0;
+        for( PTInstTuple instTuple : instTuples ) {
+            if( instTuple.getOriginator().isGenericType() ) {
+                genericOrigins++;
+                gtype = (GenericClassDecl) instTuple.getOriginator();
+            } else {
+                nonGenericOrigins++;
+            }
+        }
+
+        ClassDecl cls;
+        
+        if( genericOrigins == 0 ) {
+            cls = new ClassDecl(mods,
+                                name,
+                                optAccess,
+                                new List<Access>(),
+                                new List<BodyDecl>());
+        } else if( genericOrigins == 1 && nonGenericOrigins == 0 ) {
+            // this is simple to handle -- copy the arguments
+            cls = new GenericClassDecl( mods,
+                                        name,
+                                        optAccess,
+                                        new List<Access>(),
+                                        new List<BodyDecl>(),
+                                        gtype.getTypeParameterList().fullCopy() );
+        } else if( genericOrigins == 1 && nonGenericOrigins != 0 ) {
+            // C<A> + D --> CD<A>
+            // hard to handle -- we now need to change all type accesses 
+
+            gtype.error( "merge target " + name + " has generic and non-generic origins [not implemented yet]" );
+            throw new CriticalPTException( "mixed-generic origins, giving up" );
+        } else {
+            // problems with multiple generics: C<A> + D<B> --> CD<?,?> (order?)
+            // this seems fundamental
+
+            gtype.error( "merge target " + name + " has multiple generic origins" );
+            throw new CriticalPTException( "multiple generic origins, giving up" );
+        }
+
+        return cls;
+    }
+
 	protected void createEmptyMissingAddClasses() {
 
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
@@ -336,9 +397,6 @@ public class PTDeclRew {
                                  addClasses ),
                                  extendingExternalsClasses.keySet() );
         for(String name : extendingExternalsClasses.keySet() ) {
-            Modifiers mods = new Modifiers();
-            mods.addModifier( new Modifier( "extendsexternal" ) );
-
             /* I believe checking for clashes is done elsewhere, so here we just take the FIRST
                extends-external class.
                TODO make this deterministic. (Note that it is only nondeterministic if there IS
@@ -347,22 +405,15 @@ public class PTDeclRew {
 
             Access superClassAccess = (Access) extendingExternalsClasses.get(name).iterator().next().getSuperClassAccess().fullCopy();
 
-            ClassDecl cls = new ClassDecl(mods,
-                                          name,
-                                          new Opt<Access>( superClassAccess ),
-                                          new List<Access>(),
-                                          new List<BodyDecl>());
+            ClassDecl cls = createClassDeclForName( name, destinationClassIDsWithInstTuples.get( name ), true, superClassAccess );
+
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			ptDeclToBeRewritten.addSimpleClass(addClass);
 			lb.add(new SimpleClassRew(addClass));
         }
 
 		for (String name : missingAddsClass) {
-            ClassDecl cls = new ClassDecl(new Modifiers(),
-                                          name,
-                                          new Opt<Access>(),
-                                          new List<Access>(),
-                                          new List<BodyDecl>());
+            ClassDecl cls = createClassDeclForName( name, destinationClassIDsWithInstTuples.get( name ), false, null );
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			addClass.setWasAddsClass(false);
 
