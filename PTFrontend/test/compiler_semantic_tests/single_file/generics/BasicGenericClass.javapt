@@ -7,7 +7,7 @@ template T {
 		}
 
 		E getElement() {
-			return e;
+			return element;
 		}
 
 		void setElement(E e) {
