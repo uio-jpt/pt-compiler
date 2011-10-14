@@ -199,8 +199,11 @@ public class SimpleClassRew {
 		HashSet<String> names = Sets.newHashSet();
         boolean oneExternal = false;
 		for (ClassDeclRew x : renamedSources) {
-			names.add(x.getSuperClassName());
             ClassDecl sup = x.getClassDecl().superclass();
+            if( sup.superclass() == null ) { // meaning, if this is Object
+                continue;
+            }
+			names.add(x.getSuperClassName());
             if( sup != null && !sup.isPtInternalClass() ) {
                 oneExternal = true;
             }
