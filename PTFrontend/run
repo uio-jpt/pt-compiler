@@ -23,7 +23,7 @@ do
 		o)
 			outfolder=$OPTARG
 			shift $((OPTIND-1)) ;;
-    esac
+	esac
 done
 
 # ...
