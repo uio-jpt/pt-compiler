@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 
+// it _might_ be argued that AST.* could be appropriate..
 import AST.PTInterfaceAddsDecl;
 import AST.SimpleSet;
 import AST.PTInterfaceDecl;
@@ -47,6 +48,17 @@ import AST.PTMethodRename;
 import AST.PTMethodRenameAll;
 import AST.PTFieldRename;
 import AST.MethodDecl;
+
+import AST.PTConstructorDecl;
+import AST.PTTSuperConstructorCall;
+import AST.VarAccess;
+import AST.TemplateClassIdentifier;
+import AST.Expr;
+import AST.Stmt;
+import AST.Block;
+import AST.ParameterDeclaration;
+import AST.ASTNode;
+import AST.ConstructorDecl;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
@@ -362,6 +374,59 @@ public class PTDeclRew {
             gtype.error( "merge target " + name + " has multiple generic origins" );
             throw new CriticalPTException( "multiple generic origins, giving up" );
         }
+
+        /* Here's an exception to these classes being empty: if we have just one originator, and
+           it has at least one constructor with positive arity, we will create redirecting constructors.
+        */
+        if( (genericOrigins+nonGenericOrigins) == 1 ) {
+            PTInstTuple instTuple = instTuples.iterator().next();
+            PTInstDecl instDecl = (PTInstDecl) instTuple.getParentClass( PTInstDecl.class );
+            ClassDecl origin = (ClassDecl) instTuple.getOriginator();
+
+            boolean doCreateRedirectingConstructors = false;
+
+            for( ASTNode node : origin.getConstructorDeclList() ) {
+                ConstructorDecl constructor = (ConstructorDecl) node;
+                if( constructor.arity() != 0 ) {
+                    doCreateRedirectingConstructors = true;
+                }
+            }
+
+            if( doCreateRedirectingConstructors ) {
+                for( ASTNode node : origin.getConstructorDeclList() ) {
+                    ConstructorDecl constructor = (ConstructorDecl) node;
+
+                    Modifiers newMods = constructor.getModifiers().fullCopy();
+                    String constructorName = constructor.getID();
+                    List<ParameterDeclaration> constructorParameters = constructor.getParameterList().fullCopy();
+                    List<Access> constructorThrows  = constructor.getExceptions().fullCopy();
+                    Opt<Stmt> constructorInvocation = constructor.getConstructorInvocationOpt().fullCopy();
+                    Block emptyBody = new Block();
+
+                    TemplateClassIdentifier tci = TemplateClassIdentifier.extractFrom( instDecl, origin.getID() );
+                    List<Expr> actualParameters = new AST.List<Expr>();
+
+                    for( ParameterDeclaration pdecl : constructorParameters ) {
+                        actualParameters.add( new VarAccess( pdecl.getID() ) );
+                    }
+
+                    PTTSuperConstructorCall explicitInvocation = new PTTSuperConstructorCall( tci, actualParameters );
+
+                    List<PTTSuperConstructorCall> explicitInvocations = new AST.List<PTTSuperConstructorCall>();
+                    explicitInvocations.add( explicitInvocation );
+
+                    PTConstructorDecl myConstructor = new PTConstructorDecl( newMods,
+                                                                             constructorName,
+                                                                             constructorParameters,
+                                                                             constructorThrows,
+                                                                             constructorInvocation,
+                                                                             emptyBody,
+                                                                             explicitInvocations );
+                    cls.addBodyDecl( myConstructor );
+                }
+            }
+        }
+
 
         return cls;
     }
