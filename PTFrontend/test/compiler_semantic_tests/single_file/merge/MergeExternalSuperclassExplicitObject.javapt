@@ -8,7 +8,6 @@ template T {
 }
 
 package P {
-	inst T with C => X;
-	inst T with D => X;
+	inst T with C => X, D => X;
 }
 

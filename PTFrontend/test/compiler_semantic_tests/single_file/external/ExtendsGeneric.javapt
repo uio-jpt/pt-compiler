@@ -1,7 +1,0 @@
-template T {
-	class C extends external ThreadLocal<C> { }
-}
-
-package P {
-	inst T;
-}
