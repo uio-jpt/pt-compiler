@@ -336,7 +336,7 @@ RequiredType ptr_required_spec =
     ;
 
 RequiredType ptr_r_type =
-    TYPE IDENTIFIER super.s? interfaces.i? LBRACE ptr_r_type_body_decl* RBRACE
+    TYPE IDENTIFIER super.s? interfaces.i? LBRACE abstract_method_declaration* RBRACE
         {:
             // TODO, dummy
             javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
@@ -346,7 +346,7 @@ RequiredType ptr_r_type =
     ;
 
 RequiredInterface ptr_r_interface =
-    INTERFACE IDENTIFIER extends_interfaces.i? LBRACE ptr_r_type_body_decl* RBRACE
+    INTERFACE IDENTIFIER extends_interfaces.i? LBRACE abstract_method_declaration* RBRACE
         {:
             // TODO, dummy
             javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
@@ -362,7 +362,7 @@ RequiredInterface ptr_r_interface =
     ;
 
 RequiredClass ptr_r_class =
-    CLASS IDENTIFIER super.s? interfaces.i? LBRACE ptr_r_type_body_decl* RBRACE
+    CLASS IDENTIFIER super.s? interfaces.i? LBRACE abstract_method_declaration.m* RBRACE
         {:
             // TODO, dummy
             javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
@@ -381,10 +381,4 @@ RequiredClass ptr_r_class =
 
             return new RequiredClass( new Modifiers(), IDENTIFIER, new List(), tc );
         :}
-    ;
-
-
-// TODO!!!
-ASTNode ptr_r_type_body_decl =
-    SEMICOLON
     ;

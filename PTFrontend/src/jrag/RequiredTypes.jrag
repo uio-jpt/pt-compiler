@@ -31,4 +31,21 @@ aspect PTTypeParameters {
       // TODO use nominal superclasses!
       return false;
   }
+
+  eq RequiredType.methodsSignatureMap() {
+      HashMap map = new HashMap();
+/*
+
+      MethodDecl fuzz = new MethodDecl( new Modifiers(new List()),
+                                        new PrimitiveTypeAccess( "void" ),
+                                        "f",
+                                        new List(),
+                                        new List(),
+                                        new Opt() );
+
+      putSimpleSetElement( map, "f", fuzz );
+*/
+
+      return map;
+  }
 }
