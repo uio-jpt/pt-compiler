@@ -1,3 +1,6 @@
+/*
+   Feiler på linje 5!
+ */
 template T {
 	class Container<E> {
 		E element;
