@@ -15,6 +15,7 @@
   <property name="autodoc" location="autodoc"/>
   <property name="src.gen" location="src-gen"/>
   <property name="src.testutils" location="${src}/testutils/src"/>
+  <property name="src.javaworld" location="${src}/javaworld" />
   <property name="build" location="build"/>
   <property name="build.classes" location="${build}/classes"/>
   <property name="build.jar" location="${build}/jar"/>
@@ -28,6 +29,7 @@
   <property name="src.gen.parser.filename_lalr" location="${src.gen.parser}/JavaParser.all" />
   <property name="src.gen.parser.filename" location="${src.gen.parser}/JavaParser.beaver" />
   <property name="src.gen.beaver" location="${src.gen}/beaver" />
+  <property name="src.gen.javaworld" location="${src.gen}/javaworld" />
   <property name="resources" location="resources" />    
   <property name="txt" location="${resources}/txt" />    
   <property name="txt.generic-build.xml" location="${txt}/generic-build.xml" />
@@ -80,8 +82,8 @@
     <copy todir="${src.gen}">
       <fileset dir="${src.testutils}" />
     </copy>      
-    <copy todir="${src.gen}">
-      <fileset dir="${src}/javaworld/src" />
+    <copy todir="${src.gen.javaworld}">
+      <fileset dir="${src.javaworld}" />
     </copy>
   </target>
   
