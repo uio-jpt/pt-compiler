@@ -23,7 +23,7 @@ package P {
 
 	class Main {
 		public static void main (String [] args) {
-			Container<String> c = new Container<String>();
+			Container<String> c = new Container<String>( null );
 			c.element = "Hallo!";
 			c.setElement("Hei!");
 			System.out.println( c.getElement() );
