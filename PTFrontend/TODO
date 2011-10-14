@@ -1,4 +1,10 @@
-* Implementer Eivinds typeskranker.
+* Implementer Eivinds typeskranker:
+    * Faktisk nominell sjekking
+    * Syntaks for strukturelle skranker
+    * Faktisk strukturell sjekking
+    * Strukturell renaming
+    * Sørg for at nominell sjekking overlever renaming av interne
+      implementerte/utvidede typer
 
 * Bekreft at det ikke er noe problem i minit_steinkr_notat.
 

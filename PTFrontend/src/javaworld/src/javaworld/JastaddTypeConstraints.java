@@ -25,6 +25,7 @@ import AST.Access;
 import AST.Opt;
 import AST.Block;
 import AST.TypeDecl;
+import AST.PTDecl;
 
 import java.util.List;
 import java.util.Vector;
@@ -94,6 +95,8 @@ public class JastaddTypeConstraints {
             // these are really _extended_, not implemented
             fromInterfaceDeclInto( superi, tc );
         }
+
+        addSuperTypes( idecl, tc );
     }
 
     static TypeConstraint fromInterfaceDecl( InterfaceDecl idecl ) {
@@ -125,6 +128,8 @@ public class JastaddTypeConstraints {
         if( sc != null ) {
             fromClassDeclInto( sc, tc );
         }
+
+        addSuperTypes( cdecl, tc );
     }
 
     static TypeConstraint fromClassDecl( ClassDecl cdecl ) {
@@ -144,5 +149,40 @@ public class JastaddTypeConstraints {
             return fromInterfaceDecl( (InterfaceDecl) tdecl );
         }
         return null;
+    }
+
+    public static void addSuperTypes( TypeDecl tdecl, TypeConstraint tc ) {
+        if( tdecl instanceof ClassDecl ) {
+            ClassDecl cdecl = (ClassDecl) tdecl;
+            while( cdecl != null ) {
+                if( cdecl.isPtInternalClass() ) {
+                    String name = cdecl.getID();
+                    tc.addInternalSuperclassName( name );
+                } else {
+                    String name = cdecl.fullName();
+                    tc.addExternalSuperclassName( name );
+                }
+                cdecl = cdecl.superclass();
+            }
+        }
+        java.util.Stack<InterfaceDecl> stack = new java.util.Stack<InterfaceDecl>();
+        for( Object o : tdecl.implementedInterfaces() ) {
+            stack.push( (InterfaceDecl) o );
+        }
+        while( !stack.empty() ) {
+            InterfaceDecl decl = stack.pop();
+            PTDecl parent = (PTDecl) decl.getParentClass( PTDecl.class );
+
+            if( parent == null ) {
+                tc.addExternalInterfaceName( decl.fullName() );
+            } else {
+                tc.addInternalSuperclassName( decl.getID() );
+            }
+            
+
+            for( Object o : decl.implementedInterfaces() ) {
+                stack.push( (InterfaceDecl) o );
+            }
+        }
     }
 }
