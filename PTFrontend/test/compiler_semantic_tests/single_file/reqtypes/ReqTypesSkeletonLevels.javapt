@@ -1,0 +1,18 @@
+template T {
+    required type Foo {
+    } 
+
+}
+
+template S {
+    inst T with Foo => Bar;
+}
+
+template R {
+    inst S with Bar => Baz;
+}
+
+
+package P {
+    inst R with Baz <= Object;
+}

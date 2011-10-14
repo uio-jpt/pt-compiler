@@ -1,0 +1,30 @@
+template T {
+    class X {
+    }
+
+    interface Y {
+    }
+
+    interface Z {
+    }
+
+    required interface Foo extends X implements Y, Z {
+    } 
+
+}
+
+template S {
+    inst T with Foo => Bar;
+}
+
+template R {
+    inst S with Bar => Baz;
+}
+
+
+package P {
+    inst R with Baz <= A;
+
+    interface A extends Y, Z {
+    }
+}

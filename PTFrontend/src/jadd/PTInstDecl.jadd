@@ -36,6 +36,14 @@ aspect PTInstDecl {
                     addPTInstTuple(instTuple);
                 } 
             }
+            for (RequiredType rtDecl: getTemplate().getRequiredTypeList()) {
+                String templateClassID = rtDecl.getID();
+                if (!renamedClasses.containsKey(templateClassID)) {
+                    PTInstTuple instTuple;                                
+                    instTuple = new PTInstTuple(templateClassID,templateClassID, new List());
+                    addPTInstTuple(instTuple);
+                } 
+            }
         } catch(NullPointerException e) {
             error(String.format("No template with name %s found.\n",getID()));
         }

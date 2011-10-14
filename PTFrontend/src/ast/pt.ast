@@ -1,6 +1,6 @@
 PTCompilationUnit : CompilationUnit ::= PTDecl*;
 
-abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* PTInterfaceDecl* PTEnumDecl*;
+abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* PTInterfaceDecl* PTEnumDecl* RequiredType*;
 PTTemplate : PTDecl ::= TypeParameter:TypeVariable*;
 PTPackage : PTDecl;
 
@@ -15,9 +15,11 @@ PTEnumDecl : EnumDecl;
 
 TemplateClassIdentifier ::= <InstantiationName:String> <TemplateName:String> <TypeName:String>;
 
-PTInstDecl ::= <InstantiationName:String> <ID> TypeArgument:Access* PTInstTuple*;
+PTInstDecl ::= <InstantiationName:String> <ID> TypeArgument:Access* PTInstTuple* RequiredTypeInstantiation*;
 // inst T<...> with A => X;
 //      ID  typevariables   PTInstTuple
+
+RequiredTypeInstantiation ::= <RequiredTypeName> <ConcreteID>;
 
 PTInstTuple ::= <OrgID> <ID> PTDummyRename*;
 
@@ -56,3 +58,7 @@ PackageConstructor : MethodDecl ::= <TClassID> <TemplateID>;
 /* Type that marks a method as tabstract.
  */ 
 TabstractMethodDecl : MethodDecl;
+
+RequiredType : ReferenceType ::= <TypeConstraint:TypeConstraint>;
+RequiredClass : RequiredType;
+RequiredInterface : RequiredType;

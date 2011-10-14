@@ -57,6 +57,7 @@ PTDecl pt_template =
                                       cc.getSimpleClasses(),
                                       cc.getInterfaces(),
                                       cc.getEnums(),
+                                      cc.getRequiredTypes(),
                                       (ps == null) ? new AST.List<TypeVariable>() : ps
                                       );
           :}
@@ -66,12 +67,13 @@ PTDecl pt_package =
  PACKAGE IDENTIFIER LBRACE inst_class_or_interface_single.l* RBRACE
           {:
                 javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
-                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums());
+                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums(), cc.getRequiredTypes());
           :}
           ;
 
 ASTNode inst_class_or_interface_single =
      pt_inst_decl.pt_inst {: return pt_inst; :}
+   | ptr_required_spec.pt_req {: return pt_req; :}
    | class_or_interface_single.x {: return x; :}
    ;
 
@@ -137,23 +139,54 @@ Access pt_type_argument =
 PTInstDecl pt_inst_decl =
    IDENTIFIER.name COLON INST IDENTIFIER.templateName pt_type_arguments.ts? SEMICOLON
        {:
-          return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, new List());
+          return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, new List(), new List());
        :}
 | IDENTIFIER.name COLON INST IDENTIFIER.templateName pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
        {:
-          return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, dcl); :}
+          AST.List<RequiredTypeInstantiation> rtiList = new AST.List<RequiredTypeInstantiation>();
+          AST.List<PTInstTuple> ptitList = new AST.List<PTInstTuple>();
+          for( Object node : dcl ) {
+              if( node instanceof RequiredTypeInstantiation ) {
+                rtiList = rtiList.add( (RequiredTypeInstantiation) node );
+              } else if( node instanceof PTInstTuple ) {
+                ptitList = ptitList.add( (PTInstTuple) node );
+              }
+          }
+
+          return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, ptitList, rtiList ); :}
 | INST IDENTIFIER.templateName pt_type_arguments.ts? SEMICOLON
        {:
-          return new PTInstDecl( "$noname$", templateName, (ts == null) ? new List<Access>() : ts, new List());
+          return new PTInstDecl( "$noname$", templateName, (ts == null) ? new List<Access>() : ts, new List(), new List() );
        :}
 | INST IDENTIFIER.templateName pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
        {:
-          return new PTInstDecl( "$noname$", templateName, (ts == null) ? new List<Access>() : ts, dcl); :}
+          AST.List<RequiredTypeInstantiation> rtiList = new AST.List<RequiredTypeInstantiation>();
+          AST.List<PTInstTuple> ptitList = new AST.List<PTInstTuple>();
+          for( Object node : dcl ) {
+              if( node instanceof RequiredTypeInstantiation ) {
+                rtiList = rtiList.add( (RequiredTypeInstantiation) node );
+              } else if( node instanceof PTInstTuple ) {
+                ptitList = ptitList.add( (PTInstTuple) node );
+              }
+          }
+
+          return new PTInstDecl( "$noname$", templateName, (ts == null) ? new List<Access>() : ts, ptitList, rtiList );
+       :}
 ;
 
 List dummy_class_list =
-      dummy_class_list.dcl COMMA dummy_inst_tuple.t {: return dcl.add(t); :}
-    | dummy_inst_tuple.t {: return new List().add(t); :}
+      dummy_class_list.dcl COMMA dummy_arrow_tuple.t {: return dcl.add(t); :}
+    | dummy_arrow_tuple.t {: return new List().add(t); :}
+    ;
+
+ASTNode dummy_arrow_tuple =
+    reqtype_instantiation_tuple.t {: return t; :}
+    | dummy_inst_tuple.t {: return t; :}
+    ;
+
+RequiredTypeInstantiation reqtype_instantiation_tuple =
+    IDENTIFIER.a LTEQ IDENTIFIER.b 
+    {: return new RequiredTypeInstantiation(a,b); :}
     ;
 
 PTInstTuple dummy_inst_tuple =
@@ -295,3 +328,57 @@ TemplateClassIdentifier pt_tc_identifier =
     | LBRACK IDENTIFIER.a RBRACK
     {: return new TemplateClassIdentifier( "", "" , a ); :}
  ;
+
+RequiredType ptr_required_spec =
+    REQUIRED ptr_r_type.a {: return a; :}
+    | REQUIRED ptr_r_class.a {: return a; :}
+    | REQUIRED ptr_r_interface.a {: return a; :}
+    ;
+
+RequiredType ptr_r_type =
+    TYPE IDENTIFIER super.s? interfaces.i? LBRACE abstract_method_declaration* RBRACE
+        {:
+            // TODO, dummy
+            javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
+
+            return new RequiredType( new Modifiers(), IDENTIFIER, new List(), tc );
+        :}
+    ;
+
+RequiredInterface ptr_r_interface =
+    INTERFACE IDENTIFIER extends_interfaces.i? LBRACE abstract_method_declaration* RBRACE
+        {:
+            // TODO, dummy
+            javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
+            tc.requireInterface();
+/*
+            for( Object o : i ) {
+                InterfaceDecl decl = (InterfaceDecl) o;
+                javaworld.JastaddTypeConstraints.addSuperTypes( decl, tc );
+            }
+*/
+            return new RequiredInterface( new Modifiers(), IDENTIFIER, new List(), tc );
+        :}
+    ;
+
+RequiredClass ptr_r_class =
+    CLASS IDENTIFIER super.s? interfaces.i? LBRACE abstract_method_declaration.m* RBRACE
+        {:
+            // TODO, dummy
+            javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
+            tc.requireClass();
+
+/*
+            for( Object o : i ) {
+                InterfaceDecl decl = (InterfaceDecl) o;
+                javaworld.JastaddTypeConstraints.addSuperTypes( decl, tc );
+            }
+            for( Object o : s ) {
+                InterfaceDecl decl = (InterfaceDecl) o;
+                javaworld.JastaddTypeConstraints.addSuperTypes( decl, tc );
+            }
+*/
+
+            return new RequiredClass( new Modifiers(), IDENTIFIER, new List(), tc );
+        :}
+    ;

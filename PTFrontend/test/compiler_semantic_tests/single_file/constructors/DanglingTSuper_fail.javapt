@@ -1,5 +1,7 @@
 package P {
-    public X() {
-        tsuper[Y](42);
+    class X {
+        public X() {
+            tsuper[Y](42);
+        }
     }
 }
