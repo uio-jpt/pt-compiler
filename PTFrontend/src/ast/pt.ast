@@ -1,6 +1,6 @@
 PTCompilationUnit : CompilationUnit ::= PTDecl*;
 
-abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* PTInterfaceDecl* PTEnumDecl*;
+abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* PTInterfaceDecl* PTEnumDecl* RequiredType*;
 PTTemplate : PTDecl ::= TypeParameter:TypeVariable*;
 PTPackage : PTDecl;
 

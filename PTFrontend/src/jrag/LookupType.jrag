@@ -50,6 +50,9 @@ aspect LookupType {
         return lookupType(packageName, typeName);
     }
 
+
+    /* TODO -- shouldn't ALL of these check ALL types? check later */
+
     eq PTDecl.getSimpleClass(int i).lookupType(String packageName, String typeName) {
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
         for (SimpleClass cls : getSimpleClassList()) {
@@ -74,6 +77,16 @@ aspect LookupType {
     eq PTDecl.getPTInterfaceDecl(int i).lookupType(String packageName, String typeName) {
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
         for (PTInterfaceDecl cls : getPTInterfaceDeclList()) {
+            if (cls.fullName().equals(fullName)) {
+                return cls;
+            }
+        }
+        return lookupType(packageName, typeName);
+    }
+
+    eq PTDecl.getRequiredType(int i).lookupType(String packageName, String typeName) {
+        String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
+        for (RequiredType cls : getRequiredTypeList()) {
             if (cls.fullName().equals(fullName)) {
                 return cls;
             }
@@ -134,6 +147,7 @@ aspect LookupType {
     */
 
     syn SimpleSet PTDecl.lookupTypeInPTDecl( String name ) {
+        System.out.println( "looking for type " + name + " in all the wrong places" );
         if( this instanceof PTTemplate ) {
             SimpleSet c = SimpleSet.emptySet;
             PTTemplate ptt = (PTTemplate) this;
@@ -156,6 +170,13 @@ aspect LookupType {
                 return SimpleSet.emptySet.add(s);
             }
         }
+        for (RequiredType s : getRequiredTypeList()) {
+            if (s.getID().equals(name)) {
+                System.out.println( "hit requiredtype: " + name );
+                return SimpleSet.emptySet.add(s);
+            }
+        }
+        System.out.println( "missed requiredtype: " + name );
 
         TypeDecl t = lookupType("", name);
         if (t!=null) return SimpleSet.emptySet.add(t);
@@ -197,6 +218,13 @@ aspect LookupType {
     }
 
     eq PTDecl.getPTInstDecl(int i).lookupType(String name) {
+        SimpleSet c = lookupTypeInPTDecl( name );
+        if( c.size() > 0 ) {
+            return c;
+        }
+    }
+
+    eq PTDecl.getRequiredType(int i).lookupType(String name) {
         SimpleSet c = lookupTypeInPTDecl( name );
         if( c.size() > 0 ) {
             return c;

@@ -1,0 +1,9 @@
+template T {
+    required type Foo {
+    } 
+
+    class X {
+        public void g(Foo f) {
+        }
+    }
+}
