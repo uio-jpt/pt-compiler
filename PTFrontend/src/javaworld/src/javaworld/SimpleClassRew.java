@@ -34,7 +34,6 @@ import AST.SimpleClass;
 import AST.SimpleSet;
 import AST.Stmt;
 import AST.SuperConstructorAccess;
-import AST.TemplateConstructorAccess;
 import AST.TypeAccess;
 import AST.ParTypeAccess;
 import AST.TypeDecl;
@@ -200,8 +199,11 @@ public class SimpleClassRew {
 		HashSet<String> names = Sets.newHashSet();
         boolean oneExternal = false;
 		for (ClassDeclRew x : renamedSources) {
-			names.add(x.getSuperClassName());
             ClassDecl sup = x.getClassDecl().superclass();
+            if( sup.superclass() == null ) { // meaning, if this is Object
+                continue;
+            }
+			names.add(x.getSuperClassName());
             if( sup != null && !sup.isPtInternalClass() ) {
                 oneExternal = true;
             }
@@ -437,22 +439,6 @@ public class SimpleClassRew {
 		} else {
 			return new Opt<Stmt>();
 		}
-	}
-
-	private void replaceGeneric(TemplateConstructorAccess x,
-			LinkedList<TemplateConstructorAccess> callChain) {
-		String tclassID = x.getTClassID();
-		String tname = x.getTemplateID();
-
-		for (int i = 0; i < callChain.size(); i++) {
-			TemplateConstructorAccess cur = callChain.get(i);
-			String curClassName = cur.getTClassID();
-			String curTemplateName = cur.getTemplateID();
-			if (curClassName.equals(tclassID) && curTemplateName.equals(tname)) {
-				callChain.set(i, x);
-			}
-		}
-
 	}
 
 	public String getSuperClassname() {

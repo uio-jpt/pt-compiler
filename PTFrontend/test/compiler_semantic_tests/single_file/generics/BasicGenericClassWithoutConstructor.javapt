@@ -1,12 +1,9 @@
-/*
-   Feiler på linje 5!
- */
 template T {
 	class Container<E> {
 		E element;
 	
-		Container(E e) {
-			element = e;
+		Container() {
+			element = null;
 		}
 
 		E getElement() {
@@ -26,7 +23,7 @@ package P {
 
 	class Main {
 		public static void main (String [] args) {
-			Container<String> c = new Container<String>( null );
+			Container<String> c = new Container<String>();
 			c.element = "Hallo!";
 			c.setElement("Hei!");
 			System.out.println( c.getElement() );

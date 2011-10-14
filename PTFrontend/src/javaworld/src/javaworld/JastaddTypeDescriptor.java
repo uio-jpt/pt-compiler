@@ -7,12 +7,15 @@ import AST.Access;
 import AST.ParTypeAccess;
 import AST.TypeAccess;
 import AST.TypeDecl;
+import AST.Wildcard;
 
 import com.google.common.base.Joiner;
 
 public class JastaddTypeDescriptor implements TypeDescriptor {
     TypeAccess typeAccess;
     ParTypeAccess parTypeAccess;
+
+    boolean isWildcard;
 
     List<JastaddTypeDescriptor> typeParameters;
 
@@ -38,12 +41,17 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
             for(int i=0;i<n;i++) {
                 typeParameters.add( new JastaddTypeDescriptor( parTypeAccess.getTypeArgument(i) ) );
             }
+        } else if( acc instanceof Wildcard ) {
+            isWildcard = true;
         } else {
             throw new RuntimeException( "access of class " + acc.getClass().getName() + " passed to JastaddTypeDescriptor does not describe a type in any known way" );
         }
     }
 
     public Access getAccess() {
+        if( isWildcard ) {
+            new Wildcard();
+        }
         if( isParametrized() ) {
             return parTypeAccess;
         }
@@ -65,10 +73,13 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         return typeParameters.size();
     }
 
+
     public boolean equals( TypeDescriptor that ) {
         if( !(that instanceof JastaddTypeDescriptor) ) return false;
 
         JastaddTypeDescriptor jt = (JastaddTypeDescriptor) that;
+        
+        if( isWildcard != jt.isWildcard ) return false;
 
         if( isParametrized() != jt.isParametrized() ) return false;
 
@@ -90,7 +101,12 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     }
 
     public String toString() {
+        if( isWildcard ) {
+            return "?";
+        }
+
         StringBuilder sb = new StringBuilder();
+
         sb.append( getBaseTypeDecl().fullName() );
         if( isParametrized() ) {
             sb.append( "<" );

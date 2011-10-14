@@ -1,10 +1,4 @@
 aspect TemplateSpecific {
-    
-    coll Collection<TemplateConstructorAccess>    ConstructorDecl.getTemplateConstructorAccesses() [new LinkedList<TemplateConstructorAccess>()]
-        with add root ClassDecl;
-    TemplateConstructorAccess contributes this to ConstructorDecl.getTemplateConstructorAccesses()
-        for getConstructorDecl();
-    
     coll Collection<TemplateConstructor>    ClassDecl.getTemplateConstructors() [new LinkedList<TemplateConstructor>()]
         with add root ClassDecl;
     TemplateConstructor contributes this to ClassDecl.getTemplateConstructors()

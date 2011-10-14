@@ -9,9 +9,12 @@ import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.HashSet;
 
+import com.google.common.base.Joiner;
+
 import java.util.Map;
 import java.util.HashMap;
 
+// it _might_ be argued that AST.* could be appropriate..
 import AST.PTInterfaceAddsDecl;
 import AST.SimpleSet;
 import AST.PTInterfaceDecl;
@@ -21,6 +24,7 @@ import AST.ClassDecl;
 import AST.ClassAccess;
 import AST.CompilationUnit;
 import AST.ImportDecl;
+import AST.GenericClassDecl;
 import AST.List;
 import AST.Modifier;
 import AST.Modifiers;
@@ -46,6 +50,21 @@ import AST.PTMethodRename;
 import AST.PTMethodRenameAll;
 import AST.PTFieldRename;
 import AST.MethodDecl;
+
+import AST.PTConstructorDecl;
+import AST.PTTSuperConstructorCall;
+import AST.VarAccess;
+import AST.TemplateClassIdentifier;
+import AST.Expr;
+import AST.Stmt;
+import AST.Block;
+import AST.ParameterDeclaration;
+import AST.ASTNode;
+import AST.ConstructorDecl;
+import AST.RequiredType;
+import AST.RequiredClass;
+import AST.RequiredInterface;
+import AST.RequiredTypeInstantiation;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
@@ -108,6 +127,190 @@ public class PTDeclRew {
     protected void createRenamedEnums() {
         for( String name : getDestinationIDsForEnums() ) {
             ptDeclToBeRewritten.getPTEnumDeclList().add( getRenamedEnumByName( name ) );
+        }
+    }
+
+    protected void concretifyRequiredType( RequiredType rtype, TypeDecl replacement ) {
+    }
+
+    protected void concretifyRequiredTypes() {
+        Multimap<String,String> concretifications = HashMultimap.create();
+
+        RequiredTypeRewriter rewriter = new RequiredTypeRewriter();
+        java.util.Set<RequiredType> toBeDeleted = new java.util.HashSet<RequiredType>();
+
+        /* see email, per now assume: <= on target name (after renames) */
+
+		for (PTInstDecl instDecl : ptDeclToBeRewritten.getPTInstDecls()) {
+            for( RequiredTypeInstantiation rti : instDecl.getRequiredTypeInstantiationList() ) {
+                concretifications.put( rti.getRequiredTypeName(), rti.getConcreteID() );
+            }
+        }
+
+        for( String key : concretifications.keySet() ) {
+            boolean stopError = false;
+            TypeDecl tdecl = null;
+        
+            SimpleSet matches = ptDeclToBeRewritten.lookupTypeInPTDecl( key );
+            if( matches.size() < 1 ) {
+                ptDeclToBeRewritten.error( "concretification of unknown type: " + key );
+                stopError = true;
+            } else if( matches.size() > 1 ) {
+                // detected elsewhere
+                stopError = true;
+            } else {
+                tdecl = (TypeDecl) matches.iterator().next();
+                if( !(tdecl instanceof RequiredType) ) {
+                    stopError = true;
+                    ptDeclToBeRewritten.error( "concretification of non-required type/class/interface: " + key );
+                }
+            }
+            if( concretifications.get( key ).size() > 1 ) {
+                ptDeclToBeRewritten.error( "multiple concretifications of " + key );
+                stopError = true;
+            }
+
+            TypeDecl replacementType  = null;
+            String replacement = "";
+
+            if( !stopError ) {
+                replacement = concretifications.get( key ).iterator().next();
+                PTInstDecl instDeclFirst = (PTInstDecl) ptDeclToBeRewritten.getPTInstDecls().iterator().next(); // hack
+                SimpleSet rightMatches = ptDeclToBeRewritten.lookupTypeInPTDecl( replacement );
+                if( rightMatches.size() == 0 ) {
+                    rightMatches = ptDeclToBeRewritten.lookupType( replacement );
+                }
+                if( rightMatches.size() < 1 ) {
+                    ptDeclToBeRewritten.error( "concretifying " + key + " with unknown type " +  replacement );
+                    stopError = true;
+                } else if( rightMatches.size() > 2 ) {
+                    stopError = true;
+                } else {
+                    try {
+                        replacementType = (TypeDecl) rightMatches.iterator().next();
+                    }
+                    catch( ClassCastException e ) {
+                        stopError = true;
+                    }
+                }
+            }
+
+            // check conformance
+            if( !stopError ) {
+                RequiredType reqType = (RequiredType) tdecl;
+                TypeConstraint cand = JastaddTypeConstraints.fromReferenceTypeDecl( replacementType );
+                if( cand == null ) {
+                    ptDeclToBeRewritten.error( "concretification candidate " + replacement + " is unsuitable (not a known reference type" );
+                    stopError = true;
+                } else if( !cand.satisfies( reqType.getTypeConstraint() ) ) {
+                    ptDeclToBeRewritten.error( "concretification candidate " + replacement + " does not satisfy constraints" );
+                    // TODO be more informative..
+
+                    stopError = true;
+                } else {
+                    String replacementName = replacementType.getID();
+                    // TODO this should be a fully qualified access to avoid problems
+                    // however, that's not just TypeAccess("java.lang.foo")..
+
+                    TypeAccess typeAccess = new TypeAccess( replacementName );
+
+                    rewriter.addRewrite( reqType, typeAccess );
+                    toBeDeleted.add( reqType );
+                }
+            }
+        }
+
+        rewriter.mutate( ptDeclToBeRewritten );
+
+        {
+            AST.List<RequiredType> remainingTypes = new AST.List<RequiredType>();
+            for( RequiredType rt : ptDeclToBeRewritten.getRequiredTypeList() ) {
+                if( ! toBeDeleted.contains( rt ) ) {
+                    remainingTypes = remainingTypes.add( rt );
+                }
+            }
+            ptDeclToBeRewritten.setRequiredTypeList( remainingTypes );
+        }
+
+
+        if( ptDeclToBeRewritten instanceof PTPackage ) {
+            java.util.Set<String> unconcrete = new java.util.HashSet<String>();
+            for( RequiredType rt : ptDeclToBeRewritten.getRequiredTypeList() ) {
+                unconcrete.add( rt.getID() );
+            }
+
+            if( unconcrete.size() > 0 ) {
+                ptDeclToBeRewritten.error( "remaining unconcretified required types in package: " + Joiner.on( ", " ).join( unconcrete ) );
+            }
+        }
+    }
+
+	protected void createMergedRequiredTypes() {
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
+        for( String key : destinationClassIDsWithInstTuples.keySet() ) {
+            java.util.List<RequiredType> originatorReqTypes = new java.util.ArrayList<RequiredType>();
+            TypeDecl nonRTOriginator = null;
+
+            for( PTInstTuple tuple : destinationClassIDsWithInstTuples.get( key ) ) {
+                TypeDecl decl = tuple.getOriginator();
+                if( decl instanceof RequiredType ) {
+                    originatorReqTypes.add( (RequiredType) decl );
+                } else {
+                    nonRTOriginator = decl;
+                }
+            }
+
+            if( originatorReqTypes.size() == 0 ) continue;
+
+            PTInstDecl ptid = (PTInstDecl) destinationClassIDsWithInstTuples.get( key ).iterator().next().getParentClass( PTInstDecl.class );
+
+            if( nonRTOriginator != null ) {
+                ptid.error( "cannot merge required type(s) with concrete type " + nonRTOriginator.getID() + " into " + key );
+                continue;
+            }
+
+            boolean mustBeType = false, mustBeClass = false, mustBeInterface = false;
+            java.util.Set<String> typesMerged = new java.util.HashSet<String>();
+            
+            for( RequiredType rt : originatorReqTypes ) {
+                if( rt.getTypeConstraint().mustBeClass() ) {
+                    mustBeClass = true;
+                    typesMerged.add( "required class " + rt.getID() );
+                } else if( rt.getTypeConstraint().mustBeInterface() ) {
+                    mustBeInterface = true;
+                    typesMerged.add( "required interface " + rt.getID() );
+                } else {
+                    // note, here we're removing potential freedom per article
+                    mustBeType = true;
+                    typesMerged.add( "required type " + rt.getID() );
+                }
+            }
+            int totalReqs = (mustBeType ? 1 : 0) + (mustBeClass ? 1 : 0) + (mustBeInterface ? 1 : 0);
+
+            if( totalReqs != 1 ) {
+                ptid.error( "will not perform heterogeneous merge of required types: " + Joiner.on( ", " ).join( typesMerged ) );
+                continue;
+            }
+
+            TypeConstraint tc = new TypeConstraint();
+
+            for( RequiredType rt : originatorReqTypes ) {
+                tc.absorb( rt.getTypeConstraint() );
+            }
+
+            RequiredType myRequiredType;
+
+            // TODO think about modifiers, these are discarded here
+            if( mustBeClass ) {
+                myRequiredType = new RequiredClass( new Modifiers(), key, new List(),  tc );
+            } else if( mustBeInterface ) {
+                myRequiredType = new RequiredInterface( new Modifiers(), key, new List(), tc );
+            } else {
+                assert( mustBeType );
+                myRequiredType = new RequiredType( new Modifiers(), key, new List(), tc );
+            }
+
+            ptDeclToBeRewritten.addRequiredType( myRequiredType );
         }
     }
 
@@ -305,6 +508,119 @@ public class PTDeclRew {
         return new InstTupleRew(tup).getRenamedSourceInterface();
     }
 
+    protected ClassDecl createClassDeclForName( String name, java.util.Collection<PTInstTuple> instTuples, boolean addExtendsExternal, Access superClassAccess ) {
+        Modifiers mods = new Modifiers();
+
+        if( addExtendsExternal ) {
+            mods.addModifier( new Modifier( "extendsexternal" ) );
+        }
+
+        Opt<Access> optAccess;
+
+        if( superClassAccess != null ) {
+            optAccess = new Opt<Access>( superClassAccess );
+        } else {
+            optAccess = new Opt<Access>();
+        }
+
+
+        GenericClassDecl gtype = null;
+        int genericOrigins = 0, nonGenericOrigins = 0;
+        for( PTInstTuple instTuple : instTuples ) {
+            if( instTuple.getOriginator().isGenericType() ) {
+                genericOrigins++;
+                gtype = (GenericClassDecl) instTuple.getOriginator();
+            } else {
+                nonGenericOrigins++;
+            }
+        }
+
+        ClassDecl cls;
+        
+        if( genericOrigins == 0 ) {
+            cls = new ClassDecl(mods,
+                                name,
+                                optAccess,
+                                new List<Access>(),
+                                new List<BodyDecl>());
+        } else if( genericOrigins == 1 && nonGenericOrigins == 0 ) {
+            // this is simple to handle -- copy the arguments
+            cls = new GenericClassDecl( mods,
+                                        name,
+                                        optAccess,
+                                        new List<Access>(),
+                                        new List<BodyDecl>(),
+                                        gtype.getTypeParameterList().fullCopy() );
+        } else if( genericOrigins == 1 && nonGenericOrigins != 0 ) {
+            // C<A> + D --> CD<A>
+            // hard to handle -- we now need to change all type accesses 
+
+            gtype.error( "merge target " + name + " has generic and non-generic origins [not implemented yet]" );
+            throw new CriticalPTException( "mixed-generic origins, giving up" );
+        } else {
+            // problems with multiple generics: C<A> + D<B> --> CD<?,?> (order?)
+            // this seems fundamental
+
+            gtype.error( "merge target " + name + " has multiple generic origins" );
+            throw new CriticalPTException( "multiple generic origins, giving up" );
+        }
+
+        /* Here's an exception to these classes being empty: if we have just one originator, and
+           it has at least one constructor with positive arity, we will create redirecting constructors.
+        */
+        if( (genericOrigins+nonGenericOrigins) == 1 ) {
+            PTInstTuple instTuple = instTuples.iterator().next();
+            PTInstDecl instDecl = (PTInstDecl) instTuple.getParentClass( PTInstDecl.class );
+            ClassDecl origin = (ClassDecl) instTuple.getOriginator();
+
+            boolean doCreateRedirectingConstructors = false;
+
+            for( ASTNode node : origin.getConstructorDeclList() ) {
+                ConstructorDecl constructor = (ConstructorDecl) node;
+                if( constructor.arity() != 0 ) {
+                    doCreateRedirectingConstructors = true;
+                }
+            }
+
+            if( doCreateRedirectingConstructors ) {
+                for( ASTNode node : origin.getConstructorDeclList() ) {
+                    ConstructorDecl constructor = (ConstructorDecl) node;
+
+                    Modifiers newMods = constructor.getModifiers().fullCopy();
+                    String constructorName = constructor.getID();
+                    List<ParameterDeclaration> constructorParameters = constructor.getParameterList().fullCopy();
+                    List<Access> constructorThrows  = constructor.getExceptions().fullCopy();
+                    Opt<Stmt> constructorInvocation = constructor.getConstructorInvocationOpt().fullCopy();
+                    Block emptyBody = new Block();
+
+                    TemplateClassIdentifier tci = TemplateClassIdentifier.extractFrom( instDecl, origin.getID() );
+                    List<Expr> actualParameters = new AST.List<Expr>();
+
+                    for( ParameterDeclaration pdecl : constructorParameters ) {
+                        actualParameters.add( new VarAccess( pdecl.getID() ) );
+                    }
+
+                    PTTSuperConstructorCall explicitInvocation = new PTTSuperConstructorCall( tci, actualParameters );
+
+                    List<PTTSuperConstructorCall> explicitInvocations = new AST.List<PTTSuperConstructorCall>();
+                    explicitInvocations.add( explicitInvocation );
+
+                    PTConstructorDecl myConstructor = new PTConstructorDecl( newMods,
+                                                                             constructorName,
+                                                                             constructorParameters,
+                                                                             constructorThrows,
+                                                                             constructorInvocation,
+                                                                             emptyBody,
+                                                                             explicitInvocations );
+                    cls.addBodyDecl( myConstructor );
+                }
+            }
+        }
+
+
+        return cls;
+    }
+
 	protected void createEmptyMissingAddClasses() {
 
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
@@ -336,9 +652,6 @@ public class PTDeclRew {
                                  addClasses ),
                                  extendingExternalsClasses.keySet() );
         for(String name : extendingExternalsClasses.keySet() ) {
-            Modifiers mods = new Modifiers();
-            mods.addModifier( new Modifier( "extendsexternal" ) );
-
             /* I believe checking for clashes is done elsewhere, so here we just take the FIRST
                extends-external class.
                TODO make this deterministic. (Note that it is only nondeterministic if there IS
@@ -347,22 +660,15 @@ public class PTDeclRew {
 
             Access superClassAccess = (Access) extendingExternalsClasses.get(name).iterator().next().getSuperClassAccess().fullCopy();
 
-            ClassDecl cls = new ClassDecl(mods,
-                                          name,
-                                          new Opt<Access>( superClassAccess ),
-                                          new List<Access>(),
-                                          new List<BodyDecl>());
+            ClassDecl cls = createClassDeclForName( name, destinationClassIDsWithInstTuples.get( name ), true, superClassAccess );
+
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			ptDeclToBeRewritten.addSimpleClass(addClass);
 			lb.add(new SimpleClassRew(addClass));
         }
 
 		for (String name : missingAddsClass) {
-            ClassDecl cls = new ClassDecl(new Modifiers(),
-                                          name,
-                                          new Opt<Access>(),
-                                          new List<Access>(),
-                                          new List<BodyDecl>());
+            ClassDecl cls = createClassDeclForName( name, destinationClassIDsWithInstTuples.get( name ), false, null );
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			addClass.setWasAddsClass(false);
 
@@ -834,5 +1140,4 @@ public class PTDeclRew {
             addImpliedRenamesToPTInstDecl( ptid );
         }
     }
-
 }

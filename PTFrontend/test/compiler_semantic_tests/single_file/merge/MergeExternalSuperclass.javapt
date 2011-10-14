@@ -4,6 +4,8 @@ template T {
 }
 
 package P {
+    // this is a merge with self -- not sure if intentional?
+    // in any case it works, but it's not the same as: inst T with C => X, D => X;
 	inst T with C => X;
 	inst T with D => X;
 }

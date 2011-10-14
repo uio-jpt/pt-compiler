@@ -50,6 +50,9 @@ aspect LookupType {
         return lookupType(packageName, typeName);
     }
 
+
+    /* TODO -- shouldn't ALL of these check ALL types? check later */
+
     eq PTDecl.getSimpleClass(int i).lookupType(String packageName, String typeName) {
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
         for (SimpleClass cls : getSimpleClassList()) {
@@ -81,6 +84,16 @@ aspect LookupType {
         return lookupType(packageName, typeName);
     }
 
+    eq PTDecl.getRequiredType(int i).lookupType(String packageName, String typeName) {
+        String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
+        for (RequiredType cls : getRequiredTypeList()) {
+            if (cls.fullName().equals(fullName)) {
+                return cls;
+            }
+        }
+        return lookupType(packageName, typeName);
+    }
+
     syn TypeDecl PTDecl.ptLookupSpecificType(String name) {
         for (TypeDecl cls: getClassList()) {
             if (cls.getID().equals(name)) {
@@ -93,6 +106,11 @@ aspect LookupType {
             }
         }
         for (PTInterfaceDecl cls : getPTInterfaceDeclList()) {
+            if (cls.getID().equals(name)) {
+                return cls;
+            }
+        }
+        for (RequiredType cls : getRequiredTypeList()) {
             if (cls.getID().equals(name)) {
                 return cls;
             }
@@ -133,10 +151,13 @@ aspect LookupType {
        jastadd system is still somewhat unfamiliar.
     */
 
-    syn SimpleSet PTTemplate.ptLookupTypeIn(String name) {
-        SimpleSet c = SimpleSet.emptySet;
-        c = addTypeVariables(c, name);
-        if(!c.isEmpty()) return c;
+    syn SimpleSet PTDecl.lookupTypeInPTDecl( String name ) {
+        if( this instanceof PTTemplate ) {
+            SimpleSet c = SimpleSet.emptySet;
+            PTTemplate ptt = (PTTemplate) this;
+            c = ptt.addTypeVariables(c, name);
+            if(!c.isEmpty()) return c;
+        }
 
         for (SimpleClass s : getSimpleClassList()) {
             ClassDecl cd = s.getClassDecl();
@@ -153,122 +174,63 @@ aspect LookupType {
                 return SimpleSet.emptySet.add(s);
             }
         }
+        for (RequiredType s : getRequiredTypeList()) {
+            if (s.getID().equals(name)) {
+                return SimpleSet.emptySet.add(s);
+            }
+        }
+
         TypeDecl t = lookupType("", name);
         if (t!=null) return SimpleSet.emptySet.add(t);
+    
+        return SimpleSet.emptySet;
+    }
 
+    syn SimpleSet PTTemplate.ptLookupTypeIn(String name) {
+        SimpleSet c = lookupTypeInPTDecl( name );
+        if( c.size() > 0 ) {
+            return c;
+        }
         return lookupType( name );
     }
 
 
     eq PTTemplate.getTypeParameter().lookupType(String name) {
-        SimpleSet c = SimpleSet.emptySet;
-        c = addTypeVariables(c, name);
-        if(!c.isEmpty()) return c;
-
-        for (SimpleClass s : getSimpleClassList()) {
-            ClassDecl cd = s.getClassDecl();
-            if (cd.getID().equals(name))
-                return SimpleSet.emptySet.add(cd);
+        SimpleSet c = lookupTypeInPTDecl( name );
+        if( c.size() > 0 ) {
+            return c;
         }
-        for (PTEnumDecl s : getPTEnumDeclList()) {
-            if (s.getID().equals(name)) {
-                return SimpleSet.emptySet.add(s);
-            }
-        }
-        for (PTInterfaceDecl s : getPTInterfaceDeclList()) {
-            if (s.getID().equals(name)) {
-                return SimpleSet.emptySet.add(s);
-            }
-        }
-        TypeDecl t = lookupType("", name);
-        if (t!=null) return SimpleSet.emptySet.add(t);
     }
 
     eq PTDecl.getSimpleClass(int i).lookupType(String name) {
-        if( this instanceof PTTemplate ) {
-            SimpleSet c = SimpleSet.emptySet;
-            PTTemplate ptt = (PTTemplate) this;
-            c = ptt.addTypeVariables(c, name);
-            if(!c.isEmpty()) return c;
+        SimpleSet c = lookupTypeInPTDecl( name );
+        if( c.size() > 0 ) {
+            return c;
         }
-
-        for (SimpleClass s : getSimpleClassList()) {
-            ClassDecl cd = s.getClassDecl();
-            if (cd.getID().equals(name))
-                return SimpleSet.emptySet.add(cd);
-        }
-        for (PTEnumDecl s : getPTEnumDeclList()) {
-            if (s.getID().equals(name)) {
-                return SimpleSet.emptySet.add(s);
-            }
-        }
-        for (PTInterfaceDecl s : getPTInterfaceDeclList()) {
-            if (s.getID().equals(name)) {
-                return SimpleSet.emptySet.add(s);
-            }
-        }
-        TypeDecl t = lookupType("", name);
-        if (t!=null) return SimpleSet.emptySet.add(t);
     }
 
     eq PTDecl.getPTInterfaceDecl(int i).lookupType(String name) {
-        if( this instanceof PTTemplate ) {
-            SimpleSet c = SimpleSet.emptySet;
-            PTTemplate ptt = (PTTemplate) this;
-            c = ptt.addTypeVariables(c, name);
-            if(!c.isEmpty()) return c;
+        SimpleSet c = lookupTypeInPTDecl( name );
+        if( c.size() > 0 ) {
+            return c;
         }
 
-        for (SimpleClass s : getSimpleClassList()) {
-            ClassDecl cd = s.getClassDecl();
-            if (cd.getID().equals(name))
-                return SimpleSet.emptySet.add(cd);
-        }
-
-        for (PTEnumDecl s : getPTEnumDeclList()) {
-            if (s.getID().equals(name)) {
-                return SimpleSet.emptySet.add(s);
-            }
-        }
-
-        for (PTInterfaceDecl s : getPTInterfaceDeclList()) {
-            if (s.getID().equals(name)) {
-                return SimpleSet.emptySet.add(s);
-            }
-        }
-
-        TypeDecl t = lookupType("", name);
-        if (t!=null) return SimpleSet.emptySet.add(t);
-
-        SimpleSet rv = lookupType( name ); // ?
+        SimpleSet rv = lookupType( name ); // ? // ??
         return rv;
     }
 
     eq PTDecl.getPTInstDecl(int i).lookupType(String name) {
-        if( this instanceof PTTemplate ) {
-            SimpleSet c = SimpleSet.emptySet;
-            PTTemplate ptt = (PTTemplate) this;
-            c = ptt.addTypeVariables(c, name);
-            if(!c.isEmpty()) return c;
+        SimpleSet c = lookupTypeInPTDecl( name );
+        if( c.size() > 0 ) {
+            return c;
         }
+    }
 
-        for (SimpleClass s : getSimpleClassList()) {
-            ClassDecl cd = s.getClassDecl();
-            if (cd.getID().equals(name))
-                return SimpleSet.emptySet.add(cd);
+    eq PTDecl.getRequiredType(int i).lookupType(String name) {
+        SimpleSet c = lookupTypeInPTDecl( name );
+        if( c.size() > 0 ) {
+            return c;
         }
-        for (PTEnumDecl s : getPTEnumDeclList()) {
-            if (s.getID().equals(name)) {
-                return SimpleSet.emptySet.add(s);
-            }
-        }
-        for (PTInterfaceDecl s : getPTInterfaceDeclList()) {
-            if (s.getID().equals(name)) {
-                return SimpleSet.emptySet.add(s);
-            }
-        }
-        TypeDecl t = lookupType("", name);
-        if (t!=null) return SimpleSet.emptySet.add(t);
     }
 
     inh ClassDecl TemplateMethodAccess.getClassDecl(String className);

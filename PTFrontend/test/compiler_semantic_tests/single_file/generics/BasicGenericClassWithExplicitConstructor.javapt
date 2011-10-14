@@ -1,6 +1,3 @@
-/*
-   Feiler på linje 5!
- */
 template T {
 	class Container<E> {
 		E element;
@@ -24,9 +21,15 @@ template T {
 package P {
 	inst T;
 
+    class Container<E> adds {
+        Container(E e) {
+            tsuper[T.Container](e);
+        }
+    }
+
 	class Main {
 		public static void main (String [] args) {
-			Container<String> c = new Container<String>( null );
+			Container<String> c = new Container<String>( "heisann" );
 			c.element = "Hallo!";
 			c.setElement("Hei!");
 			System.out.println( c.getElement() );
