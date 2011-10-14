@@ -1,17 +1,23 @@
-template SimpleTemplate {
+template T {
 
     class A {
         int getX() { return 533; }
     }
 
+}
+
+template U {
+
     class B {
         int getX() { return 133; }        
     }
+
 }
 
 
 package AddPackage {
-    inst SimpleTemplate with A => M, B => M;
+    inst T with A => M;
+	inst U with B => M;
 
     class M adds {
         int getX() {

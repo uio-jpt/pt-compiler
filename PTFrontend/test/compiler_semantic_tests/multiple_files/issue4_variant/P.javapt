@@ -1,4 +1,5 @@
 package Test2P {
+	// merging av klasser i samme template -- se kommentar i T.javapt:
     inst Test2A with A => X, B => X;
   
   class X adds {

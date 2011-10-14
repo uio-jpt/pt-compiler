@@ -1,6 +1,6 @@
 /*
-   Merger to klasser av samme type for å få dobbelt opp av funksjonaliteten
-   (medlem av to lister, etc). Skulle gå, i følge møtet 30/9-11.
+   Merger en klasse med seg selv for å få dobbelt opp av funksjonaliteten.
+   Skulle gå, i følge møtet 30/9-11 (medlem av to lister, etc).
  */
 template T {
 	class C {

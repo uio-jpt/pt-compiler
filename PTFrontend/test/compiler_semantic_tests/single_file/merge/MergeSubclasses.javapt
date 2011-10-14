@@ -1,4 +1,4 @@
-template SimpleTemplate {
+template T {
 
     class A {
         int k;
@@ -10,14 +10,19 @@ template SimpleTemplate {
         }
     }
 
+    class SubA extends A { }
+}
+
+template U {
+
     class B {
         int j;
     }
 
-    class SubA extends A { }
     class SubB extends B { }    
 }
 
 package AddPackage {
-    inst SimpleTemplate with A => SuperM, B => SuperM, SubA => M, SubB => M;
+    inst T with A => SuperM, SubA => M;
+	inst U with B => SuperM, SubB => M;
 }

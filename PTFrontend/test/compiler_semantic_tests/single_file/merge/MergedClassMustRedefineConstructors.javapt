@@ -1,4 +1,4 @@
-template SimpleTemplate {
+template T {
 
     class A {
         int x;
@@ -6,6 +6,9 @@ template SimpleTemplate {
             this.x = 2;
         }
     }
+}
+
+template U {
 
     class B {
         int y;
@@ -18,7 +21,8 @@ template SimpleTemplate {
 
 
 package AddPackage {
-    inst SimpleTemplate with A => M, B => M;
+    inst T with A => M;
+    inst U with B => M;
 
     class M adds {
         

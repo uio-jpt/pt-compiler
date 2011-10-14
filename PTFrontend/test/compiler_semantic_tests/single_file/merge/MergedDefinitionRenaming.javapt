@@ -1,12 +1,14 @@
 template T {
-
     class A { int getX() { return 1; } }
+}
+
+template U {
     class B { int getX() { return 2; } }
 }
 
 package P {
-    inst T with A => X, B => X(getX() -> getY);
+    inst T with A => X;
+	inst U with B => X (getX() -> getY);
 
-    class X adds { 
-    }
+    class X adds { }
 }

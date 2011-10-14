@@ -1,4 +1,4 @@
-template SimpleTemplate {
+template SimpleTemplate1 {
     
     class A {
         assumed A();
@@ -11,6 +11,9 @@ template SimpleTemplate {
             return new A();
         }
    }
+}
+
+template SimpleTemplate2 {
 
     class B {
         assumed B();
@@ -27,7 +30,7 @@ template SimpleTemplate {
 }
 
 package SimplePackage {
-    inst SimpleTemplate with A => Z (getA(*) -> getZ),
-        B => Z;
+    inst SimpleTemplate1 with A => Z (getA(*) -> getZ);
+    inst SimpleTemplate2 with B => Z;
 
 }

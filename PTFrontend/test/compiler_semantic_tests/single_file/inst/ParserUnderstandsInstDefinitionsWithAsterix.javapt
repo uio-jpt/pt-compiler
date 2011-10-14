@@ -1,4 +1,8 @@
-template SimpleTemplate {
+/*
+   Delte klassene opp i to templater siden de merges, i henhold til møte 14/10-11.
+   Dette bør ikke forandre på noe vesentlig i programmet, og output er lik, bare annen rekkefølge
+ */
+template SimpleTemplate1 {
     
     class A {
         int k;
@@ -9,10 +13,13 @@ template SimpleTemplate {
             return new A();
         }
     }
+}
+
+template SimpleTemplate2 {
 
     class B {
 
-        A getA(int x) {
+        B getA(int x) {
             return null;
         }
     }
@@ -20,5 +27,6 @@ template SimpleTemplate {
 
 package SimplePackage {
     // collision if not (*) is working.
-    inst SimpleTemplate with A => B (getA(*) -> getB);
+    inst SimpleTemplate1 with A => B (getA(*) -> getB);
+	inst SimpleTemplate2;
 }
