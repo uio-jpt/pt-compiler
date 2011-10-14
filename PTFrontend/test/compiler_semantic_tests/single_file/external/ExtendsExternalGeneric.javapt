@@ -8,8 +8,8 @@ package P {
 
 	class C adds {
 		public static void main (String [] args) {
-			/* Linja under feiler fordi generics tydeligvis ikke funker så bra: */
-			// ThreadLocal<C> = new D();
+			ThreadLocal<C> c = new D();
 		}
+
 	}
 }
