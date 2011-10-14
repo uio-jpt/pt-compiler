@@ -15,9 +15,11 @@ PTEnumDecl : EnumDecl;
 
 TemplateClassIdentifier ::= <InstantiationName:String> <TemplateName:String> <TypeName:String>;
 
-PTInstDecl ::= <InstantiationName:String> <ID> TypeArgument:Access* PTInstTuple*;
+PTInstDecl ::= <InstantiationName:String> <ID> TypeArgument:Access* PTInstTuple* RequiredTypeInstantiation*;
 // inst T<...> with A => X;
 //      ID  typevariables   PTInstTuple
+
+RequiredTypeInstantiation ::= <RequiredTypeName> <ConcreteID>;
 
 PTInstTuple ::= <OrgID> <ID> PTDummyRename*;
 
@@ -57,6 +59,6 @@ PackageConstructor : MethodDecl ::= <TClassID> <TemplateID>;
  */ 
 TabstractMethodDecl : MethodDecl;
 
-RequiredType : TypeDecl ::= <TypeConstraint:TypeConstraint>;
+RequiredType : ReferenceType ::= <TypeConstraint:TypeConstraint>;
 RequiredClass : RequiredType;
 RequiredInterface : RequiredType;

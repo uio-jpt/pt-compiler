@@ -139,23 +139,54 @@ Access pt_type_argument =
 PTInstDecl pt_inst_decl =
    IDENTIFIER.name COLON INST IDENTIFIER.templateName pt_type_arguments.ts? SEMICOLON
        {:
-          return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, new List());
+          return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, new List(), new List());
        :}
 | IDENTIFIER.name COLON INST IDENTIFIER.templateName pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
        {:
-          return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, dcl); :}
+          AST.List<RequiredTypeInstantiation> rtiList = new AST.List<RequiredTypeInstantiation>();
+          AST.List<PTInstTuple> ptitList = new AST.List<PTInstTuple>();
+          for( Object node : dcl ) {
+              if( node instanceof RequiredTypeInstantiation ) {
+                rtiList = rtiList.add( (RequiredTypeInstantiation) node );
+              } else if( node instanceof PTInstTuple ) {
+                ptitList = ptitList.add( (PTInstTuple) node );
+              }
+          }
+
+          return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, ptitList, rtiList ); :}
 | INST IDENTIFIER.templateName pt_type_arguments.ts? SEMICOLON
        {:
-          return new PTInstDecl( "$noname$", templateName, (ts == null) ? new List<Access>() : ts, new List());
+          return new PTInstDecl( "$noname$", templateName, (ts == null) ? new List<Access>() : ts, new List(), new List() );
        :}
 | INST IDENTIFIER.templateName pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
        {:
-          return new PTInstDecl( "$noname$", templateName, (ts == null) ? new List<Access>() : ts, dcl); :}
+          AST.List<RequiredTypeInstantiation> rtiList = new AST.List<RequiredTypeInstantiation>();
+          AST.List<PTInstTuple> ptitList = new AST.List<PTInstTuple>();
+          for( Object node : dcl ) {
+              if( node instanceof RequiredTypeInstantiation ) {
+                rtiList = rtiList.add( (RequiredTypeInstantiation) node );
+              } else if( node instanceof PTInstTuple ) {
+                ptitList = ptitList.add( (PTInstTuple) node );
+              }
+          }
+
+          return new PTInstDecl( "$noname$", templateName, (ts == null) ? new List<Access>() : ts, ptitList, rtiList );
+       :}
 ;
 
 List dummy_class_list =
-      dummy_class_list.dcl COMMA dummy_inst_tuple.t {: return dcl.add(t); :}
-    | dummy_inst_tuple.t {: return new List().add(t); :}
+      dummy_class_list.dcl COMMA dummy_arrow_tuple.t {: return dcl.add(t); :}
+    | dummy_arrow_tuple.t {: return new List().add(t); :}
+    ;
+
+ASTNode dummy_arrow_tuple =
+    reqtype_instantiation_tuple.t {: return t; :}
+    | dummy_inst_tuple.t {: return t; :}
+    ;
+
+RequiredTypeInstantiation reqtype_instantiation_tuple =
+    IDENTIFIER.a LTEQ IDENTIFIER.b 
+    {: return new RequiredTypeInstantiation(a,b); :}
     ;
 
 PTInstTuple dummy_inst_tuple =

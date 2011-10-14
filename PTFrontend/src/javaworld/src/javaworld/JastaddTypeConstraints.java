@@ -24,6 +24,7 @@ import AST.Modifiers;
 import AST.Access;
 import AST.Opt;
 import AST.Block;
+import AST.TypeDecl;
 
 import java.util.List;
 import java.util.Vector;
@@ -58,6 +59,7 @@ public class JastaddTypeConstraints {
 
     static MethodDescriptor describeMethodDecl( MethodDecl mdecl ) {
         String name = mdecl.getID();
+        System.out.println( "making method out of: " + mdecl );
         JastaddTypeDescriptor ret = new JastaddTypeDescriptor( mdecl.getTypeAccess() );
         List<TypeDescriptor> params = new Vector<TypeDescriptor>();
         for( ParameterDeclaration pd : mdecl.getParameters() ) {
@@ -115,6 +117,7 @@ public class JastaddTypeConstraints {
                 ConstructorDescriptor cdesc = describeConstructorDecl( (ConstructorDecl) bd );
                 tc.addConstructor( cdesc );
             } else {
+                System.out.println( "[debug/warning] fromClassDeclInto() did not expect " + bd.getClass().getName() );
                 // warn?
             }
         }
@@ -132,5 +135,15 @@ public class JastaddTypeConstraints {
         fromClassDeclInto( cdecl, tc );
 
         return tc;
+    }
+
+    static TypeConstraint fromReferenceTypeDecl( TypeDecl tdecl ) {
+        if( tdecl instanceof ClassDecl ) {
+            return fromClassDecl( (ClassDecl) tdecl );
+        }
+        if( tdecl instanceof InterfaceDecl ) {
+            return fromInterfaceDecl( (InterfaceDecl) tdecl );
+        }
+        return null;
     }
 }

@@ -1,0 +1,36 @@
+aspect PTTypeParameters {
+  public void ASTNode.replaceTypeAccesses(Map<TypeDecl,TypeAccess> ht) {
+      System.out.println( "visiting node " + getClass().getName() );
+        for(int i = 0; i < getNumChild(); i++) {
+            ASTNode child = getChild(i);
+            TypeAccess swapWith = child.visitReplaceTypeAccesses(ht);
+            if ( swapWith != null ) {
+                child.replaceSelfWith( swapWith.fullCopy() );
+                System.out.println( "swapped " + "wossname" + " " + child.getClass().getName() + " for " + swapWith.getID() );
+            }
+            getChild(i).replaceTypeAccesses(ht);
+        }
+  }
+
+  public TypeAccess ASTNode.visitReplaceTypeAccesses(Map<TypeDecl,TypeAccess> ht) {
+    return null;
+  }
+
+  public TypeAccess TypeAccess.visitReplaceTypeAccesses(Map<TypeDecl,TypeAccess> ht) {
+    TypeDecl myDecl = decl();
+    return ht.get( myDecl );
+  }
+
+  public boolean RequiredType.isObject() {
+      // not called?
+      return true;
+  }
+
+  public boolean RequiredType.instanceOf( TypeDecl that ) {
+      if( typeObject().instanceOf( that ) ) {
+          return true;
+      }
+      // TODO use nominal superclasses!
+      return false;
+  }
+}

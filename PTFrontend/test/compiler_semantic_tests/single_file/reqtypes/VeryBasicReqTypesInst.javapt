@@ -1,0 +1,13 @@
+template T {
+    required type Foo {
+    } 
+
+    class X {
+        public void g(Foo f) {
+        }
+    }
+}
+
+package P {
+    inst T with Foo <= Object;
+}

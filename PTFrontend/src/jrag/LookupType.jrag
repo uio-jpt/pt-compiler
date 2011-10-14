@@ -110,6 +110,11 @@ aspect LookupType {
                 return cls;
             }
         }
+        for (RequiredType cls : getRequiredTypeList()) {
+            if (cls.getID().equals(name)) {
+                return cls;
+            }
+        }
         return null;
     }
 
@@ -147,7 +152,6 @@ aspect LookupType {
     */
 
     syn SimpleSet PTDecl.lookupTypeInPTDecl( String name ) {
-        System.out.println( "looking for type " + name + " in all the wrong places" );
         if( this instanceof PTTemplate ) {
             SimpleSet c = SimpleSet.emptySet;
             PTTemplate ptt = (PTTemplate) this;
@@ -172,11 +176,9 @@ aspect LookupType {
         }
         for (RequiredType s : getRequiredTypeList()) {
             if (s.getID().equals(name)) {
-                System.out.println( "hit requiredtype: " + name );
                 return SimpleSet.emptySet.add(s);
             }
         }
-        System.out.println( "missed requiredtype: " + name );
 
         TypeDecl t = lookupType("", name);
         if (t!=null) return SimpleSet.emptySet.add(t);

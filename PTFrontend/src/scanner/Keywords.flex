@@ -6,6 +6,7 @@
   "inst"                       { return sym(Terminals.INST); }
   "with"                       { return sym(Terminals.WITH); }
   "=>"                       { return sym(Terminals.RIGHTARROW); }   
+  // note, LEFTARROW is already a comparison operator LTEQ
   "->"                       { return sym(Terminals.SIMPLERIGHTARROW); }
   // jastaddj has a general rule about *. therefore needs something more speci
   "(\*)"                     { return sym(Terminals.ASTERISK_PAR); }

@@ -9,6 +9,8 @@ import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.HashSet;
 
+import com.google.common.base.Joiner;
+
 import java.util.Map;
 import java.util.HashMap;
 
@@ -59,6 +61,10 @@ import AST.Block;
 import AST.ParameterDeclaration;
 import AST.ASTNode;
 import AST.ConstructorDecl;
+import AST.RequiredType;
+import AST.RequiredClass;
+import AST.RequiredInterface;
+import AST.RequiredTypeInstantiation;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
@@ -121,6 +127,209 @@ public class PTDeclRew {
     protected void createRenamedEnums() {
         for( String name : getDestinationIDsForEnums() ) {
             ptDeclToBeRewritten.getPTEnumDeclList().add( getRenamedEnumByName( name ) );
+        }
+    }
+
+    protected void concretifyRequiredType( RequiredType rtype, TypeDecl replacement ) {
+    }
+
+    protected void concretifyRequiredTypes() {
+        Multimap<String,String> concretifications = HashMultimap.create();
+
+        RequiredTypeRewriter rewriter = new RequiredTypeRewriter();
+        java.util.Set<RequiredType> toBeDeleted = new java.util.HashSet<RequiredType>();
+
+        /* see email, per now assume: <= on target name (after renames) */
+
+		for (PTInstDecl instDecl : ptDeclToBeRewritten.getPTInstDecls()) {
+            for( RequiredTypeInstantiation rti : instDecl.getRequiredTypeInstantiationList() ) {
+                concretifications.put( rti.getRequiredTypeName(), rti.getConcreteID() );
+            }
+        }
+
+        for( String key : concretifications.keySet() ) {
+            boolean stopError = false;
+            TypeDecl tdecl = null;
+        
+            SimpleSet matches = ptDeclToBeRewritten.lookupTypeInPTDecl( key );
+            if( matches.size() < 1 ) {
+                ptDeclToBeRewritten.error( "concretification of unknown type: " + key );
+                stopError = true;
+            } else if( matches.size() > 1 ) {
+                // detected elsewhere
+                stopError = true;
+            } else {
+                tdecl = (TypeDecl) matches.iterator().next();
+                if( !(tdecl instanceof RequiredType) ) {
+                    stopError = true;
+                    ptDeclToBeRewritten.error( "concretification of non-required type/class/interface: " + key );
+                }
+            }
+            if( concretifications.get( key ).size() > 1 ) {
+                ptDeclToBeRewritten.error( "multiple concretifications of " + key );
+                stopError = true;
+            }
+
+            TypeDecl replacementType  = null;
+            String replacement = "";
+
+            if( !stopError ) {
+                replacement = concretifications.get( key ).iterator().next();
+                PTInstDecl instDeclFirst = (PTInstDecl) ptDeclToBeRewritten.getPTInstDecls().iterator().next(); // hack
+                SimpleSet rightMatches = ptDeclToBeRewritten.lookupTypeInPTDecl( replacement );
+                if( rightMatches.size() == 0 ) {
+                    rightMatches = ptDeclToBeRewritten.lookupType( replacement );
+                }
+                if( rightMatches.size() < 1 ) {
+                    ptDeclToBeRewritten.error( "concretifying " + key + " with unknown type " +  replacement );
+                    stopError = true;
+                } else if( rightMatches.size() > 2 ) {
+                    stopError = true;
+                } else {
+                    try {
+                        replacementType = (TypeDecl) rightMatches.iterator().next();
+                    }
+                    catch( ClassCastException e ) {
+                        stopError = true;
+                    }
+                }
+            }
+
+            // check conformance
+            if( !stopError ) {
+                RequiredType reqType = (RequiredType) tdecl;
+                TypeConstraint cand = JastaddTypeConstraints.fromReferenceTypeDecl( replacementType );
+                if( cand == null ) {
+                    ptDeclToBeRewritten.error( "concretification candidate " + replacement + " is unsuitable (not a known reference type" );
+                    stopError = true;
+                } else if( !cand.satisfies( reqType.getTypeConstraint() ) ) {
+                    ptDeclToBeRewritten.error( "concretification candidate " + replacement + " does not satisfy constraints" );
+                    // TODO be more informative..
+
+                    stopError = true;
+                } else {
+                    String replacementName = replacementType.getID();
+                    // TODO this should be a fully qualified access to avoid problems
+                    // however, that's not just TypeAccess("java.lang.foo")..
+
+                    TypeAccess typeAccess = new TypeAccess( replacementName );
+                    System.out.println( "replacement name: " + replacementName );
+
+                    rewriter.addRewrite( reqType, typeAccess );
+                    toBeDeleted.add( reqType );
+                }
+            }
+        }
+
+        System.out.println( ptDeclToBeRewritten );
+
+        rewriter.mutate( ptDeclToBeRewritten );
+
+        System.out.println( ptDeclToBeRewritten );
+        ptDeclToBeRewritten.debugPrintAST();
+
+        {
+            AST.List<RequiredType> remainingTypes = new AST.List<RequiredType>();
+            for( RequiredType rt : ptDeclToBeRewritten.getRequiredTypeList() ) {
+                if( ! toBeDeleted.contains( rt ) ) {
+                    remainingTypes = remainingTypes.add( rt );
+                }
+            }
+            ptDeclToBeRewritten.setRequiredTypeList( remainingTypes );
+
+            System.out.println( "remaining are: " + ptDeclToBeRewritten.getNumRequiredType() );
+        }
+
+
+/*
+        int i = 0;
+        while( i < ptDeclToBeRewritten.getNumRequiredType() ) {
+            if( toBeDeleted.contains( ptDeclToBeRewritten.getRequiredType( i ) ) ) {
+                ptDeclToBeRewritten.removeChild( i );
+            } else {
+                i++;
+            }
+        }
+*/
+
+        if( ptDeclToBeRewritten instanceof PTPackage ) {
+            java.util.Set<String> unconcrete = new java.util.HashSet<String>();
+            for( RequiredType rt : ptDeclToBeRewritten.getRequiredTypeList() ) {
+                unconcrete.add( rt.getID() );
+            }
+
+            if( unconcrete.size() > 0 ) {
+                ptDeclToBeRewritten.error( "remaining unconcretified required types in package: " + Joiner.on( ", " ).join( unconcrete ) );
+            }
+        }
+    }
+
+	protected void createMergedRequiredTypes() {
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
+        for( String key : destinationClassIDsWithInstTuples.keySet() ) {
+            java.util.List<RequiredType> originatorReqTypes = new java.util.ArrayList<RequiredType>();
+            TypeDecl nonRTOriginator = null;
+
+            for( PTInstTuple tuple : destinationClassIDsWithInstTuples.get( key ) ) {
+                TypeDecl decl = tuple.getOriginator();
+                if( decl instanceof RequiredType ) {
+                    originatorReqTypes.add( (RequiredType) decl );
+                } else {
+                    nonRTOriginator = decl;
+                }
+            }
+
+            if( originatorReqTypes.size() == 0 ) continue;
+
+            PTInstDecl ptid = (PTInstDecl) destinationClassIDsWithInstTuples.get( key ).iterator().next().getParentClass( PTInstDecl.class );
+
+            if( nonRTOriginator != null ) {
+                ptid.error( "cannot merge required type(s) with concrete type " + nonRTOriginator.getID() + " into " + key );
+                continue;
+            }
+
+            boolean mustBeType = false, mustBeClass = false, mustBeInterface = false;
+            java.util.Set<String> typesMerged = new java.util.HashSet<String>();
+            
+            for( RequiredType rt : originatorReqTypes ) {
+                if( rt.getTypeConstraint().mustBeClass() ) {
+                    mustBeClass = true;
+                    typesMerged.add( "required class " + rt.getID() );
+                } else if( rt.getTypeConstraint().mustBeInterface() ) {
+                    mustBeInterface = true;
+                    typesMerged.add( "required interface " + rt.getID() );
+                } else {
+                    // note, here we're removing potential freedom per article
+                    mustBeType = true;
+                    typesMerged.add( "required type " + rt.getID() );
+                }
+            }
+            int totalReqs = (mustBeType ? 1 : 0) + (mustBeClass ? 1 : 0) + (mustBeInterface ? 1 : 0);
+
+            if( totalReqs != 1 ) {
+                ptid.error( "will not perform heterogeneous merge of required types: " + Joiner.on( ", " ).join( typesMerged ) );
+                continue;
+            }
+
+            TypeConstraint tc = new TypeConstraint();
+
+            for( RequiredType rt : originatorReqTypes ) {
+                tc.absorb( rt.getTypeConstraint() );
+            }
+
+            RequiredType myRequiredType;
+
+            // TODO think about modifiers, these are discarded here
+            if( mustBeClass ) {
+                myRequiredType = new RequiredClass( new Modifiers(), key, new List(),  tc );
+            } else if( mustBeInterface ) {
+                myRequiredType = new RequiredInterface( new Modifiers(), key, new List(), tc );
+            } else {
+                assert( mustBeType );
+                myRequiredType = new RequiredType( new Modifiers(), key, new List(), tc );
+            }
+
+            ptDeclToBeRewritten.addRequiredType( myRequiredType );
         }
     }
 
@@ -482,6 +691,8 @@ public class PTDeclRew {
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			addClass.setWasAddsClass(false);
 
+            System.out.println( "created class " + name );
+
 			ptDeclToBeRewritten.addSimpleClass(addClass); /* Code understanding note:
                                                              this is the line where the actual magic happens;
                                                              something is added to the AST. "simpleClasses"
@@ -841,6 +1052,8 @@ public class PTDeclRew {
             for( String rootID : rootIDs ) {
                 PTInstTuple ptitRoot = getPTInstTupleByOriginatorName( instDecl, rootID );
                 if( ptitRoot != null ) {
+                    System.out.println( "OKAY RENAME OF " + rootID );
+
                     for( PTDummyRename ptdr : ptitRoot.getPTDummyRenameList() ) {
                         String orgId = ptdr.getOrgID();
                         boolean overspecified = false;
@@ -940,6 +1153,8 @@ public class PTDeclRew {
 
                         ptit.addPTDummyRename( newRename );
                     }
+                } else {
+                    System.out.println( "OI!" );
                 }
             }
         }
@@ -950,5 +1165,4 @@ public class PTDeclRew {
             addImpliedRenamesToPTInstDecl( ptid );
         }
     }
-
 }
