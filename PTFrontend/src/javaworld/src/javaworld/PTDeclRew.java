@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 
+// it _might_ be argued that AST.* could be appropriate..
 import AST.PTInterfaceAddsDecl;
 import AST.SimpleSet;
 import AST.PTInterfaceDecl;
@@ -21,6 +22,7 @@ import AST.ClassDecl;
 import AST.ClassAccess;
 import AST.CompilationUnit;
 import AST.ImportDecl;
+import AST.GenericClassDecl;
 import AST.List;
 import AST.Modifier;
 import AST.Modifiers;
@@ -46,6 +48,17 @@ import AST.PTMethodRename;
 import AST.PTMethodRenameAll;
 import AST.PTFieldRename;
 import AST.MethodDecl;
+
+import AST.PTConstructorDecl;
+import AST.PTTSuperConstructorCall;
+import AST.VarAccess;
+import AST.TemplateClassIdentifier;
+import AST.Expr;
+import AST.Stmt;
+import AST.Block;
+import AST.ParameterDeclaration;
+import AST.ASTNode;
+import AST.ConstructorDecl;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
@@ -305,6 +318,119 @@ public class PTDeclRew {
         return new InstTupleRew(tup).getRenamedSourceInterface();
     }
 
+    protected ClassDecl createClassDeclForName( String name, java.util.Collection<PTInstTuple> instTuples, boolean addExtendsExternal, Access superClassAccess ) {
+        Modifiers mods = new Modifiers();
+
+        if( addExtendsExternal ) {
+            mods.addModifier( new Modifier( "extendsexternal" ) );
+        }
+
+        Opt<Access> optAccess;
+
+        if( superClassAccess != null ) {
+            optAccess = new Opt<Access>( superClassAccess );
+        } else {
+            optAccess = new Opt<Access>();
+        }
+
+
+        GenericClassDecl gtype = null;
+        int genericOrigins = 0, nonGenericOrigins = 0;
+        for( PTInstTuple instTuple : instTuples ) {
+            if( instTuple.getOriginator().isGenericType() ) {
+                genericOrigins++;
+                gtype = (GenericClassDecl) instTuple.getOriginator();
+            } else {
+                nonGenericOrigins++;
+            }
+        }
+
+        ClassDecl cls;
+        
+        if( genericOrigins == 0 ) {
+            cls = new ClassDecl(mods,
+                                name,
+                                optAccess,
+                                new List<Access>(),
+                                new List<BodyDecl>());
+        } else if( genericOrigins == 1 && nonGenericOrigins == 0 ) {
+            // this is simple to handle -- copy the arguments
+            cls = new GenericClassDecl( mods,
+                                        name,
+                                        optAccess,
+                                        new List<Access>(),
+                                        new List<BodyDecl>(),
+                                        gtype.getTypeParameterList().fullCopy() );
+        } else if( genericOrigins == 1 && nonGenericOrigins != 0 ) {
+            // C<A> + D --> CD<A>
+            // hard to handle -- we now need to change all type accesses 
+
+            gtype.error( "merge target " + name + " has generic and non-generic origins [not implemented yet]" );
+            throw new CriticalPTException( "mixed-generic origins, giving up" );
+        } else {
+            // problems with multiple generics: C<A> + D<B> --> CD<?,?> (order?)
+            // this seems fundamental
+
+            gtype.error( "merge target " + name + " has multiple generic origins" );
+            throw new CriticalPTException( "multiple generic origins, giving up" );
+        }
+
+        /* Here's an exception to these classes being empty: if we have just one originator, and
+           it has at least one constructor with positive arity, we will create redirecting constructors.
+        */
+        if( (genericOrigins+nonGenericOrigins) == 1 ) {
+            PTInstTuple instTuple = instTuples.iterator().next();
+            PTInstDecl instDecl = (PTInstDecl) instTuple.getParentClass( PTInstDecl.class );
+            ClassDecl origin = (ClassDecl) instTuple.getOriginator();
+
+            boolean doCreateRedirectingConstructors = false;
+
+            for( ASTNode node : origin.getConstructorDeclList() ) {
+                ConstructorDecl constructor = (ConstructorDecl) node;
+                if( constructor.arity() != 0 ) {
+                    doCreateRedirectingConstructors = true;
+                }
+            }
+
+            if( doCreateRedirectingConstructors ) {
+                for( ASTNode node : origin.getConstructorDeclList() ) {
+                    ConstructorDecl constructor = (ConstructorDecl) node;
+
+                    Modifiers newMods = constructor.getModifiers().fullCopy();
+                    String constructorName = constructor.getID();
+                    List<ParameterDeclaration> constructorParameters = constructor.getParameterList().fullCopy();
+                    List<Access> constructorThrows  = constructor.getExceptions().fullCopy();
+                    Opt<Stmt> constructorInvocation = constructor.getConstructorInvocationOpt().fullCopy();
+                    Block emptyBody = new Block();
+
+                    TemplateClassIdentifier tci = TemplateClassIdentifier.extractFrom( instDecl, origin.getID() );
+                    List<Expr> actualParameters = new AST.List<Expr>();
+
+                    for( ParameterDeclaration pdecl : constructorParameters ) {
+                        actualParameters.add( new VarAccess( pdecl.getID() ) );
+                    }
+
+                    PTTSuperConstructorCall explicitInvocation = new PTTSuperConstructorCall( tci, actualParameters );
+
+                    List<PTTSuperConstructorCall> explicitInvocations = new AST.List<PTTSuperConstructorCall>();
+                    explicitInvocations.add( explicitInvocation );
+
+                    PTConstructorDecl myConstructor = new PTConstructorDecl( newMods,
+                                                                             constructorName,
+                                                                             constructorParameters,
+                                                                             constructorThrows,
+                                                                             constructorInvocation,
+                                                                             emptyBody,
+                                                                             explicitInvocations );
+                    cls.addBodyDecl( myConstructor );
+                }
+            }
+        }
+
+
+        return cls;
+    }
+
 	protected void createEmptyMissingAddClasses() {
 
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
@@ -336,9 +462,6 @@ public class PTDeclRew {
                                  addClasses ),
                                  extendingExternalsClasses.keySet() );
         for(String name : extendingExternalsClasses.keySet() ) {
-            Modifiers mods = new Modifiers();
-            mods.addModifier( new Modifier( "extendsexternal" ) );
-
             /* I believe checking for clashes is done elsewhere, so here we just take the FIRST
                extends-external class.
                TODO make this deterministic. (Note that it is only nondeterministic if there IS
@@ -347,22 +470,15 @@ public class PTDeclRew {
 
             Access superClassAccess = (Access) extendingExternalsClasses.get(name).iterator().next().getSuperClassAccess().fullCopy();
 
-            ClassDecl cls = new ClassDecl(mods,
-                                          name,
-                                          new Opt<Access>( superClassAccess ),
-                                          new List<Access>(),
-                                          new List<BodyDecl>());
+            ClassDecl cls = createClassDeclForName( name, destinationClassIDsWithInstTuples.get( name ), true, superClassAccess );
+
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			ptDeclToBeRewritten.addSimpleClass(addClass);
 			lb.add(new SimpleClassRew(addClass));
         }
 
 		for (String name : missingAddsClass) {
-            ClassDecl cls = new ClassDecl(new Modifiers(),
-                                          name,
-                                          new Opt<Access>(),
-                                          new List<Access>(),
-                                          new List<BodyDecl>());
+            ClassDecl cls = createClassDeclForName( name, destinationClassIDsWithInstTuples.get( name ), false, null );
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			addClass.setWasAddsClass(false);
 

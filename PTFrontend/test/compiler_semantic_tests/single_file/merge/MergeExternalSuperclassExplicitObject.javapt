@@ -1,0 +1,14 @@
+/*
+   Feiler pr 12/10-11.
+   Bør det være noe forskjell på om C eksplisitt eller implisitt har Object som superklasse? 
+ */
+template T {
+	class C extends external Object { }
+	class D extends external Thread { }
+}
+
+package P {
+	inst T with C => X;
+	inst T with D => X;
+}
+

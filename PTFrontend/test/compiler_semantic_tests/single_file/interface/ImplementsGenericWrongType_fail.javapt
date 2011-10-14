@@ -1,0 +1,22 @@
+template T {
+	abstract class X implements Comparable<X> { }
+
+	class C implements Comparable<C> {
+
+		public int compareTo(C that) {
+			return this.getValue() - that.getValue();
+		}
+
+		public int getValue() { return 0; }
+	}
+}
+
+package P {
+	inst T;
+
+	class Main {
+		public static void main (String [] args) {
+			Comparable<X> = new C(); // fails for the wrong reason!
+		}
+	}
+}

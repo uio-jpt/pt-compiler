@@ -92,11 +92,19 @@ PTEnumDecl pt_enum_declaration =
 ClassDecl pt_class_declaration =
   modifiers.m? CLASS IDENTIFIER super.s? interfaces.i? pt_class_body.b 
    {: return new ClassDecl(new Modifiers(m), IDENTIFIER, s, i, b); :}
+  | modifiers.m? CLASS IDENTIFIER type_parameters.p super.s? interfaces.i? pt_class_body.b 
+   {: return new GenericClassDecl(new Modifiers(m), IDENTIFIER, s, i, b, p); :}
   | modifiers.m? CLASS IDENTIFIER EXTENDS EXTERNAL class_type.c interfaces.i? pt_class_body.b 
    {: 
      Modifiers my = new Modifiers(m);
      my.addModifier( new Modifier( "extendsexternal" ) );
      return new ClassDecl(my, IDENTIFIER, new Opt(c), i, b);
+   :}
+  | modifiers.m? CLASS IDENTIFIER type_parameters.p EXTENDS EXTERNAL class_type.c interfaces.i? pt_class_body.b 
+   {: 
+     Modifiers my = new Modifiers(m);
+     my.addModifier( new Modifier( "extendsexternal" ) );
+     return new GenericClassDecl(my, IDENTIFIER, new Opt(c), i, b, p);
    :}
   ;
 
@@ -189,6 +197,13 @@ ClassDecl pt_adds_class =
   CLASS IDENTIFIER ADDS pt_class_body.b
     {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}
   ;
+
+// same comment applies, no mods, why
+ClassDecl pt_adds_class = 
+  CLASS IDENTIFIER type_parameters.p ADDS pt_class_body.b
+    {: return new GenericClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b, p); :}
+  ;
+  
 
 PTInterfaceDecl pt_adds_intf = 
   INTERFACE IDENTIFIER ADDS interface_body.b

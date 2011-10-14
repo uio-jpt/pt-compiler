@@ -1,0 +1,38 @@
+template T {
+	class Container<E> {
+		E element;
+	
+		Container(E e) {
+			element = e;
+		}
+
+		E getElement() {
+			return element;
+		}
+
+		void setElement(E e) {
+			element = e;
+		}
+
+		
+	}
+}
+
+package P {
+	inst T;
+
+    class Container<E> adds {
+        Container(E e) {
+            tsuper[T.Container](e);
+        }
+    }
+
+	class Main {
+		public static void main (String [] args) {
+			Container<String> c = new Container<String>( "heisann" );
+			c.element = "Hallo!";
+			c.setElement("Hei!");
+			System.out.println( c.getElement() );
+		}
+	}
+}

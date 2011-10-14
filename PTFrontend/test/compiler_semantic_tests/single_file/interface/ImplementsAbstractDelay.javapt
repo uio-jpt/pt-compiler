@@ -1,0 +1,16 @@
+/*
+   Venter med å fullføre interface-"kontrakten" ved å gjøre klassen i
+   templaten abstrakt.
+ */
+template T {
+	abstract class C implements Runnable { }
+}
+
+package P {
+	inst T;
+
+	class D extends C {
+		public void run() { }
+	}
+
+}
