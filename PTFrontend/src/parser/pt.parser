@@ -340,7 +340,6 @@ RequiredType ptr_r_type =
         {:
             // TODO, dummy
             javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
-            System.out.println( "[debug] parsed required type: " + tc );
             return new RequiredType( new Modifiers(), IDENTIFIER, new List(), tc );
         :}
     ;
@@ -351,7 +350,6 @@ RequiredInterface ptr_r_interface =
             // TODO, dummy
             javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
             tc.requireInterface();
-            System.out.println( "[debug] parsed required interface: " + tc );
             return new RequiredInterface( new Modifiers(), IDENTIFIER, new List(), tc );
         :}
     ;
@@ -362,7 +360,6 @@ RequiredClass ptr_r_class =
             // TODO, dummy
             javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
             tc.requireClass();
-            System.out.println( "[debug] parsed required class: " + tc );
             return new RequiredClass( new Modifiers(), IDENTIFIER, new List(), tc );
         :}
     ;

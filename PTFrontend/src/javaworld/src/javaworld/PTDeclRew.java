@@ -213,7 +213,6 @@ public class PTDeclRew {
                     // however, that's not just TypeAccess("java.lang.foo")..
 
                     TypeAccess typeAccess = new TypeAccess( replacementName );
-                    System.out.println( "replacement name: " + replacementName );
 
                     rewriter.addRewrite( reqType, typeAccess );
                     toBeDeleted.add( reqType );
@@ -221,12 +220,7 @@ public class PTDeclRew {
             }
         }
 
-        System.out.println( ptDeclToBeRewritten );
-
         rewriter.mutate( ptDeclToBeRewritten );
-
-        System.out.println( ptDeclToBeRewritten );
-        ptDeclToBeRewritten.debugPrintAST();
 
         {
             AST.List<RequiredType> remainingTypes = new AST.List<RequiredType>();
@@ -236,21 +230,8 @@ public class PTDeclRew {
                 }
             }
             ptDeclToBeRewritten.setRequiredTypeList( remainingTypes );
-
-            System.out.println( "remaining are: " + ptDeclToBeRewritten.getNumRequiredType() );
         }
 
-
-/*
-        int i = 0;
-        while( i < ptDeclToBeRewritten.getNumRequiredType() ) {
-            if( toBeDeleted.contains( ptDeclToBeRewritten.getRequiredType( i ) ) ) {
-                ptDeclToBeRewritten.removeChild( i );
-            } else {
-                i++;
-            }
-        }
-*/
 
         if( ptDeclToBeRewritten instanceof PTPackage ) {
             java.util.Set<String> unconcrete = new java.util.HashSet<String>();
@@ -691,8 +672,6 @@ public class PTDeclRew {
 			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
 			addClass.setWasAddsClass(false);
 
-            System.out.println( "created class " + name );
-
 			ptDeclToBeRewritten.addSimpleClass(addClass); /* Code understanding note:
                                                              this is the line where the actual magic happens;
                                                              something is added to the AST. "simpleClasses"
@@ -1052,8 +1031,6 @@ public class PTDeclRew {
             for( String rootID : rootIDs ) {
                 PTInstTuple ptitRoot = getPTInstTupleByOriginatorName( instDecl, rootID );
                 if( ptitRoot != null ) {
-                    System.out.println( "OKAY RENAME OF " + rootID );
-
                     for( PTDummyRename ptdr : ptitRoot.getPTDummyRenameList() ) {
                         String orgId = ptdr.getOrgID();
                         boolean overspecified = false;
@@ -1153,8 +1130,6 @@ public class PTDeclRew {
 
                         ptit.addPTDummyRename( newRename );
                     }
-                } else {
-                    System.out.println( "OI!" );
                 }
             }
         }

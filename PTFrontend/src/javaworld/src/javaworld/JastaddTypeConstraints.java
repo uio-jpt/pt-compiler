@@ -59,7 +59,6 @@ public class JastaddTypeConstraints {
 
     static MethodDescriptor describeMethodDecl( MethodDecl mdecl ) {
         String name = mdecl.getID();
-        System.out.println( "making method out of: " + mdecl );
         JastaddTypeDescriptor ret = new JastaddTypeDescriptor( mdecl.getTypeAccess() );
         List<TypeDescriptor> params = new Vector<TypeDescriptor>();
         for( ParameterDeclaration pd : mdecl.getParameters() ) {

@@ -1,12 +1,10 @@
 aspect PTTypeParameters {
   public void ASTNode.replaceTypeAccesses(Map<TypeDecl,TypeAccess> ht) {
-      System.out.println( "visiting node " + getClass().getName() );
         for(int i = 0; i < getNumChild(); i++) {
             ASTNode child = getChild(i);
             TypeAccess swapWith = child.visitReplaceTypeAccesses(ht);
             if ( swapWith != null ) {
                 child.replaceSelfWith( swapWith.fullCopy() );
-                System.out.println( "swapped " + "wossname" + " " + child.getClass().getName() + " for " + swapWith.getID() );
             }
             getChild(i).replaceTypeAccesses(ht);
         }
