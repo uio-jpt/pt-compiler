@@ -67,6 +67,34 @@ aspect RequiredTypes {
     eq RequiredType.methodsSignatureMap() {
         HashMap map = new HashMap( localMethodsSignatureMap() );
 
+        if( hasSuperTypeAccess() ) {
+            TypeDecl superType = ((TypeAccess) getSuperTypeAccess()).decl();
+            if( superType != null ) {
+                  for(Iterator iter = superType.methodsIterator(); iter.hasNext(); ) {
+                    MethodDecl m = (MethodDecl)iter.next();
+                    if(!m.isPrivate() && m.accessibleFrom(this) && !localMethodsSignatureMap().containsKey(m.signature()))
+                      putSimpleSetElement(map, m.signature(), m);
+                  }
+            }
+        }
+
+        for( Access a : getImplementsList() ) {
+            TypeAccess ta = (TypeAccess) a;
+            TypeDecl td = ta.decl();
+            if( td == null ) continue;
+
+            // this should be either a RequiredType (RequiredInterface) or
+            // a real interface
+
+      for(Iterator iter = td.methodsIterator(); iter.hasNext(); ) {
+        MethodDecl m = (MethodDecl)iter.next();
+        if(!m.isPrivate() && m.accessibleFrom(this) && !localMethodsSignatureMap().containsKey(m.signature()))
+          putSimpleSetElement(map, m.signature(), m);
+      }
+
+
+        }
+
         System.out.println( "WOOO" + map );
 
         return map;
