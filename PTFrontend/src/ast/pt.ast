@@ -6,10 +6,10 @@ PTPackage : PTDecl;
 
 abstract SimpleClass ::= ClassDecl;
 PTClassDecl : SimpleClass;
-PTClassAddsDecl : SimpleClass;
+PTClassAddsDecl : SimpleClass ::= [RedundantSuperclass:Access] RedundantImplements:Access*;
 
 PTInterfaceDecl : InterfaceDecl;
-PTInterfaceAddsDecl : PTInterfaceDecl;
+PTInterfaceAddsDecl : PTInterfaceDecl ::= RedundantExtends:Access*;
 
 PTEnumDecl : EnumDecl;
 
