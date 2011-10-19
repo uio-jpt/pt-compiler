@@ -77,4 +77,17 @@ aspect RequiredTypes {
     eq RequiredType.getSuperTypeAccess().nameType() = NameType.TYPE_NAME;
     eq RequiredType.getImplements().nameType() = NameType.TYPE_NAME;
 
+    public void PTAbstractConstructor.nameCheck() {
+        super.nameCheck();
+
+        RequiredType reqtype = (RequiredType) getParentClass( RequiredType.class );
+        if( reqtype != null ) {
+            if( ! reqtype.getID().equals( getID() ) ) {
+                error( "defining abstract constructor of conflicting name " + getID() + " in required type " + reqtype.getID() );
+            }
+        } else {
+            error( "required type-abstract constructor outside required type (impossible)" );
+        }
+    }
+
 }

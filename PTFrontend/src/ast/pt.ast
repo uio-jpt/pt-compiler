@@ -62,3 +62,9 @@ TabstractMethodDecl : MethodDecl;
 RequiredType : ReferenceType ::= [SuperTypeAccess:Access] Implements:Access*;
 RequiredClass : RequiredType;
 RequiredInterface : RequiredType;
+
+
+// PTAbstractConstructor : BodyDecl ::= Modifiers <ID:String> Parameter:ParameterDeclaration* Exception:Access*;
+PTAbstractConstructor : MethodDecl;
+// inherits from methoddecl instead of constructordecl to avoid rewrites e.g. inserting super()
+// required since Java has no concept of an abstract constructor

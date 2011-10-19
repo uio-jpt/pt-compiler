@@ -336,22 +336,32 @@ RequiredType ptr_required_spec =
     ;
 
 RequiredType ptr_r_type =
-    TYPE IDENTIFIER super.s? interfaces.i? LBRACE abstract_method_declaration.m* RBRACE
+    TYPE IDENTIFIER super.s? interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
         {:
             return new RequiredType( new Modifiers(), IDENTIFIER, m, s, i );
         :}
     ;
 
 RequiredInterface ptr_r_interface =
-    INTERFACE IDENTIFIER extends_interfaces.i? LBRACE abstract_method_declaration.m* RBRACE
+    INTERFACE IDENTIFIER extends_interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
         {:
             return new RequiredInterface( new Modifiers(), IDENTIFIER, m, new Opt(), i );
         :}
     ;
 
 RequiredClass ptr_r_class =
-    CLASS IDENTIFIER super.s? interfaces.i? LBRACE abstract_method_declaration.m* RBRACE
+    CLASS IDENTIFIER super.s? interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
         {:
             return new RequiredClass( new Modifiers(), IDENTIFIER, m, s, i );
         :}
+    ;
+
+BodyDecl ptr_r_internal_decl =
+    abstract_method_declaration.m {: return m; :}
+    | ptr_abstract_constructor.m {: return m; :} 
+    ;
+
+BodyDecl ptr_abstract_constructor =
+    modifiers.m? IDENTIFIER LPAREN formal_parameter_list.pl? RPAREN throws.tl? SEMICOLON
+    {: return new PTAbstractConstructor(new Modifiers(m), new PrimitiveTypeAccess("void"), IDENTIFIER, pl, tl, new Opt()); :}
     ;
