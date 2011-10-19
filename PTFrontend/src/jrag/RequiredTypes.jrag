@@ -1,4 +1,4 @@
-aspect PTTypeParameters {
+aspect RequiredTypes {
   public void ASTNode.replaceTypeAccesses(Map<TypeDecl,TypeAccess> ht) {
         for(int i = 0; i < getNumChild(); i++) {
             ASTNode child = getChild(i);
@@ -71,5 +71,10 @@ aspect PTTypeParameters {
 
         return map;
     }
+
+
+    // the equivalents for JastaddJ are in SyntacticClassification.jrag
+    eq RequiredType.getSuperTypeAccess().nameType() = NameType.TYPE_NAME;
+    eq RequiredType.getImplements().nameType() = NameType.TYPE_NAME;
 
 }

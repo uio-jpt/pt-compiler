@@ -194,13 +194,16 @@ public class JastaddTypeConstraints {
         // TODO think about modifiers, these are discarded here
         RequiredType rv;
         AST.List<BodyDecl> bodyDecls = new AST.List<BodyDecl>();
+
+        AST.Opt<Access> superClassAccess = new AST.Opt<Access>();
+        AST.List<Access> superInterfaceAccess = new AST.List<Access>();
         
         if( tc.mustBeClass() ) {
-            rv = new RequiredClass( new Modifiers(), name, bodyDecls );
+            rv = new RequiredClass( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess );
         } else if( tc.mustBeInterface() ) {
-            rv = new RequiredInterface( new Modifiers(), name, bodyDecls );
+            rv = new RequiredInterface( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess );
         } else {
-            rv = new RequiredType( new Modifiers(), name, bodyDecls );
+            rv = new RequiredType( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess );
         }
 
         return rv;

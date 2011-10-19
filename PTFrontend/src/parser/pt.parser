@@ -338,20 +338,20 @@ RequiredType ptr_required_spec =
 RequiredType ptr_r_type =
     TYPE IDENTIFIER super.s? interfaces.i? LBRACE abstract_method_declaration.m* RBRACE
         {:
-            return new RequiredType( new Modifiers(), IDENTIFIER, m );
+            return new RequiredType( new Modifiers(), IDENTIFIER, m, s, i );
         :}
     ;
 
 RequiredInterface ptr_r_interface =
     INTERFACE IDENTIFIER extends_interfaces.i? LBRACE abstract_method_declaration.m* RBRACE
         {:
-            return new RequiredInterface( new Modifiers(), IDENTIFIER, m );
+            return new RequiredInterface( new Modifiers(), IDENTIFIER, m, new Opt(), i );
         :}
     ;
 
 RequiredClass ptr_r_class =
     CLASS IDENTIFIER super.s? interfaces.i? LBRACE abstract_method_declaration.m* RBRACE
         {:
-            return new RequiredClass( new Modifiers(), IDENTIFIER, m );
+            return new RequiredClass( new Modifiers(), IDENTIFIER, m, s, i );
         :}
     ;

@@ -59,6 +59,6 @@ PackageConstructor : MethodDecl ::= <TClassID> <TemplateID>;
  */ 
 TabstractMethodDecl : MethodDecl;
 
-RequiredType : ReferenceType;
+RequiredType : ReferenceType ::= [SuperTypeAccess:Access] Implements:Access*;
 RequiredClass : RequiredType;
 RequiredInterface : RequiredType;
