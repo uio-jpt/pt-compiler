@@ -1,0 +1,31 @@
+template T {
+    required type Foo {
+        Foo(String v);
+        String f();
+    } 
+
+    class X {
+        public void g(Foo f) {
+            System.out.println(f.f());
+        }
+    }
+}
+
+package P {
+    inst T with  Foo <= Bar;
+
+    class Bar {
+        String value;
+
+        Bar(String myVal) {
+            value = myVal;
+        }
+        String f() { return value; }
+    }
+
+    class Main {
+        public static void main(String args[]) {
+            new X().g( new Bar( "hey" ) );
+        }
+    }
+}

@@ -1,0 +1,5 @@
+template T {
+    required type X {
+        Y(int x);
+    }
+}

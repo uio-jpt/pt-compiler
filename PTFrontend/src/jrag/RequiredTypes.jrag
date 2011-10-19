@@ -90,4 +90,76 @@ aspect RequiredTypes {
         }
     }
 
+    public Access RequiredType.getSuperTypeAccessOrNull() {
+        return hasSuperTypeAccess() ? getSuperTypeAccess() : null;
+    }
+
+    public boolean RequiredType.isExtendsCircular() {
+        // circularity not in the RT part will be detected by JaJ
+        Set<RequiredType> extendedRTs = new HashSet<RequiredType>() ;
+        Access nextSuper = getSuperTypeAccessOrNull();
+        extendedRTs.add( this );
+        while( nextSuper != null ) {
+            TypeAccess taccess = (TypeAccess) nextSuper;
+            TypeDecl decl = taccess.decl();
+            if( !(decl instanceof RequiredType) ) break;
+            if( extendedRTs.contains( decl ) ) {
+                return true;
+            }
+            extendedRTs.add( (RequiredType) decl );
+
+            nextSuper = ((RequiredType) decl).getSuperTypeAccessOrNull();
+        }
+        return false;
+    }
+
+    public boolean RequiredType.isLocallyImplementsCircular( Set<RequiredType> forbidden ) {
+        for( RequiredType rt : getImplementedRequiredTypes() ) {
+            if( forbidden.contains( rt ) ) {
+                return true;
+            }
+
+            Set<RequiredType> newForbidden = new java.util.HashSet<RequiredType> ( forbidden );
+            newForbidden.add( rt );
+            
+            if( rt.isLocallyImplementsCircular( newForbidden ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean RequiredType.isImplementsCircular() {
+        // circularity not in the RT part will be detected by JaJ
+        Set<RequiredType> extendedRTs = new HashSet<RequiredType>() ;
+        extendedRTs.add( this );
+        return isLocallyImplementsCircular( extendedRTs );
+    }
+
+    public java.util.List<RequiredType> RequiredType.getImplementedRequiredTypes() {
+        java.util.List<RequiredType> rv = new java.util.ArrayList<RequiredType>();
+        for( Access a : getImplementsList() ) {
+            TypeAccess ta = (TypeAccess) a;
+            TypeDecl d = ta.decl();
+            if( d != null ) {
+                if( d instanceof RequiredType ) {
+                    rv.add( (RequiredType) d );
+                }
+            }
+        }
+        return rv;
+    }
+
+    public void RequiredType.nameCheck() {
+        super.nameCheck();
+
+        if( isExtendsCircular() ) {
+            error( "required type " + getID() + " has circular extends chain" );
+        }
+
+        if( isImplementsCircular() ) {
+            error( "required type " + getID() + " has circular implements chain" );
+        }
+    }
+
 }

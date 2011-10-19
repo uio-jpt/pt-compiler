@@ -1,0 +1,10 @@
+template T {
+    required type Foo implements Baz {
+    } 
+
+    required type Bar implements Foo {
+    }
+
+    required type Baz implements Bar {
+    }
+}
