@@ -1,0 +1,110 @@
+aspect RedundantExtends {
+    eq PTClassAddsDecl.getRedundantSuperclass().nameType() = NameType.TYPE_NAME;
+    eq PTClassAddsDecl.getRedundantImplements().nameType() = NameType.TYPE_NAME;
+    eq PTInterfaceAddsDecl.getRedundantExtends().nameType() = NameType.TYPE_NAME;
+
+    public void ASTNode.checkRedundantExtends() {
+        for( int i = 0; i < getNumChild(); i++ ) {
+            getChild(i).checkRedundantExtends();
+        }
+    }
+
+    public void PTInterfaceAddsDecl.checkRedundantExtends() {
+        super.checkRedundantExtends();
+
+        Set<TypeDecl> superinterfaces = new HashSet<TypeDecl> ();
+        for( Access a : getSuperInterfaceIdList() ) {
+            TypeDecl td = null;
+
+            if( a instanceof TypeAccess ) {
+                TypeAccess ta = (TypeAccess) a;
+                td = ta.decl();
+            } else if( a instanceof ParTypeAccess ) {
+                ParTypeAccess ta = (ParTypeAccess) a;
+                td = ta.type();
+            }
+
+            if( td != null ) {
+                superinterfaces.add( td );
+            }
+        }
+
+        for( Access a : getRedundantExtendsList() ) {
+            TypeDecl td = null;
+
+            if( a instanceof TypeAccess ) {
+                TypeAccess ta = (TypeAccess) a;
+                td = ta.decl();
+            } else if( a instanceof ParTypeAccess ) {
+                ParTypeAccess ta = (ParTypeAccess) a;
+                td = ta.type();
+            }
+
+            if( td != null ) {
+                // otherwise caught elsewhere
+                if( !superinterfaces.contains( td ) ) {
+                    error( "adds-interface " + getID() + " does not extend " + td.getID() + " by merging as promised" );
+                }
+            }
+        }
+    }
+
+    public void PTClassAddsDecl.checkRedundantExtends() {
+        super.checkRedundantExtends();
+
+        Set<TypeDecl> superclasses = new HashSet<TypeDecl> ();
+        ClassDecl cd = getClassDecl();
+
+        if( cd.hasSuperclass() ) {
+            superclasses.add( cd.superclass() );
+        }
+
+        Set<TypeDecl> implemented_interfaces = new HashSet<TypeDecl> ();
+        for( Access a : cd.getImplementsList() ) {
+            TypeDecl td = null;
+
+            if( a instanceof TypeAccess ) {
+                TypeAccess ta = (TypeAccess) a;
+                td = ta.decl();
+            } else if( a instanceof ParTypeAccess ) {
+                ParTypeAccess ta = (ParTypeAccess) a;
+                td = ta.type();
+            }
+
+            if( td != null ) {
+                implemented_interfaces.add( td );
+            }
+        }
+
+        if( hasRedundantSuperclass() ) {
+            Access a = (Access) getRedundantSuperclass();
+
+            TypeDecl td = null;
+
+            if( a instanceof TypeAccess ) {
+                TypeAccess ta = (TypeAccess) a;
+                td = ta.decl();
+            } else if( a instanceof ParTypeAccess ) {
+                ParTypeAccess ta = (ParTypeAccess) a;
+                td = ta.type();
+            }
+
+            if( td != null ) {
+                if( !superclasses.contains( td ) ) {
+                    error( "adds-class " + getID() + " does not extend " + td.getID() + " by merging as promised" );
+                }
+            }
+        }
+
+        for( Access a : getRedundantImplementsList() ) {
+            TypeAccess ta = (TypeAccess) a;
+            TypeDecl td = ta.decl();
+            if( td != null ) {
+                // otherwise caught elsewhere
+                if( !implemented_interfaces.contains( td ) ) {
+                    error( "adds-class " + getID() + " does not implement " + td.getID() + " by merging as promised" );
+                }
+            }
+        }
+    }
+}

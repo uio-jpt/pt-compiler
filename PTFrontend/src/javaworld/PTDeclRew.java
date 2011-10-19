@@ -312,10 +312,12 @@ public class PTDeclRew {
         Set<String> missingAddsInterfaceNames = Sets.difference( getDestinationIDsForInterfaces(), addInterfaces );
 
         for(String name : missingAddsInterfaceNames ) {
+            AST.List<Access> redundantSuperinterfaces = new AST.List<Access>();
             PTInterfaceAddsDecl ptiad = new PTInterfaceAddsDecl( new Modifiers(),
                                                                  name,
                                                                  new List<Access>(),
-                                                                 new List<BodyDecl>() );
+                                                                 new List<BodyDecl>(),
+                                                                 redundantSuperinterfaces);
             ptDeclToBeRewritten.addPTInterfaceDecl( ptiad );
         }
 
@@ -654,14 +656,20 @@ public class PTDeclRew {
 
             ClassDecl cls = createClassDeclForName( name, destinationClassIDsWithInstTuples.get( name ), true, superClassAccess );
 
-			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
+            AST.Opt<Access> redundantSuperclass = new AST.Opt<Access>();
+            AST.List<Access> redundantInterfaces = new AST.List<Access>();
+
+			PTClassAddsDecl addClass = new PTClassAddsDecl(cls, redundantSuperclass, redundantInterfaces);
 			ptDeclToBeRewritten.addSimpleClass(addClass);
 			lb.add(new SimpleClassRew(addClass));
         }
 
 		for (String name : missingAddsClass) {
             ClassDecl cls = createClassDeclForName( name, destinationClassIDsWithInstTuples.get( name ), false, null );
-			PTClassAddsDecl addClass = new PTClassAddsDecl(cls);
+            AST.Opt<Access> redundantSuperclass = new AST.Opt<Access>();
+            AST.List<Access> redundantInterfaces = new AST.List<Access>();
+
+			PTClassAddsDecl addClass = new PTClassAddsDecl(cls, redundantSuperclass, redundantInterfaces);
 			addClass.setWasAddsClass(false);
 
 			ptDeclToBeRewritten.addSimpleClass(addClass); /* Code understanding note:

@@ -113,7 +113,7 @@ SimpleClass pt_simple_declaration =
   pt_class_declaration.cd
               {: return new PTClassDecl(cd); :}
 | pt_adds_class.pt_ac 
-              {: return new PTClassAddsDecl(pt_ac); :}
+              {: return pt_ac; :}
 ;
 
 
@@ -225,21 +225,20 @@ PTDummyRename definition_renaming =
 ;
 
 // should this be missing modifiers?
-ClassDecl pt_adds_class = 
-  CLASS IDENTIFIER ADDS pt_class_body.b
-    {: return new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b); :}
+PTClassAddsDecl pt_adds_class = 
+  CLASS IDENTIFIER super.r_sup? interfaces.r_imp? ADDS pt_class_body.b
+    {: return new PTClassAddsDecl( new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b), r_sup, r_imp ); :}
   ;
 
 // same comment applies, no mods, why
-ClassDecl pt_adds_class = 
-  CLASS IDENTIFIER type_parameters.p ADDS pt_class_body.b
-    {: return new GenericClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b, p); :}
+PTClassAddsDecl pt_adds_class = 
+  CLASS IDENTIFIER type_parameters.p super.r_sup? interfaces.r_imp?  ADDS pt_class_body.b
+    {: return new PTClassAddsDecl( new GenericClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b, p), r_sup, r_imp ); :}
   ;
-  
 
 PTInterfaceDecl pt_adds_intf = 
-  INTERFACE IDENTIFIER ADDS interface_body.b
-    {: return new PTInterfaceAddsDecl(new Modifiers(), IDENTIFIER, new List() , b); :}
+  INTERFACE IDENTIFIER extends_interfaces.i? ADDS interface_body.b
+    {: return new PTInterfaceAddsDecl(new Modifiers(), IDENTIFIER, new List() , b, i); :}
   ;
 
 PTInterfaceDecl pt_intf_decl =

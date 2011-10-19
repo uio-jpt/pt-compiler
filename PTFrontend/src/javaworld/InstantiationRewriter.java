@@ -52,6 +52,8 @@ public class InstantiationRewriter {
 //        target.removeInstStatements();
 		target.flushCaches();
 
+        decl.checkRedundantExtends();
+
         decl.flushCaches();
 	}
 }

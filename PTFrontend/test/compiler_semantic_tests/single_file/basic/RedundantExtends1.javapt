@@ -1,0 +1,123 @@
+template T1 {
+    class A1 {
+        public A1(int foo) {
+            System.out.println("A1 " + new Integer(foo) );
+        }
+    }
+
+    class B1 extends A1 {
+        public B1(double bar) {
+            System.out.println("B1" + new Double( bar ) );
+        }
+    }
+
+    class C1 extends B1 {
+        public C1(String baz) {
+            System.out.println("C1" + baz);
+        }
+    }
+}
+
+template T2 {
+    inst T1 with A1 => A2, B1 => B2, C1 => C2;
+    class A2 adds {
+        public A2(int foo) {
+            tsuper[T1.A1](foo);
+            System.out.println("A2");
+        }
+    }
+
+    class B2 extends A2 adds {
+        public B2(double bar) {
+            tsuper[T1.B1](bar);
+            System.out.println("B2" );
+        }
+    }
+
+    class C2 extends B2 adds {
+        public C2(String baz) {
+            tsuper[T1.C1](baz);
+            System.out.println("C2" );
+        }
+    }
+}
+
+template T3 {
+    class A3 {
+        public A3() {
+            System.out.println("A3");
+        }
+    }
+
+    class B3 extends A3 {
+        public B3() {
+            System.out.println("B3" );
+        }
+    }
+
+    class C3 extends B3 {
+        public C3() {
+            System.out.println("C3" );
+        }
+    }
+}
+
+package P {
+    inst T2 with A2 => A, B2 => B, C2 => C;
+    inst T3 with A3 => A, B3 => B, C3 => C;
+    class A adds {
+        public A(String[] args) {
+            super();
+            tsuper[T2.A2](42);
+            tsuper[T3.A3]();
+            System.out.println("A " + args.length);
+        }
+    }
+
+    class B extends A adds {
+        public B(String[] args) {
+            super(args);
+            tsuper[T3.B3](); // note swap!
+            tsuper[T2.B2](189.0);
+            System.out.println("B" );
+        }
+    }
+
+    class C extends B adds {
+        public C(String[] args) {
+            super(args);
+            tsuper[T2.C2]("foo");
+            tsuper[T3.C3]();
+            System.out.println("C" );
+        }
+    }
+
+    class Main {
+        Main() {}
+        public static void main(String[] args) {
+            System.out.println( "should be able to control which of T3 and T2 is instantiated first" );
+            new C(args);
+
+
+            /* This prints:
+
+            should be able to control which of T3 and T2 is instantiated first
+            A1 42
+            A2
+            A3
+            A 0
+            B3
+            B1189.0
+            B2
+            B
+            C1foo
+            C2
+            C3
+            C
+
+            Correct?
+
+            */
+        }
+    }
+}
