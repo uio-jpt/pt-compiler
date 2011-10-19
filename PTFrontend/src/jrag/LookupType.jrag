@@ -148,8 +148,6 @@ aspect LookupType {
 //  inh SimpleSet PTInstDecl.ptLookupSpecificType(String name); // do we really need .lookupType() here? but instructively, this is necessary for that to work.
 
     syn SimpleSet PTDecl.lookupTypeInPTDecl( String name ) {
-        System.out.println( "looking for " + name + " in PTDecl" );
-
         if( this instanceof PTTemplate ) {
             SimpleSet c = SimpleSet.emptySet;
             PTTemplate ptt = (PTTemplate) this;
@@ -181,8 +179,6 @@ aspect LookupType {
         TypeDecl t = lookupType("", name);
         if (t!=null) return SimpleSet.emptySet.add(t);
 
-        System.out.println( "gave up looking for " + name );
-    
         return SimpleSet.emptySet;
     }
 
@@ -227,7 +223,6 @@ aspect LookupType {
     }
 
     eq PTDecl.getRequiredType(int i).lookupType(String name) {
-        System.out.println( "YES YES YES looking for " + name );
         SimpleSet c = lookupTypeInPTDecl( name );
         if( c.size() > 0 ) {
             return c;
