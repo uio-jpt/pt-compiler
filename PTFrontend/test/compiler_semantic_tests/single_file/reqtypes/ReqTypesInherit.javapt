@@ -1,0 +1,30 @@
+template T {
+    required class Foo implements java.lang.Runnable {
+        String f();
+    } 
+
+    class X {
+        public void g(Foo f) {
+            System.out.println(f.f());
+            f.run();
+        }
+    }
+}
+
+package P {
+    inst T with  Foo <= Bar;
+
+    class Bar implements java.lang.Runnable {
+        String f() { return "hello world"; }
+
+        public void run() {
+            System.out.println( "was run" );
+        }
+    }
+
+    class Main {
+        public static void main(String args[]) {
+            new X().g( new Bar() );
+        }
+    }
+}

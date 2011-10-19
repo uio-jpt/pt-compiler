@@ -24,6 +24,19 @@ aspect PTTypeParameters {
       return true;
   }
 
+  public TypeConstraint RequiredType.getTypeConstraint() {
+      TypeConstraint rv = new TypeConstraint();
+
+      if( this instanceof RequiredClass ) {
+          rv.requireClass();
+      }
+      if( this instanceof RequiredInterface ) {
+          rv.requireInterface();
+      }
+
+      return rv;
+  }
+
   public boolean RequiredType.instanceOf( TypeDecl that ) {
       if( typeObject().instanceOf( that ) ) {
           return true;
@@ -32,20 +45,31 @@ aspect PTTypeParameters {
       return false;
   }
 
-  eq RequiredType.methodsSignatureMap() {
-      HashMap map = new HashMap();
-/*
-
-      MethodDecl fuzz = new MethodDecl( new Modifiers(new List()),
-                                        new PrimitiveTypeAccess( "void" ),
-                                        "f",
-                                        new List(),
-                                        new List(),
-                                        new Opt() );
-
-      putSimpleSetElement( map, "f", fuzz );
-*/
-
-      return map;
+  public boolean BodyDecl.isInRequiredType() {
+    return getParentClass( RequiredType.class ) != null;
   }
+
+
+
+    /* What's the proper way to do this (i.e. how is it done in J.a.J. for interfaces?
+       Not trivial to figure out so this works for now. */
+  rewrite 
+    MethodDecl 
+    {
+        when ( isInRequiredType() && !isAbstract() )
+        to MethodDecl
+      {
+            getModifiers().addModifier( new Modifier( "abstract" ) );
+            return this;
+      }
+    }
+
+    eq RequiredType.methodsSignatureMap() {
+        HashMap map = new HashMap( localMethodsSignatureMap() );
+
+        System.out.println( "WOOO" + map );
+
+        return map;
+    }
+
 }

@@ -336,49 +336,22 @@ RequiredType ptr_required_spec =
     ;
 
 RequiredType ptr_r_type =
-    TYPE IDENTIFIER super.s? interfaces.i? LBRACE abstract_method_declaration* RBRACE
+    TYPE IDENTIFIER super.s? interfaces.i? LBRACE abstract_method_declaration.m* RBRACE
         {:
-            // TODO, dummy
-            javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
-
-            return new RequiredType( new Modifiers(), IDENTIFIER, new List(), tc );
+            return new RequiredType( new Modifiers(), IDENTIFIER, m );
         :}
     ;
 
 RequiredInterface ptr_r_interface =
-    INTERFACE IDENTIFIER extends_interfaces.i? LBRACE abstract_method_declaration* RBRACE
+    INTERFACE IDENTIFIER extends_interfaces.i? LBRACE abstract_method_declaration.m* RBRACE
         {:
-            // TODO, dummy
-            javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
-            tc.requireInterface();
-/*
-            for( Object o : i ) {
-                InterfaceDecl decl = (InterfaceDecl) o;
-                javaworld.JastaddTypeConstraints.addSuperTypes( decl, tc );
-            }
-*/
-            return new RequiredInterface( new Modifiers(), IDENTIFIER, new List(), tc );
+            return new RequiredInterface( new Modifiers(), IDENTIFIER, m );
         :}
     ;
 
 RequiredClass ptr_r_class =
     CLASS IDENTIFIER super.s? interfaces.i? LBRACE abstract_method_declaration.m* RBRACE
         {:
-            // TODO, dummy
-            javaworld.TypeConstraint tc = new javaworld.TypeConstraint();
-            tc.requireClass();
-
-/*
-            for( Object o : i ) {
-                InterfaceDecl decl = (InterfaceDecl) o;
-                javaworld.JastaddTypeConstraints.addSuperTypes( decl, tc );
-            }
-            for( Object o : s ) {
-                InterfaceDecl decl = (InterfaceDecl) o;
-                javaworld.JastaddTypeConstraints.addSuperTypes( decl, tc );
-            }
-*/
-
-            return new RequiredClass( new Modifiers(), IDENTIFIER, new List(), tc );
+            return new RequiredClass( new Modifiers(), IDENTIFIER, m );
         :}
     ;

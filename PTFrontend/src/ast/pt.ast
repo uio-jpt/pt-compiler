@@ -59,6 +59,6 @@ PackageConstructor : MethodDecl ::= <TClassID> <TemplateID>;
  */ 
 TabstractMethodDecl : MethodDecl;
 
-RequiredType : ReferenceType ::= <TypeConstraint:TypeConstraint>;
+RequiredType : ReferenceType;
 RequiredClass : RequiredType;
 RequiredInterface : RequiredType;

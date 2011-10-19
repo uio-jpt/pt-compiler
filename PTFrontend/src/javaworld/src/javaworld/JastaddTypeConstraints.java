@@ -27,6 +27,10 @@ import AST.Block;
 import AST.TypeDecl;
 import AST.PTDecl;
 
+import AST.RequiredType;
+import AST.RequiredClass;
+import AST.RequiredInterface;
+
 import java.util.List;
 import java.util.Vector;
 
@@ -184,5 +188,21 @@ public class JastaddTypeConstraints {
                 stack.push( (InterfaceDecl) o );
             }
         }
+    }
+
+    public static RequiredType convertToRequiredType( String name, TypeConstraint tc ) {
+        // TODO think about modifiers, these are discarded here
+        RequiredType rv;
+        AST.List<BodyDecl> bodyDecls = new AST.List<BodyDecl>();
+        
+        if( tc.mustBeClass() ) {
+            rv = new RequiredClass( new Modifiers(), name, bodyDecls );
+        } else if( tc.mustBeInterface() ) {
+            rv = new RequiredInterface( new Modifiers(), name, bodyDecls );
+        } else {
+            rv = new RequiredType( new Modifiers(), name, bodyDecls );
+        }
+
+        return rv;
     }
 }
