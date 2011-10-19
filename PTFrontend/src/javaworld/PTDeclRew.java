@@ -298,17 +298,9 @@ public class PTDeclRew {
                 tc.absorb( rt.getTypeConstraint() );
             }
 
-            RequiredType myRequiredType;
+            System.out.println( "creating new required type in: " + ptDeclToBeRewritten );
 
-            // TODO think about modifiers, these are discarded here
-            if( mustBeClass ) {
-                myRequiredType = new RequiredClass( new Modifiers(), key, new List(),  tc );
-            } else if( mustBeInterface ) {
-                myRequiredType = new RequiredInterface( new Modifiers(), key, new List(), tc );
-            } else {
-                assert( mustBeType );
-                myRequiredType = new RequiredType( new Modifiers(), key, new List(), tc );
-            }
+            RequiredType myRequiredType = JastaddTypeConstraints.convertToRequiredType( key, tc );
 
             ptDeclToBeRewritten.addRequiredType( myRequiredType );
         }

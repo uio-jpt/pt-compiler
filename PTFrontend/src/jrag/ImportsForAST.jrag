@@ -1,2 +1,3 @@
 import javaworld.TypeConstraint;
 import javaworld.JastaddTypeConstraints;
+import javaworld.JastaddTypeDescriptor;

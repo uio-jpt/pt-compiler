@@ -143,15 +143,13 @@ aspect LookupType {
     inh SimpleSet SimpleClass.lookupType(String name);
     inh SimpleSet PTTemplate.lookupType(String name);
     inh SimpleSet PTDecl.lookupType(String name);
+    inh SimpleSet RequiredType.lookupType(String name);
 
 //  inh SimpleSet PTInstDecl.ptLookupSpecificType(String name); // do we really need .lookupType() here? but instructively, this is necessary for that to work.
 
-    /* TODO: below is obvious code duplication, eliminate it.
-       Not as easy as it looks, probably just because the
-       jastadd system is still somewhat unfamiliar.
-    */
-
     syn SimpleSet PTDecl.lookupTypeInPTDecl( String name ) {
+        System.out.println( "looking for " + name + " in PTDecl" );
+
         if( this instanceof PTTemplate ) {
             SimpleSet c = SimpleSet.emptySet;
             PTTemplate ptt = (PTTemplate) this;
@@ -182,6 +180,8 @@ aspect LookupType {
 
         TypeDecl t = lookupType("", name);
         if (t!=null) return SimpleSet.emptySet.add(t);
+
+        System.out.println( "gave up looking for " + name );
     
         return SimpleSet.emptySet;
     }
@@ -227,6 +227,7 @@ aspect LookupType {
     }
 
     eq PTDecl.getRequiredType(int i).lookupType(String name) {
+        System.out.println( "YES YES YES looking for " + name );
         SimpleSet c = lookupTypeInPTDecl( name );
         if( c.size() > 0 ) {
             return c;

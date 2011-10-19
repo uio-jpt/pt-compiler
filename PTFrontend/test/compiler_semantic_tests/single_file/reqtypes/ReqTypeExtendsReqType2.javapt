@@ -1,0 +1,34 @@
+template T {
+    required type Foo {
+        String f();
+    } 
+
+    required type Baz extends Foo {
+        String g();
+    }
+
+    class X {
+        public void g(Foo f) {
+            System.out.println(f.f());
+        }
+    }
+}
+
+package P {
+    inst T with  Foo <= Bar,
+                 Baz <= Bar2;
+
+    class Bar {
+        String f() { return "hello world"; }
+    }
+
+    class Bar2 extends Bar {
+        String g() { return "yup"; }
+    }
+
+    class Main {
+        public static void main(String args[]) {
+            new X().g( new Bar() );
+        }
+    }
+}

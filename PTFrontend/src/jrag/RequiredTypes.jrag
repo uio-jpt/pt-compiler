@@ -1,4 +1,4 @@
-aspect PTTypeParameters {
+aspect RequiredTypes {
   public void ASTNode.replaceTypeAccesses(Map<TypeDecl,TypeAccess> ht) {
         for(int i = 0; i < getNumChild(); i++) {
             ASTNode child = getChild(i);
@@ -24,6 +24,37 @@ aspect PTTypeParameters {
       return true;
   }
 
+  public TypeConstraint RequiredType.getTypeConstraint() {
+      TypeConstraint rv = new TypeConstraint();
+
+      if( this instanceof RequiredClass ) {
+          rv.requireClass();
+      }
+      if( this instanceof RequiredInterface ) {
+          rv.requireInterface();
+      }
+
+      if( hasSuperTypeAccess() ) {
+          rv.addSuperType( new JastaddTypeDescriptor( getSuperTypeAccess() ) );
+          System.out.println( "added supertype" );
+      }
+
+      for( Access a : getImplementsList() ) {
+          TypeAccess ta = (TypeAccess) a;
+          TypeDecl td = ta.decl();
+
+          rv.addImplementedType( new JastaddTypeDescriptor( td ) );
+
+          System.out.println( "added implemented-type" );
+      }
+
+      System.out.println( "constructed " + rv );
+
+
+
+      return rv;
+  }
+
   public boolean RequiredType.instanceOf( TypeDecl that ) {
       if( typeObject().instanceOf( that ) ) {
           return true;
@@ -32,20 +63,167 @@ aspect PTTypeParameters {
       return false;
   }
 
-  eq RequiredType.methodsSignatureMap() {
-      HashMap map = new HashMap();
-/*
-
-      MethodDecl fuzz = new MethodDecl( new Modifiers(new List()),
-                                        new PrimitiveTypeAccess( "void" ),
-                                        "f",
-                                        new List(),
-                                        new List(),
-                                        new Opt() );
-
-      putSimpleSetElement( map, "f", fuzz );
-*/
-
-      return map;
+  public boolean BodyDecl.isInRequiredType() {
+    return getParentClass( RequiredType.class ) != null;
   }
+
+
+
+    /* What's the proper way to do this (i.e. how is it done in J.a.J. for interfaces?
+       Not trivial to figure out so this works for now. */
+  rewrite 
+    MethodDecl 
+    {
+        when ( isInRequiredType() && !isAbstract() )
+        to MethodDecl
+      {
+            getModifiers().addModifier( new Modifier( "abstract" ) );
+            return this;
+      }
+    }
+
+    eq RequiredType.methodsSignatureMap() {
+        HashMap map = new HashMap( localMethodsSignatureMap() );
+
+        if( hasSuperTypeAccess() ) {
+            TypeDecl superType = ((TypeAccess) getSuperTypeAccess()).decl();
+            if( superType != null ) {
+                  for(Iterator iter = superType.methodsIterator(); iter.hasNext(); ) {
+                    MethodDecl m = (MethodDecl)iter.next();
+                    if(!m.isPrivate() && m.accessibleFrom(this) && !localMethodsSignatureMap().containsKey(m.signature()))
+                      putSimpleSetElement(map, m.signature(), m);
+                  }
+            }
+        }
+
+        for( Access a : getImplementsList() ) {
+            TypeAccess ta = (TypeAccess) a;
+            TypeDecl td = ta.decl();
+            if( td == null ) continue;
+
+            // this should be either a RequiredType (RequiredInterface) or
+            // a real interface
+
+      for(Iterator iter = td.methodsIterator(); iter.hasNext(); ) {
+        MethodDecl m = (MethodDecl)iter.next();
+        if(!m.isPrivate() && m.accessibleFrom(this) && !localMethodsSignatureMap().containsKey(m.signature()))
+          putSimpleSetElement(map, m.signature(), m);
+      }
+
+
+        }
+
+        System.out.println( "WOOO" + map );
+
+        return map;
+    }
+
+
+    // the equivalents for JastaddJ are in SyntacticClassification.jrag
+    eq RequiredType.getSuperTypeAccess().nameType() = NameType.TYPE_NAME;
+    eq RequiredType.getImplements().nameType() = NameType.TYPE_NAME;
+
+    public void PTAbstractConstructor.nameCheck() {
+        super.nameCheck();
+
+        RequiredType reqtype = (RequiredType) getParentClass( RequiredType.class );
+        if( reqtype != null ) {
+            if( ! reqtype.getID().equals( getID() ) ) {
+                error( "defining abstract constructor of conflicting name " + getID() + " in required type " + reqtype.getID() );
+            }
+        } else {
+            error( "required type-abstract constructor outside required type (impossible)" );
+        }
+    }
+
+    public Access RequiredType.getSuperTypeAccessOrNull() {
+        return hasSuperTypeAccess() ? getSuperTypeAccess() : null;
+    }
+
+    public boolean RequiredType.isExtendsCircular() {
+        // circularity not in the RT part will be detected by JaJ
+        Set<RequiredType> extendedRTs = new HashSet<RequiredType>() ;
+        Access nextSuper = getSuperTypeAccessOrNull();
+        extendedRTs.add( this );
+        while( nextSuper != null ) {
+            TypeAccess taccess = (TypeAccess) nextSuper;
+            TypeDecl decl = taccess.decl();
+            if( !(decl instanceof RequiredType) ) break;
+            if( extendedRTs.contains( decl ) ) {
+                return true;
+            }
+            extendedRTs.add( (RequiredType) decl );
+
+            nextSuper = ((RequiredType) decl).getSuperTypeAccessOrNull();
+        }
+        return false;
+    }
+
+    public boolean RequiredType.isLocallyImplementsCircular( Set<RequiredType> forbidden ) {
+        for( RequiredType rt : getImplementedRequiredTypes() ) {
+            if( forbidden.contains( rt ) ) {
+                return true;
+            }
+
+            Set<RequiredType> newForbidden = new java.util.HashSet<RequiredType> ( forbidden );
+            newForbidden.add( rt );
+            
+            if( rt.isLocallyImplementsCircular( newForbidden ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean RequiredType.isImplementsCircular() {
+        // circularity not in the RT part will be detected by JaJ
+        Set<RequiredType> extendedRTs = new HashSet<RequiredType>() ;
+        extendedRTs.add( this );
+        return isLocallyImplementsCircular( extendedRTs );
+    }
+
+    public java.util.List<RequiredType> RequiredType.getImplementedRequiredTypes() {
+        java.util.List<RequiredType> rv = new java.util.ArrayList<RequiredType>();
+        for( Access a : getImplementsList() ) {
+            TypeAccess ta = (TypeAccess) a;
+            TypeDecl d = ta.decl();
+            if( d != null ) {
+                if( d instanceof RequiredType ) {
+                    rv.add( (RequiredType) d );
+                }
+            }
+        }
+        return rv;
+    }
+
+    public void RequiredType.nameCheck() {
+        super.nameCheck();
+
+        if( isExtendsCircular() ) {
+            error( "required type " + getID() + " has circular extends chain" );
+        }
+
+        if( isImplementsCircular() ) {
+            error( "required type " + getID() + " has circular implements chain" );
+        }
+    }
+
+    eq RequiredType.getSuperTypeAccess().lookupType(String name) {
+        System.out.println( "YO YO YO looking for " + name );
+        return lookupType( name );
+    }
+
+    refine NameCheck
+    public void TypeAccess.nameCheck() {
+//        System.out.println( "name-checking " + getID() + " in " + getParentClass( PTDecl.class ).getClass().getName() + " with grandparent " + getParent().getParent().dumpTree() ); // crashes for a small set of tests (also insanely verbose)
+        System.out.println( "unqual scope is: " + unqualifiedScope() );
+        flushCaches();
+        if( decls().isEmpty() ) {
+            System.out.println( "WILL FAIL" );
+            System.out.println( "in: " + getParentClass( PTDecl.class ) );
+        }
+        NameCheck.TypeAccess.nameCheck();
+        System.out.println( "done" );
+    }
+
 }

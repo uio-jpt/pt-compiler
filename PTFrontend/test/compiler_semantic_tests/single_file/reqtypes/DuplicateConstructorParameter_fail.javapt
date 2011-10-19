@@ -1,0 +1,5 @@
+template T {
+    required type X {
+        X( String foo, String foo );
+    }
+}

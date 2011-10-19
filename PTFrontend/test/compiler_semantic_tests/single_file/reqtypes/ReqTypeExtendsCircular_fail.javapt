@@ -1,0 +1,10 @@
+template T {
+    required type Foo extends Baz {
+    } 
+
+    required type Bar extends Foo {
+    }
+
+    required type Baz extends Bar {
+    }
+}
