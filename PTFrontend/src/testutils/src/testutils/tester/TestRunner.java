@@ -44,6 +44,10 @@ public class TestRunner extends PTFrontend implements TestCase {
 	}
 
 	public void run(ReportManager testReports) {
+            System.out.println( "Running test: " + name ); /* this is terribly useful when one test _crashes_ or gives unexpected
+                                                              output on stdout/err without giving any errors. TODO transform
+                                                              this into --verbose mode */
+
 			actual = process();
 			SemanticReport report = generateReport();
 			testReports.addReport(report);

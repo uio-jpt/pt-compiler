@@ -26,6 +26,7 @@ import AST.Opt;
 import AST.Block;
 import AST.TypeDecl;
 import AST.PTDecl;
+import AST.FieldDeclaration;
 
 import AST.RequiredType;
 import AST.RequiredClass;
@@ -122,8 +123,14 @@ public class JastaddTypeConstraints {
             } else if( bd instanceof ConstructorDecl ) {
                 ConstructorDescriptor cdesc = describeConstructorDecl( (ConstructorDecl) bd );
                 tc.addConstructor( cdesc );
+            } else if( bd instanceof FieldDeclaration ) {
+                /* We do not support field declarations in required types at the moment (should we? not sure)
+                   but we do need to tolerate them in extraction from classes, for conformance checking.
+                */
             } else {
                 System.out.println( "[debug/warning] fromClassDeclInto() did not expect " + bd.getClass().getName() );
+                System.out.println( "[debug/warning] was: " + bd.dumpTree() );
+                System.out.println( "[debug/warning] was: " + bd );
                 // warn?
             }
         }
