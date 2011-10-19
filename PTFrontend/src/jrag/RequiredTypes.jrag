@@ -113,8 +113,6 @@ aspect RequiredTypes {
 
         }
 
-        System.out.println( "WOOO" + map );
-
         return map;
     }
 
@@ -209,21 +207,7 @@ aspect RequiredTypes {
     }
 
     eq RequiredType.getSuperTypeAccess().lookupType(String name) {
-        System.out.println( "YO YO YO looking for " + name );
         return lookupType( name );
-    }
-
-    refine NameCheck
-    public void TypeAccess.nameCheck() {
-//        System.out.println( "name-checking " + getID() + " in " + getParentClass( PTDecl.class ).getClass().getName() + " with grandparent " + getParent().getParent().dumpTree() ); // crashes for a small set of tests (also insanely verbose)
-        System.out.println( "unqual scope is: " + unqualifiedScope() );
-        flushCaches();
-        if( decls().isEmpty() ) {
-            System.out.println( "WILL FAIL" );
-            System.out.println( "in: " + getParentClass( PTDecl.class ) );
-        }
-        NameCheck.TypeAccess.nameCheck();
-        System.out.println( "done" );
     }
 
 }
