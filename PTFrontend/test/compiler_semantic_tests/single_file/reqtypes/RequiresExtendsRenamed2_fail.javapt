@@ -1,0 +1,17 @@
+template T {
+    class X {
+    }
+
+    required type Foo extends X {
+    }
+}
+
+package P {
+    inst T with Foo <= Bar;
+
+    class Y {
+    }
+    
+    class Bar extends Y {
+    }
+}
