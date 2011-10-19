@@ -1,0 +1,24 @@
+template T {
+    class X {
+    }
+
+    interface Y {
+    }
+
+    interface Z {
+    }
+
+    required type Foo extends X implements Y, Z {
+    } 
+
+}
+
+package P {
+    inst T with Foo <= A;
+
+    class A extends X implements Z {
+        public void yay() {
+            System.out.println( "yay." );
+        }
+    }
+}

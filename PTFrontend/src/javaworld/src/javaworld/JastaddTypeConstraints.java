@@ -27,6 +27,7 @@ import AST.Block;
 import AST.TypeDecl;
 import AST.PTDecl;
 import AST.FieldDeclaration;
+import AST.TypeAccess;
 
 import AST.RequiredType;
 import AST.RequiredClass;
@@ -34,6 +35,7 @@ import AST.RequiredInterface;
 
 import java.util.List;
 import java.util.Vector;
+import java.util.Iterator;
 
 public class JastaddTypeConstraints {
     static Access simpleTypeDescriptorToAccess( TypeDescriptor td ) {
@@ -100,8 +102,6 @@ public class JastaddTypeConstraints {
             // these are really _extended_, not implemented
             fromInterfaceDeclInto( superi, tc );
         }
-
-        addSuperTypes( idecl, tc );
     }
 
     static TypeConstraint fromInterfaceDecl( InterfaceDecl idecl ) {
@@ -111,6 +111,12 @@ public class JastaddTypeConstraints {
         // I'm not sure I should .require anything here
 
         fromInterfaceDeclInto( idecl, tc );
+
+        for( Object superio : idecl.implementedInterfaces() ) {
+            InterfaceDecl superi = (InterfaceDecl) superio;
+
+            tc.addImplementedType( new JastaddTypeDescriptor( superi ) );
+        }
 
         return tc;
     }
@@ -135,12 +141,12 @@ public class JastaddTypeConstraints {
             }
         }
 
+        System.out.println ( "creating from " + cdecl.getID() );
+
         ClassDecl sc = cdecl.superclass();
         if( sc != null ) {
             fromClassDeclInto( sc, tc );
         }
-
-        addSuperTypes( cdecl, tc );
     }
 
     static TypeConstraint fromClassDecl( ClassDecl cdecl ) {
@@ -148,6 +154,20 @@ public class JastaddTypeConstraints {
         tc.requireClass();
 
         fromClassDeclInto( cdecl, tc );
+
+        ClassDecl sc = cdecl.superclass();
+        if( sc != null ) {
+            System.out.println ( "adding supertyp from " + sc.fullName() );
+
+            tc.addSuperType( new JastaddTypeDescriptor( sc ) );
+        }
+
+        for( Access ideclaccess : cdecl.getImplementsList() ) {
+            TypeDecl idecl = ((TypeAccess) ideclaccess).decl();
+            if( idecl == null ) continue;
+
+            tc.addImplementedType( new JastaddTypeDescriptor( idecl ) );
+        }
 
         return tc;
     }
@@ -162,6 +182,7 @@ public class JastaddTypeConstraints {
         return null;
     }
 
+/*
     public static void addSuperTypes( TypeDecl tdecl, TypeConstraint tc ) {
         if( tdecl instanceof ClassDecl ) {
             ClassDecl cdecl = (ClassDecl) tdecl;
@@ -196,6 +217,7 @@ public class JastaddTypeConstraints {
             }
         }
     }
+*/
 
     public static RequiredType convertToRequiredType( String name, TypeConstraint tc ) {
         // TODO think about modifiers, these are discarded here
@@ -205,6 +227,29 @@ public class JastaddTypeConstraints {
         AST.Opt<Access> superClassAccess = new AST.Opt<Access>();
         AST.List<Access> superInterfaceAccess = new AST.List<Access>();
         
+
+        // TODO revise
+        // pay attention to duplicates etc
+
+        Iterator<TypeDescriptor> extendedTypesI = tc.getExtendedTypesIterator();
+        while( extendedTypesI.hasNext() ) {
+            TypeDescriptor extendedType = extendedTypesI.next();
+            if( extendedType instanceof JastaddTypeDescriptor ) {
+                Access myAcc = ((JastaddTypeDescriptor) extendedType).getAccess();
+                superClassAccess = new AST.Opt<Access>( (Access) myAcc.fullCopy() );
+            }
+        }
+
+        Iterator<TypeDescriptor> implementedTypesI = tc.getImplementedTypesIterator();
+        while( implementedTypesI.hasNext() ) {
+            TypeDescriptor implementedType = implementedTypesI.next();
+            if( implementedType instanceof JastaddTypeDescriptor ) {
+                Access myAcc = ((JastaddTypeDescriptor) implementedType).getAccess();
+                superInterfaceAccess = superInterfaceAccess.add( (Access) myAcc.fullCopy() );
+            }
+        }
+
+
         if( tc.mustBeClass() ) {
             rv = new RequiredClass( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess );
         } else if( tc.mustBeInterface() ) {
@@ -212,6 +257,8 @@ public class JastaddTypeConstraints {
         } else {
             rv = new RequiredType( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess );
         }
+
+//        System.out.println( "converted this TC to required type: " + tc );
 
         return rv;
     }

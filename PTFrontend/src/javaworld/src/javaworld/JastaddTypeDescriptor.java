@@ -15,6 +15,9 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     TypeAccess typeAccess;
     ParTypeAccess parTypeAccess;
 
+    boolean byDeclaration;
+    TypeDecl typeDeclaration;
+
     boolean isWildcard;
 
     List<JastaddTypeDescriptor> typeParameters;
@@ -48,7 +51,17 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         }
     }
 
+    public JastaddTypeDescriptor( TypeDecl decl ) {
+        byDeclaration = true;
+        typeDeclaration = decl;
+        typeParameters = new Vector<JastaddTypeDescriptor>();
+    }
+
     public Access getAccess() {
+        if( byDeclaration ) {
+            System.out.println( "[warning] constructing access" );
+            return new TypeAccess( typeDeclaration.fullName() );
+        }
         if( isWildcard ) {
             new Wildcard();
         }
@@ -59,8 +72,18 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     }
 
     public TypeDecl getBaseTypeDecl() {
+        if( byDeclaration ) {
+            return typeDeclaration;
+        }
         if( isParametrized() ) {
             return parTypeAccess.genericDecl();
+        }
+        return typeAccess.decl();
+    }
+
+    public TypeDecl getTypeDecl() {
+        if( byDeclaration ) {
+            return typeDeclaration;
         }
         return typeAccess.decl();
     }
@@ -97,7 +120,19 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     public boolean isSubtypeOf( TypeDescriptor that ) {
         // note that we can be subtypes of TypeConstraints, not just other JastaddTypeDescriptors
 
-        throw new RuntimeException( "TODO subtype detection not yet implemented" );
+        // correction: no, this is no longer possible. (must it be?)
+
+        if( !(that instanceof JastaddTypeDescriptor) ) {
+            return false;
+        }
+        JastaddTypeDescriptor jthat = (JastaddTypeDescriptor) that;
+        TypeDecl myDecl = getTypeDecl();
+        TypeDecl theirDecl = jthat.getTypeDecl();
+
+        boolean rv =  myDecl.subtype( theirDecl );
+
+        System.out.println( "is " + myDecl.fullName() + " a subtype of " + theirDecl.fullName() + "? " + rv );
+        return rv;
     }
 
     public String toString() {

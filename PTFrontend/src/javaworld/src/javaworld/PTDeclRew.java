@@ -298,6 +298,8 @@ public class PTDeclRew {
                 tc.absorb( rt.getTypeConstraint() );
             }
 
+            System.out.println( "creating new required type in: " + ptDeclToBeRewritten );
+
             RequiredType myRequiredType = JastaddTypeConstraints.convertToRequiredType( key, tc );
 
             ptDeclToBeRewritten.addRequiredType( myRequiredType );

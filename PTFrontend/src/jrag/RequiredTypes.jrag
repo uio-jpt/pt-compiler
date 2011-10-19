@@ -34,6 +34,24 @@ aspect RequiredTypes {
           rv.requireInterface();
       }
 
+      if( hasSuperTypeAccess() ) {
+          rv.addSuperType( new JastaddTypeDescriptor( getSuperTypeAccess() ) );
+          System.out.println( "added supertype" );
+      }
+
+      for( Access a : getImplementsList() ) {
+          TypeAccess ta = (TypeAccess) a;
+          TypeDecl td = ta.decl();
+
+          rv.addImplementedType( new JastaddTypeDescriptor( td ) );
+
+          System.out.println( "added implemented-type" );
+      }
+
+      System.out.println( "constructed " + rv );
+
+
+
       return rv;
   }
 
@@ -188,6 +206,24 @@ aspect RequiredTypes {
         if( isImplementsCircular() ) {
             error( "required type " + getID() + " has circular implements chain" );
         }
+    }
+
+    eq RequiredType.getSuperTypeAccess().lookupType(String name) {
+        System.out.println( "YO YO YO looking for " + name );
+        return lookupType( name );
+    }
+
+    refine NameCheck
+    public void TypeAccess.nameCheck() {
+//        System.out.println( "name-checking " + getID() + " in " + getParentClass( PTDecl.class ).getClass().getName() + " with grandparent " + getParent().getParent().dumpTree() ); // crashes for a small set of tests (also insanely verbose)
+        System.out.println( "unqual scope is: " + unqualifiedScope() );
+        flushCaches();
+        if( decls().isEmpty() ) {
+            System.out.println( "WILL FAIL" );
+            System.out.println( "in: " + getParentClass( PTDecl.class ) );
+        }
+        NameCheck.TypeAccess.nameCheck();
+        System.out.println( "done" );
     }
 
 }

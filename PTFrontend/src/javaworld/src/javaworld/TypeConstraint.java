@@ -16,20 +16,22 @@ public class TypeConstraint {
     Set<MethodDescriptor> methods;
     Set<ConstructorDescriptor> constructors;
 
-
-        // these are internal. they might be renamed. they are short names, e.g. "A"
-    Set<String> nominalImplementedInterfacesInternal;
-    Set<String> nominalExtendedClassesInternal;
-
-        // these are external. they will NOT be renamed. they are fullNames, e.g. "java.lang.Runnable"
-    Set<String> nominalImplementedInterfacesExternal;
-    Set<String> nominalExtendedClassesExternal;
+    Set<TypeDescriptor> extendedTypes; // should ultimately only be one
+    Set<TypeDescriptor> implementedTypes;
 
         // note: this class can represent constraints that no actual Java class can match
         //       a TypeConstraint merge e.g. resulting in multiple superclasses will
         //       go through, and then the result can be queried to determine that it is
         //       an impossible constraint and that the merge was thus illegal
 
+
+    public Iterator<TypeDescriptor> getExtendedTypesIterator() {
+        return extendedTypes.iterator();
+    }
+
+    public Iterator<TypeDescriptor> getImplementedTypesIterator() {
+        return implementedTypes.iterator();
+    }
 
     public Iterator<MethodDescriptor> getMethodsIterator() {
         return methods.iterator();
@@ -46,23 +48,6 @@ public class TypeConstraint {
     public boolean hasMethod(MethodDescriptor desc) {
         return methods.contains( desc );
     }
-
-    public void addExternalInterfaceName( String name ) {
-        nominalImplementedInterfacesExternal.add( name );
-    }
-
-    public void addInternalInterfaceName( String name ) {
-        nominalImplementedInterfacesInternal.add( name );
-    }
-
-    public void addExternalSuperclassName( String name ) {
-        nominalExtendedClassesExternal.add( name );
-    }
-
-    public void addInternalSuperclassName( String name ) {
-        nominalExtendedClassesInternal.add( name );
-    }
-
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -82,20 +67,13 @@ public class TypeConstraint {
             constraints.add( "must have a method: " + md );
         }
 
-        if( ! nominalImplementedInterfacesInternal.isEmpty() ) {
-            constraints.add( "must extend internal interface(s): " + Joiner.on( ", " ).join( nominalImplementedInterfacesInternal ) );
+
+        for( TypeDescriptor extendedType : extendedTypes ) {
+            constraints.add( "must extend a type: " + extendedType );
         }
 
-        if( ! nominalImplementedInterfacesExternal.isEmpty() ) {
-            constraints.add( "must implement external interface(s): " + Joiner.on( ", " ).join( nominalImplementedInterfacesExternal ) );
-        }
-        
-        if( ! nominalExtendedClassesInternal.isEmpty() ) {
-            constraints.add( "must extend internal class(es): " + Joiner.on( ", " ).join( nominalExtendedClassesInternal ) );
-        }
-
-        if( ! nominalExtendedClassesExternal.isEmpty() ) {
-            constraints.add( "must extend external class(es): " + Joiner.on( ", " ).join( nominalExtendedClassesExternal ) );
+        for( TypeDescriptor implementedType : implementedTypes ) {
+            constraints.add( "must implement a type: " + implementedType );
         }
 
         Joiner.on( ", " ).appendTo( sb, constraints );
@@ -110,10 +88,8 @@ public class TypeConstraint {
         methods = new HashSet<MethodDescriptor>();
         constructors = new HashSet<ConstructorDescriptor>();
 
-        nominalImplementedInterfacesInternal = new HashSet<String>();
-        nominalImplementedInterfacesExternal = new HashSet<String>();
-        nominalExtendedClassesInternal = new HashSet<String>();
-        nominalExtendedClassesExternal = new HashSet<String>();
+        implementedTypes = new HashSet<TypeDescriptor>();
+        extendedTypes = new HashSet<TypeDescriptor>();
     }
 
     public void addMethod(MethodDescriptor m) {
@@ -147,28 +123,34 @@ public class TypeConstraint {
         return tc;
     }
 
-    public void applyRenames( Map<String,String> renames ) {
-        HashSet<String> newImplemented = new HashSet<String>();
-        HashSet<String> newExtended = new HashSet<String>();
+    public void addSuperType(TypeDescriptor td ) {
+        boolean ignorable = false;
+        Set<TypeDescriptor> madeRedundant = new HashSet<TypeDescriptor>();
 
-        for( String key : nominalImplementedInterfacesInternal ) {
-            if( renames.keySet().contains( key ) ) {
-                newImplemented.add( renames.get( key ) );
-            } else {
-                newImplemented.add( key );
+        for( TypeDescriptor myTd : extendedTypes ) {
+            if( td.isSubtypeOf( myTd ) ) {
+                madeRedundant.add( td );
+            } else if( myTd.isSubtypeOf( td ) ) {
+                // if I'm already extending a subtype ( a more specific type )
+               // then this is ignorable
+               ignorable = true;
             }
         }
+        System.out.println( "supertype is ignorable? " + ignorable );
 
-        for( String key : nominalExtendedClassesInternal ) {
-            if( renames.keySet().contains( key ) ) {
-                newExtended.add( renames.get( key ) );
-            } else {
-                newExtended.add( key );
+        if( !ignorable ) {
+            for( TypeDescriptor toRemove : madeRedundant ) {
+                extendedTypes.remove( toRemove );
             }
+
+            extendedTypes.add( td );
         }
 
-        nominalImplementedInterfacesInternal = newImplemented;
-        nominalExtendedClassesInternal = newExtended;
+        System.out.println( "no . ex tedned typ es now " + extendedTypes.size() );
+    }
+
+    public void addImplementedType( TypeDescriptor td ) {
+        implementedTypes.add( td );
     }
 
     public void absorb(TypeConstraint that) {
@@ -184,17 +166,14 @@ public class TypeConstraint {
         for( MethodDescriptor md : that.methods ) {
             addMethod( md );
         }
-        for( String name : that.nominalImplementedInterfacesInternal ) {
-            nominalImplementedInterfacesInternal.add( name );
+
+
+        for( TypeDescriptor td : that.extendedTypes ) {
+            addSuperType( td );
         }
-        for( String name : that.nominalExtendedClassesInternal ) {
-            nominalExtendedClassesInternal.add( name );
-        }
-        for( String name : that.nominalImplementedInterfacesExternal ) {
-            nominalImplementedInterfacesExternal.add( name );
-        }
-        for( String name : that.nominalExtendedClassesExternal ) {
-            nominalExtendedClassesExternal.add( name );
+
+        for( TypeDescriptor td : that.implementedTypes ) {
+            addImplementedType( td );
         }
     }
 
@@ -232,6 +211,30 @@ public class TypeConstraint {
             if( !ok ) return false;
         }
 
+        System.out.println( "requirement: " + constraint );
+        System.out.println( "candidate: " + this );
+
+        for( TypeDescriptor mustExtend : constraint.extendedTypes ) {
+            boolean okay = false;
+            for( TypeDescriptor doesExtend : extendedTypes ) {
+                if( doesExtend.isSubtypeOf( mustExtend ) ) {
+                    okay = true;
+                }
+            }
+            if( !okay ) return false;
+        }
+
+        for( TypeDescriptor mustImplement : constraint.implementedTypes ) {
+            boolean okay = false;
+            for( TypeDescriptor doesImplement : implementedTypes ) {
+                if( doesImplement.isSubtypeOf( mustImplement ) ) {
+                    okay = true;
+                }
+            }
+            if( !okay ) return false;
+        }
+
+/*
         for( String name : constraint.nominalExtendedClassesExternal ) {
             if( !nominalExtendedClassesExternal.contains( name ) ) {
                 return false;
@@ -255,6 +258,7 @@ public class TypeConstraint {
                 return false;
             }
         }
+*/
 
         return true;
     }
