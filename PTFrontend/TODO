@@ -1,6 +1,5 @@
 * Implementer Eivinds typeskranker:
     * Faktisk nominell sjekking
-    * Syntaks for strukturelle skranker
     * Faktisk strukturell sjekking
     * Strukturell renaming
     * Sørg for at nominell sjekking overlever renaming av interne
@@ -8,5 +7,3 @@
     * Automatisk generering av typer
 
 * Bekreft at det ikke er noe problem i minit_steinkr_notat.
-
-* Tillat "extends" på syntaksnivå for addsklasser, så lenge det er redundant.
