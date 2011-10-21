@@ -94,7 +94,6 @@ public class SimpleClassRew {
 		if (mergingIsPossible()) {
 			renameResolvedConflicts();
 			for (ClassDeclRew source : renamedSources) {
-                System.out.println( "ADDING DECLARATIONS NOW" );
 				addDecls(source.getBodyDecls());
 			}
 		}

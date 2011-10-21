@@ -36,7 +36,6 @@ aspect RequiredTypes {
 
       if( hasSuperTypeAccess() ) {
           rv.addSuperType( new JastaddTypeDescriptor( getSuperTypeAccess() ) );
-          System.out.println( "added supertype" );
       }
 
       for( Access a : getImplementsList() ) {
@@ -44,8 +43,6 @@ aspect RequiredTypes {
           TypeDecl td = ta.decl();
 
           rv.addImplementedType( new JastaddTypeDescriptor( td ) );
-
-          System.out.println( "added implemented-type" );
       }
 
 
@@ -76,12 +73,10 @@ aspect RequiredTypes {
       to PTAbstractConstructor {
           RequiredType parent = (RequiredType) getParentClass( RequiredType.class );
           if( parent == null ) {
-              setID( "INVALID" ); // oops
+              setID( "$INVALID$" ); // oops
           } else {
               setID( parent.getID() );
           }
-
-          System.out.println( "ASSIGNED NAME " + getID() );
 
           return this;
       }

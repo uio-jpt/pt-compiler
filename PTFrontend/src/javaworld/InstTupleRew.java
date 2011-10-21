@@ -66,14 +66,8 @@ class InstTupleRew {
                 realThing = (BodyDecl) parentType.localMethodsSignatureMap().get( copycopy.signature() );
             }
 
-
-            System.out.println( "want to find: " + dummyDecl + " but renamed to " + newID );
-            System.out.println( parentType.localMethodsSignatureMap() );
-            System.out.println( "found " + realThing );
-
             virtualsToReals.put( dummyDecl, realThing );
         }
-        System.out.println( "origin is: " + internalRenames );
     }
 
     protected HashMap<ASTNode,String> findInternalRenames(TypeDecl target) {

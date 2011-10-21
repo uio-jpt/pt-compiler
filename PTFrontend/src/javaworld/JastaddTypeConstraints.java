@@ -173,8 +173,6 @@ public class JastaddTypeConstraints {
 
         ClassDecl sc = cdecl.superclass();
         if( sc != null ) {
-            System.out.println ( "adding supertyp from " + sc.fullName() );
-
             tc.addSuperType( new JastaddTypeDescriptor( sc ) );
         }
 
@@ -236,7 +234,6 @@ public class JastaddTypeConstraints {
 */
 
     public static RequiredType convertToRequiredType( String name, TypeConstraint tc ) {
-        System.out.println( "CONVERTING to required type " + name + " FROM " + tc);
         // TODO think about modifiers, these are discarded here
         RequiredType rv;
         AST.List<BodyDecl> bodyDecls = new AST.List<BodyDecl>();
@@ -280,7 +277,6 @@ public class JastaddTypeConstraints {
             MethodDescriptor methodDesc = methodsI.next();
             BodyDecl bodyDecl = methodDescriptorToBodyDecl( methodDesc );
             rv.addBodyDecl( bodyDecl );
-            System.out.println( "added bodyDecl meth" );
         }
 
         Iterator<ConstructorDescriptor> constructorsI = tc.getConstructorsIterator();
@@ -288,10 +284,7 @@ public class JastaddTypeConstraints {
             ConstructorDescriptor consDesc = constructorsI.next();
             BodyDecl bodyDecl = constructorDescriptorToBodyDecl( consDesc );
             rv.addBodyDecl( bodyDecl );
-            System.out.println( "added bodyDecl cosn" );
         }
-
-//        System.out.println( "converted this TC to required type: " + tc );
 
         return rv;
     }
@@ -318,7 +311,6 @@ public class JastaddTypeConstraints {
                                         throwsClause,
                                         noBlock );
 
-        System.out.println( "created methodDecl of name '" +  name + "'");
         return rv;
     }
 
