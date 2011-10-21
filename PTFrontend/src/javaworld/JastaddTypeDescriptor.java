@@ -86,6 +86,9 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         if( byDeclaration ) {
             return typeDeclaration;
         }
+        if( parTypeAccess != null ) {
+            return parTypeAccess.type();
+        }
         return typeAccess.decl();
     }
 

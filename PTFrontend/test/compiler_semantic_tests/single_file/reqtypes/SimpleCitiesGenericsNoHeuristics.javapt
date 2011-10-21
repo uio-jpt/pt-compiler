@@ -1,0 +1,83 @@
+template Graph {
+    required class Edge {
+        public Vertex getFrom();
+        public Vertex getTo();
+        public double getCost();
+    }
+
+    required type Vertex {
+        public java.util.List<Edge> getEdges();
+    }
+}
+
+/*
+
+template HeuristicVertices {
+    required type HeuristicVertex {
+        public double heuristicDistance( HeuristicVertex v );
+    }
+}
+
+template HeuristicPathfinding {
+    inst Graph with Vertex => HeuristicVertex;
+    inst HeuristicVertices;
+
+    class Pathfinder {
+        java.util.List<Edge> findPath( Vertex from, Vertex to ) {
+            // conceptually we could use the heuristics and implement sth like A* here
+            return new java.util.LinkedList<Edge>();
+        }
+    }
+
+}
+*/
+
+package P {
+    inst Graph with Edge <= Road,
+                    Vertex <= City;
+
+    class City {
+        String name;
+        double longitude, latitude;
+        java.util.List<Edge> edges;
+
+        public City(String name, double longitude, double latitude) {
+            this.name = name;
+            this.longitude = longitude;
+            this.latitude = latitude;
+            this.edges = new java.util.LinkedList<Edge>();
+        }
+
+        public void linkTo(City that, double cost) {
+            edges.add( new Road( this, that, cost ) );
+            that.edges.add( new Road( that, this, cost ) );
+        }
+
+        public double getDistance( City that ) {
+            // not actually the correct distance but that's not relevant
+            final double x = latitude, y = longitude;
+            final double tx = that.latitude, ty = that.longitude;
+            return Math.sqrt( (x - tx)*(x-tx) + (y-ty)*(y-ty) );
+        }
+
+        public java.util.List<Edge> getEdges() {
+            return edges;
+        }
+    }
+
+    class Road {
+        City from, to;
+        double cost;
+
+        public Road( City from, City to, double cost ) {
+            this.from = from;
+            this.to = to;
+            this.cost = cost;
+        }
+        
+        public City getFrom() { return from; }
+        public City getTo() { return to; }
+        public double getCost() { return cost; }
+    }
+
+}

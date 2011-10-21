@@ -210,7 +210,7 @@ public class TypeConstraint {
             // we must supply one method that conforms to md.
             boolean ok = false;
             for( MethodDescriptor cmd : methods ) {
-                if( cmd.conformsTo( md ) ) {
+                if( cmd.conformsTo( md, scheme ) ) {
                     ok = true;
                 }
             }
@@ -220,7 +220,7 @@ public class TypeConstraint {
         for( ConstructorDescriptor cd : constraint.constructors ) {
             boolean ok = false;
             for( ConstructorDescriptor ccd : constructors ) {
-                if( ccd.equals( cd ) ) {
+                if( ccd.conformsTo( cd, scheme ) ) {
                     ok = true;
                 }
             }

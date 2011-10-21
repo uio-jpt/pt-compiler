@@ -299,7 +299,7 @@ public class JastaddTypeConstraints {
     public static BodyDecl methodDescriptorToBodyDecl( MethodDescriptor desc ) {
         Modifiers mods = new Modifiers();
 
-        TypeAccess rtAccess = (TypeAccess) desc.getReturnType().getAccess().fullCopy();
+        Access rtAccess = (Access) desc.getReturnType().getAccess().fullCopy();
         String name = desc.getName();
         AST.List<AST.ParameterDeclaration> parameters = new AST.List();
         AST.List throwsClause = new AST.List();
