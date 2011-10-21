@@ -121,6 +121,34 @@ aspect PTDummyRename {
             if (originalSignature.startsWith(methodName))
                 renameMap.put(originalSignature, getID());
     }
+
+    public void ASTNode.replaceMethodAccesses(Map<MethodDecl, String> newIDs) {
+        for(int i = 0; i < getNumChild(); i++) {
+            ASTNode child = getChild(i);
+            MethodAccess swapWith = child.visitReplaceMethodAccesses(newIDs);
+            if ( swapWith != null ) {
+                child.replaceSelfWith( swapWith );
+            }
+            child.replaceMethodAccesses(newIDs);
+        }
+    }
+
+      public MethodAccess ASTNode.visitReplaceMethodAccesses(Map<MethodDecl,String> ht) { return null; }
     
+   public MethodAccess MethodAccess.visitReplaceMethodAccesses(Map<MethodDecl,String> ht) {
+       flushCaches();
+        MethodDecl myDecl = decl();
+        String target = ht.get( myDecl );
+        System.out.println( "VISITED MethodAccess " + this + " " + dumpTree());
+        System.out.println( "found DECL: " + myDecl.getParent().getParent() );
+        System.out.println( "have TARGETS: " + ht );
+        System.out.println( "got TARGET: " + target );
+        if( target != null ) {
+            MethodAccess rv = fullCopy();
+            rv.setID( target );
+            return rv;
+        }
+        return null;
+  }
 
 }
