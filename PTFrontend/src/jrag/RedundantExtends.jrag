@@ -107,4 +107,45 @@ aspect RedundantExtends {
             }
         }
     }
+
+    public void PTGenericInterfaceAddsDecl.checkRedundantExtends() {
+        super.checkRedundantExtends();
+
+        Set<TypeDecl> superinterfaces = new HashSet<TypeDecl> ();
+        for( Access a : getSuperInterfaceIdList() ) {
+            TypeDecl td = null;
+
+            if( a instanceof TypeAccess ) {
+                TypeAccess ta = (TypeAccess) a;
+                td = ta.decl();
+            } else if( a instanceof ParTypeAccess ) {
+                ParTypeAccess ta = (ParTypeAccess) a;
+                td = ta.type();
+            }
+
+            if( td != null ) {
+                superinterfaces.add( td );
+            }
+        }
+
+        for( Access a : getRedundantExtendsList() ) {
+            TypeDecl td = null;
+
+            if( a instanceof TypeAccess ) {
+                TypeAccess ta = (TypeAccess) a;
+                td = ta.decl();
+            } else if( a instanceof ParTypeAccess ) {
+                ParTypeAccess ta = (ParTypeAccess) a;
+                td = ta.type();
+            }
+
+            if( td != null ) {
+                // otherwise caught elsewhere
+                if( !superinterfaces.contains( td ) ) {
+                    error( "adds-interface " + getID() + " does not extend " + td.getID() + " by merging as promised" );
+                }
+            }
+        }
+    }
+
 }

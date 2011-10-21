@@ -28,7 +28,7 @@ aspect PTInstDecl {
                     addPTInstTuple(instTuple);
                 } 
             }
-            for (PTInterfaceDecl intfDecl: getTemplate().getPTInterfaceDeclList()) {
+            for (InterfaceDecl intfDecl: getTemplate().getInterfaceDeclList()) {
                 String templateClassID = intfDecl.getID();
                 if (!renamedClasses.containsKey(templateClassID)) {
                     PTInstTuple instTuple;                                

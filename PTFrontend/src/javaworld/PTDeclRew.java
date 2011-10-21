@@ -16,8 +16,9 @@ import java.util.HashMap;
 
 // it _might_ be argued that AST.* could be appropriate..
 import AST.PTInterfaceAddsDecl;
+import AST.PTGenericInterfaceAddsDecl;
 import AST.SimpleSet;
-import AST.PTInterfaceDecl;
+import AST.InterfaceDecl;
 import AST.Access;
 import AST.BodyDecl;
 import AST.ClassDecl;
@@ -400,20 +401,25 @@ public class PTDeclRew {
         Set<String> addInterfaces = ptDeclToBeRewritten.getAdditionInterfaceNamesSet();
         Set<String> missingAddsInterfaceNames = Sets.difference( getDestinationIDsForInterfaces(), addInterfaces );
 
-        for(String name : missingAddsInterfaceNames ) {
-            AST.List<Access> redundantSuperinterfaces = new AST.List<Access>();
-            PTInterfaceAddsDecl ptiad = new PTInterfaceAddsDecl( new Modifiers(),
-                                                                 name,
-                                                                 new List<Access>(),
-                                                                 new List<BodyDecl>(),
-                                                                 redundantSuperinterfaces);
-            ptDeclToBeRewritten.addPTInterfaceDecl( ptiad );
-        }
+        Set<String> genericNames = new HashSet<String>();
 
+        for(String name : missingAddsInterfaceNames ) {
+            InterfaceDecl ptiad = createInterfaceAddsDeclForName( name, getDestinationClassIDsWithInstTuples().get( name ) );
+            ptDeclToBeRewritten.addInterfaceDecl( ptiad );
+            if( ptiad.isGenericType() ) {
+                genericNames.add( name );
+            }
+        }
 
         for( String name : getDestinationIDsForInterfaces() ) {
             Collection<PTInstTuple> ituples = getDestinationClassIDsWithInstTuples().get( name );
-            PTInterfaceAddsDecl target = ptDeclToBeRewritten.lookupAddsInterface( name );
+            InterfaceDecl target = null;
+            if( genericNames.contains( name ) ) {
+                target = ptDeclToBeRewritten.lookupAddsGenericInterface( name );
+            } else {
+                target = ptDeclToBeRewritten.lookupAddsInterface( name );
+            }
+
             TypeConstraint otc = JastaddTypeConstraints.fromInterfaceDecl( target );
             TypeConstraint tc = new TypeConstraint();
             boolean hadAddsInterface = !missingAddsInterfaceNames.contains( name );
@@ -598,7 +604,7 @@ public class PTDeclRew {
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
         Set<String> rv = new TreeSet<String>();
         for( String x : destinationClassIDsWithInstTuples.keySet() ) {
-            if( destinationClassIDsWithInstTuples.get(x).iterator().next().getOriginator() instanceof PTInterfaceDecl ) {
+            if( destinationClassIDsWithInstTuples.get(x).iterator().next().getOriginator() instanceof InterfaceDecl ) {
                 rv.add( x );
             }
         }
@@ -622,12 +628,74 @@ public class PTDeclRew {
         Note: this assumes that interfaces cannot be merged. This is an invalid assumption, do not use. (Method to be removed.)
      */
 
-    protected PTInterfaceDecl getRenamedInterfaceByName(String name) {
+    protected InterfaceDecl getRenamedInterfaceByName(String name) {
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
         Set<String> rv = new TreeSet<String>();
         PTInstTuple tup = Iterables.getOnlyElement( destinationClassIDsWithInstTuples.get(name));
         return new InstTupleRew(tup).getRenamedSourceInterface();
     }
+
+    protected InterfaceDecl createInterfaceAddsDeclForName( String name, java.util.Collection<PTInstTuple> instTuples) {
+        Modifiers mods = new Modifiers();
+
+        /*
+        Opt<Access> optAccess;
+
+        if( superClassAccess != null ) {
+            optAccess = new Opt<Access>( superClassAccess );
+        } else {
+            optAccess = new Opt<Access>();
+        }
+        */
+
+
+        GenericInterfaceDecl gtype = null;
+        int genericOrigins = 0, nonGenericOrigins = 0;
+        for( PTInstTuple instTuple : instTuples ) {
+            if( instTuple.getOriginator().isGenericType() ) {
+                genericOrigins++;
+                gtype = (GenericInterfaceDecl) instTuple.getOriginator();
+            } else {
+                nonGenericOrigins++;
+            }
+        }
+
+        InterfaceDecl cls;
+        
+        if( genericOrigins == 0 ) {
+            cls = new PTInterfaceAddsDecl(mods,
+                                          name,
+                                          new List<Access>(),
+                                          new List<BodyDecl>(),
+                                          new List());
+        } else if( genericOrigins == 1 && nonGenericOrigins == 0 ) {
+            // this is simple to handle -- copy the arguments
+            cls = new PTGenericInterfaceAddsDecl( mods,
+                                                  name,
+                                                  new List<Access>(),
+                                                  new List<BodyDecl>(),
+                                                  gtype.getTypeParameterList().fullCopy(),
+                                                  new List()
+                                                  );
+        } else if( genericOrigins == 1 && nonGenericOrigins != 0 ) {
+            // C<A> + D --> CD<A>
+            // hard to handle -- we now need to change all type accesses 
+
+            gtype.error( "merge target " + name + " has generic and non-generic origins [not implemented yet]" );
+            throw new CriticalPTException( "mixed-generic origins, giving up" );
+        } else {
+            // problems with multiple generics: C<A> + D<B> --> CD<?,?> (order?)
+            // this seems fundamental
+
+            gtype.error( "merge target " + name + " has multiple generic origins" );
+            throw new CriticalPTException( "multiple generic origins, giving up" );
+        }
+
+        return cls;
+    }
+
+
+
 
     protected ClassDecl createClassDeclForName( String name, java.util.Collection<PTInstTuple> instTuples, boolean addExtendsExternal, Access superClassAccess ) {
         Modifiers mods = new Modifiers();

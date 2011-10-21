@@ -13,7 +13,7 @@ import AST.ClassDecl;
 import AST.CompilationUnit;
 import AST.ImportDecl;
 import AST.PTPackage;
-import AST.PTInterfaceDecl;
+import AST.InterfaceDecl;
 import AST.PTEnumDecl;
 
 /* This is the file that ultimately rewrites PT-code to Java code.
@@ -71,7 +71,7 @@ public class CompileToPackage extends PTFrontend {
 				addSource(p.getID(), pted.getID(), source.toString());
             }
 
-			for (PTInterfaceDecl ptid : p.getPTInterfaceDeclList()) {
+			for (InterfaceDecl ptid : p.getInterfaceDeclList()) {
                 classNames.add( ptid.getID() );
 				StringBuffer source = new StringBuffer();
 				source.append(String.format("package %s;\n\n",p.getID()));

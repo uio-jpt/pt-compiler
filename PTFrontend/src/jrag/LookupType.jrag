@@ -74,9 +74,9 @@ aspect LookupType {
         return lookupType(packageName, typeName);
     }
 
-    eq PTDecl.getPTInterfaceDecl(int i).lookupType(String packageName, String typeName) {
+    eq PTDecl.getInterfaceDecl(int i).lookupType(String packageName, String typeName) {
         String fullName = packageName.equals("") ? typeName : packageName + "." + typeName;
-        for (PTInterfaceDecl cls : getPTInterfaceDeclList()) {
+        for (InterfaceDecl cls : getInterfaceDeclList()) {
             if (cls.fullName().equals(fullName)) {
                 return cls;
             }
@@ -105,7 +105,7 @@ aspect LookupType {
                 return cls;
             }
         }
-        for (PTInterfaceDecl cls : getPTInterfaceDeclList()) {
+        for (InterfaceDecl cls : getInterfaceDeclList()) {
             if (cls.getID().equals(name)) {
                 return cls;
             }
@@ -122,6 +122,15 @@ aspect LookupType {
 
     syn PTTemplate PTDecl.lookupTemplate(String name) = null;
     eq PTTemplate.lookupTemplate(String name) = name.equals(getID()) ? this : null;
+
+    syn PTGenericInterfaceAddsDecl PTDecl.lookupAddsGenericInterface(String name) {
+        for (PTGenericInterfaceAddsDecl decl: getAdditionGenericInterfaceList()) {
+            if (decl.getID().equals(name)) {
+                return decl;
+            }
+        }
+        return null;
+    }
 
     syn PTInterfaceAddsDecl PTDecl.lookupAddsInterface(String name) {
         for (PTInterfaceAddsDecl decl: getAdditionInterfaceList()) {
@@ -165,7 +174,7 @@ aspect LookupType {
                 return SimpleSet.emptySet.add(s);
             }
         }
-        for (PTInterfaceDecl s : getPTInterfaceDeclList()) {
+        for (InterfaceDecl s : getInterfaceDeclList()) {
             if (s.getID().equals(name)) {
                 return SimpleSet.emptySet.add(s);
             }
@@ -205,7 +214,7 @@ aspect LookupType {
         }
     }
 
-    eq PTDecl.getPTInterfaceDecl(int i).lookupType(String name) {
+    eq PTDecl.getInterfaceDecl(int i).lookupType(String name) {
         SimpleSet c = lookupTypeInPTDecl( name );
         if( c.size() > 0 ) {
             return c;

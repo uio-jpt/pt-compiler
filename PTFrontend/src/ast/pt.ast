@@ -1,6 +1,6 @@
 PTCompilationUnit : CompilationUnit ::= PTDecl*;
 
-abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* PTInterfaceDecl* PTEnumDecl* RequiredType*;
+abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* InterfaceDecl* PTEnumDecl* RequiredType*;
 PTTemplate : PTDecl ::= TypeParameter:TypeVariable*;
 PTPackage : PTDecl;
 
@@ -9,7 +9,9 @@ PTClassDecl : SimpleClass;
 PTClassAddsDecl : SimpleClass ::= [RedundantSuperclass:Access] RedundantImplements:Access*;
 
 PTInterfaceDecl : InterfaceDecl;
+PTGenericInterfaceDecl : GenericInterfaceDecl;
 PTInterfaceAddsDecl : PTInterfaceDecl ::= RedundantExtends:Access*;
+PTGenericInterfaceAddsDecl : PTGenericInterfaceDecl ::= RedundantExtends:Access*;
 
 PTEnumDecl : EnumDecl;
 

@@ -6,7 +6,7 @@ import AST.TypeDecl;
 import AST.ClassDecl;
 import AST.PTInstTuple;
 import AST.PTDummyRename;
-import AST.PTInterfaceDecl;
+import AST.InterfaceDecl;
 import AST.PTEnumDecl;
 import AST.BodyDecl;
 import AST.ASTNode;
@@ -36,7 +36,7 @@ class InstTupleRew {
 	}
 
     protected boolean isInterface() {
-        return instantiator.getOriginator() instanceof AST.PTInterfaceDecl;
+        return instantiator.getOriginator() instanceof AST.InterfaceDecl;
     }
 
     protected static TypeDecl lookupUnambiguousTypeIn( TypeDecl root, String name ) {
@@ -138,10 +138,10 @@ class InstTupleRew {
         return ext;
     }
 
-    protected PTInterfaceDecl getRenamedSourceInterface() {
+    protected InterfaceDecl getRenamedSourceInterface() {
         TypeDecl x = instantiator.getOriginator();
 
-		PTInterfaceDecl ext = ((PTInterfaceDecl)x).fullCopy();
+		InterfaceDecl ext = ((InterfaceDecl)x).fullCopy();
 
 /*
         HashMap<ASTNode,String> internalRenames = findInternalRenames( ext );

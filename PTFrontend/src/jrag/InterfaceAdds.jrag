@@ -7,6 +7,14 @@ aspect PTInterfaceAdds {
     PTInterfaceAddsDecl contributes this to PTDecl.getAdditionInterfaceList() for getPTDecl();
     PTInterfaceAddsDecl contributes getID() to PTDecl.getAdditionInterfaceNamesSet() for getPTDecl();
 
-    inh PTDecl PTInterfaceDecl.getPTDecl();
-    eq PTDecl.getPTInterfaceDecl(int i).getPTDecl() = this;
+    inh PTDecl InterfaceDecl.getPTDecl();
+    eq PTDecl.getInterfaceDecl(int i).getPTDecl() = this;
+
+    coll LinkedList<PTGenericInterfaceAddsDecl> PTDecl.getAdditionGenericInterfaceList() [new LinkedList<PTGenericInterfaceAddsDecl>()]
+        with add root PTDecl;
+    coll HashSet<String> PTDecl.getAdditionGenericInterfaceNamesSet() [new HashSet<String>()]
+        with add root PTDecl;
+
+    PTGenericInterfaceAddsDecl contributes this to PTDecl.getAdditionGenericInterfaceList() for getPTDecl();
+    PTGenericInterfaceAddsDecl contributes getID() to PTDecl.getAdditionGenericInterfaceNamesSet() for getPTDecl();
 }

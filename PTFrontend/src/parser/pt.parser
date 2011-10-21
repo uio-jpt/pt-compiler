@@ -237,13 +237,17 @@ PTClassAddsDecl pt_adds_class =
     {: return new PTClassAddsDecl( new GenericClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b, p), r_sup, r_imp ); :}
   ;
 
-PTInterfaceDecl pt_adds_intf = 
+InterfaceDecl pt_adds_intf = 
   INTERFACE IDENTIFIER extends_interfaces.i? ADDS interface_body.b
     {: return new PTInterfaceAddsDecl(new Modifiers(), IDENTIFIER, new List() , b, i); :}
+  | INTERFACE IDENTIFIER type_parameters.p extends_interfaces.i? ADDS interface_body.b 
+    {:  return new PTGenericInterfaceAddsDecl(new Modifiers(), IDENTIFIER, new List(), i, b, p);  :}
   ;
 
-PTInterfaceDecl pt_intf_decl =
+InterfaceDecl pt_intf_decl =
   modifiers.m? INTERFACE IDENTIFIER extends_interfaces.i? interface_body.b {: return new PTInterfaceDecl(new Modifiers(m), IDENTIFIER, i, b); :}
+  | modifiers.m? INTERFACE IDENTIFIER type_parameters.p extends_interfaces.i? interface_body.b 
+    {:  return new PTGenericInterfaceDecl(new Modifiers(m), IDENTIFIER, i, b, p);  :}
   ;
 
 Access method_invocation =  explicit_merged_method_invocation.e {: return e; :}

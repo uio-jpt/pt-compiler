@@ -27,7 +27,7 @@ aspect PrettyPrint {
         for (PTInstDecl inst : getPTInstDecls()) {
             inst.toString(sb);
         }
-        for (PTInterfaceDecl ptclass : getPTInterfaceDeclList()) {
+        for (InterfaceDecl ptclass : getInterfaceDeclList()) {
             ptclass.toString(sb);
         }
         for (PTClassAddsDecl ptclass : getAdditionClassList()) {
