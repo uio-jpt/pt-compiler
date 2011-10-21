@@ -272,7 +272,11 @@ public class PTDeclRew {
                 System.out.println( "creating constraint for reqType " + reqType.getID() + " in ptdecl " + reqType.getParentClass( PTDecl.class ).getClass().getName() );
                 TypeConstraint constraint = reqType.getTypeConstraint();
                 if( cand == null ) {
-                    ptDeclToBeRewritten.error( "concretification candidate " + replacementType.getID() + " is unsuitable (not a known reference type)" );
+                    if( replacementType == null ) {
+                        ptDeclToBeRewritten.error( "concretification candidate not found" ); // TODO friendlier
+                    } else {
+                        ptDeclToBeRewritten.error( "concretification candidate " + replacementType.getID() + " is unsuitable (not a known reference type)" );
+                    }
                     stopError = true;
                 } else if( !cand.satisfies( constraint, scheme ) ) {
                     System.out.println( "JUST DID CHECKING" );
