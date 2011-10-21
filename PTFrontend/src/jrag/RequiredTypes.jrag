@@ -148,6 +148,10 @@ aspect RequiredTypes {
             if( ! reqtype.getID().equals( getID() ) ) {
                 error( "defining abstract constructor of conflicting name " + getID() + " in required type " + reqtype.getID() );
             }
+
+            if( ! (reqtype instanceof RequiredClass) ) {
+                error( "defining abstract constructor in required non-class (type or interface)" );
+            }
         } else {
             error( "required type-abstract constructor outside required type (impossible)" );
         }
