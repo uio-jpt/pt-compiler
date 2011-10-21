@@ -266,7 +266,6 @@ public class PTDeclRew {
             if( !stopError ) {
                 RequiredType reqType = (RequiredType) tdecl;
                 TypeConstraint cand = JastaddTypeConstraints.fromReferenceTypeDecl( replacementType );
-                System.out.println( "creating constraint for reqType " + reqType.getID() + " in ptdecl " + reqType.getParentClass( PTDecl.class ).getClass().getName() );
                 TypeConstraint constraint = reqType.getTypeConstraint();
                 if( cand == null ) {
                     if( replacementType == null ) {
@@ -276,14 +275,11 @@ public class PTDeclRew {
                     }
                     stopError = true;
                 } else if( !cand.satisfies( constraint, scheme ) ) {
-                    System.out.println( "JUST DID CHECKING" );
                     ptDeclToBeRewritten.error( "concretification candidate " + replacementType.getID() + " does not satisfy constraints" );
                     // TODO be more informative..
 
                     stopError = true;
                 } else {
-                    System.out.println( "JUST DID CHECKING OKAY" );
-
                     String replacementName = replacementType.getID();
                     // TODO this should be a fully qualified access to avoid problems
                     // however, that's not just TypeAccess("java.lang.foo")..
@@ -467,7 +463,6 @@ public class PTDeclRew {
 */
 
 
-        System.out.println( "renames: " + virtualsToReals );
         ptDeclToBeRewritten.replaceInternallyRenamedAccesses( virtualsToReals );
         ptDeclToBeRewritten.removeDummyDecls( virtualsToReals.keySet() );
     }
@@ -1176,8 +1171,6 @@ public class PTDeclRew {
 
             String baseID = base.getID();
             Set<String> rootIDs = getRootIDsOf( base );
-
-            System.out.println( "baseID is " + baseID );
 
             for( String rootID : rootIDs ) {
                 PTInstTuple ptitRoot = getPTInstTupleByOriginatorName( instDecl, rootID );

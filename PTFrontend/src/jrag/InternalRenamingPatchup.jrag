@@ -19,9 +19,6 @@ aspect InternalRenamingPatchup {
   public Access MethodAccess.visitReplaceInternallyRenamedAccesses(Map<BodyDecl,BodyDecl> ht) {
     MethodDecl myDecl = decl();
     BodyDecl real = ht.get( myDecl );
-    if( ht.keySet().contains( myDecl ) ) {
-        System.out.println( "WOULD PERFORM REPLACE" );
-    }
     if( real instanceof MethodDecl ) {
         MethodDecl realDecl = (MethodDecl) real ;
         if( real != null ) {
@@ -38,7 +35,6 @@ aspect InternalRenamingPatchup {
         for(int i = 0; i < getNumChild();) {
             ASTNode child = getChild(i);
             if( child instanceof BodyDecl && ht.contains( (BodyDecl) child ) ) {
-                System.out.println( "REMOVING DUMMY" );
                 removeChild( i );
             } else {
                 child.removeDummyDecls(ht);

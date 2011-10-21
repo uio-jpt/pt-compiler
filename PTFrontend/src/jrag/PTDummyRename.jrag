@@ -139,10 +139,6 @@ aspect PTDummyRename {
        flushCaches();
         MethodDecl myDecl = decl();
         String target = ht.get( myDecl );
-        System.out.println( "VISITED MethodAccess " + this + " " + dumpTree());
-        System.out.println( "found DECL: " + myDecl.getParent().getParent() );
-        System.out.println( "have TARGETS: " + ht );
-        System.out.println( "got TARGET: " + target );
         if( target != null ) {
             MethodAccess rv = fullCopy();
             rv.setID( target );

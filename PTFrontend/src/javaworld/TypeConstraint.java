@@ -152,7 +152,6 @@ public class TypeConstraint {
                ignorable = true;
             }
         }
-        System.out.println( "supertype is ignorable? " + ignorable );
 
         if( !ignorable ) {
             for( TypeDescriptor toRemove : madeRedundant ) {
@@ -161,8 +160,6 @@ public class TypeConstraint {
 
             extendedTypes.add( td );
         }
-
-        System.out.println( "no . ex tedned typ es now " + extendedTypes.size() );
     }
 
     public void addImplementedType( TypeDescriptor td ) {
@@ -227,6 +224,7 @@ public class TypeConstraint {
             if( !ok ) return false;
         }
 
+        System.out.println( "checking satisfies?" );
         System.out.println( "requirement: " + constraint );
         System.out.println( "candidate: " + this );
 
