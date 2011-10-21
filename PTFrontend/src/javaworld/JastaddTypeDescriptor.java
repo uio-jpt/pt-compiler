@@ -2,6 +2,7 @@ package javaworld;
 
 import java.util.List;
 import java.util.Vector;
+import java.util.Map;
 
 import AST.Access;
 import AST.ParTypeAccess;
@@ -9,6 +10,9 @@ import AST.TypeAccess;
 import AST.TypeDecl;
 import AST.Wildcard;
 import AST.RequiredType;
+import AST.PTDecl;
+import AST.Program;
+import AST.ASTNode;
 
 import com.google.common.base.Joiner;
 
@@ -61,7 +65,13 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     public Access getAccess() {
         if( byDeclaration ) {
             System.out.println( "[warning] constructing access" );
-            return new TypeAccess( typeDeclaration.fullName() );
+            TypeAccess rv = new TypeAccess( typeDeclaration.fullName() );
+            Access alt1 = typeDeclaration.createBoundAccess();
+            Access alt2 = typeDeclaration.createQualifiedAccess();
+            System.out.println( "[info] rv = " + rv.dumpTree() );
+            System.out.println( "[info] alt1 = " + alt1.dumpTree() );
+            System.out.println( "[info] alt2 = " + alt2.dumpTree() );
+            return alt2;
         }
         if( isWildcard ) {
             new Wildcard();
@@ -91,6 +101,29 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         }
         return typeAccess.decl();
     }
+
+    public ASTNode getContext() {
+        // this is a bit of a hack. essentially, we need an ASTNode to provide
+        // a context wherein the Access can be evaluated, because we will be
+        // _modifying_ the access and then evaluating it again when mapping
+        // by the concretification scheme.
+        // as this context, we use the original access, even though it makes
+        // no sense for that node to have an access as a child.
+        // this is a one-way link; the context becomes the parent of the
+        // artificially constructed (and modified) node, but the modified
+        // node does not become a child of the context.
+        if( byDeclaration ) {
+            System.out.println( "[warning] ctx meth 1" );
+            return typeDeclaration;
+        }
+        if( parTypeAccess != null ) {
+            System.out.println( "[warning] ctx meth 2" );
+            return parTypeAccess;
+        }
+        System.out.println( "[warning] ctx meth 3" );
+        return typeAccess;
+    }
+
 
     public boolean isParametrized() {
         return parTypeAccess != null;
@@ -156,11 +189,26 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     }
 
     public TypeDescriptor mapByScheme( ConcretificationScheme scheme ) {
-        TypeDecl myDecl = getTypeDecl();
-        if( myDecl instanceof RequiredType ) {
-            TypeDecl theirDecl = scheme.getConcretification( (RequiredType) myDecl );
-            return new JastaddTypeDescriptor( theirDecl );
+        Access myAccess = (Access) getAccess().fullCopy();
+
+        Map<TypeDecl, TypeAccess> dtaMap = scheme.createDeclToAccessMap();
+
+        // hack to make sure we find the Program
+        ASTNode root = getContext();
+        if( root == null ) {
+            System.out.println( "[warning] safety net is gone" );
+        } else {
+            System.out.println( "[info] safety net present" );
         }
-        return this;
+
+        // hack to make sure we can reuse this method to replace roots as well
+        AST.List parent = new AST.List();
+        parent.setParent( root );
+        parent.addChild( myAccess );
+        parent.replaceTypeAccesses( dtaMap );
+        myAccess = (Access) parent.getChild(0);
+
+        TypeDecl myDecl = Util.declarationFromTypeAccess( myAccess );
+        return new JastaddTypeDescriptor( myDecl );
     }
 }

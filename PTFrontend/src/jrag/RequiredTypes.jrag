@@ -15,8 +15,20 @@ aspect RequiredTypes {
   }
 
   public TypeAccess TypeAccess.visitReplaceTypeAccesses(Map<TypeDecl,TypeAccess> ht) {
-    TypeDecl myDecl = decl();
-    return ht.get( myDecl );
+    System.out.println( "trying to lookup " + dumpTree() );
+    TypeDecl myDecl;
+    try {
+        myDecl = decl();
+    }
+    catch( NullPointerException e ) {
+        System.out.println( "trying FAILED to lookup " + dumpTree() );
+        System.out.println( "trying FAILED to lookup " + getParent().dumpTree() );
+        System.out.println( "trying FAILED to lookup " + getParent().getParent().dumpTree() );
+        myDecl = null;
+        throw e;
+    }
+    TypeAccess rv = ht.get( myDecl );
+    return rv;
   }
 
   public boolean RequiredType.isObject() {
@@ -226,6 +238,10 @@ aspect RequiredTypes {
 
     eq RequiredType.getSuperTypeAccess().lookupType(String name) {
         return lookupType( name );
+    }
+
+    public String RequiredType.toString() {
+        return "[required type " + getID() + "]";
     }
 
 }

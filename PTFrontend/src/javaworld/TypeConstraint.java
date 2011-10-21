@@ -240,11 +240,14 @@ public class TypeConstraint {
 
         for( TypeDescriptor mustImplement : constraint.implementedTypes ) {
             boolean okay = false;
+            System.out.println( "checking to see that " + mustImplement.getAccess().dumpTree() + " is implemented " );
             for( TypeDescriptor doesImplement : implementedTypes ) {
                 if( doesImplement.isSubtypeOf( mustImplement.mapByScheme( scheme ) ) ) {
+                    System.out.println( "yes, satisfied by " + doesImplement.getAccess().dumpTree() );
                     okay = true;
                 }
             }
+            System.out.println( "checked to see that " + mustImplement.getAccess().dumpTree() + " is implemented " );
             if( !okay ) return false;
         }
 
