@@ -16,6 +16,7 @@ import AST.PTFieldRename;
 import AST.Access;
 import AST.MethodDecl;
 import AST.SimpleSet;
+import AST.RequiredType;
 import AST.FieldDeclaration;
 
 
@@ -97,6 +98,20 @@ class InstTupleRew {
         }
 
         return rv;
+    }
+
+    protected RequiredType getRenamedSourceRequiredType() {
+        TypeDecl x = instantiator.getOriginator();
+
+		RequiredType ext = ((RequiredType)x).fullCopy();
+
+        ext.visitRename( instantiator.getInstDecl().getRenamedClasses() );
+		DefinitionsRenamer.renameDefinitions( ext, getExplicitlyRenamedDefinitions());
+        ext.renameTypes( instantiator.getInstDecl().getRenamedClasses() );
+
+        ext.flushCaches();
+
+        return ext;
     }
 
     protected PTInterfaceDecl getRenamedSourceInterface() {

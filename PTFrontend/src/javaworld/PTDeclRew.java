@@ -130,9 +130,6 @@ public class PTDeclRew {
         }
     }
 
-    protected void concretifyRequiredType( RequiredType rtype, TypeDecl replacement ) {
-    }
-
     protected void concretifyRequiredTypes() {
         Multimap<String,String> concretifications = HashMultimap.create();
 
@@ -333,7 +330,8 @@ public class PTDeclRew {
             for( PTInstTuple tuple : destinationClassIDsWithInstTuples.get( key ) ) {
                 TypeDecl decl = tuple.getOriginator();
                 if( decl instanceof RequiredType ) {
-                    originatorReqTypes.add( (RequiredType) decl );
+                    RequiredType renamedDecl = new InstTupleRew( tuple ).getRenamedSourceRequiredType();
+                    originatorReqTypes.add( renamedDecl );
                 } else {
                     nonRTOriginator = decl;
                 }
@@ -384,6 +382,22 @@ public class PTDeclRew {
             ptDeclToBeRewritten.addRequiredType( myRequiredType );
         }
     }
+/*
+
+    protected void createMergedRequiredTypes() {
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
+        Set<String> localRequiredTypes = new HashSet<String>();
+
+        for( RequiredType rt : ptDeclToBeRewritten.getRequiredTypeList() ) {
+            localRequiredTypes.add( rt.getID() );
+        }
+
+        Set<String> missingRTNames = Sets.difference( getDestinationIDsForRequiredTypes(), localRequiredTypes );
+
+        for( String name : missingRTNames ) {
+        }
+    }
+*/
 
 	protected void createMergedInterfaces() {
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
@@ -487,6 +501,20 @@ public class PTDeclRew {
         //       the different updated classes may have stale references to other's originals.
         //       see -Dname=test/compiler_semantic_tests/single_file/interface/InterfaceInTemplateRenameExplicit3.java
 	}
+
+    /** Get IDs for the destination _required types_.
+      */
+    protected Set<String> getDestinationIDsForRequiredTypes() {
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
+        Set<String> rv = new TreeSet<String>();
+        for( String x : destinationClassIDsWithInstTuples.keySet() ) {
+            TypeDecl typeDecl = destinationClassIDsWithInstTuples.get(x).iterator().next().getOriginator();
+            if( typeDecl instanceof RequiredType ) {
+                rv.add( x );
+            }
+        }
+        return rv;
+    }
 
     // XXX note that in the next few methods we only test the first element.
     //     it is assumed that all the types are equal -- trying to merge an
@@ -1058,6 +1086,23 @@ public class PTDeclRew {
 
         Set<String> rv = new HashSet<String>();
 
+        if( t instanceof RequiredType ) {
+            RequiredType rt = (RequiredType) t;
+            if( rt.hasSuperTypeAccess() ) {
+                TypeDecl td = Util.declarationFromTypeAccess( rt.getSuperTypeAccess() );
+                if( td.getParentClass( PTDecl.class ) == myEnclosingDecl ) {
+                    rv.add( td.getID() );
+                }
+            }
+
+            for( Access a : rt.getImplementsList() ) {
+                TypeDecl td = Util.declarationFromTypeAccess( a );
+                if( td.getParentClass( PTDecl.class ) == myEnclosingDecl ) {
+                    rv.add( td.getID() );
+                }
+            }
+        }
+
         for( Object o : t.implementedInterfaces() ) {
             InterfaceDecl idecl = (InterfaceDecl) o;
             PTDecl enclosingDecl = (PTDecl) idecl.getParentClass( PTDecl.class );
@@ -1106,6 +1151,8 @@ public class PTDeclRew {
 
             String baseID = base.getID();
             Set<String> rootIDs = getRootIDsOf( base );
+
+            System.out.println( "baseID is " + baseID );
 
             for( String rootID : rootIDs ) {
                 PTInstTuple ptitRoot = getPTInstTupleByOriginatorName( instDecl, rootID );
@@ -1206,6 +1253,8 @@ public class PTDeclRew {
                         if( overspecified ) continue;
 
                         PTDummyRename newRename = (PTDummyRename) ptdr.fullCopy();
+
+                        System.out.println( "adding implied rename " + newRename + " to baseid " + baseID );
 
                         ptit.addPTDummyRename( newRename );
                     }
