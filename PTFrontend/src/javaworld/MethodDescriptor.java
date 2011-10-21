@@ -6,6 +6,9 @@ import java.util.List;
 import com.google.common.base.Joiner;
 
 public class MethodDescriptor {
+    // no modifiers -- problem? TODO
+    // also: no throws
+
     String name;
     TypeDescriptor returnType;
     List<TypeDescriptor> parameterTypes;
@@ -13,6 +16,10 @@ public class MethodDescriptor {
     public MethodDescriptor(String name, TypeDescriptor returnType) {
         this.name = name;
         this.returnType = returnType;
+    }
+
+    public ConstructorDescriptor toConstructorDescriptor() {
+        return new ConstructorDescriptor( parameterTypes );
     }
 
     public MethodDescriptor(String name, TypeDescriptor returnType, List<TypeDescriptor> parameterTypes) {

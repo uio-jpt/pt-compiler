@@ -42,11 +42,21 @@ public class TypeConstraint {
     }
 
     public boolean hasConstructor(ConstructorDescriptor desc) {
-        return constructors.contains( desc );
+        for( ConstructorDescriptor md : constructors ) {
+            if( md.equals( desc ) ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean hasMethod(MethodDescriptor desc) {
-        return methods.contains( desc );
+        for( MethodDescriptor md : methods ) {
+            if( md.equals( desc ) ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String toString() {
@@ -93,10 +103,16 @@ public class TypeConstraint {
     }
 
     public void addMethod(MethodDescriptor m) {
+        if( hasMethod( m ) ) {
+            return;
+        }
         methods.add( m );
     }
 
     public void addConstructor(ConstructorDescriptor c) {
+        if( hasConstructor( c ) ) {
+            return;
+        }
         canBeInterface = false;
         constructors.add( c );
     }

@@ -199,15 +199,20 @@ public class PTDeclRew {
             if( !stopError ) {
                 RequiredType reqType = (RequiredType) tdecl;
                 TypeConstraint cand = JastaddTypeConstraints.fromReferenceTypeDecl( replacementType );
+                System.out.println( "creating constraint for reqType " + reqType.getID() + " in ptdecl " + reqType.getParentClass( PTDecl.class ).getClass().getName() );
+                TypeConstraint constraint = reqType.getTypeConstraint();
                 if( cand == null ) {
-                    ptDeclToBeRewritten.error( "concretification candidate " + replacement + " is unsuitable (not a known reference type" );
+                    ptDeclToBeRewritten.error( "concretification candidate " + replacement + " is unsuitable (not a known reference type)" );
                     stopError = true;
-                } else if( !cand.satisfies( reqType.getTypeConstraint() ) ) {
+                } else if( !cand.satisfies( constraint ) ) {
+                    System.out.println( "JUST DID CHECKING" );
                     ptDeclToBeRewritten.error( "concretification candidate " + replacement + " does not satisfy constraints" );
                     // TODO be more informative..
 
                     stopError = true;
                 } else {
+                    System.out.println( "JUST DID CHECKING OKAY" );
+
                     String replacementName = replacementType.getID();
                     // TODO this should be a fully qualified access to avoid problems
                     // however, that's not just TypeAccess("java.lang.foo")..

@@ -28,10 +28,12 @@ import AST.TypeDecl;
 import AST.PTDecl;
 import AST.FieldDeclaration;
 import AST.TypeAccess;
+import AST.ParameterDeclaration;
 
 import AST.RequiredType;
 import AST.RequiredClass;
 import AST.RequiredInterface;
+import AST.PTAbstractConstructor;
 
 import java.util.List;
 import java.util.Vector;
@@ -85,6 +87,20 @@ public class JastaddTypeConstraints {
         }
         return new ConstructorDescriptor( params );
 
+    }
+
+    public static void fromRequiredTypeBodyDeclInto( BodyDecl bd, TypeConstraint tc ) {
+        // be aware: PTAbstractConstructor convenience-inhertis from MethodDecl, so order here is important
+        if( bd instanceof PTAbstractConstructor ) {
+            ConstructorDescriptor cdesc = describeMethodDecl( (MethodDecl) bd ).toConstructorDescriptor();
+            tc.addConstructor( cdesc );
+        } else if( bd instanceof MethodDecl ) {
+            MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd );
+            tc.addMethod( mdesc );
+        } else {
+              // oops
+              System.out.println( "[warning] required type had unexpected body declaration of class " + bd.getClass().getName() );
+        }
     }
 
     static void fromInterfaceDeclInto( InterfaceDecl idecl, TypeConstraint tc ) {
@@ -220,6 +236,7 @@ public class JastaddTypeConstraints {
 */
 
     public static RequiredType convertToRequiredType( String name, TypeConstraint tc ) {
+        System.out.println( "CONVERTING to required type " + name + " FROM " + tc);
         // TODO think about modifiers, these are discarded here
         RequiredType rv;
         AST.List<BodyDecl> bodyDecls = new AST.List<BodyDecl>();
@@ -258,8 +275,72 @@ public class JastaddTypeConstraints {
             rv = new RequiredType( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess );
         }
 
+        Iterator<MethodDescriptor> methodsI = tc.getMethodsIterator();
+        while( methodsI.hasNext() ) {
+            MethodDescriptor methodDesc = methodsI.next();
+            BodyDecl bodyDecl = methodDescriptorToBodyDecl( methodDesc );
+            rv.addBodyDecl( bodyDecl );
+            System.out.println( "added bodyDecl meth" );
+        }
+
+        Iterator<ConstructorDescriptor> constructorsI = tc.getConstructorsIterator();
+        while( constructorsI.hasNext() ) {
+            ConstructorDescriptor consDesc = constructorsI.next();
+            BodyDecl bodyDecl = constructorDescriptorToBodyDecl( consDesc );
+            rv.addBodyDecl( bodyDecl );
+            System.out.println( "added bodyDecl cosn" );
+        }
+
 //        System.out.println( "converted this TC to required type: " + tc );
 
         return rv;
+    }
+
+    public static BodyDecl methodDescriptorToBodyDecl( MethodDescriptor desc ) {
+        Modifiers mods = new Modifiers();
+
+        TypeAccess rtAccess = (TypeAccess) desc.getReturnType().getAccess().fullCopy();
+        String name = desc.getName();
+        AST.List<AST.ParameterDeclaration> parameters = new AST.List();
+        AST.List throwsClause = new AST.List();
+        AST.Opt<AST.Block> noBlock = new AST.Opt<AST.Block>();
+
+        for(int i=0;i<desc.getArity();i++) {
+            String parname = "p_" + (i+1);
+            ParameterDeclaration par = new ParameterDeclaration( desc.getParameterType(i).getAccess(), parname );
+            parameters.add( par );
+        }
+
+        BodyDecl rv = new AST.MethodDecl( mods,
+                                        rtAccess,
+                                        name,
+                                        parameters,
+                                        throwsClause,
+                                        noBlock );
+
+        System.out.println( "created methodDecl of name '" +  name + "'");
+        return rv;
+    }
+
+    public static BodyDecl constructorDescriptorToBodyDecl( ConstructorDescriptor desc ) {
+        Modifiers mods = new Modifiers();
+
+        TypeAccess rtAccess = new AST.PrimitiveTypeAccess( "void" );
+        AST.List<AST.ParameterDeclaration> parameters = new AST.List();
+        AST.List throwsClause = new AST.List();
+        AST.Opt<AST.Block> noBlock = new AST.Opt<AST.Block>();
+
+        for(int i=0;i<desc.getArity();i++) {
+            String parname = "p_" + (i+1);
+            ParameterDeclaration par = new ParameterDeclaration( desc.getParameterType(i).getAccess(), parname );
+            parameters.add( par );
+        }
+
+        return new AST.PTAbstractConstructor( mods,
+                                              rtAccess,
+                                              "$UNNAMED-CONSTRUCTOR$", // this gets corrected by a rewrite
+                                              parameters,
+                                              throwsClause,
+                                              noBlock );
     }
 }

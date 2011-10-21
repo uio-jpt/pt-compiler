@@ -48,9 +48,12 @@ aspect RequiredTypes {
           System.out.println( "added implemented-type" );
       }
 
+
+      for( BodyDecl bd : getBodyDecls() ) {
+          JastaddTypeConstraints.fromRequiredTypeBodyDeclInto( bd, rv );
+      }
+
       System.out.println( "constructed " + rv );
-
-
 
       return rv;
   }
@@ -67,6 +70,22 @@ aspect RequiredTypes {
     return getParentClass( RequiredType.class ) != null;
   }
 
+
+  rewrite PTAbstractConstructor {
+      when ( getID().equals("$UNNAMED-CONSTRUCTOR$") )
+      to PTAbstractConstructor {
+          RequiredType parent = (RequiredType) getParentClass( RequiredType.class );
+          if( parent == null ) {
+              setID( "INVALID" ); // oops
+          } else {
+              setID( parent.getID() );
+          }
+
+          System.out.println( "ASSIGNED NAME " + getID() );
+
+          return this;
+      }
+  }
 
 
     /* What's the proper way to do this (i.e. how is it done in J.a.J. for interfaces?
