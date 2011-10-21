@@ -1,0 +1,17 @@
+template T {
+    class Foo {
+        String f() { return null; }
+        String g() { return null; }
+        Foo(int foo) { }
+    } 
+
+    class X {
+        public void g(Foo f) {
+            System.out.println(f.f());
+        }
+    }
+}
+
+template S {
+    inst T with Foo => Bar ( f() -> funcf );
+}
