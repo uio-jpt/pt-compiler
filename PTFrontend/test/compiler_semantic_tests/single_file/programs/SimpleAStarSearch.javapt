@@ -1,0 +1,200 @@
+template Graph {
+    required class Edge {
+        public Vertex getFrom();
+        public Vertex getTo();
+        public double getCost();
+    }
+
+    required type Vertex {
+        public java.util.List<Edge> getEdges();
+    }
+}
+
+template HeuristicVertices {
+    required type HeuristicVertex {
+        public double heuristicDistance( HeuristicVertex v );
+    }
+}
+
+template HeuristicPathfinding {
+    inst Graph with Vertex => HeuristicVertex;
+    inst HeuristicVertices;
+
+    class HeuristicPathfindingNode implements Comparable<HeuristicPathfindingNode> {
+        assumed HeuristicPathfindingNode(HeuristicVertex a,HeuristicVertex b);
+        assumed HeuristicPathfindingNode(HeuristicVertex a,HeuristicVertex b,java.util.List<Edge> c);
+
+        HeuristicVertex beginning, goal;
+        private java.util.ArrayList<Edge> edges;
+
+        public HeuristicPathfindingNode(HeuristicVertex beginning, HeuristicVertex goal) {
+            this.beginning = beginning;
+            this.goal = goal;
+            edges = new java.util.ArrayList<Edge> ();
+        }
+
+        public HeuristicPathfindingNode(HeuristicVertex beginning, HeuristicVertex goal, java.util.List<Edge> edges) {
+            this.beginning = beginning;
+            this.goal = goal;
+            this.edges = new java.util.ArrayList<Edge> ();
+            for( Edge e : edges ) {
+                this.edges.add( e );
+            }
+        }
+        
+        public HeuristicVertex currentVertex() {
+            if( edges.size() == 0 ) return beginning;
+            return edges.get( edges.size() - 1 ).getTo();
+        }
+
+        public boolean isAtGoal() {
+            return currentVertex() == goal;
+        }
+
+        public double traversedCost() {
+            double rv = 0;
+            for( Edge e : edges ) {
+                rv += e.getCost();
+            }
+            return rv;
+        }
+
+        public double heuristicCost() {
+            return currentVertex().heuristicDistance( goal );
+        }
+
+        public int compareTo(HeuristicPathfindingNode pfnode ) {
+            final double a = heuristicCost() + traversedCost();
+            final double b = pfnode.heuristicCost() + pfnode.traversedCost();
+            if(a < b) return -1;
+            if(a > b) return 1;
+            return 0;
+        }
+
+        public java.util.List<Edge> getEdges() {
+            return edges;
+        }
+
+        public java.util.List<HeuristicPathfindingNode> getSuccessors() {
+            HeuristicVertex x = currentVertex();
+            java.util.List<HeuristicPathfindingNode> rv = new java.util.ArrayList<HeuristicPathfindingNode>();
+            for( Edge e : x.getEdges() ) {
+                HeuristicPathfindingNode newnode = new HeuristicPathfindingNode( beginning, goal, edges );
+                newnode.edges.add( e );
+                rv.add( newnode );
+            }
+            return rv;
+        }
+
+        public String toString() {
+            return edges.toString() + " h-dist: " + heuristicCost();
+        }
+    }
+
+    class Pathfinder {
+        public static java.util.List<Edge> findPath( HeuristicVertex from, HeuristicVertex to ) {
+            // conceptually we could use the heuristics and implement sth like A* here
+            java.util.Set<HeuristicVertex> closedSet = new java.util.HashSet<HeuristicVertex>();
+            java.util.PriorityQueue<HeuristicPathfindingNode> q = new java.util.PriorityQueue<HeuristicPathfindingNode>();
+            q.add( new HeuristicPathfindingNode( from, to ) );
+            while( !q.isEmpty() ) {
+                HeuristicPathfindingNode t = q.poll();
+
+                if( t.isAtGoal() ) {
+                    return t.getEdges();
+                }
+
+                System.out.println( "expanded " + t.currentVertex() );
+                closedSet.add( t.currentVertex() );
+
+                for( HeuristicPathfindingNode pfnode : t.getSuccessors() ) {
+                    if( closedSet.contains( pfnode.currentVertex() ) ) continue;
+
+                    System.out.println( "adding " + pfnode );
+                    q.add( pfnode );
+                }
+
+            }
+            return null;
+        }
+    }
+
+}
+
+package P {
+    inst HeuristicPathfinding with Edge <= Road,
+                                   HeuristicVertex ( heuristicDistance(HeuristicVertex) -> getDistance ) <= City;
+
+    class City {
+        String name;
+        double longitude, latitude;
+        java.util.List<Edge> edges;
+
+        public City(String name, double longitude, double latitude) {
+            this.name = name;
+            this.longitude = longitude;
+            this.latitude = latitude;
+            this.edges = new java.util.LinkedList<Edge>();
+        }
+
+        public void linkTo(City that, double cost) {
+            edges.add( new Road( this, that, cost ) );
+            that.edges.add( new Road( that, this, cost ) );
+        }
+
+        public void simpleLinkTo(City that) {
+            linkTo( that, getDistance( that ) * 1.1 );
+        }
+
+        public double getDistance( City that ) {
+            // not actually the correct distance but that's not relevant
+            final double x = latitude, y = longitude;
+            final double tx = that.latitude, ty = that.longitude;
+            return Math.sqrt( (x - tx)*(x-tx) + (y-ty)*(y-ty) );
+        }
+
+        public java.util.List<Edge> getEdges() {
+            return edges;
+        }
+
+        public String toString() { return name; }
+    }
+
+    class Road {
+        City from, to;
+        double cost;
+
+        public Road( City from, City to, double cost ) {
+            this.from = from;
+            this.to = to;
+            this.cost = cost;
+        }
+        
+        public City getFrom() { return from; }
+        public City getTo() { return to; }
+        public double getCost() { return cost; }
+
+        public String toString() { return "road from " + from + " to " + to + " (" + cost + " km)"; }
+    }
+
+    public class Main {
+        public static void main(String [] args) {
+            City oslo = new City( "Oslo", 0, 0 );
+            City paris = new City( "Paris", 1, 0 );
+            City london = new City( "London", 1, 1 );
+            City ottawa = new City( "Ottawa", 10, 10 );
+            City newYork = new City( "New York", 10, 0 );
+            City tucson = new City( "Tucson", 15, 0 );
+            oslo.simpleLinkTo( paris );
+            oslo.simpleLinkTo( london );
+            london.simpleLinkTo( ottawa );
+            london.simpleLinkTo( tucson );
+            paris.simpleLinkTo( ottawa );
+            tucson.simpleLinkTo( newYork );
+            ottawa.simpleLinkTo( newYork );
+            oslo.linkTo( newYork, 100 );
+            System.out.println( Pathfinder.findPath( oslo, newYork ) );
+        }
+    }
+
+}

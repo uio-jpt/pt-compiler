@@ -1,10 +1,11 @@
 * Implementer Eivinds typeskranker:
-    * Faktisk nominell sjekking
-    * Faktisk strukturell sjekking
-    * Strukturell renaming
-    * Sørg for at nominell sjekking overlever renaming av interne
-      implementerte/utvidede typer
     * Automatisk generering av typer
+
+* Sjekking av typeskrankene, antar det er røft foreløpig.
+
+* Bedre feilmeldinger i typeskrankene (as is er det virkelig
+  horribelt -- "constraints not satisfied" uten noen videre
+  beskjed om hva som er galt).
 
 * Bekreft at det ikke er noe problem i minit_steinkr_notat.
 

@@ -1,0 +1,9 @@
+aspect ListUtils {
+    public List List.concatenate( List newTail ) {
+        List rv = this;
+        for(int i=0;i<newTail.getNumChild();i++) {
+            rv = rv.add( newTail.getChild( i ) );
+        }
+        return rv;
+    }
+}

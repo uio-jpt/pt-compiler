@@ -1,0 +1,49 @@
+/* Generics.jrag er brukt som eksempel til etterfølgelse her. */
+
+aspect InternalRenamingPatchup {
+  public void ASTNode.replaceInternallyRenamedAccesses(Map<BodyDecl,BodyDecl> ht) {
+        for(int i = 0; i < getNumChild(); i++) {
+            ASTNode child = getChild(i);
+            Access swapWith = child.visitReplaceInternallyRenamedAccesses(ht);
+            if ( swapWith != null ) {
+                child.replaceSelfWith( swapWith );
+            }
+            child.replaceInternallyRenamedAccesses(ht);
+        }
+  }
+
+  public Access ASTNode.visitReplaceInternallyRenamedAccesses(Map<BodyDecl,BodyDecl> ht) {
+    return null;
+  }
+
+  public Access MethodAccess.visitReplaceInternallyRenamedAccesses(Map<BodyDecl,BodyDecl> ht) {
+    MethodDecl myDecl = decl();
+    BodyDecl real = ht.get( myDecl );
+    if( ht.keySet().contains( myDecl ) ) {
+        System.out.println( "WOULD PERFORM REPLACE" );
+    }
+    if( real instanceof MethodDecl ) {
+        MethodDecl realDecl = (MethodDecl) real ;
+        if( real != null ) {
+            MethodAccess rv = fullCopy();
+            rv.setID( realDecl.getID() );
+            assert( decl() == real );
+            return rv;
+        }
+    }
+    return null;
+  }
+
+  public void ASTNode.removeDummyDecls(Set<BodyDecl> ht) {
+        for(int i = 0; i < getNumChild();) {
+            ASTNode child = getChild(i);
+            if( child instanceof BodyDecl && ht.contains( (BodyDecl) child ) ) {
+                System.out.println( "REMOVING DUMMY" );
+                removeChild( i );
+            } else {
+                child.removeDummyDecls(ht);
+                i++;
+            }
+        }
+  }
+}
