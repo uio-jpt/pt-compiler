@@ -18,6 +18,7 @@ import AST.MethodDecl;
 import AST.SimpleSet;
 import AST.RequiredType;
 import AST.FieldDeclaration;
+import AST.PTDecl;
 
 
 import java.util.Iterator;
@@ -44,6 +45,35 @@ class InstTupleRew {
             throw new RuntimeException( "unexpectedly unable to find supposedly unambiguous type -- " + name + "(" + matches.size() + " matches)" );
         }
         return (TypeDecl) matches.iterator().next();
+    }
+
+    public void createVirtualRenamingDeclarations( Map<BodyDecl, BodyDecl> virtualsToReals ) {
+        Map<ASTNode, String> internalRenames = findInternalRenames( instantiator.getOriginator() );
+        PTDecl parentPTDecl = (PTDecl) instantiator.getParentClass( PTDecl.class );
+        TypeDecl parentType = parentPTDecl.ptLookupSpecificType( instantiator.getID() );
+
+        for( ASTNode originalNode : internalRenames.keySet() ) {
+            String newID = internalRenames.get( originalNode );
+            ASTNode dummyCopy = originalNode.fullCopy();
+            BodyDecl dummyDecl = (BodyDecl) dummyCopy; // justified since it's a copy of == BodyDecl
+            parentType.addBodyDecl( dummyDecl );
+
+            BodyDecl realThing = null;
+
+            if( dummyCopy instanceof MethodDecl ) {
+                MethodDecl copycopy = (MethodDecl) dummyCopy.fullCopy();
+                copycopy.setID( newID );
+                realThing = (BodyDecl) parentType.localMethodsSignatureMap().get( copycopy.signature() );
+            }
+
+
+            System.out.println( "want to find: " + dummyDecl + " but renamed to " + newID );
+            System.out.println( parentType.localMethodsSignatureMap() );
+            System.out.println( "found " + realThing );
+
+            virtualsToReals.put( dummyDecl, realThing );
+        }
+        System.out.println( "origin is: " + internalRenames );
     }
 
     protected HashMap<ASTNode,String> findInternalRenames(TypeDecl target) {

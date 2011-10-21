@@ -447,6 +447,16 @@ public class PTDeclRew {
         }
     }
 
+    protected void updateAccessesToInternalRenames() {
+        Map<BodyDecl, BodyDecl> virtualsToReals = new java.util.HashMap<BodyDecl, BodyDecl> ();
+        for( SimpleClassRew simplec : simpleClasses ) {
+            simplec.createVirtualRenamingDeclarations( virtualsToReals );
+        }
+        System.out.println( "renames: " + virtualsToReals );
+        ptDeclToBeRewritten.replaceInternallyRenamedAccesses( virtualsToReals );
+        ptDeclToBeRewritten.removeDummyDecls( virtualsToReals.keySet() );
+    }
+
 
 	/**
 	 * Needs extended classes in correct order. Minit dependencies are inherited

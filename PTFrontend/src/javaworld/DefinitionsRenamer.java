@@ -1,6 +1,22 @@
 /* This is the old ClassDeclRew.renameDefinitions(), but adapted to work on any
    TypeDecl (in particular InterfaceDecl).
 */
+
+/* TODO TODO.
+    The .methodAccess() thing appears to have been too good to be true.
+    (At least it doesn't work as early as this.)
+    A solution has been implemented as a replacement for this, which
+    actually works -- createVirtualRenamingDeclarations and friends.
+    Todo:
+        - presumably the same is true for fields; incorporate fields into
+          the virtual-renaming-declarations solutions and replace
+          fieldAccess (this is part of a larger todo involving neglect of
+          fields)
+        - remove all the cruft from the old code that didn't work
+        - add more tests for internal renaming (it's mind-boggling
+          that this wasn't discovered until now)
+*/
+
 package javaworld;
 
 import java.util.Map;
@@ -57,8 +73,6 @@ public class DefinitionsRenamer {
             }
         }
 
-        System.out.println( "renaming in: " + ext );
-        
         AST.ASTNode parent = ext.getParent();
         for(int i=0;i<parent.getNumChild();i++) {
             if( parent.getChild(i) == ext ) {
@@ -68,7 +82,6 @@ public class DefinitionsRenamer {
             }
         }
 
-        new MethodAccessRenamer( declarationsToRename ).mutate( ext.getParentClass( PTDecl.class ) );
 
 		for (MethodDecl decl : methods.values()) {
                 /* If we rename the tabstracts we have trouble recognizing
@@ -81,10 +94,13 @@ public class DefinitionsRenamer {
 				String newID = namesMap.get(decl.signature());
 				newID = newID.split("\\(")[0];
 
+/*
+
 				for (MethodAccess x : decl.methodAccess()) { // <-- note, very handy JaJ method (our own..)
                     System.out.println( "RENAMING AN ACCESS: " + x.getID() + " -> " + newID );
 					x.setID(newID);
                 }
+*/
 
                 String oldSig = decl.signature();
 
@@ -101,6 +117,7 @@ public class DefinitionsRenamer {
 				FieldDeclaration fieldDecl = (FieldDeclaration) iter.next();
 				if (namesMap.containsKey(fieldDecl.getID())) {
 					String newID = namesMap.get(fieldDecl.getID());
+
 					for (VarAccess x : fieldDecl.fieldAccess()) { // <-- similarly, very handy JaJ method
 						x.setID(newID);
                     }

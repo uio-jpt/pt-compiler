@@ -1,0 +1,33 @@
+template T {
+    required class Foo {
+        String f();
+        String g();
+        Foo(int foo);
+    } 
+
+    class X {
+        public void g(Foo f) {
+            System.out.println(f.f());
+        }
+    }
+}
+
+template S {
+    inst T with Foo => Baz ( f() -> funcf );
+}
+
+package P {
+    inst S with Baz <= Bar;
+
+    class Bar {
+        String funcf() { return "hello world"; }
+        String g() { return "hello world"; }
+        Bar(int foox) { }
+    }
+
+    class Main {
+        public static void main(String args[]) {
+            new X().g( new Bar(42) );
+        }
+    }
+}

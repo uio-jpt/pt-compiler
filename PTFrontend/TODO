@@ -7,3 +7,8 @@
     * Automatisk generering av typer
 
 * Bekreft at det ikke er noe problem i minit_steinkr_notat.
+
+* Sjekk mange situasjoner (f.eks. intern renaming)
+  for FIELDS der det er gjort for methods. Dette burde
+  aldri være vanskeligere, men det er allikevel hoppet
+  over mange steder.
