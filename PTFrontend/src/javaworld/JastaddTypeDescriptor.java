@@ -107,20 +107,21 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         // a context wherein the Access can be evaluated, because we will be
         // _modifying_ the access and then evaluating it again when mapping
         // by the concretification scheme.
-        // as this context, we use the original access, even though it makes
+        // as this context, we use the original access (or declaration as
+        // the case may be), even though it may make zero sense
         // no sense for that node to have an access as a child.
-        // this is a one-way link; the context becomes the parent of the
-        // artificially constructed (and modified) node, but the modified
-        // node does not become a child of the context.
+        // that's "okay" because (horrifyingly) this is a _one-way_ link;
+        // the context becomes the parent of the artificially constructed
+        // (and modified) node, but the modified node does not become a
+        // child of the context.
+        // (this is possible in JastAdd; the opposite -- a child not having
+        // a parent -- is impossible)
         if( byDeclaration ) {
-            System.out.println( "[warning] ctx meth 1" );
             return typeDeclaration;
         }
         if( parTypeAccess != null ) {
-            System.out.println( "[warning] ctx meth 2" );
             return parTypeAccess;
         }
-        System.out.println( "[warning] ctx meth 3" );
         return typeAccess;
     }
 
@@ -193,17 +194,9 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
 
         Map<TypeDecl, TypeAccess> dtaMap = scheme.createDeclToAccessMap();
 
-        // hack to make sure we find the Program
-        ASTNode root = getContext();
-        if( root == null ) {
-            System.out.println( "[warning] safety net is gone" );
-        } else {
-            System.out.println( "[info] safety net present" );
-        }
-
         // hack to make sure we can reuse this method to replace roots as well
         AST.List parent = new AST.List();
-        parent.setParent( root );
+        parent.setParent( getContext() );
         parent.addChild( myAccess );
         parent.replaceTypeAccesses( dtaMap );
         myAccess = (Access) parent.getChild(0);

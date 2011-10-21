@@ -15,18 +15,7 @@ aspect RequiredTypes {
   }
 
   public TypeAccess TypeAccess.visitReplaceTypeAccesses(Map<TypeDecl,TypeAccess> ht) {
-    System.out.println( "trying to lookup " + dumpTree() );
-    TypeDecl myDecl;
-    try {
-        myDecl = decl();
-    }
-    catch( NullPointerException e ) {
-        System.out.println( "trying FAILED to lookup " + dumpTree() );
-        System.out.println( "trying FAILED to lookup " + getParent().dumpTree() );
-        System.out.println( "trying FAILED to lookup " + getParent().getParent().dumpTree() );
-        myDecl = null;
-        throw e;
-    }
+    TypeDecl myDecl = decl();
     TypeAccess rv = ht.get( myDecl );
     return rv;
   }

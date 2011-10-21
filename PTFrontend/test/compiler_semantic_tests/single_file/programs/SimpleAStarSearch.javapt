@@ -123,18 +123,19 @@ template HeuristicPathfinding {
 
 package P {
     inst HeuristicPathfinding with Edge <= Road,
-                                   HeuristicVertex ( heuristicDistance(HeuristicVertex) -> getDistance ) <= City;
+                                   HeuristicVertex ( heuristicDistance(HeuristicVertex) -> getDistance,
+                                                     getEdges() -> getRoads ) <= City;
 
     class City {
         String name;
         double longitude, latitude;
-        java.util.List<Edge> edges;
+        java.util.List<Road> edges;
 
         public City(String name, double longitude, double latitude) {
             this.name = name;
             this.longitude = longitude;
             this.latitude = latitude;
-            this.edges = new java.util.LinkedList<Edge>();
+            this.edges = new java.util.LinkedList<Road>();
         }
 
         public void linkTo(City that, double cost) {
@@ -153,7 +154,7 @@ package P {
             return Math.sqrt( (x - tx)*(x-tx) + (y-ty)*(y-ty) );
         }
 
-        public java.util.List<Edge> getEdges() {
+        public java.util.List<Road> getRoads() {
             return edges;
         }
 

@@ -29,9 +29,6 @@ public class ConcretificationScheme {
             TypeAccess targetAccess = new AST.TypeAccess( targetDecl.getID() );
             rv.put( rt, targetAccess );
         }
-        for( TypeDecl x : rv.keySet() ) {
-            System.out.println( "DISPLAY KEY " + x.dumpTree() + " --> " + rv.get(x).dumpTree() );
-        }
         return rv;
     }
 }
