@@ -13,7 +13,7 @@ template T {
 template S {
     inst T;
 
-    required type Baz extends Bar {
+    required type Baz extends Foo {
         String g();
     }
 

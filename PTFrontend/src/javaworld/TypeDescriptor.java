@@ -5,4 +5,5 @@ public interface TypeDescriptor {
     boolean isSubtypeOf( TypeDescriptor that );
 
     AST.Access getAccess();
+    TypeDescriptor mapByScheme( ConcretificationScheme scheme );
 }

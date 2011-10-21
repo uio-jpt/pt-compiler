@@ -1,5 +1,5 @@
 template T {
-    required type Foo {
+    required class Foo {
         Foo(String v);
         String f();
     } 

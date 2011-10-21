@@ -141,11 +141,16 @@ public class PTDeclRew {
 
         /* see email, per now assume: <= on target name (after renames) */
 
+        Map<RequiredType, TypeDecl> concretificationPlan = new HashMap<RequiredType, TypeDecl>();
+
 		for (PTInstDecl instDecl : ptDeclToBeRewritten.getPTInstDecls()) {
             for( RequiredTypeInstantiation rti : instDecl.getRequiredTypeInstantiationList() ) {
                 concretifications.put( rti.getRequiredTypeName(), rti.getConcreteID() );
+
             }
         }
+
+        int processed = 0;
 
         for( String key : concretifications.keySet() ) {
             boolean stopError = false;
@@ -193,7 +198,72 @@ public class PTDeclRew {
                         stopError = true;
                     }
                 }
+
+                concretificationPlan.put( (RequiredType) tdecl, replacementType );
+
+                processed ++;
             }
+
+        }
+
+        if( processed != concretifications.keySet().size() ) {
+            // failure
+            return;
+        }
+
+        ConcretificationScheme scheme = new ConcretificationScheme( concretificationPlan );
+
+        for( RequiredType tdecl : concretificationPlan.keySet() ) {
+            boolean stopError = false;
+            String key = tdecl.getID();
+            TypeDecl replacementType = concretificationPlan.get( tdecl );
+
+/*
+        
+            SimpleSet matches = ptDeclToBeRewritten.lookupTypeInPTDecl( key );
+            if( matches.size() < 1 ) {
+                ptDeclToBeRewritten.error( "concretification of unknown type: " + key );
+                stopError = true;
+            } else if( matches.size() > 1 ) {
+                // detected elsewhere
+                stopError = true;
+            } else {
+                tdecl = (TypeDecl) matches.iterator().next();
+                if( !(tdecl instanceof RequiredType) ) {
+                    stopError = true;
+                    ptDeclToBeRewritten.error( "concretification of non-required type/class/interface: " + key );
+                }
+            }
+            if( concretifications.get( key ).size() > 1 ) {
+                ptDeclToBeRewritten.error( "multiple concretifications of " + key );
+                stopError = true;
+            }
+
+            TypeDecl replacementType  = null;
+            String replacement = "";
+
+            if( !stopError ) {
+                replacement = concretifications.get( key ).iterator().next();
+                PTInstDecl instDeclFirst = (PTInstDecl) ptDeclToBeRewritten.getPTInstDecls().iterator().next(); // hack
+                SimpleSet rightMatches = ptDeclToBeRewritten.lookupTypeInPTDecl( replacement );
+                if( rightMatches.size() == 0 ) {
+                    rightMatches = ptDeclToBeRewritten.lookupType( replacement );
+                }
+                if( rightMatches.size() < 1 ) {
+                    ptDeclToBeRewritten.error( "concretifying " + key + " with unknown type " +  replacement );
+                    stopError = true;
+                } else if( rightMatches.size() > 2 ) {
+                    stopError = true;
+                } else {
+                    try {
+                        replacementType = (TypeDecl) rightMatches.iterator().next();
+                    }
+                    catch( ClassCastException e ) {
+                        stopError = true;
+                    }
+                }
+            }
+*/
 
             // check conformance
             if( !stopError ) {
@@ -202,11 +272,11 @@ public class PTDeclRew {
                 System.out.println( "creating constraint for reqType " + reqType.getID() + " in ptdecl " + reqType.getParentClass( PTDecl.class ).getClass().getName() );
                 TypeConstraint constraint = reqType.getTypeConstraint();
                 if( cand == null ) {
-                    ptDeclToBeRewritten.error( "concretification candidate " + replacement + " is unsuitable (not a known reference type)" );
+                    ptDeclToBeRewritten.error( "concretification candidate " + replacementType.getID() + " is unsuitable (not a known reference type)" );
                     stopError = true;
-                } else if( !cand.satisfies( constraint ) ) {
+                } else if( !cand.satisfies( constraint, scheme ) ) {
                     System.out.println( "JUST DID CHECKING" );
-                    ptDeclToBeRewritten.error( "concretification candidate " + replacement + " does not satisfy constraints" );
+                    ptDeclToBeRewritten.error( "concretification candidate " + replacementType.getID() + " does not satisfy constraints" );
                     // TODO be more informative..
 
                     stopError = true;

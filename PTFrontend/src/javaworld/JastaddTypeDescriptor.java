@@ -8,6 +8,7 @@ import AST.ParTypeAccess;
 import AST.TypeAccess;
 import AST.TypeDecl;
 import AST.Wildcard;
+import AST.RequiredType;
 
 import com.google.common.base.Joiner;
 
@@ -149,5 +150,14 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
             sb.append( ">" );
         }
         return sb.toString();
+    }
+
+    public TypeDescriptor mapByScheme( ConcretificationScheme scheme ) {
+        TypeDecl myDecl = getTypeDecl();
+        if( myDecl instanceof RequiredType ) {
+            TypeDecl theirDecl = scheme.getConcretification( (RequiredType) myDecl );
+            return new JastaddTypeDescriptor( theirDecl );
+        }
+        return this;
     }
 }

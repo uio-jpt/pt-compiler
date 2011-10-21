@@ -199,7 +199,7 @@ public class TypeConstraint {
         return rv;
     }
 
-    public boolean satisfies( TypeConstraint constraint ) {
+    public boolean satisfies( TypeConstraint constraint, ConcretificationScheme scheme ) {
         if( !( (canBeClass && constraint.canBeClass)
                ||
                (canBeInterface && constraint.canBeInterface) ) ) {
@@ -233,7 +233,7 @@ public class TypeConstraint {
         for( TypeDescriptor mustExtend : constraint.extendedTypes ) {
             boolean okay = false;
             for( TypeDescriptor doesExtend : extendedTypes ) {
-                if( doesExtend.isSubtypeOf( mustExtend ) ) {
+                if( doesExtend.isSubtypeOf( mustExtend.mapByScheme( scheme ) ) ) {
                     okay = true;
                 }
             }
@@ -243,7 +243,7 @@ public class TypeConstraint {
         for( TypeDescriptor mustImplement : constraint.implementedTypes ) {
             boolean okay = false;
             for( TypeDescriptor doesImplement : implementedTypes ) {
-                if( doesImplement.isSubtypeOf( mustImplement ) ) {
+                if( doesImplement.isSubtypeOf( mustImplement.mapByScheme( scheme ) ) ) {
                     okay = true;
                 }
             }
