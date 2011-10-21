@@ -688,7 +688,7 @@ public class PTDeclRew {
                     ConstructorDecl constructor = (ConstructorDecl) node;
 
                     Modifiers newMods = constructor.getModifiers().fullCopy();
-                    String constructorName = constructor.getID();
+                    String constructorName = name; // the renamed class name, not the original constructor name, doh
                     List<ParameterDeclaration> constructorParameters = constructor.getParameterList().fullCopy();
                     List<Access> constructorThrows  = constructor.getExceptions().fullCopy();
                     Opt<Stmt> constructorInvocation = constructor.getConstructorInvocationOpt().fullCopy();
