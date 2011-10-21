@@ -503,6 +503,7 @@ public class SimpleClassRew {
         }
     }
 
+/*
     public void createVirtualRenamingDeclarations( Map<BodyDecl, BodyDecl> virtualsToReals ) {
         if( instTuples == null ) {
             System.out.println( "[warning] null instTuples -- TODO check whether this should happens" );
@@ -513,4 +514,5 @@ public class SimpleClassRew {
             instTupleRew.createVirtualRenamingDeclarations( virtualsToReals );
         }
     }
+*/
 }

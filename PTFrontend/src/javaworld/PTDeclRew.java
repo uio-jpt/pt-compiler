@@ -449,9 +449,24 @@ public class PTDeclRew {
 
     protected void updateAccessesToInternalRenames() {
         Map<BodyDecl, BodyDecl> virtualsToReals = new java.util.HashMap<BodyDecl, BodyDecl> ();
+        for( PTInstDecl ptid : ptDeclToBeRewritten.getPTInstDecls() ) {
+            for( PTInstTuple ptit : ptid.getPTInstTupleList() ) {
+                new InstTupleRew( ptit ).createVirtualRenamingDeclarations(virtualsToReals);
+            }
+        }
+        /*
         for( SimpleClassRew simplec : simpleClasses ) {
             simplec.createVirtualRenamingDeclarations( virtualsToReals );
         }
+
+        for( String name : getDestinationIDsForInterfaces() ) {
+            Collection<PTInstTuple> ituples = getDestinationClassIDsWithInstTuples().get( name );
+        }
+        for( 
+            getDestinationIDsForRequiredTypes()
+*/
+
+
         System.out.println( "renames: " + virtualsToReals );
         ptDeclToBeRewritten.replaceInternallyRenamedAccesses( virtualsToReals );
         ptDeclToBeRewritten.removeDummyDecls( virtualsToReals.keySet() );

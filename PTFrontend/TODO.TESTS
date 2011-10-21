@@ -1,0 +1,25 @@
+Trenger flere tester på:
+
+    * Intern renaming ( altså A => A ( f() -> g ) ).
+      Sjekk at aksesser til tingen som omdøpes oppdateres,
+      for aksesser mange forskjellige steder (inne i klassen,
+      utenfor klassen, etc.)
+    
+    * Intern renaming av felt (ikke metoder).
+      Dette burde ikke være teoretisk vanskeligere enn metoder
+      (snarere enklere), men det er helt eller delvis ikke
+      implementert fordi jeg hele tiden bare har testet med
+      metoder.
+
+    * Parametriserte typeaksesser, altså bruk av generics.
+      Sjekk at f.eks. java.util.Iterator<Integer> fungerer
+      i alle mulige kontekster der en vanlig typeaksess
+      skulle ha fungert. Vi leter her særlig etter
+      kode som caster Access til TypeAccess i kontekster
+      der aksessen faktisk kan være en ParTypeAccess
+      (som ikke er en TypeAccess) -- dette vil stort
+      sett kræsje kompilatoren om det skjer.
+
+    * Hakket vanskeligere på generics; sjekk at parametriserte
+      typeaksesser med interne typer som parametre fungerer
+      overalt.
