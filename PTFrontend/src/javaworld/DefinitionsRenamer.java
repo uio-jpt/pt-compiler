@@ -56,51 +56,15 @@ public class DefinitionsRenamer {
             namesToRename.add( key );
         }
 
-        java.util.Map< MethodDecl, String > declarationsToRename = new java.util.HashMap< MethodDecl, String > ();
-
 		for (MethodDecl decl : methods.values()) {
                 /* If we rename the tabstracts we have trouble recognizing
                    their signatures later. More elegant way? */
             if( decl.isTabstract() ) continue; // XXX MISSINGFEATURE?
 
 			if (namesMap.containsKey(decl.signature())) {
-                System.out.println( "this is where everything fails: " + decl );
 
 				String newID = namesMap.get(decl.signature());
 				newID = newID.split("\\(")[0];
-
-                declarationsToRename.put( decl, newID );
-            }
-        }
-
-        AST.ASTNode parent = ext.getParent();
-        for(int i=0;i<parent.getNumChild();i++) {
-            if( parent.getChild(i) == ext ) {
-                System.out.println( "ext is child no " + i );
-            } else {
-                System.out.println( "ext IS NOT child no " + i );
-            }
-        }
-
-
-		for (MethodDecl decl : methods.values()) {
-                /* If we rename the tabstracts we have trouble recognizing
-                   their signatures later. More elegant way? */
-            if( decl.isTabstract() ) continue; // XXX MISSINGFEATURE?
-
-			if (namesMap.containsKey(decl.signature())) {
-                System.out.println( "this is where everything fails: " + decl );
-
-				String newID = namesMap.get(decl.signature());
-				newID = newID.split("\\(")[0];
-
-/*
-
-				for (MethodAccess x : decl.methodAccess()) { // <-- note, very handy JaJ method (our own..)
-                    System.out.println( "RENAMING AN ACCESS: " + x.getID() + " -> " + newID );
-					x.setID(newID);
-                }
-*/
 
                 String oldSig = decl.signature();
 
