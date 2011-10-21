@@ -44,6 +44,9 @@ public class InstantiationRewriter {
         target.createMergedRequiredTypes();
 
 		target.extendAddClassesWithInstantiatons();
+
+        target.updateAccessesToInternalRenames();
+
 		target.copyImportDecls();
 		target.createInitIfPackage();
 

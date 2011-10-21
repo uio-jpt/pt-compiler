@@ -72,4 +72,15 @@ public class Util {
 		return String.format("minit$%s", tclassID);
 	}
 
+    public static AST.TypeDecl declarationFromTypeAccess( AST.Access a ) {
+        // TODO lots of code assuming instanceof TypeAccess should instead call this
+        if( a instanceof AST.TypeAccess ) {
+            return ((AST.TypeAccess)a).decl();
+        } else if( a instanceof AST.ParTypeAccess ) {
+            return ((AST.ParTypeAccess)a).type();
+        } else {
+            return null; // oops
+        }
+    }
+
 }

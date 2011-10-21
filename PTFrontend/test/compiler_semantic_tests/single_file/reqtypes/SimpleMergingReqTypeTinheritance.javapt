@@ -2,6 +2,7 @@ template T {
     required class Foo {
         Foo(String v);
         String f();
+        String g();
     } 
 
     class X {
@@ -11,8 +12,19 @@ template T {
     }
 }
 
+template U {
+    required class Bar {
+        String g();
+    }
+}
+
+template S {
+    inst T with Foo => Baz ;
+    inst U with Bar => Baz;
+}
+
 package P {
-    inst T with  Foo <= Bar;
+    inst S with  Baz <= Bar;
 
     class Bar {
         String value;
@@ -21,6 +33,7 @@ package P {
             value = myVal;
         }
         String f() { return value; }
+        String g() { return value; }
     }
 
     class Main {

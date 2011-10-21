@@ -102,6 +102,7 @@ class ClassDeclRew {
     }
 
 	protected void renameTypes(Map<String, String> renamedClasses) {
+        System.out.println( "renameTypes: " + renamedClasses );
 		ext.renameTypes(renamedClasses);
 	}
 

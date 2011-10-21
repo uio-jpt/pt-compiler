@@ -42,11 +42,21 @@ public class TypeConstraint {
     }
 
     public boolean hasConstructor(ConstructorDescriptor desc) {
-        return constructors.contains( desc );
+        for( ConstructorDescriptor md : constructors ) {
+            if( md.equals( desc ) ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean hasMethod(MethodDescriptor desc) {
-        return methods.contains( desc );
+        for( MethodDescriptor md : methods ) {
+            if( md.equals( desc ) ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String toString() {
@@ -93,10 +103,16 @@ public class TypeConstraint {
     }
 
     public void addMethod(MethodDescriptor m) {
+        if( hasMethod( m ) ) {
+            return;
+        }
         methods.add( m );
     }
 
     public void addConstructor(ConstructorDescriptor c) {
+        if( hasConstructor( c ) ) {
+            return;
+        }
         canBeInterface = false;
         constructors.add( c );
     }
@@ -183,7 +199,7 @@ public class TypeConstraint {
         return rv;
     }
 
-    public boolean satisfies( TypeConstraint constraint ) {
+    public boolean satisfies( TypeConstraint constraint, ConcretificationScheme scheme ) {
         if( !( (canBeClass && constraint.canBeClass)
                ||
                (canBeInterface && constraint.canBeInterface) ) ) {
@@ -194,7 +210,7 @@ public class TypeConstraint {
             // we must supply one method that conforms to md.
             boolean ok = false;
             for( MethodDescriptor cmd : methods ) {
-                if( cmd.conformsTo( md ) ) {
+                if( cmd.conformsTo( md, scheme ) ) {
                     ok = true;
                 }
             }
@@ -204,7 +220,7 @@ public class TypeConstraint {
         for( ConstructorDescriptor cd : constraint.constructors ) {
             boolean ok = false;
             for( ConstructorDescriptor ccd : constructors ) {
-                if( ccd.equals( cd ) ) {
+                if( ccd.conformsTo( cd, scheme ) ) {
                     ok = true;
                 }
             }
@@ -217,7 +233,7 @@ public class TypeConstraint {
         for( TypeDescriptor mustExtend : constraint.extendedTypes ) {
             boolean okay = false;
             for( TypeDescriptor doesExtend : extendedTypes ) {
-                if( doesExtend.isSubtypeOf( mustExtend ) ) {
+                if( doesExtend.isSubtypeOf( mustExtend.mapByScheme( scheme ) ) ) {
                     okay = true;
                 }
             }
@@ -227,7 +243,7 @@ public class TypeConstraint {
         for( TypeDescriptor mustImplement : constraint.implementedTypes ) {
             boolean okay = false;
             for( TypeDescriptor doesImplement : implementedTypes ) {
-                if( doesImplement.isSubtypeOf( mustImplement ) ) {
+                if( doesImplement.isSubtypeOf( mustImplement.mapByScheme( scheme ) ) ) {
                     okay = true;
                 }
             }

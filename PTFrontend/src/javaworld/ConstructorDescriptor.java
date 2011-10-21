@@ -32,6 +32,15 @@ public class ConstructorDescriptor {
         return true;
     }
 
+    public boolean conformsTo(ConstructorDescriptor that, ConcretificationScheme scheme) {
+        final int n = getArity();
+        if( n != that.getArity() ) return false;
+        for(int i=0;i<n;i++) {
+            if( !getParameterType(i).mapByScheme(scheme).equals( that.getParameterType(i).mapByScheme(scheme) ) ) return false;
+        }
+        return true;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append( "<constructor>(" );

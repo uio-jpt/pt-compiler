@@ -175,18 +175,19 @@ PTInstDecl pt_inst_decl =
 ;
 
 List dummy_class_list =
-      dummy_class_list.dcl COMMA dummy_arrow_tuple.t {: return dcl.add(t); :}
-    | dummy_arrow_tuple.t {: return new List().add(t); :}
+      dummy_class_list.dcl COMMA dummy_arrow_tuple.t
+      {: return dcl.concatenate(t); :}
+    | dummy_arrow_tuple.t {: return t; :}
     ;
 
-ASTNode dummy_arrow_tuple =
+List dummy_arrow_tuple =
     reqtype_instantiation_tuple.t {: return t; :}
-    | dummy_inst_tuple.t {: return t; :}
+    | dummy_inst_tuple.t {: return new List().add( t ); :}
     ;
 
-RequiredTypeInstantiation reqtype_instantiation_tuple =
-    IDENTIFIER.a LTEQ IDENTIFIER.b 
-    {: return new RequiredTypeInstantiation(a,b); :}
+List reqtype_instantiation_tuple =
+    | IDENTIFIER.a dummy_inst_tuple_rename_list_opt.l LTEQ IDENTIFIER.b 
+    {: return new List().add( new RequiredTypeInstantiation(a,b) ).add( new PTInstTuple( a, a, l ) ); :}
     ;
 
 PTInstTuple dummy_inst_tuple =

@@ -6,6 +6,9 @@ import java.util.List;
 import com.google.common.base.Joiner;
 
 public class MethodDescriptor {
+    // no modifiers -- problem? TODO
+    // also: no throws
+
     String name;
     TypeDescriptor returnType;
     List<TypeDescriptor> parameterTypes;
@@ -13,6 +16,10 @@ public class MethodDescriptor {
     public MethodDescriptor(String name, TypeDescriptor returnType) {
         this.name = name;
         this.returnType = returnType;
+    }
+
+    public ConstructorDescriptor toConstructorDescriptor() {
+        return new ConstructorDescriptor( parameterTypes );
     }
 
     public MethodDescriptor(String name, TypeDescriptor returnType, List<TypeDescriptor> parameterTypes) {
@@ -40,29 +47,29 @@ public class MethodDescriptor {
         return parameterTypes.get(i);
     }
 
-    public boolean signatureEquals(MethodDescriptor that) {
+    public boolean signatureEquals(MethodDescriptor that, ConcretificationScheme scheme ) {
         final int n = getArity();
         if( !name.equals( that.name ) ) return false;
         if( n != that.getArity() ) return false;
         for(int i=0;i<n;i++) {
-            if( !getParameterType(i).equals( that.getParameterType(i) ) ) return false;
+            if( !getParameterType(i).mapByScheme( scheme ).equals( that.getParameterType(i).mapByScheme( scheme ) ) ) return false;
         }
         return true;
     }
 
     public boolean equals(MethodDescriptor that) {
-        if( !signatureEquals( that ) ) return false;
+        if( !signatureEquals( that, new ConcretificationScheme() ) ) return false;
         if( !returnType.equals( that.returnType ) ) return false;
         return true;
     }
 
-    public boolean conformsTo( MethodDescriptor that ) {
+    public boolean conformsTo( MethodDescriptor that, ConcretificationScheme scheme ) {
         // Java semantics.
         // todo check more obscure things like throws clauses
 
-        if( !signatureEquals( that ) ) return false; // sanity check
+        if( !signatureEquals( that, scheme ) ) return false; // sanity check
 
-        if( !returnType.isSubtypeOf( that.returnType ) ) return false;
+        if( !returnType.mapByScheme( scheme ).isSubtypeOf( that.returnType.mapByScheme( scheme ) ) ) return false;
 
         return true;
     }

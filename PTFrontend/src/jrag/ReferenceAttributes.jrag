@@ -78,6 +78,10 @@ aspect ReferenceAttributes {
     }
 
     syn Map<String,String> PTInstDecl.getRenamedClasses() {
+        // note this name is now misleading; the entities renamed can be
+        // many things other than classes (interfaces, required types,
+        // required classes, ..)
+
         Map<String,String> renamedClasses = new HashMap<String,String>();
         for (PTInstTuple instTuple: getPTInstTupleList()) 
             renamedClasses.put(instTuple.getOrgID(),instTuple.getID());

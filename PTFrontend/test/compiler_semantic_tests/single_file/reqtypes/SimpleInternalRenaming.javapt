@@ -1,7 +1,8 @@
 template T {
     required class Foo {
-        Foo(String v);
         String f();
+        String g();
+        Foo(int foo);
     } 
 
     class X {
@@ -11,21 +12,22 @@ template T {
     }
 }
 
+template S {
+    inst T with Foo => Baz ( f() -> funcf );
+}
+
 package P {
-    inst T with  Foo <= Bar;
+    inst S with Baz <= Bar;
 
     class Bar {
-        String value;
-
-        Bar(String myVal) {
-            value = myVal;
-        }
-        String f() { return value; }
+        String funcf() { return "hello world"; }
+        String g() { return "hello world"; }
+        Bar(int foox) { }
     }
 
     class Main {
         public static void main(String args[]) {
-            new X().g( new Bar( "hey" ) );
+            new X().g( new Bar(42) );
         }
     }
 }

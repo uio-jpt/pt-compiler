@@ -94,6 +94,7 @@ public class SimpleClassRew {
 		if (mergingIsPossible()) {
 			renameResolvedConflicts();
 			for (ClassDeclRew source : renamedSources) {
+                System.out.println( "ADDING DECLARATIONS NOW" );
 				addDecls(source.getBodyDecls());
 			}
 		}
@@ -501,4 +502,17 @@ public class SimpleClassRew {
             }
         }
     }
+
+/*
+    public void createVirtualRenamingDeclarations( Map<BodyDecl, BodyDecl> virtualsToReals ) {
+        if( instTuples == null ) {
+            System.out.println( "[warning] null instTuples -- TODO check whether this should happens" );
+            return;
+        }
+        for( PTInstTuple tuple : instTuples ) {
+            InstTupleRew instTupleRew = new InstTupleRew( tuple );
+            instTupleRew.createVirtualRenamingDeclarations( virtualsToReals );
+        }
+    }
+*/
 }

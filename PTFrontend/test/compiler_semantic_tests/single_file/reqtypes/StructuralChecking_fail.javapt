@@ -1,6 +1,7 @@
 template T {
     required type Foo {
         String f();
+        String g();
     } 
 
     class X {
@@ -10,25 +11,22 @@ template T {
     }
 }
 
+/*
 template S {
     inst T;
 
-    required type Baz extends Foo {
+    required type Baz extends Bar {
         String g();
     }
 
 }
+*/
 
 package P {
-    inst S with  Foo <= Bar,
-                 Baz <= Bar2;
+    inst T with  Foo <= Bar;
 
     class Bar {
         String f() { return "hello world"; }
-    }
-
-    class Bar2 extends Bar {
-        String g() { return "yup"; }
     }
 
     class Main {
