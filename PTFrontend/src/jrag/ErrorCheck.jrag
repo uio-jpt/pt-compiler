@@ -51,12 +51,17 @@ aspect ErrorCheck {
         // from within a template class and its list of arguments is
         // greater than 1.
         if ( getNumArg() > 0 && getParentClass(PTTemplate.class) != null) {
-			TypeAccess t = (TypeAccess) getAccess();
-        	if (!localLookupType(t.getID()).isEmpty()) { 
-            // TODO make this check only for new TemplateClass calls.
-            // example, new LinkedList(oldLinkedList); should work.
-            error("New calls in templates only allowed without arguments.");
-        	}
+            Access a = getAccess();
+            if( a instanceof TypeAccess ) {
+                TypeAccess t = (TypeAccess) a;
+                if (!localLookupType(t.getID()).isEmpty()) { 
+                // TODO make this check only for new TemplateClass calls.
+                // example, new LinkedList(oldLinkedList); should work.
+                error("New calls in templates only allowed without arguments.");
+                }
+            } else if( a instanceof ParTypeAccess ) {
+                // TODO make equivalent errorcheck here
+            }
         }
     }
 

@@ -132,7 +132,7 @@ public class PTDeclRew {
     }
 
     protected void concretifyRequiredTypes() {
-        Multimap<String,String> concretifications = HashMultimap.create();
+        Multimap<String,Access> concretifications = HashMultimap.create();
 
         RequiredTypeRewriter rewriter = new RequiredTypeRewriter();
         java.util.Set<RequiredType> toBeDeleted = new java.util.HashSet<RequiredType>();
@@ -143,7 +143,7 @@ public class PTDeclRew {
 
 		for (PTInstDecl instDecl : ptDeclToBeRewritten.getPTInstDecls()) {
             for( RequiredTypeInstantiation rti : instDecl.getRequiredTypeInstantiationList() ) {
-                concretifications.put( rti.getRequiredTypeName(), rti.getConcreteID() );
+                concretifications.put( rti.getRequiredTypeName(), (Access) rti.getConcreteTypeAccess() );
 
             }
         }
@@ -177,6 +177,7 @@ public class PTDeclRew {
             String replacement = "";
 
             if( !stopError ) {
+/*
                 replacement = concretifications.get( key ).iterator().next();
                 PTInstDecl instDeclFirst = (PTInstDecl) ptDeclToBeRewritten.getPTInstDecls().iterator().next(); // hack
                 SimpleSet rightMatches = ptDeclToBeRewritten.lookupTypeInPTDecl( replacement );
@@ -196,6 +197,10 @@ public class PTDeclRew {
                         stopError = true;
                     }
                 }
+*/
+                
+                Access replacementAccess = concretifications.get( key ).iterator().next();
+                replacementType = Util.declarationFromTypeAccess( replacementAccess );
 
                 concretificationPlan.put( (RequiredType) tdecl, replacementType );
 

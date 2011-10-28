@@ -186,7 +186,7 @@ List dummy_arrow_tuple =
     ;
 
 List reqtype_instantiation_tuple =
-    | IDENTIFIER.a dummy_inst_tuple_rename_list_opt.l LTEQ IDENTIFIER.b 
+    | IDENTIFIER.a dummy_inst_tuple_rename_list_opt.l LTEQ type.b 
     {: return new List().add( new RequiredTypeInstantiation(a,b) ).add( new PTInstTuple( a, a, l ) ); :}
     ;
 

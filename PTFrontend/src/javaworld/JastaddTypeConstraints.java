@@ -177,7 +177,7 @@ public class JastaddTypeConstraints {
         }
 
         for( Access ideclaccess : cdecl.getImplementsList() ) {
-            TypeDecl idecl = ((TypeAccess) ideclaccess).decl();
+            TypeDecl idecl = Util.declarationFromTypeAccess( ideclaccess );
             if( idecl == null ) continue;
 
             tc.addImplementedType( new JastaddTypeDescriptor( idecl ) );

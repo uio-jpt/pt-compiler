@@ -135,6 +135,7 @@ aspect RequiredTypes {
     // the equivalents for JastaddJ are in SyntacticClassification.jrag
     eq RequiredType.getSuperTypeAccess().nameType() = NameType.TYPE_NAME;
     eq RequiredType.getImplements().nameType() = NameType.TYPE_NAME;
+    eq RequiredTypeInstantiation.getConcreteTypeAccess().nameType() = NameType.TYPE_NAME;
 
     public void PTAbstractConstructor.nameCheck() {
         super.nameCheck();
@@ -163,8 +164,7 @@ aspect RequiredTypes {
         Access nextSuper = getSuperTypeAccessOrNull();
         extendedRTs.add( this );
         while( nextSuper != null ) {
-            TypeAccess taccess = (TypeAccess) nextSuper;
-            TypeDecl decl = taccess.decl();
+            TypeDecl decl = Util.declarationFromTypeAccess( nextSuper );
             if( !(decl instanceof RequiredType) ) break;
             if( extendedRTs.contains( decl ) ) {
                 return true;
@@ -202,8 +202,7 @@ aspect RequiredTypes {
     public java.util.List<RequiredType> RequiredType.getImplementedRequiredTypes() {
         java.util.List<RequiredType> rv = new java.util.ArrayList<RequiredType>();
         for( Access a : getImplementsList() ) {
-            TypeAccess ta = (TypeAccess) a;
-            TypeDecl d = ta.decl();
+            TypeDecl d = Util.declarationFromTypeAccess( a );
             if( d != null ) {
                 if( d instanceof RequiredType ) {
                     rv.add( (RequiredType) d );

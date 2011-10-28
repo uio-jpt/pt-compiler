@@ -21,7 +21,7 @@ PTInstDecl ::= <InstantiationName:String> <ID> TypeArgument:Access* PTInstTuple*
 // inst T<...> with A => X;
 //      ID  typevariables   PTInstTuple
 
-RequiredTypeInstantiation ::= <RequiredTypeName> <ConcreteID>;
+RequiredTypeInstantiation ::= <RequiredTypeName> ConcreteTypeAccess:Access;
 
 PTInstTuple ::= <OrgID> <ID> PTDummyRename*;
 
