@@ -101,7 +101,7 @@ aspect RequiredTypes {
         HashMap map = new HashMap( localMethodsSignatureMap() );
 
         if( hasSuperTypeAccess() ) {
-            TypeDecl superType = ((TypeAccess) getSuperTypeAccess()).decl();
+            TypeDecl superType = Util.declarationFromTypeAccess( getSuperTypeAccess() );
             if( superType != null ) {
                   for(Iterator iter = superType.methodsIterator(); iter.hasNext(); ) {
                     MethodDecl m = (MethodDecl)iter.next();
