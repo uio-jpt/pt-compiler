@@ -43,6 +43,8 @@ import AST.PTAbstractConstructor;
 import java.util.List;
 import java.util.Vector;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.HashSet;
 
 public class JastaddTypeConstraints {
     static Access simpleTypeDescriptorToAccess( TypeDescriptor td ) {
@@ -331,7 +333,7 @@ public class JastaddTypeConstraints {
     }
 */
 
-    public static RequiredType convertToRequiredType( String name, TypeConstraint tc ) {
+    public static RequiredType convertToRequiredType( String name, TypeConstraint tc, AST.ASTNode context ) {
         // TODO think about modifiers, these are discarded here
         RequiredType rv;
         AST.List<BodyDecl> bodyDecls = new AST.List<BodyDecl>();
@@ -389,19 +391,42 @@ public class JastaddTypeConstraints {
             rv = new RequiredType( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess, typeParameters );
         }
 
+        Set<String> addedSignatures = new HashSet<String> ();
+
         Iterator<MethodDescriptor> methodsI = tc.getMethodsIterator();
         while( methodsI.hasNext() ) {
             MethodDescriptor methodDesc = methodsI.next();
             BodyDecl bodyDecl = methodDescriptorToBodyDecl( methodDesc );
-            rv.addBodyDecl( bodyDecl );
+            bodyDecl.setParent( context );
+            String signature = ((MethodDecl)bodyDecl).signature() + "::Method";
+
+            if( !addedSignatures.contains( signature ) ) {
+                System.out.println( "did add " + signature + " " + bodyDecl);
+                addedSignatures.add( signature );
+                rv.addBodyDecl( bodyDecl );
+            } else {
+                System.out.println( "ignored " + signature );
+            }
         }
 
         Iterator<ConstructorDescriptor> constructorsI = tc.getConstructorsIterator();
         while( constructorsI.hasNext() ) {
             ConstructorDescriptor consDesc = constructorsI.next();
             BodyDecl bodyDecl = constructorDescriptorToBodyDecl( consDesc );
-            rv.addBodyDecl( bodyDecl );
+            bodyDecl.setParent( context );
+
+            String signature = ((PTAbstractConstructor)bodyDecl).signature() + "::Constructor";
+            if( !addedSignatures.contains( signature ) ) {
+                addedSignatures.add( signature );
+                System.out.println( "did add " + signature + " " + bodyDecl);
+                rv.addBodyDecl( bodyDecl );
+            } else {
+                System.out.println( "ignored " + signature );
+            }
         }
+
+
+        System.out.println( "CRAFTED this required type:" + rv.dumpTree() );
 
         return rv;
     }

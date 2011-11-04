@@ -63,6 +63,23 @@ public class TypeConstraint {
         return constructors.iterator();
     }
 
+    public void applyScheme( ConcretificationScheme scheme ) {
+        Set<MethodDescriptor> oldMd = methods;
+        methods = new HashSet<MethodDescriptor> ();
+        for( MethodDescriptor md : methods ) {
+            md.applyScheme( scheme );
+            addMethod( md );
+        }
+
+        Set<ConstructorDescriptor> oldCons = constructors;
+        constructors = new HashSet<ConstructorDescriptor> ();
+        for( ConstructorDescriptor md : oldCons ) {
+            md.applyScheme( scheme );
+            addConstructor( md );
+        }
+
+    }
+
     public boolean hasConstructor(ConstructorDescriptor desc) {
         for( ConstructorDescriptor md : constructors ) {
             if( md.equals( desc ) ) {
@@ -127,10 +144,12 @@ public class TypeConstraint {
     }
 
     public void addMethod(MethodDescriptor m) {
+        System.out.println( "checking if has method? " + m );
         if( hasMethod( m ) ) {
+            System.out.println( "yes, has method" );
             return;
         }
-        System.out.println( "adding method " + m );
+        System.out.println( "no, no such method, adding method " + m );
         methods.add( m );
     }
 
