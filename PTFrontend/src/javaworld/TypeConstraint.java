@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.ArrayList;
 
 import com.google.common.base.Joiner;
 
@@ -19,6 +20,8 @@ public class TypeConstraint {
     Set<TypeDescriptor> extendedTypes; // should ultimately only be one
     Set<TypeDescriptor> implementedTypes;
 
+    ArrayList<TypeParameterDescriptor> typeParametersRequired;
+
         // note: this class can represent constraints that no actual Java class can match
         //       a TypeConstraint merge e.g. resulting in multiple superclasses will
         //       go through, and then the result can be queried to determine that it is
@@ -26,11 +29,23 @@ public class TypeConstraint {
 
     TypeDescriptor specificType; // this can be null!
 
+    public void assertNoTypeParameters() {
+        // TODO!
+    }
+
+    public void addTypeParameter( TypeParameterDescriptor tpd ) {
+        System.out.println( "adding type parameter " + tpd + " to " + this );
+        typeParametersRequired.add( tpd );
+    }
+
     public void setSpecificType( TypeDescriptor td ) {
         System.out.println( "setting specific type " + td );
         specificType = td;
     }
 
+    public Iterator<TypeParameterDescriptor> getTypeParametersIterator() {
+        return typeParametersRequired.iterator();
+    }
 
     public Iterator<TypeDescriptor> getExtendedTypesIterator() {
         return extendedTypes.iterator();
@@ -107,6 +122,8 @@ public class TypeConstraint {
 
         implementedTypes = new HashSet<TypeDescriptor>();
         extendedTypes = new HashSet<TypeDescriptor>();
+
+        typeParametersRequired = new ArrayList<TypeParameterDescriptor> ();
     }
 
     public void addMethod(MethodDescriptor m) {
@@ -195,12 +212,37 @@ public class TypeConstraint {
         for( TypeDescriptor td : that.implementedTypes ) {
             addImplementedType( td );
         }
+
+        for( TypeParameterDescriptor td : that.typeParametersRequired ) {
+            typeParametersRequired.add( td );
+        }
     }
 
     public TypeConstraint merge( TypeConstraint that ) {
         TypeConstraint rv = clone();
         rv.absorb( that );
         return rv;
+    }
+
+    public boolean satisfiesOnTypeParameters( TypeConstraint constraint, ConcretificationScheme scheme ) {
+        /* // special case not needed
+        if( constraint.typeParametersRequired.isEmpty() && typeParametersRequired.isEmpty() ) {
+            return true;
+        }
+        */
+
+        Iterator<TypeParameterDescriptor> mine = typeParametersRequired.iterator();
+        Iterator<TypeParameterDescriptor> constraining = constraint.typeParametersRequired.iterator();
+        while( mine.hasNext() && constraining.hasNext() ) {
+            System.out.println( "CHECKING TPS" );
+            if( !mine.next().mapByScheme(scheme).equals( constraining.next().mapByScheme(scheme) ) ) {
+                return false;
+            }
+        }
+        if( mine.hasNext() ) return false;
+        if( constraining.hasNext() ) return false;
+
+        return true;
     }
 
     public boolean satisfies( TypeConstraint constraint, ConcretificationScheme scheme ) {
@@ -217,6 +259,10 @@ public class TypeConstraint {
         System.out.println( "requirement: " + constraint );
         System.out.println( "candidate: " + this );
         System.out.println( "candidate specific type: " + specificType );
+
+        if( !satisfiesOnTypeParameters( constraint, scheme ) ) {
+            return false;
+        }
 
         for( MethodDescriptor md : constraint.methods ) {
             // we must supply one method that conforms to md.

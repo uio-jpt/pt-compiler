@@ -1,0 +1,12 @@
+template T {
+    required interface RI<S extends java.util.Iterator> { S getS(); }
+}
+
+package P {
+    interface MyTest<S> {
+        S getS();
+        Integer getInteger();
+    }
+
+    inst T with RI <= MyTest;
+}

@@ -29,6 +29,11 @@ import AST.PTDecl;
 import AST.FieldDeclaration;
 import AST.TypeAccess;
 import AST.ParameterDeclaration;
+import AST.GenericTypeDecl;
+import AST.GenericClassDecl;
+import AST.GenericInterfaceDecl;
+import AST.TypeVariable;
+import AST.RawInterfaceDecl;
 
 import AST.RequiredType;
 import AST.RequiredClass;
@@ -160,6 +165,45 @@ public class JastaddTypeConstraints {
             tc.addImplementedType( new JastaddTypeDescriptor( superi ) );
         }
 
+        System.out.println( "from idecl " + idecl.getClass().getName() );
+        System.out.println( "from idecl(1) " + idecl.getParent().getClass().getName() );
+        System.out.println( "from idecl(2) " + idecl.getParent().getParent().getClass().getName() );
+
+        if( idecl instanceof GenericInterfaceDecl ) {
+            // note the difference between ParClassDecl and GenericClassDecl.
+            // a _generic_ class has the parameters unrealized, e.g. Iterator
+            // a _parametrized_ class has the parameters realized, e.g. Iterator<Integer>
+            // the second matches against a required type with no type parameters
+            // the first matches against a required type with the appropriate number of type parameters
+
+            // note, this may be wrong .. not sure this code is used, what we're actually
+            // seeing in the Jastadd AST is Raw*, not Generic*
+
+            tc.assertNoTypeParameters();
+
+            GenericInterfaceDecl gcd = (GenericInterfaceDecl) idecl;
+            for( TypeVariable typeVar : gcd.getTypeParameterList() ) {
+                tc.addTypeParameter( new JastaddTypeParameterDescriptor( typeVar ).mapByScheme( scheme ) );
+            }
+        } else if( idecl instanceof RawInterfaceDecl ) {
+            tc.assertNoTypeParameters();
+
+            System.out.println( "dumping tree before rewrite: " + idecl.getParent().getParent().dumpTreeNoRewrite() );
+            System.out.println( "dumping tree: " + idecl.getParent().getParent().dumpTree() );
+
+            GenericInterfaceDecl gcd = ((GenericInterfaceDecl) ((RawInterfaceDecl) idecl).genericDecl());
+            for( TypeVariable typeVar : gcd.getTypeParameterList() ) {
+                System.out.println( "yee: " + typeVar );
+                tc.addTypeParameter( new JastaddTypeParameterDescriptor( typeVar ).mapByScheme( scheme ) );
+            }
+/*
+            RawInterfaceDecl gcd = (RawInterfaceDecl) idecl;
+            for( Access acc : gcd.getArgumentList() ) {
+                System.out.println( " confusing access of acc type " + acc.getClass().getName() );
+            }
+*/
+        }
+
         System.out.println( "setting specific type to " + idecl );
 
         tc.setSpecificType( new JastaddTypeDescriptor( idecl ).mapByScheme( scheme ) );
@@ -213,6 +257,21 @@ public class JastaddTypeConstraints {
             if( idecl == null ) continue;
 
             tc.addImplementedType( new JastaddTypeDescriptor( idecl ) );
+        }
+
+        if( cdecl instanceof GenericClassDecl ) {
+            // note the difference between ParClassDecl and GenericClassDecl.
+            // a _generic_ class has the parameters unrealized, e.g. Iterator
+            // a _parametrized_ class has the parameters realized, e.g. Iterator<Integer>
+            // the second matches against a required type with no type parameters
+            // the first matches against a required type with the appropriate number of type parameters
+
+            tc.assertNoTypeParameters();
+
+            GenericClassDecl gcd = (GenericClassDecl) cdecl;
+            for( TypeVariable typeVar : gcd.getTypeParameterList() ) {
+                tc.addTypeParameter( new JastaddTypeParameterDescriptor( typeVar ).mapByScheme( scheme ) );
+            }
         }
 
         tc.setSpecificType( new JastaddTypeDescriptor( cdecl ).mapByScheme( scheme ) );
@@ -274,6 +333,15 @@ public class JastaddTypeConstraints {
 
         AST.Opt<Access> superClassAccess = new AST.Opt<Access>();
         AST.List<Access> superInterfaceAccess = new AST.List<Access>();
+
+        AST.List<TypeVariable> typeParameters = new AST.List<TypeVariable>();
+        // TODO: need special attention for _circular_ generic types.
+        //       interface X<N extends X<N,C>, C extends Y<N,C> >
+        //       interface Y<N extends X<N,C>, C extends Y<N,C> >
+        //      this would loop infinitely creating new MethodDescriptor
+        //      objects!
+        // (on second thought, this wouldn't actually happen HERE, but
+        // when MDs are created)
         
 
         // TODO revise
@@ -297,13 +365,23 @@ public class JastaddTypeConstraints {
             }
         }
 
+        Iterator<TypeParameterDescriptor> typeParametersI = tc.getTypeParametersIterator();
+        while( typeParametersI.hasNext() ) {
+            System.out.println( "ADDING for copying A TYPE PARAMETER" );
+            TypeParameterDescriptor typeParameter = typeParametersI.next();
+            if( typeParameter instanceof JastaddTypeParameterDescriptor ) {
+                TypeVariable myAcc = ((JastaddTypeParameterDescriptor) typeParameter).getTypeVariable();
+                typeParameters = typeParameters.add( (TypeVariable) myAcc.fullCopy() );
+            }
+        }
+
 
         if( tc.mustBeClass() ) {
-            rv = new RequiredClass( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess );
+            rv = new RequiredClass( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess, typeParameters );
         } else if( tc.mustBeInterface() ) {
-            rv = new RequiredInterface( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess );
+            rv = new RequiredInterface( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess, typeParameters );
         } else {
-            rv = new RequiredType( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess );
+            rv = new RequiredType( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess, typeParameters );
         }
 
         Iterator<MethodDescriptor> methodsI = tc.getMethodsIterator();
