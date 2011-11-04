@@ -29,6 +29,11 @@ import AST.PTDecl;
 import AST.FieldDeclaration;
 import AST.TypeAccess;
 import AST.ParameterDeclaration;
+import AST.GenericTypeDecl;
+import AST.GenericClassDecl;
+import AST.GenericInterfaceDecl;
+import AST.TypeVariable;
+import AST.RawInterfaceDecl;
 
 import AST.RequiredType;
 import AST.RequiredClass;
@@ -38,6 +43,8 @@ import AST.PTAbstractConstructor;
 import java.util.List;
 import java.util.Vector;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.HashSet;
 
 public class JastaddTypeConstraints {
     static Access simpleTypeDescriptorToAccess( TypeDescriptor td ) {
@@ -67,35 +74,38 @@ public class JastaddTypeConstraints {
                                );
     }
 
-    static MethodDescriptor describeMethodDecl( MethodDecl mdecl ) {
+    static MethodDescriptor describeMethodDecl( MethodDecl mdecl, ConcretificationScheme scheme ) {
         String name = mdecl.getID();
         JastaddTypeDescriptor ret = new JastaddTypeDescriptor( mdecl.getTypeAccess() );
+
         List<TypeDescriptor> params = new Vector<TypeDescriptor>();
         for( ParameterDeclaration pd : mdecl.getParameters() ) {
             JastaddTypeDescriptor pt = new JastaddTypeDescriptor( pd.getTypeAccess() );
-            params.add( pt );
+
+            params.add( pt.mapByScheme( scheme ) );
         }
-        return new MethodDescriptor( name, ret, params );
+
+        return new MethodDescriptor( name, ret.mapByScheme( scheme ), params );
 
     }
 
-    static ConstructorDescriptor describeConstructorDecl( ConstructorDecl cdecl ) {
+    static ConstructorDescriptor describeConstructorDecl( ConstructorDecl cdecl, ConcretificationScheme scheme ) {
         List<TypeDescriptor> params = new Vector<TypeDescriptor>();
         for( ParameterDeclaration pd : cdecl.getParameters() ) {
             JastaddTypeDescriptor pt = new JastaddTypeDescriptor( pd.getTypeAccess() );
-            params.add( pt );
+            params.add( pt.mapByScheme( scheme ) );
         }
         return new ConstructorDescriptor( params );
 
     }
 
-    public static void fromRequiredTypeBodyDeclInto( BodyDecl bd, TypeConstraint tc ) {
+    public static void fromRequiredTypeBodyDeclInto( BodyDecl bd, TypeConstraint tc, ConcretificationScheme scheme ) {
         // be aware: PTAbstractConstructor convenience-inhertis from MethodDecl, so order here is important
         if( bd instanceof PTAbstractConstructor ) {
-            ConstructorDescriptor cdesc = describeMethodDecl( (MethodDecl) bd ).toConstructorDescriptor();
+            ConstructorDescriptor cdesc = describeMethodDecl( (MethodDecl) bd, scheme ).toConstructorDescriptor();
             tc.addConstructor( cdesc );
         } else if( bd instanceof MethodDecl ) {
-            MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd );
+            MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd, scheme );
             tc.addMethod( mdesc );
         } else {
               // oops
@@ -130,8 +140,10 @@ public class JastaddTypeConstraints {
             Object methodValue = lmsm.get( methodKey );
             System.out.println( "method value is: " + methodValue + " of type " + methodValue.getClass().getName() );
             MethodDecl method = (MethodDecl) methodValue;
-            MethodDescriptor methodDesc = describeMethodDecl( method );
+            MethodDescriptor methodDesc = describeMethodDecl( method, scheme );
+            System.out.println( "direct description of method: " + methodDesc );
             methodDesc.applyScheme( scheme );
+            System.out.println( "applied description of method: " + methodDesc );
             tc.addMethod( methodDesc );
         }
 
@@ -160,6 +172,45 @@ public class JastaddTypeConstraints {
             tc.addImplementedType( new JastaddTypeDescriptor( superi ) );
         }
 
+        System.out.println( "from idecl " + idecl.getClass().getName() );
+        System.out.println( "from idecl(1) " + idecl.getParent().getClass().getName() );
+        System.out.println( "from idecl(2) " + idecl.getParent().getParent().getClass().getName() );
+
+        if( idecl instanceof GenericInterfaceDecl ) {
+            // note the difference between ParClassDecl and GenericClassDecl.
+            // a _generic_ class has the parameters unrealized, e.g. Iterator
+            // a _parametrized_ class has the parameters realized, e.g. Iterator<Integer>
+            // the second matches against a required type with no type parameters
+            // the first matches against a required type with the appropriate number of type parameters
+
+            // note, this may be wrong .. not sure this code is used, what we're actually
+            // seeing in the Jastadd AST is Raw*, not Generic*
+
+            tc.assertNoTypeParameters();
+
+            GenericInterfaceDecl gcd = (GenericInterfaceDecl) idecl;
+            for( TypeVariable typeVar : gcd.getTypeParameterList() ) {
+                tc.addTypeParameter( new JastaddTypeParameterDescriptor( typeVar ).mapByScheme( scheme ) );
+            }
+        } else if( idecl instanceof RawInterfaceDecl ) {
+            tc.assertNoTypeParameters();
+
+            System.out.println( "dumping tree before rewrite: " + idecl.getParent().getParent().dumpTreeNoRewrite() );
+            System.out.println( "dumping tree: " + idecl.getParent().getParent().dumpTree() );
+
+            GenericInterfaceDecl gcd = ((GenericInterfaceDecl) ((RawInterfaceDecl) idecl).genericDecl());
+            for( TypeVariable typeVar : gcd.getTypeParameterList() ) {
+                System.out.println( "yee: " + typeVar );
+                tc.addTypeParameter( new JastaddTypeParameterDescriptor( typeVar ).mapByScheme( scheme ) );
+            }
+/*
+            RawInterfaceDecl gcd = (RawInterfaceDecl) idecl;
+            for( Access acc : gcd.getArgumentList() ) {
+                System.out.println( " confusing access of acc type " + acc.getClass().getName() );
+            }
+*/
+        }
+
         System.out.println( "setting specific type to " + idecl );
 
         tc.setSpecificType( new JastaddTypeDescriptor( idecl ).mapByScheme( scheme ) );
@@ -170,11 +221,11 @@ public class JastaddTypeConstraints {
     static void fromClassDeclInto( ClassDecl cdecl, TypeConstraint tc, ConcretificationScheme scheme ) {
         for( BodyDecl bd : cdecl.getBodyDecls() ) {
             if( bd instanceof MethodDecl ) {
-                MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd );
+                MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd, scheme );
                 mdesc.applyScheme( scheme );
                 tc.addMethod( mdesc );
             } else if( bd instanceof ConstructorDecl ) {
-                ConstructorDescriptor cdesc = describeConstructorDecl( (ConstructorDecl) bd );
+                ConstructorDescriptor cdesc = describeConstructorDecl( (ConstructorDecl) bd, scheme );
                 cdesc.applyScheme( scheme );
                 tc.addConstructor( cdesc );
             } else if( bd instanceof FieldDeclaration ) {
@@ -213,6 +264,21 @@ public class JastaddTypeConstraints {
             if( idecl == null ) continue;
 
             tc.addImplementedType( new JastaddTypeDescriptor( idecl ) );
+        }
+
+        if( cdecl instanceof GenericClassDecl ) {
+            // note the difference between ParClassDecl and GenericClassDecl.
+            // a _generic_ class has the parameters unrealized, e.g. Iterator
+            // a _parametrized_ class has the parameters realized, e.g. Iterator<Integer>
+            // the second matches against a required type with no type parameters
+            // the first matches against a required type with the appropriate number of type parameters
+
+            tc.assertNoTypeParameters();
+
+            GenericClassDecl gcd = (GenericClassDecl) cdecl;
+            for( TypeVariable typeVar : gcd.getTypeParameterList() ) {
+                tc.addTypeParameter( new JastaddTypeParameterDescriptor( typeVar ).mapByScheme( scheme ) );
+            }
         }
 
         tc.setSpecificType( new JastaddTypeDescriptor( cdecl ).mapByScheme( scheme ) );
@@ -267,13 +333,22 @@ public class JastaddTypeConstraints {
     }
 */
 
-    public static RequiredType convertToRequiredType( String name, TypeConstraint tc ) {
+    public static RequiredType convertToRequiredType( String name, TypeConstraint tc, AST.ASTNode context ) {
         // TODO think about modifiers, these are discarded here
         RequiredType rv;
         AST.List<BodyDecl> bodyDecls = new AST.List<BodyDecl>();
 
         AST.Opt<Access> superClassAccess = new AST.Opt<Access>();
         AST.List<Access> superInterfaceAccess = new AST.List<Access>();
+
+        AST.List<TypeVariable> typeParameters = new AST.List<TypeVariable>();
+        // TODO: need special attention for _circular_ generic types.
+        //       interface X<N extends X<N,C>, C extends Y<N,C> >
+        //       interface Y<N extends X<N,C>, C extends Y<N,C> >
+        //      this would loop infinitely creating new MethodDescriptor
+        //      objects!
+        // (on second thought, this wouldn't actually happen HERE, but
+        // when MDs are created)
         
 
         // TODO revise
@@ -297,28 +372,61 @@ public class JastaddTypeConstraints {
             }
         }
 
+        Iterator<TypeParameterDescriptor> typeParametersI = tc.getTypeParametersIterator();
+        while( typeParametersI.hasNext() ) {
+            System.out.println( "ADDING for copying A TYPE PARAMETER" );
+            TypeParameterDescriptor typeParameter = typeParametersI.next();
+            if( typeParameter instanceof JastaddTypeParameterDescriptor ) {
+                TypeVariable myAcc = ((JastaddTypeParameterDescriptor) typeParameter).getTypeVariable();
+                typeParameters = typeParameters.add( (TypeVariable) myAcc.fullCopy() );
+            }
+        }
+
 
         if( tc.mustBeClass() ) {
-            rv = new RequiredClass( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess );
+            rv = new RequiredClass( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess, typeParameters );
         } else if( tc.mustBeInterface() ) {
-            rv = new RequiredInterface( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess );
+            rv = new RequiredInterface( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess, typeParameters );
         } else {
-            rv = new RequiredType( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess );
+            rv = new RequiredType( new Modifiers(), name, bodyDecls, superClassAccess, superInterfaceAccess, typeParameters );
         }
+
+        Set<String> addedSignatures = new HashSet<String> ();
 
         Iterator<MethodDescriptor> methodsI = tc.getMethodsIterator();
         while( methodsI.hasNext() ) {
             MethodDescriptor methodDesc = methodsI.next();
             BodyDecl bodyDecl = methodDescriptorToBodyDecl( methodDesc );
-            rv.addBodyDecl( bodyDecl );
+            bodyDecl.setParent( context );
+            String signature = ((MethodDecl)bodyDecl).signature() + "::Method";
+
+            if( !addedSignatures.contains( signature ) ) {
+                System.out.println( "did add " + signature + " " + bodyDecl);
+                addedSignatures.add( signature );
+                rv.addBodyDecl( bodyDecl );
+            } else {
+                System.out.println( "ignored " + signature );
+            }
         }
 
         Iterator<ConstructorDescriptor> constructorsI = tc.getConstructorsIterator();
         while( constructorsI.hasNext() ) {
             ConstructorDescriptor consDesc = constructorsI.next();
             BodyDecl bodyDecl = constructorDescriptorToBodyDecl( consDesc );
-            rv.addBodyDecl( bodyDecl );
+            bodyDecl.setParent( context );
+
+            String signature = ((PTAbstractConstructor)bodyDecl).signature() + "::Constructor";
+            if( !addedSignatures.contains( signature ) ) {
+                addedSignatures.add( signature );
+                System.out.println( "did add " + signature + " " + bodyDecl);
+                rv.addBodyDecl( bodyDecl );
+            } else {
+                System.out.println( "ignored " + signature );
+            }
         }
+
+
+        System.out.println( "CRAFTED this required type:" + rv.dumpTree() );
 
         return rv;
     }

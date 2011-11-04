@@ -1,8 +1,10 @@
 PTCompilationUnit : CompilationUnit ::= PTDecl*;
 
-abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* InterfaceDecl* PTEnumDecl* RequiredType*;
+abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* InterfaceDecl* PTEnumDecl* RequiredType* PTDeclContext;
 PTTemplate : PTDecl ::= TypeParameter:TypeVariable*;
 PTPackage : PTDecl;
+
+PTDeclContext;
 
 abstract SimpleClass ::= ClassDecl;
 PTClassDecl : SimpleClass;
@@ -61,7 +63,7 @@ PackageConstructor : MethodDecl ::= <TClassID> <TemplateID>;
  */ 
 TabstractMethodDecl : MethodDecl;
 
-RequiredType : ReferenceType ::= [SuperTypeAccess:Access] Implements:Access*;
+RequiredType : ReferenceType ::= [SuperTypeAccess:Access] Implements:Access* TypeParameter:TypeVariable*;
 RequiredClass : RequiredType;
 RequiredInterface : RequiredType;
 

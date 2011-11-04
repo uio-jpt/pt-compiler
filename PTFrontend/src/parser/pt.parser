@@ -58,8 +58,8 @@ PTDecl pt_template =
                                       cc.getInterfaces(),
                                       cc.getEnums(),
                                       cc.getRequiredTypes(),
-                                      (ps == null) ? new AST.List<TypeVariable>() : ps
-                                      );
+                                      new PTDeclContext(),
+                                      (ps == null) ? new AST.List<TypeVariable>() : ps );
           :}
           ;
 
@@ -67,7 +67,7 @@ PTDecl pt_package =
  PACKAGE IDENTIFIER LBRACE inst_class_or_interface_single.l* RBRACE
           {:
                 javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
-                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums(), cc.getRequiredTypes());
+                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums(), cc.getRequiredTypes(), new PTDeclContext());
           :}
           ;
 
@@ -340,23 +340,23 @@ RequiredType ptr_required_spec =
     ;
 
 RequiredType ptr_r_type =
-    TYPE IDENTIFIER super.s? interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
+    TYPE IDENTIFIER super.s? interfaces.i? type_parameters.p? LBRACE ptr_r_internal_decl.m* RBRACE
         {:
-            return new RequiredType( new Modifiers(), IDENTIFIER, m, s, i );
+            return new RequiredType( new Modifiers(), IDENTIFIER, m, s, i, p );
         :}
     ;
 
 RequiredInterface ptr_r_interface =
-    INTERFACE IDENTIFIER extends_interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
+    INTERFACE IDENTIFIER extends_interfaces.i? type_parameters.p? LBRACE ptr_r_internal_decl.m* RBRACE
         {:
-            return new RequiredInterface( new Modifiers(), IDENTIFIER, m, new Opt(), i );
+            return new RequiredInterface( new Modifiers(), IDENTIFIER, m, new Opt(), i, p );
         :}
     ;
 
 RequiredClass ptr_r_class =
-    CLASS IDENTIFIER super.s? interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
+    CLASS IDENTIFIER super.s? interfaces.i? type_parameters.p? LBRACE ptr_r_internal_decl.m* RBRACE
         {:
-            return new RequiredClass( new Modifiers(), IDENTIFIER, m, s, i );
+            return new RequiredClass( new Modifiers(), IDENTIFIER, m, s, i, p );
         :}
     ;
 

@@ -4,4 +4,7 @@ aspect PrettyPrint {
 
     eq PTPackage.getDeclType() = "package";
     eq PTTemplate.getDeclType() = "template";    
+
+    public void PTDeclContext.toString(StringBuffer sb) {}
+    public String PTDeclContext.toString() { return ""; }
 }

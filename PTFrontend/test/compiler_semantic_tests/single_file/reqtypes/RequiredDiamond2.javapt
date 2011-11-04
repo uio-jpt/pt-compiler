@@ -1,0 +1,31 @@
+template T {
+    required class X {
+        X(int foo);
+
+        int compareTo(X anotherX);
+    }
+}
+
+template S {
+    inst T;
+}
+
+template U {
+    inst T;
+}
+
+template V {
+    inst S;
+    inst U;
+}
+
+package W {
+    inst V with X <= Integer;
+
+    class Main {
+        public static void main(String[] args) {
+            X object = new X(42);
+            System.out.println( object );
+        }
+    }
+}

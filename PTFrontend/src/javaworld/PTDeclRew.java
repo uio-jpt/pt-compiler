@@ -181,28 +181,6 @@ public class PTDeclRew {
             String replacement = "";
 
             if( !stopError ) {
-/*
-                replacement = concretifications.get( key ).iterator().next();
-                PTInstDecl instDeclFirst = (PTInstDecl) ptDeclToBeRewritten.getPTInstDecls().iterator().next(); // hack
-                SimpleSet rightMatches = ptDeclToBeRewritten.lookupTypeInPTDecl( replacement );
-                if( rightMatches.size() == 0 ) {
-                    rightMatches = ptDeclToBeRewritten.lookupType( replacement );
-                }
-                if( rightMatches.size() < 1 ) {
-                    ptDeclToBeRewritten.error( "concretifying " + key + " with unknown type " +  replacement );
-                    stopError = true;
-                } else if( rightMatches.size() > 2 ) {
-                    stopError = true;
-                } else {
-                    try {
-                        replacementType = (TypeDecl) rightMatches.iterator().next();
-                    }
-                    catch( ClassCastException e ) {
-                        stopError = true;
-                    }
-                }
-*/
-                
                 Access replacementAccess = concretifications.get( key ).iterator().next();
                 System.out.println( "replacementAccess is: " + replacementAccess );
                 replacementType = Util.declarationFromTypeAccess( replacementAccess );
@@ -220,7 +198,9 @@ public class PTDeclRew {
             return;
         }
 
-        ConcretificationScheme scheme = new ConcretificationScheme( concretificationPlan );
+        System.out.println( "Creating ConcScheme with " + (ptDeclToBeRewritten.getPTDeclContext() != null));
+
+        ConcretificationScheme scheme = new ConcretificationScheme( concretificationPlan, ptDeclToBeRewritten.getPTDeclContext() );
 
         for( RequiredType tdecl : concretificationPlan.keySet() ) {
             boolean stopError = false;
@@ -397,7 +377,7 @@ public class PTDeclRew {
 
             System.out.println( "creating new required type in: " + ptDeclToBeRewritten );
 
-            RequiredType myRequiredType = JastaddTypeConstraints.convertToRequiredType( key, tc );
+            RequiredType myRequiredType = JastaddTypeConstraints.convertToRequiredType( key, tc, ptDeclToBeRewritten.getPTDeclContext() );
 
             ptDeclToBeRewritten.addRequiredType( myRequiredType );
         }
@@ -443,22 +423,41 @@ public class PTDeclRew {
                 target = ptDeclToBeRewritten.lookupAddsInterface( name );
             }
 
-            TypeConstraint otc = JastaddTypeConstraints.fromInterfaceDecl( target, new ConcretificationScheme() );
+            TypeConstraint otc = JastaddTypeConstraints.fromInterfaceDecl( target, new ConcretificationScheme( ptDeclToBeRewritten.getPTDeclContext() ) );
             TypeConstraint tc = new TypeConstraint();
             boolean hadAddsInterface = !missingAddsInterfaceNames.contains( name );
             boolean printDebugStuff = false;
 
             for(PTInstTuple ituple : ituples) {
                 InterfaceDecl idecl = new InstTupleRew( ituple ).getRenamedSourceInterface();
-                tc.absorb( JastaddTypeConstraints.fromInterfaceDecl( idecl, new ConcretificationScheme() ) );
+                tc.absorb( JastaddTypeConstraints.fromInterfaceDecl( idecl, new ConcretificationScheme( ptDeclToBeRewritten.getPTDeclContext() ) ) );
             }
+
+            System.out.println( "ILL now proceed assembling interface" );
+
+            /*
+            Set<String> addedSignatures = new HashSet<String> ();
+
+            for( Object mdsig : target.localMethodsSignatureMap().keySet() ) {
+                addedSignatures.add( (String) mdsig );
+            }
+            */
 
             for(Iterator<MethodDescriptor> it = tc.getMethodsIterator(); it.hasNext(); ) {
                 MethodDescriptor method = it.next();
 
                 if( otc.hasMethod( method ) ) continue;
 
-                target.addMemberMethod( JastaddTypeConstraints.simpleToMethodDecl( method ) );
+                MethodDecl methDecl = JastaddTypeConstraints.simpleToMethodDecl( method );
+//                String methSig = methDecl.signature();
+//                if( !addedSignatures.contains( methSig ) ) {
+//                    addedSignatures.add( methSig );
+//                    System.out.println( "Adding new method: " + methDecl );
+
+                    target.addMemberMethod( JastaddTypeConstraints.simpleToMethodDecl( method ) );
+//                } else {
+//                    System.out.println( "Ignoring duplicate method: " + methDecl );
+//                }
             }
 
             if( printDebugStuff ) {

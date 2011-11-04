@@ -75,20 +75,19 @@ public class Util {
     public static AST.TypeDecl declarationFromTypeAccess( AST.Access a ) {
         // TODO lots of code assuming instanceof TypeAccess should instead call this
         if( a instanceof AST.TypeAccess ) {
+            if( ( ((AST.TypeAccess)a).decl() ).isUnknown() ) {
+                new Throwable().printStackTrace();
+            }
             return ((AST.TypeAccess)a).decl();
         } else if( a instanceof AST.ParTypeAccess ) {
             AST.ParTypeAccess pta = (AST.ParTypeAccess) a;
             AST.TypeDecl generic = pta.genericDecl();
-            System.out.println( "pta is: " + pta );
-            System.out.println( "type is: " + pta.type() );
-            System.out.println( "genericDecl is: " + pta.genericDecl() );
+
             if( generic instanceof AST.GenericTypeDecl ) {
                 AST.GenericTypeDecl genericDecl = (AST.GenericTypeDecl) generic;
                 AST.TypeDecl lookedUpType = genericDecl.lookupParTypeDecl( pta );
                 AST.ParTypeDecl ptd = (AST.ParTypeDecl) lookedUpType;
-                System.out.println( "looked up type: " + lookedUpType );
-                System.out.println( "that was of class : " + lookedUpType.getClass().getName() );
-                System.out.println( "access of class : " + ptd.createQualifiedAccess().dumpTree() );
+
                 return lookedUpType;
             }
             return generic;

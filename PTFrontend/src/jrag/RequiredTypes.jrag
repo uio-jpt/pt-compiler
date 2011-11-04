@@ -15,17 +15,28 @@ aspect RequiredTypes {
   }
 
   public ASTNode TypeAccess.visitReplaceTypeAccesses(Map<TypeDecl,Access> ht) {
+    // it's fine to call decl() when there's no decl.
+    // note however that it does NOT return null, but "unknown"
+    Access rv = ht.get( decl() );
+    return rv;
+/*
     SimpleSet myDecls = decls();
     if( myDecls.size() == 1 ) {
         TypeDecl myDecl = decl();
         Access rv = ht.get( myDecl );
         return rv;
     } else {
+        TypeDecl foo = decl();
         System.out.println( "warning access has " + myDecls.size() + " decls" );
+        System.out.println( "decl is " + foo );
         System.out.println( "access is: " + dumpTree() );
+        System.out.println( "access is context: " + getParent().getParent().dumpTree() );
+        System.out.println( "access is more context: " + getParent().getParent().getParent().getParent().dumpTree() );
+        System.out.println( "access is ridiculous context: " + getParentClass( PTDecl.class ).dumpTree() );
         System.out.println( "access is string: " + this );
         return null;
     }
+*/
   }
 
   public boolean RequiredType.isObject() {
@@ -54,9 +65,13 @@ aspect RequiredTypes {
           rv.addImplementedType( new JastaddTypeDescriptor( td ) );
       }
 
+        for( TypeVariable a : getTypeParameterList() ) {
+            rv.addTypeParameter( new JastaddTypeParameterDescriptor( a ) );
+        }
+
 
       for( BodyDecl bd : getBodyDecls() ) {
-          JastaddTypeConstraints.fromRequiredTypeBodyDeclInto( bd, rv );
+          JastaddTypeConstraints.fromRequiredTypeBodyDeclInto( bd, rv, new  ConcretificationScheme( bd ) );
       }
 
       System.out.println( "constructed " + rv );
@@ -232,10 +247,6 @@ aspect RequiredTypes {
         }
     }
 
-    eq RequiredType.getSuperTypeAccess().lookupType(String name) {
-        return lookupType( name );
-    }
-
     public String RequiredType.toString() {
         return "[required type " + getID() + "]";
     }
@@ -292,6 +303,81 @@ aspect RequiredTypes {
         }
       }
     }
+  }
+  
+
+  eq RequiredType.getTypeParameter().isNestedType() = true;
+  eq RequiredType.getTypeParameter().enclosingType() = this;
+
+  public SimpleSet RequiredType.addTypeVariables(SimpleSet c, String name) {
+    for(int i=0;i< getNumTypeParameter(); i++) {
+        TypeVariable p = getTypeParameter(i);
+        if( p.name().equals( name ) ) {
+            c = c.add(p);
+        }
+    }
+    return c;
+  }
+
+  eq RequiredType.getSuperTypeAccess().lookupType(String name) {
+    SimpleSet c = addTypeVariables(SimpleSet.emptySet, name);
+    return !c.isEmpty() ? c : lookupType(name);
+  }
+
+  eq RequiredType.getImplements().lookupType(String name) {
+    SimpleSet c = addTypeVariables(SimpleSet.emptySet, name);
+    return !c.isEmpty() ? c : lookupType(name);
+  }
+
+  eq RequiredType.getTypeParameter().lookupType(String name) {
+    SimpleSet c = memberTypes(name);
+    c = addTypeVariables(c, name);
+    if(!c.isEmpty()) return c;
+    // 8.5.2
+    if(isClassDecl() && isStatic() && !isTopLevelType()) {
+      for(Iterator iter = lookupType(name).iterator(); iter.hasNext(); ) {
+        TypeDecl d = (TypeDecl)iter.next();
+        if(d.isStatic() || (d.enclosingType() != null && instanceOf(d.enclosingType()))) {
+          c = c.add(d);
+        }
+      }
+    }
+    else
+      c = lookupType(name);
+    if(!c.isEmpty())
+      return c;
+    return topLevelType().lookupType(name); // Fix to search imports
+  }
+
+  eq RequiredType.getBodyDecl(int index).lookupType(String name) {
+    // NOTE: it's NOT safe to call getBodyDecl(index) here, 
+    // presumably because we're mutating the RequiredType so heavily.
+    
+    SimpleSet c = memberTypes(name);
+
+    //    if(getBodyDecl(index).visibleTypeParameters())
+    boolean staticContext = false;
+    if( !staticContext ) {
+      c = addTypeVariables(c, name);
+    }
+
+    if(!c.isEmpty())
+      return c;
+    // 8.5.2
+    if(isClassDecl() && isStatic() && !isTopLevelType()) {
+      for(Iterator iter = lookupType(name).iterator(); iter.hasNext(); ) {
+        TypeDecl d = (TypeDecl)iter.next();
+        if(d.isStatic() || (d.enclosingType() != null && instanceOf(d.enclosingType()))) {
+          c = c.add(d);
+        }
+      }
+    }
+    else
+      c = lookupType(name);
+    if(!c.isEmpty())
+      return c;
+    return topLevelType().lookupType(name); // Fix to search imports
+    // include type parameters if not static
   }
 
 
