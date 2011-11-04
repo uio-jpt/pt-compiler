@@ -64,7 +64,6 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
 
     public JastaddTypeDescriptor( TypeDecl decl ) {
 //        if( decl instanceof ParTypeDecl ) {
-        System.out.println( "my declaration is: " + decl );
         Access myConstructedAccess = (Access) decl.createQualifiedAccess().fullCopy();
         AST.List myParent = new AST.List().add( myConstructedAccess );;
         myParent.setParent( decl );
@@ -87,9 +86,6 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
             TypeAccess rv = new TypeAccess( typeDeclaration.fullName() );
             Access alt1 = typeDeclaration.createBoundAccess();
             Access alt2 = typeDeclaration.createQualifiedAccess();
-            System.out.println( "[info] rv = " + rv.dumpTree() );
-            System.out.println( "[info] alt1 = " + alt1.dumpTree() );
-            System.out.println( "[info] alt2 = " + alt2.dumpTree() );
             return alt2;
         }
         if( isWildcard ) {
