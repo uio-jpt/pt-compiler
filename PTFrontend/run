@@ -3,10 +3,41 @@
 # Latsabb-script for å kjøre jar-fila.
 # Setter automatisk output-folder til ./output/ ved å sende "-o output/" til JPT.jar.
 # Dette kan igjen overstyres med "./run -o <annen-output-folder>".
-# Pga. getops må resten av argumentene (atm bare -v) settes etter navnet på inputfila.
+#
+# Opsjoner:
+#   -o <path>   Kompiler til path.
+#   -v          Kjør kompilatoren i verbouse modus
+#   -x          Slett outputmappa først. Bruk med varsomhet!
+#   -c          Kompiler outputten som Java
+#   -r          Kjør outputten etter at den har blitt kompilert
 
 
 outfolder="output/"
+ptmode=
+cleanfirst=
+
+
+# Behandle options:
+args=`getopt :o:vcrx $*`
+if test $? != 0
+	then
+		echo "Usage: $0 [-o <path> ] [-v] [-x] [-c|r]"
+		exit 1
+fi
+
+set -- $args
+for i
+do
+	case "$i" in
+		-v) shift; ptmode="$ptmode -v" ;;
+		-o) shift; outfolder=$1 ; shift ;;
+        -c) shift; thencompile=yesplease ;;
+        -x) shift; cleanfirst=ifyousayso ;;
+        -r) shift; echo "opt -r is not yet implemented." ;;
+	esac
+done
+
+shift
 
 
 # Kompilerer hvis ikke jar-fila finnes
@@ -15,17 +46,25 @@ then
 	ant
 fi
 
-# Behandle options:
-# (atm bare ett)
-while getopts "o:" OPTIONS
-do
-	case ${OPTIONS} in
-		o)
-			outfolder=$OPTARG
-			shift $((OPTIND-1)) ;;
-	esac
-done
 
-# ...
-java -jar build/jar/JPT.jar -o $outfolder $@
+# Clean
+if [[ -n "$cleanfirst" ]] && [[ -e "$outfolder" ]]
+then
+    if [[ ! -d "$outfolder" ]]
+    then
+        echo "Don't wanna remove \"$outfolder\": not a directory!"
+        exit 1
+    fi
+
+    echo "Removing $outfolder"
+    rm -rf $outfolder
+fi
+
+# Kjør kompilator og evt kompiler output
+java -jar build/jar/JPT.jar -o $outfolder $ptmode $@ && \
+
+if [[ -n "$thencompile" ]]
+then
+    (cd $outfolder && ant)
+fi
 
