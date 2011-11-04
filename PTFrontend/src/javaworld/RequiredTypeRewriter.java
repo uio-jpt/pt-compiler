@@ -9,15 +9,16 @@ import java.util.Map;
 
 import AST.TypeDecl;
 import AST.TypeAccess;
+import AST.Access;
 import AST.ASTNode;
 
 class RequiredTypeRewriter extends NodeMutator {
-    Map< TypeDecl, TypeAccess > mappings = new HashMap<TypeDecl, TypeAccess>();
+    Map< TypeDecl, Access > mappings = new HashMap<TypeDecl, Access>();
     /* TypeDecl do not have hashCode or equality beyond that of Object,
        so different type variables of the same name in different templates
        should not collide (by object identity they are distinct). */
 
-    public void addRewrite( TypeDecl tv, TypeAccess ta ) {
+    public void addRewrite( TypeDecl tv, Access ta ) {
         mappings.put( tv, ta );
     }
 

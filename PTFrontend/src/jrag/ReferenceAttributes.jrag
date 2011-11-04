@@ -5,6 +5,7 @@ aspect ReferenceAttributes {
         PTTemplate ans = getTemplate(getID());
         if (ans != null)
             return ans;
+        System.out.println( "getting template " + getID() + " FAILED" );
         error(String.format("Instantiation of non-existing template %s.",getID()));
 
          // ugly, why?
@@ -53,15 +54,19 @@ aspect ReferenceAttributes {
 
     eq PTCompilationUnit.getPTDecl(int i).getTemplate(String name) {
         PTTemplate res = lookupTemplateLocal(name);
+        System.out.println( "lookedup template " + name + " local: " + res );
         if (res==null) return lookupTemplateGlobal(name);
         else return res;
     }
 
     eq Program.getCompilationUnit(int i).lookupTemplateGlobal(String name) {
         for (CompilationUnit cu : getCompilationUnits()) {
-            if (cu.lookupTemplateLocal(name)!=null)
+            if (cu.lookupTemplateLocal(name)!=null) {
+                System.out.println( "YES found it" );
                 return cu.lookupTemplateLocal(name);
+            }
         }
+        System.out.println( "FAILED lookingup template " + name + " global" );
         return null;
     }
 
@@ -89,12 +94,12 @@ aspect ReferenceAttributes {
     }
 
     syn boolean PTInstDecl.templateIsRewritten() {
-        try {
-            return getTemplate().isRewritten;
-        } catch (NullPointerException e) {
+        PTTemplate template = getTemplate();
+        if( template == null ) {
             error("Nonexisting template " + getID() + "\n");
             return true;
         }
+        return template.isRewritten;
     }
     
     syn boolean PTDecl.dependenciesAreRewritten() {

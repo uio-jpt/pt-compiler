@@ -103,7 +103,17 @@ public class JastaddTypeConstraints {
         }
     }
 
-    static void fromInterfaceDeclInto( InterfaceDecl idecl, TypeConstraint tc ) {
+    static void fromInterfaceDeclInto( InterfaceDecl idecl, TypeConstraint tc, ConcretificationScheme scheme ) {
+        System.out.println( "converting interface " + idecl + " of type " + idecl.getClass().getName());
+        System.out.println( "into " + tc );
+
+        System.out.println( "methods map: " + idecl.localMethodsSignatureMap() );
+        System.out.println( "methods map: " + idecl.methodsSignatureMap() );
+
+
+        /* This works for normally declared ones, but for ParClass/ParInterface
+           the methods are not caused by BodyDecls. */
+        /*
         for( BodyDecl bd : idecl.getBodyDecls() ) {
             if( bd instanceof MethodDecl ) {
                 MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd );
@@ -112,21 +122,37 @@ public class JastaddTypeConstraints {
                 // warn?
             }
         }
+        */
+
+        java.util.HashMap lmsm = idecl.localMethodsSignatureMap();
+        for( Object methodKey : lmsm.keySet() ) {
+            System.out.println( "method key is: " + methodKey + " of type " + methodKey.getClass().getName() );
+            Object methodValue = lmsm.get( methodKey );
+            System.out.println( "method value is: " + methodValue + " of type " + methodValue.getClass().getName() );
+            MethodDecl method = (MethodDecl) methodValue;
+            MethodDescriptor methodDesc = describeMethodDecl( method );
+            methodDesc.applyScheme( scheme );
+            tc.addMethod( methodDesc );
+        }
+
+
 
         for( Object superio : idecl.implementedInterfaces() ) {
             InterfaceDecl superi = (InterfaceDecl) superio;
             // these are really _extended_, not implemented
-            fromInterfaceDeclInto( superi, tc );
+            fromInterfaceDeclInto( superi, tc, scheme );
         }
+
+        System.out.println( "result was " + tc );
     }
 
-    static TypeConstraint fromInterfaceDecl( InterfaceDecl idecl ) {
+    static TypeConstraint fromInterfaceDecl( InterfaceDecl idecl, ConcretificationScheme scheme ) {
         TypeConstraint tc = new TypeConstraint();
 
         // since conceptually classes can satisfy interfaces
         // I'm not sure I should .require anything here
 
-        fromInterfaceDeclInto( idecl, tc );
+        fromInterfaceDeclInto( idecl, tc, scheme );
 
         for( Object superio : idecl.implementedInterfaces() ) {
             InterfaceDecl superi = (InterfaceDecl) superio;
@@ -134,16 +160,22 @@ public class JastaddTypeConstraints {
             tc.addImplementedType( new JastaddTypeDescriptor( superi ) );
         }
 
+        System.out.println( "setting specific type to " + idecl );
+
+        tc.setSpecificType( new JastaddTypeDescriptor( idecl ).mapByScheme( scheme ) );
+
         return tc;
     }
 
-    static void fromClassDeclInto( ClassDecl cdecl, TypeConstraint tc ) {
+    static void fromClassDeclInto( ClassDecl cdecl, TypeConstraint tc, ConcretificationScheme scheme ) {
         for( BodyDecl bd : cdecl.getBodyDecls() ) {
             if( bd instanceof MethodDecl ) {
                 MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd );
+                mdesc.applyScheme( scheme );
                 tc.addMethod( mdesc );
             } else if( bd instanceof ConstructorDecl ) {
                 ConstructorDescriptor cdesc = describeConstructorDecl( (ConstructorDecl) bd );
+                cdesc.applyScheme( scheme );
                 tc.addConstructor( cdesc );
             } else if( bd instanceof FieldDeclaration ) {
                 /* We do not support field declarations in required types at the moment (should we? not sure)
@@ -161,15 +193,15 @@ public class JastaddTypeConstraints {
 
         ClassDecl sc = cdecl.superclass();
         if( sc != null ) {
-            fromClassDeclInto( sc, tc );
+            fromClassDeclInto( sc, tc, scheme );
         }
     }
 
-    static TypeConstraint fromClassDecl( ClassDecl cdecl ) {
+    static TypeConstraint fromClassDecl( ClassDecl cdecl, ConcretificationScheme scheme ) {
         TypeConstraint tc = new TypeConstraint();
         tc.requireClass();
 
-        fromClassDeclInto( cdecl, tc );
+        fromClassDeclInto( cdecl, tc, scheme );
 
         ClassDecl sc = cdecl.superclass();
         if( sc != null ) {
@@ -183,15 +215,17 @@ public class JastaddTypeConstraints {
             tc.addImplementedType( new JastaddTypeDescriptor( idecl ) );
         }
 
+        tc.setSpecificType( new JastaddTypeDescriptor( cdecl ).mapByScheme( scheme ) );
+
         return tc;
     }
 
-    static TypeConstraint fromReferenceTypeDecl( TypeDecl tdecl ) {
+    static TypeConstraint fromReferenceTypeDecl( TypeDecl tdecl, ConcretificationScheme scheme ) {
         if( tdecl instanceof ClassDecl ) {
-            return fromClassDecl( (ClassDecl) tdecl );
+            return fromClassDecl( (ClassDecl) tdecl, scheme );
         }
         if( tdecl instanceof InterfaceDecl ) {
-            return fromInterfaceDecl( (InterfaceDecl) tdecl );
+            return fromInterfaceDecl( (InterfaceDecl) tdecl, scheme );
         }
         return null;
     }

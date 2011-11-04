@@ -77,7 +77,21 @@ public class Util {
         if( a instanceof AST.TypeAccess ) {
             return ((AST.TypeAccess)a).decl();
         } else if( a instanceof AST.ParTypeAccess ) {
-            return ((AST.ParTypeAccess)a).type();
+            AST.ParTypeAccess pta = (AST.ParTypeAccess) a;
+            AST.TypeDecl generic = pta.genericDecl();
+            System.out.println( "pta is: " + pta );
+            System.out.println( "type is: " + pta.type() );
+            System.out.println( "genericDecl is: " + pta.genericDecl() );
+            if( generic instanceof AST.GenericTypeDecl ) {
+                AST.GenericTypeDecl genericDecl = (AST.GenericTypeDecl) generic;
+                AST.TypeDecl lookedUpType = genericDecl.lookupParTypeDecl( pta );
+                AST.ParTypeDecl ptd = (AST.ParTypeDecl) lookedUpType;
+                System.out.println( "looked up type: " + lookedUpType );
+                System.out.println( "that was of class : " + lookedUpType.getClass().getName() );
+                System.out.println( "access of class : " + ptd.createQualifiedAccess().dumpTree() );
+                return lookedUpType;
+            }
+            return generic;
         } else {
             return null; // oops
         }

@@ -145,6 +145,8 @@ public class PTDeclRew {
             for( RequiredTypeInstantiation rti : instDecl.getRequiredTypeInstantiationList() ) {
                 concretifications.put( rti.getRequiredTypeName(), (Access) rti.getConcreteTypeAccess() );
 
+                System.out.println( "concretifying " + rti.getRequiredTypeName() + " to " + rti.getConcreteTypeAccess() );
+
             }
         }
 
@@ -200,7 +202,9 @@ public class PTDeclRew {
 */
                 
                 Access replacementAccess = concretifications.get( key ).iterator().next();
+                System.out.println( "replacementAccess is: " + replacementAccess );
                 replacementType = Util.declarationFromTypeAccess( replacementAccess );
+                System.out.println( "replacementType is: " + replacementType );
 
                 concretificationPlan.put( (RequiredType) tdecl, replacementType );
 
@@ -271,7 +275,7 @@ public class PTDeclRew {
             // check conformance
             if( !stopError ) {
                 RequiredType reqType = (RequiredType) tdecl;
-                TypeConstraint cand = JastaddTypeConstraints.fromReferenceTypeDecl( replacementType );
+                TypeConstraint cand = JastaddTypeConstraints.fromReferenceTypeDecl( replacementType, scheme );
                 TypeConstraint constraint = reqType.getTypeConstraint();
                 if( cand == null ) {
                     if( replacementType == null ) {
@@ -286,13 +290,21 @@ public class PTDeclRew {
 
                     stopError = true;
                 } else {
+                    /*
                     String replacementName = replacementType.getID();
                     // TODO this should be a fully qualified access to avoid problems
                     // however, that's not just TypeAccess("java.lang.foo")..
 
                     TypeAccess typeAccess = new TypeAccess( replacementName );
 
-                    rewriter.addRewrite( reqType, typeAccess );
+                    */
+
+//                    Access access = replacementType.createQualifiedAccess();
+                    Access originalAccess = concretifications.get( tdecl.getID() ).iterator().next();
+//                    System.out.println( "created access " + access.dumpTree() + " of type " + access.getClass().getName() + " from "  + replacementType.getClass().getName() );
+//                    System.out.println( "original access was " + originalAccess.dumpTree() + " of type " + access.getClass().getName() + " from "  + replacementType.getClass().getName() );
+
+                    rewriter.addRewrite( reqType, originalAccess );
                     toBeDeleted.add( reqType );
                 }
             }
@@ -425,14 +437,14 @@ public class PTDeclRew {
                 target = ptDeclToBeRewritten.lookupAddsInterface( name );
             }
 
-            TypeConstraint otc = JastaddTypeConstraints.fromInterfaceDecl( target );
+            TypeConstraint otc = JastaddTypeConstraints.fromInterfaceDecl( target, new ConcretificationScheme() );
             TypeConstraint tc = new TypeConstraint();
             boolean hadAddsInterface = !missingAddsInterfaceNames.contains( name );
             boolean printDebugStuff = false;
 
             for(PTInstTuple ituple : ituples) {
                 InterfaceDecl idecl = new InstTupleRew( ituple ).getRenamedSourceInterface();
-                tc.absorb( JastaddTypeConstraints.fromInterfaceDecl( idecl ) );
+                tc.absorb( JastaddTypeConstraints.fromInterfaceDecl( idecl, new ConcretificationScheme() ) );
             }
 
             for(Iterator<MethodDescriptor> it = tc.getMethodsIterator(); it.hasNext(); ) {

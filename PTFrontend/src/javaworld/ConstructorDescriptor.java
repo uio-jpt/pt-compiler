@@ -48,4 +48,12 @@ public class ConstructorDescriptor {
         sb.append( ")" );
         return sb.toString();
     }
+
+    void applyScheme( ConcretificationScheme scheme ) {
+        List<TypeDescriptor> newParamTypes = new Vector<TypeDescriptor>();
+        for( TypeDescriptor td : parameterTypes ) {
+            newParamTypes.add( td.mapByScheme( scheme ) );
+        }
+        parameterTypes = newParamTypes;
+    }
 }

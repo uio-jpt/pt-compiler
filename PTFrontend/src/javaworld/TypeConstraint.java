@@ -24,6 +24,13 @@ public class TypeConstraint {
         //       go through, and then the result can be queried to determine that it is
         //       an impossible constraint and that the merge was thus illegal
 
+    TypeDescriptor specificType; // this can be null!
+
+    public void setSpecificType( TypeDescriptor td ) {
+        System.out.println( "setting specific type " + td );
+        specificType = td;
+    }
+
 
     public Iterator<TypeDescriptor> getExtendedTypesIterator() {
         return extendedTypes.iterator();
@@ -197,11 +204,19 @@ public class TypeConstraint {
     }
 
     public boolean satisfies( TypeConstraint constraint, ConcretificationScheme scheme ) {
+        System.out.println( "trying for satisfaction of: " + constraint );
+
         if( !( (canBeClass && constraint.canBeClass)
                ||
                (canBeInterface && constraint.canBeInterface) ) ) {
+            System.out.println( "ruled out on type" );
             return false;
         }
+
+        System.out.println( "checking satisfies?" );
+        System.out.println( "requirement: " + constraint );
+        System.out.println( "candidate: " + this );
+        System.out.println( "candidate specific type: " + specificType );
 
         for( MethodDescriptor md : constraint.methods ) {
             // we must supply one method that conforms to md.
@@ -211,7 +226,10 @@ public class TypeConstraint {
                     ok = true;
                 }
             }
-            if( !ok ) return false;
+            if( !ok ) {
+                System.out.println( "ruled out on " + md );
+                return false;
+            }
         }
 
         for( ConstructorDescriptor cd : constraint.constructors ) {
@@ -221,15 +239,21 @@ public class TypeConstraint {
                     ok = true;
                 }
             }
-            if( !ok ) return false;
+            if( !ok ) {
+                System.out.println( "ruled out on " + cd );
+                return false;
+            }
         }
-
-        System.out.println( "checking satisfies?" );
-        System.out.println( "requirement: " + constraint );
-        System.out.println( "candidate: " + this );
 
         for( TypeDescriptor mustExtend : constraint.extendedTypes ) {
             boolean okay = false;
+            if( specificType != null ) {
+                System.out.println( "testing " + specificType + " vs " + mustExtend.mapByScheme( scheme ) );
+                if( specificType.isSubtypeOf( mustExtend.mapByScheme( scheme ) ) ) {
+                    okay = true;
+                }
+            }
+
             for( TypeDescriptor doesExtend : extendedTypes ) {
                 if( doesExtend.isSubtypeOf( mustExtend.mapByScheme( scheme ) ) ) {
                     okay = true;
@@ -240,6 +264,15 @@ public class TypeConstraint {
 
         for( TypeDescriptor mustImplement : constraint.implementedTypes ) {
             boolean okay = false;
+
+            if( specificType != null ) {
+                System.out.println( "testing " + specificType + " vs " + mustImplement.mapByScheme( scheme ) );
+
+                if( specificType.isSubtypeOf( mustImplement.mapByScheme( scheme ) ) ) {
+                    okay = true;
+                }
+            }
+
             for( TypeDescriptor doesImplement : implementedTypes ) {
                 if( doesImplement.isSubtypeOf( mustImplement.mapByScheme( scheme ) ) ) {
                     okay = true;

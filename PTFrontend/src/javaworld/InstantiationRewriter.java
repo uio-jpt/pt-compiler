@@ -58,5 +58,7 @@ public class InstantiationRewriter {
         decl.checkRedundantExtends();
 
         decl.flushCaches();
+
+        System.out.println( "all done: " + decl );
 	}
 }

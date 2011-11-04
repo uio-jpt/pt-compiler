@@ -1,0 +1,18 @@
+template T {
+    required type Y {
+        Integer next();
+    }
+
+    public class X {
+        Y x;
+
+        Y getY() { return x; }
+        void setY(Y x) { this.x = x; }
+
+        Integer getNext() { return x.next(); }
+    }
+}
+
+package P {
+    inst T with Y <= java.util.Iterator<Integer>;
+}

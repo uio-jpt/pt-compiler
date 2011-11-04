@@ -13,6 +13,7 @@ import AST.RequiredType;
 import AST.PTDecl;
 import AST.Program;
 import AST.ASTNode;
+import AST.ParTypeDecl;
 
 import com.google.common.base.Joiner;
 
@@ -27,7 +28,7 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
 
     List<JastaddTypeDescriptor> typeParameters;
 
-    public JastaddTypeDescriptor( Access acc ) {
+    public void initializeFromAccess( Access acc ) {
         /* Note that we keep a reference to the actual access.
            We make the assumption that this is not later mutated
            in ways significant to us.
@@ -56,15 +57,28 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         }
     }
 
+    public JastaddTypeDescriptor( Access acc ) {
+        initializeFromAccess( acc );
+    }
+
     public JastaddTypeDescriptor( TypeDecl decl ) {
-        byDeclaration = true;
-        typeDeclaration = decl;
-        typeParameters = new Vector<JastaddTypeDescriptor>();
+//        if( decl instanceof ParTypeDecl ) {
+        Access myConstructedAccess = (Access) decl.createQualifiedAccess().fullCopy();
+        myConstructedAccess.setParent( decl );
+        
+        initializeFromAccess( myConstructedAccess );
+/*
+        } else {
+            byDeclaration = true;
+            typeDeclaration = decl;
+            typeParameters = new Vector<JastaddTypeDescriptor>();
+        }
+*/
     }
 
     public Access getAccess() {
         if( byDeclaration ) {
-            System.out.println( "[warning] constructing access" );
+            System.out.println( "[warning] constructing access from decl of class " + typeDeclaration.getClass().getName() + "(ID " + typeDeclaration.getID() + ")" );
             TypeAccess rv = new TypeAccess( typeDeclaration.fullName() );
             Access alt1 = typeDeclaration.createBoundAccess();
             Access alt2 = typeDeclaration.createQualifiedAccess();

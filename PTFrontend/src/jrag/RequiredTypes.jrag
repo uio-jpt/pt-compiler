@@ -1,8 +1,8 @@
 aspect RequiredTypes {
-  public void ASTNode.replaceTypeAccesses(Map<TypeDecl,TypeAccess> ht) {
+  public void ASTNode.replaceTypeAccesses(Map<TypeDecl,Access> ht) {
         for(int i = 0; i < getNumChild(); i++) {
             ASTNode child = getChild(i);
-            TypeAccess swapWith = child.visitReplaceTypeAccesses(ht);
+            ASTNode swapWith = child.visitReplaceTypeAccesses(ht);
             if ( swapWith != null ) {
                 child.replaceSelfWith( swapWith.fullCopy() );
             }
@@ -10,14 +10,22 @@ aspect RequiredTypes {
         }
   }
 
-  public TypeAccess ASTNode.visitReplaceTypeAccesses(Map<TypeDecl,TypeAccess> ht) {
+  public ASTNode ASTNode.visitReplaceTypeAccesses(Map<TypeDecl,Access> ht) {
     return null;
   }
 
-  public TypeAccess TypeAccess.visitReplaceTypeAccesses(Map<TypeDecl,TypeAccess> ht) {
-    TypeDecl myDecl = decl();
-    TypeAccess rv = ht.get( myDecl );
-    return rv;
+  public ASTNode TypeAccess.visitReplaceTypeAccesses(Map<TypeDecl,Access> ht) {
+    SimpleSet myDecls = decls();
+    if( myDecls.size() == 1 ) {
+        TypeDecl myDecl = decl();
+        Access rv = ht.get( myDecl );
+        return rv;
+    } else {
+        System.out.println( "warning access has " + myDecls.size() + " decls" );
+        System.out.println( "access is: " + dumpTree() );
+        System.out.println( "access is string: " + this );
+        return null;
+    }
   }
 
   public boolean RequiredType.isObject() {
