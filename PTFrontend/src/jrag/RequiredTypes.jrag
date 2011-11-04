@@ -15,13 +15,20 @@ aspect RequiredTypes {
   }
 
   public ASTNode TypeAccess.visitReplaceTypeAccesses(Map<TypeDecl,Access> ht) {
+    // it's fine to call decl() when there's no decl.
+    // note however that it does NOT return null, but "unknown"
+    Access rv = ht.get( decl() );
+    return rv;
+/*
     SimpleSet myDecls = decls();
     if( myDecls.size() == 1 ) {
         TypeDecl myDecl = decl();
         Access rv = ht.get( myDecl );
         return rv;
     } else {
+        TypeDecl foo = decl();
         System.out.println( "warning access has " + myDecls.size() + " decls" );
+        System.out.println( "decl is " + foo );
         System.out.println( "access is: " + dumpTree() );
         System.out.println( "access is context: " + getParent().getParent().dumpTree() );
         System.out.println( "access is more context: " + getParent().getParent().getParent().getParent().dumpTree() );
@@ -29,6 +36,7 @@ aspect RequiredTypes {
         System.out.println( "access is string: " + this );
         return null;
     }
+*/
   }
 
   public boolean RequiredType.isObject() {
@@ -340,10 +348,19 @@ aspect RequiredTypes {
       return c;
     return topLevelType().lookupType(name); // Fix to search imports
   }
+
   eq RequiredType.getBodyDecl(int index).lookupType(String name) {
+    // NOTE: it's NOT safe to call getBodyDecl(index) here, 
+    // presumably because we're mutating the RequiredType so heavily.
+    
     SimpleSet c = memberTypes(name);
-    if(getBodyDecl(index).visibleTypeParameters())
+
+    //    if(getBodyDecl(index).visibleTypeParameters())
+    boolean staticContext = false;
+    if( !staticContext ) {
       c = addTypeVariables(c, name);
+    }
+
     if(!c.isEmpty())
       return c;
     // 8.5.2
