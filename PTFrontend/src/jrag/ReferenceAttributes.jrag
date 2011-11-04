@@ -54,7 +54,6 @@ aspect ReferenceAttributes {
 
     eq PTCompilationUnit.getPTDecl(int i).getTemplate(String name) {
         PTTemplate res = lookupTemplateLocal(name);
-        System.out.println( "lookedup template " + name + " local: " + res );
         if (res==null) return lookupTemplateGlobal(name);
         else return res;
     }
@@ -62,11 +61,9 @@ aspect ReferenceAttributes {
     eq Program.getCompilationUnit(int i).lookupTemplateGlobal(String name) {
         for (CompilationUnit cu : getCompilationUnits()) {
             if (cu.lookupTemplateLocal(name)!=null) {
-                System.out.println( "YES found it" );
                 return cu.lookupTemplateLocal(name);
             }
         }
-        System.out.println( "FAILED lookingup template " + name + " global" );
         return null;
     }
 

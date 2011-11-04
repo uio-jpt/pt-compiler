@@ -240,4 +240,59 @@ aspect RequiredTypes {
         return "[required type " + getID() + "]";
     }
 
+    public boolean ASTNode.isRequiredClass() { return false; }
+    public boolean ASTNode.isRequiredInterface() { return false; }
+    public boolean RequiredClass.isRequiredClass() { return true; }
+    public boolean RequiredInterface.isRequiredInterface() { return true; }
+    
+    refine TypeHierarchyCheck
+  public void ClassDecl.nameCheck() {
+    super.nameCheck();
+    if(hasSuperClassAccess() && ( !getSuperClassAccess().type().isClassDecl()
+                                  && !getSuperClassAccess().type().isRequiredClass() ) )
+      error("class may only inherit a class and not " + getSuperClassAccess().type().typeName());
+    if(isObject() && hasSuperClassAccess())
+      error("class Object may not have superclass");
+    if(isObject() && getNumImplements() != 0)
+      error("class Object may not implement interfaces");
+    
+    // 8.1.3
+    if(isCircular())
+      error("circular inheritance dependency in " + typeName()); 
+      
+    // 8.1.4
+    HashSet set = new HashSet();
+    for(int i = 0; i < getNumImplements(); i++) {
+      TypeDecl decl = getImplements(i).type();
+      if(!decl.isInterfaceDecl() && !decl.isUnknown() && !decl.isRequiredInterface() )
+        error("type " + fullName() + " tries to implement non interface type " + decl.fullName());
+      if(set.contains(decl))
+        error("type " + decl.fullName() + " mentionened multiple times in implements clause");
+      set.add(decl);
+    }
+
+    for(Iterator iter = interfacesMethodsIterator(); iter.hasNext(); ) {
+      MethodDecl m = (MethodDecl)iter.next();
+      if(localMethodsSignature(m.signature()).isEmpty()) {
+        SimpleSet s = superclass().methodsSignature(m.signature());
+        for(Iterator i2 = s.iterator(); i2.hasNext(); ) {
+          MethodDecl n = (MethodDecl)i2.next();
+          if(n.accessibleFrom(this)) {
+            interfaceMethodCompatibleWithInherited(m, n);
+          }
+        }
+        if(s.isEmpty()) {
+          for(Iterator i2 = interfacesMethodsSignature(m.signature()).iterator(); i2.hasNext(); ) {
+            MethodDecl n = (MethodDecl)i2.next();
+            if(!n.mayOverrideReturn(m) && !m.mayOverrideReturn(n))
+              error("Xthe return type of method " + m.signature() + " in " + m.hostType().typeName() + 
+                  " does not match the return type of method " + n.signature() + " in " + 
+                  n.hostType().typeName() + " and may thus not be overriden");
+          }
+        }
+      }
+    }
+  }
+
+
 }

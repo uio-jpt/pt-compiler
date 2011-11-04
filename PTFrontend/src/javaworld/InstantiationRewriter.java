@@ -34,6 +34,8 @@ public class InstantiationRewriter {
 
 		PTDeclRew target = new PTDeclRew(decl);
 
+        System.out.println( "GOING TO REWRITE: " + decl.getID() );
+
         target.getParameterRewriter();
         // this creates the mappings at a well-defined time
 

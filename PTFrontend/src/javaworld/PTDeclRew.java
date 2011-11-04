@@ -134,6 +134,8 @@ public class PTDeclRew {
     protected void concretifyRequiredTypes() {
         Multimap<String,Access> concretifications = HashMultimap.create();
 
+        System.out.println( "CONCRETIFYING IN: " + ptDeclToBeRewritten.getID() );
+
         RequiredTypeRewriter rewriter = new RequiredTypeRewriter();
         java.util.Set<RequiredType> toBeDeleted = new java.util.HashSet<RequiredType>();
 
@@ -336,10 +338,14 @@ public class PTDeclRew {
     }
 
 	protected void createMergedRequiredTypes() {
+        System.out.println( "MERGE/COPYING IN: " + ptDeclToBeRewritten.getID() );
+
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
         for( String key : destinationClassIDsWithInstTuples.keySet() ) {
             java.util.List<RequiredType> originatorReqTypes = new java.util.ArrayList<RequiredType>();
             TypeDecl nonRTOriginator = null;
+
+            System.out.println( "HERE'S A NAME: " + key );
 
             for( PTInstTuple tuple : destinationClassIDsWithInstTuples.get( key ) ) {
                 TypeDecl decl = tuple.getOriginator();
