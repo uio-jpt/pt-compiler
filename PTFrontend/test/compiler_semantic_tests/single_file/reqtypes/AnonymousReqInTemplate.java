@@ -11,13 +11,13 @@ template T {
         }
 
         public void makeNewFooAndPrint() {
-			/*
-			   Parallell mellom required types og abstrakte klasser?
-			   Prøver å opprette en ny anonym Foo, selv om dette er en required type.
-			   Følgende hadde vært gyldig java-syntaks selv hvis Foo hadde vært abstrakt:
-			 */
+            /*
+               Parallell mellom required types og abstrakte klasser?
+               Prøver å opprette en ny anonym Foo, selv om dette er en required type.
+               Følgende hadde vært gyldig java-syntaks selv hvis Foo hadde vært abstrakt:
+             */
             Foo f = new Foo() { String s() { return "This was created anonymously"; } };
-			printFoo(f);
+            printFoo(f);
         }
     }
 }
