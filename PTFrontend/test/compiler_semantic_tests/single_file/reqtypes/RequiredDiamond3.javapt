@@ -1,0 +1,29 @@
+template T {
+    required class X {
+        X(int foo);
+    }
+}
+
+template S {
+    inst T with X => Y;
+}
+
+template U {
+    inst T with X => Z;
+}
+
+template V {
+    inst S with Y => XX;
+    inst U with Z => XX;
+}
+
+package W {
+    inst V with XX <= Integer;
+
+    class Main {
+        public static void main(String[] args) {
+            XX object = new XX(42);
+            System.out.println( object );
+        }
+    }
+}
