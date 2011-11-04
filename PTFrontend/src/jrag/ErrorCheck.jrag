@@ -180,6 +180,18 @@ aspect ErrorCheck {
 
                 boolean foundGood = false;
 
+                if( t instanceof RequiredType ) {
+                    for( BodyDecl bd : t.getBodyDeclList() ) {
+                        if( !(bd instanceof PTAbstractConstructor ) ) continue;
+                        PTAbstractConstructor ptac = (PTAbstractConstructor) bd;
+                        System.out.println( "TRYING PTAC" );
+                        if( ptac.matchesConstructorInvocation( this ) ) {
+                            System.out.println( "PTAC OK" );
+                            foundGood = true;
+                        }
+                    }
+                }
+
                 for( PTConstructorPromise promise : t.promisedConstructors() ) {
                     if( promise.matchesConstructorInvocation( this ) ) {
                         foundGood = true;

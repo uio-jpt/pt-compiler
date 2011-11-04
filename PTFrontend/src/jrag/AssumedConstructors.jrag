@@ -27,6 +27,20 @@ aspect AssumedConstructors {
         return true;
     }
 
+    public boolean PTAbstractConstructor.matchesConstructorInvocation( ClassInstanceExpr cie ) {
+        if( cie.getNumArg() != getNumParameter() ) {
+            return false;
+        }
+
+        for(int i=0;i<getNumParameter();i++) {
+            if( !cie.getArg(i).type().subtype( getParameter(i).type() ) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public boolean PTConstructorPromise.matchesConstructorInvocation( ClassInstanceExpr cie ) {
         if( cie.getNumArg() != getNumParameter() ) {
             return false;
