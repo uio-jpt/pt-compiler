@@ -130,6 +130,7 @@ public class TypeConstraint {
         if( hasMethod( m ) ) {
             return;
         }
+        System.out.println( "adding method " + m );
         methods.add( m );
     }
 

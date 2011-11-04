@@ -2,3 +2,4 @@ import javaworld.TypeConstraint;
 import javaworld.JastaddTypeConstraints;
 import javaworld.JastaddTypeDescriptor;
 import javaworld.JastaddTypeParameterDescriptor;
+import javaworld.ConcretificationScheme;

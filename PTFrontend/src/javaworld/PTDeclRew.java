@@ -220,7 +220,9 @@ public class PTDeclRew {
             return;
         }
 
-        ConcretificationScheme scheme = new ConcretificationScheme( concretificationPlan );
+        System.out.println( "Creating ConcScheme with " + (ptDeclToBeRewritten.getPTDeclContext() != null));
+
+        ConcretificationScheme scheme = new ConcretificationScheme( concretificationPlan, ptDeclToBeRewritten.getPTDeclContext() );
 
         for( RequiredType tdecl : concretificationPlan.keySet() ) {
             boolean stopError = false;
@@ -443,14 +445,14 @@ public class PTDeclRew {
                 target = ptDeclToBeRewritten.lookupAddsInterface( name );
             }
 
-            TypeConstraint otc = JastaddTypeConstraints.fromInterfaceDecl( target, new ConcretificationScheme() );
+            TypeConstraint otc = JastaddTypeConstraints.fromInterfaceDecl( target, new ConcretificationScheme( ptDeclToBeRewritten.getPTDeclContext() ) );
             TypeConstraint tc = new TypeConstraint();
             boolean hadAddsInterface = !missingAddsInterfaceNames.contains( name );
             boolean printDebugStuff = false;
 
             for(PTInstTuple ituple : ituples) {
                 InterfaceDecl idecl = new InstTupleRew( ituple ).getRenamedSourceInterface();
-                tc.absorb( JastaddTypeConstraints.fromInterfaceDecl( idecl, new ConcretificationScheme() ) );
+                tc.absorb( JastaddTypeConstraints.fromInterfaceDecl( idecl, new ConcretificationScheme( ptDeclToBeRewritten.getPTDeclContext() ) ) );
             }
 
             for(Iterator<MethodDescriptor> it = tc.getMethodsIterator(); it.hasNext(); ) {

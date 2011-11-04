@@ -43,6 +43,7 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         typeParameters = new Vector<JastaddTypeDescriptor>();
 
         if( acc instanceof TypeAccess ) {
+            System.out.println( "initializing from typeaccess. " + acc );
             typeAccess = (TypeAccess) acc;
         } else if( acc instanceof ParTypeAccess ) {
             parTypeAccess = (ParTypeAccess) acc;
@@ -63,8 +64,12 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
 
     public JastaddTypeDescriptor( TypeDecl decl ) {
 //        if( decl instanceof ParTypeDecl ) {
+        System.out.println( "my declaration is: " + decl );
         Access myConstructedAccess = (Access) decl.createQualifiedAccess().fullCopy();
-        myConstructedAccess.setParent( decl );
+        AST.List myParent = new AST.List().add( myConstructedAccess );;
+        myParent.setParent( decl );
+
+//        myConstructedAccess.setParent( decl );
         
         initializeFromAccess( myConstructedAccess );
 /*
@@ -210,8 +215,10 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
 
         // hack to make sure we can reuse this method to replace roots as well
         AST.List parent = new AST.List();
-        parent.setParent( getContext() );
+//        parent.setParent( getContext() );
+        parent.setParent( scheme.getContext() );
         parent.addChild( myAccess );
+
         parent.replaceTypeAccesses( dtaMap );
         myAccess = (Access) parent.getChild(0);
 

@@ -58,8 +58,8 @@ PTDecl pt_template =
                                       cc.getInterfaces(),
                                       cc.getEnums(),
                                       cc.getRequiredTypes(),
-                                      (ps == null) ? new AST.List<TypeVariable>() : ps
-                                      );
+                                      new PTDeclContext(),
+                                      (ps == null) ? new AST.List<TypeVariable>() : ps );
           :}
           ;
 
@@ -67,7 +67,7 @@ PTDecl pt_package =
  PACKAGE IDENTIFIER LBRACE inst_class_or_interface_single.l* RBRACE
           {:
                 javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
-                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums(), cc.getRequiredTypes());
+                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums(), cc.getRequiredTypes(), new PTDeclContext());
           :}
           ;
 

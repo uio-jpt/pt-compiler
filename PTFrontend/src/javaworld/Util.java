@@ -75,6 +75,10 @@ public class Util {
     public static AST.TypeDecl declarationFromTypeAccess( AST.Access a ) {
         // TODO lots of code assuming instanceof TypeAccess should instead call this
         if( a instanceof AST.TypeAccess ) {
+            System.out.println( "looking up : " + ((AST.TypeAccess)a) + " FOUND " + ((AST.TypeAccess)a).decl() );
+            if( ( ((AST.TypeAccess)a).decl() ).isUnknown() ) {
+                new Throwable().printStackTrace();
+            }
             return ((AST.TypeAccess)a).decl();
         } else if( a instanceof AST.ParTypeAccess ) {
             AST.ParTypeAccess pta = (AST.ParTypeAccess) a;

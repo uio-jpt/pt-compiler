@@ -71,7 +71,7 @@ aspect RequiredTypes {
 
 
       for( BodyDecl bd : getBodyDecls() ) {
-          JastaddTypeConstraints.fromRequiredTypeBodyDeclInto( bd, rv );
+          JastaddTypeConstraints.fromRequiredTypeBodyDeclInto( bd, rv, new  ConcretificationScheme( bd ) );
       }
 
       System.out.println( "constructed " + rv );

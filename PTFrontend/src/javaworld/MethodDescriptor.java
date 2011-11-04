@@ -58,7 +58,13 @@ public class MethodDescriptor {
     }
 
     public boolean equals(MethodDescriptor that) {
-        if( !signatureEquals( that, new ConcretificationScheme() ) ) return false;
+        final int n = getArity();
+        if( !name.equals( that.name ) ) return false;
+        if( n != that.getArity() ) return false;
+        for(int i=0;i<n;i++) {
+            if( !getParameterType(i).equals( that.getParameterType(i) ) ) return false;
+        }
+
         if( !returnType.equals( that.returnType ) ) return false;
         return true;
     }

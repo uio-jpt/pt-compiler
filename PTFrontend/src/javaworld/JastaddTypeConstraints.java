@@ -72,35 +72,38 @@ public class JastaddTypeConstraints {
                                );
     }
 
-    static MethodDescriptor describeMethodDecl( MethodDecl mdecl ) {
+    static MethodDescriptor describeMethodDecl( MethodDecl mdecl, ConcretificationScheme scheme ) {
         String name = mdecl.getID();
         JastaddTypeDescriptor ret = new JastaddTypeDescriptor( mdecl.getTypeAccess() );
+
         List<TypeDescriptor> params = new Vector<TypeDescriptor>();
         for( ParameterDeclaration pd : mdecl.getParameters() ) {
             JastaddTypeDescriptor pt = new JastaddTypeDescriptor( pd.getTypeAccess() );
-            params.add( pt );
+
+            params.add( pt.mapByScheme( scheme ) );
         }
-        return new MethodDescriptor( name, ret, params );
+
+        return new MethodDescriptor( name, ret.mapByScheme( scheme ), params );
 
     }
 
-    static ConstructorDescriptor describeConstructorDecl( ConstructorDecl cdecl ) {
+    static ConstructorDescriptor describeConstructorDecl( ConstructorDecl cdecl, ConcretificationScheme scheme ) {
         List<TypeDescriptor> params = new Vector<TypeDescriptor>();
         for( ParameterDeclaration pd : cdecl.getParameters() ) {
             JastaddTypeDescriptor pt = new JastaddTypeDescriptor( pd.getTypeAccess() );
-            params.add( pt );
+            params.add( pt.mapByScheme( scheme ) );
         }
         return new ConstructorDescriptor( params );
 
     }
 
-    public static void fromRequiredTypeBodyDeclInto( BodyDecl bd, TypeConstraint tc ) {
+    public static void fromRequiredTypeBodyDeclInto( BodyDecl bd, TypeConstraint tc, ConcretificationScheme scheme ) {
         // be aware: PTAbstractConstructor convenience-inhertis from MethodDecl, so order here is important
         if( bd instanceof PTAbstractConstructor ) {
-            ConstructorDescriptor cdesc = describeMethodDecl( (MethodDecl) bd ).toConstructorDescriptor();
+            ConstructorDescriptor cdesc = describeMethodDecl( (MethodDecl) bd, scheme ).toConstructorDescriptor();
             tc.addConstructor( cdesc );
         } else if( bd instanceof MethodDecl ) {
-            MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd );
+            MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd, scheme );
             tc.addMethod( mdesc );
         } else {
               // oops
@@ -135,8 +138,10 @@ public class JastaddTypeConstraints {
             Object methodValue = lmsm.get( methodKey );
             System.out.println( "method value is: " + methodValue + " of type " + methodValue.getClass().getName() );
             MethodDecl method = (MethodDecl) methodValue;
-            MethodDescriptor methodDesc = describeMethodDecl( method );
+            MethodDescriptor methodDesc = describeMethodDecl( method, scheme );
+            System.out.println( "direct description of method: " + methodDesc );
             methodDesc.applyScheme( scheme );
+            System.out.println( "applied description of method: " + methodDesc );
             tc.addMethod( methodDesc );
         }
 
@@ -214,11 +219,11 @@ public class JastaddTypeConstraints {
     static void fromClassDeclInto( ClassDecl cdecl, TypeConstraint tc, ConcretificationScheme scheme ) {
         for( BodyDecl bd : cdecl.getBodyDecls() ) {
             if( bd instanceof MethodDecl ) {
-                MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd );
+                MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd, scheme );
                 mdesc.applyScheme( scheme );
                 tc.addMethod( mdesc );
             } else if( bd instanceof ConstructorDecl ) {
-                ConstructorDescriptor cdesc = describeConstructorDecl( (ConstructorDecl) bd );
+                ConstructorDescriptor cdesc = describeConstructorDecl( (ConstructorDecl) bd, scheme );
                 cdesc.applyScheme( scheme );
                 tc.addConstructor( cdesc );
             } else if( bd instanceof FieldDeclaration ) {
