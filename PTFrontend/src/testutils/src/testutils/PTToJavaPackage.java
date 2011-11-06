@@ -52,6 +52,7 @@ public class PTToJavaPackage {
             // this information useful.
 
             System.out.println( "Compilation failed: fatal errors." );
+            System.exit(1);
 		}
 	}
 
