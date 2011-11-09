@@ -1,0 +1,31 @@
+
+template Strings {
+
+    required type StringAdder {
+        boolean add(String e);
+    }
+
+    required type StringGetter {
+        String get(int i);
+    }
+
+    class X {
+        StringAdder sa;
+        StringGetter sg;
+
+        boolean transfer(int i) {
+            return sa.add( sg.get(i) );
+        }
+    }
+
+}
+
+package P {
+    inst Strings with StringAdder <= StringList,
+                      StringGetter <= StringList;
+
+    // Så lar vi den eksterne stå på egne ben:
+    class StringList extends external java.util.LinkedList<String> {
+
+    }
+}

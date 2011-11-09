@@ -1,0 +1,44 @@
+
+template Strings {
+
+    required type StringAdder {
+        boolean add(String e);
+    }
+
+    required type StringGetter {
+        String get(int i);
+    }
+
+    class X {
+        StringAdder sa;
+        StringGetter sg;
+
+        boolean transfer(int i) {
+            return sa.add( sg.get(i) );
+        }
+    }
+
+}
+
+package P {
+    inst Strings with StringAdder <= StringList,
+                      StringGetter <= StringList;
+
+    // Lar eksterne LinkedList ta over for List.
+    // Overkjører metodene i første omgang,
+    // men annotations sikrer oss at vi snakker om de samme metodene.
+    class StringList extends external java.util.LinkedList<String> {
+
+        @Override
+        public boolean add(String s) {
+            return false;
+        }
+
+        @Override
+        public String get(int i) {
+            return null;
+        }
+
+    }
+}
+

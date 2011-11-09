@@ -1,0 +1,49 @@
+
+template Strings {
+
+    required type StringAdder {
+        boolean add(String e);
+    }
+
+    required type StringGetter {
+        String get(int i);
+    }
+
+    class X {
+        StringAdder sa;     // "margebar"?
+        StringGetter sg;    // "margebar"?
+
+        boolean transfer(int i) {
+            return sa.add( sg.get(i) );
+        }
+    }
+
+}
+
+package P {
+    inst Strings with StringAdder <= StringList,
+                      StringGetter <= StringList,
+
+                      // LITT på sidelinjen:
+                      // siden vi har merget reqTypene,
+                      // kunne vi da (via noe mer syntaks?) merget denne variabelen?
+                      X => X (sa -> sag, sg -> sag);
+
+    class X adds {
+
+    }
+
+    class List {
+
+        boolean add(String t) {
+            return false;
+        }
+
+        String get(int i) {
+            return null;
+        }
+    }
+
+    class StringList extends List { }
+}
+

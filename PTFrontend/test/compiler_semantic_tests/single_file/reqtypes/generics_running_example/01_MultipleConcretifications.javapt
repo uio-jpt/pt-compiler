@@ -1,0 +1,39 @@
+
+template Strings {
+
+    required type StringAdder {
+        boolean add(String e);
+    }
+
+    required type StringGetter {
+        String get(int i);
+    }
+
+    class X {
+        StringAdder sa;
+        StringGetter sg;
+
+        boolean transfer(int i) {
+            return sa.add( sg.get(i) );
+        }
+    }
+
+}
+
+package P {
+    inst Strings with StringAdder <= StringList,
+                      StringGetter <= StringList;
+
+    class StringList {
+
+        public boolean add(String s) {
+            return false;
+        }
+
+        public String get(int i) {
+            return null;
+        }
+
+    }
+}
+

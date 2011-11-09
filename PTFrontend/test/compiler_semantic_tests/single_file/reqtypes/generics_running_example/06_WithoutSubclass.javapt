@@ -1,0 +1,28 @@
+
+template Strings {
+
+    required type StringAdder {
+        boolean add(String e);
+    }
+
+    required type StringGetter {
+        String get(int i);
+    }
+
+    class X {
+        StringAdder sa;
+        StringGetter sg;
+
+        boolean transfer(int i) {
+            return sa.add( sg.get(i) );
+        }
+    }
+
+}
+
+package P {
+    // Lar LinkedList gjøre jobben direkte:
+    inst Strings with StringAdder <= java.util.LinkedList<String>,
+                      StringGetter <= java.util.LinkedList<String>;
+
+}
