@@ -20,13 +20,9 @@ aspect RequiredTypes {
     TypeDecl myDecl = decl();
     Access rv = ht.get( myDecl );
 
-    System.out.println( "oh yeah? " + myDecl );
-
     // do-what-I-mean hack
     if( rv == null && myDecl.isUnknown() ) {
-        System.out.println( "go ahead? " + getID() );
         for( TypeDecl theirDecl : ht.keySet() ) {
-            System.out.println( "compare to " + theirDecl.getID() );
             if( theirDecl.getID().equals( getID() ) ) {
                 rv = ht.get( theirDecl );
             }
@@ -34,24 +30,6 @@ aspect RequiredTypes {
     }
 
     return rv;
-/*
-    SimpleSet myDecls = decls();
-    if( myDecls.size() == 1 ) {
-        TypeDecl myDecl = decl();
-        Access rv = ht.get( myDecl );
-        return rv;
-    } else {
-        TypeDecl foo = decl();
-        System.out.println( "warning access has " + myDecls.size() + " decls" );
-        System.out.println( "decl is " + foo );
-        System.out.println( "access is: " + dumpTree() );
-        System.out.println( "access is context: " + getParent().getParent().dumpTree() );
-        System.out.println( "access is more context: " + getParent().getParent().getParent().getParent().dumpTree() );
-        System.out.println( "access is ridiculous context: " + getParentClass( PTDecl.class ).dumpTree() );
-        System.out.println( "access is string: " + this );
-        return null;
-    }
-*/
   }
 
   public boolean RequiredType.isObject() {

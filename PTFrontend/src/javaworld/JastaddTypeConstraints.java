@@ -96,15 +96,6 @@ public class JastaddTypeConstraints {
         String name = mdecl.getID();
         JastaddTypeDescriptor ret = new JastaddTypeDescriptor( mdecl.getTypeAccess() );
 
-        System.out.println( "LOOOKIE" + mdecl.getParameters().getClass().getName() );
-        for( ParameterDeclaration pd : mdecl.getParameters() ) {
-            System.out.println( "LOOKIE" + pd );
-        }
-        System.out.println( "WHAT I FOUND " + mdecl.getClass().getName() );
-        System.out.println( ".. " + mdecl.getParent().getParent().getClass().getName() );
-        System.out.println( ".. " + mdecl.getParent().getParent() );
-
-
         List<TypeDescriptor> params = new Vector<TypeDescriptor>();
         for( ParameterDeclaration pd : mdecl.getParameters() ) {
             JastaddTypeDescriptor pt = new JastaddTypeDescriptor( pd.getTypeAccess() );
@@ -153,12 +144,6 @@ public class JastaddTypeConstraints {
     }
 
     static void fromInterfaceDeclInto( InterfaceDecl idecl, TypeConstraint tc, ConcretificationScheme scheme ) {
-        System.out.println( "converting interface " + idecl + " of type " + idecl.getClass().getName());
-        System.out.println( "into " + tc );
-
-        System.out.println( "methods map: " + idecl.localMethodsSignatureMap() );
-        System.out.println( "methods map: " + idecl.methodsSignatureMap() );
-
 
         /* This works for normally declared ones, but for ParClass/ParInterface
            the methods are not caused by BodyDecls. */
@@ -175,23 +160,16 @@ public class JastaddTypeConstraints {
 
         java.util.HashMap lmsm = idecl.localMethodsSignatureMap();
         for( Object methodKey : lmsm.keySet() ) {
-            System.out.println( "method key is: " + methodKey + " of type " + methodKey.getClass().getName() );
             Object methodValue = lmsm.get( methodKey );
-            System.out.println( "method value is: " + methodValue + " of type " + methodValue.getClass().getName() );
             MethodDecl method = (MethodDecl) methodValue;
             MethodDescriptor methodDesc = describeMethodDecl( method, scheme );
-            System.out.println( "direct description of method: " + methodDesc );
             methodDesc.applyScheme( scheme );
-            System.out.println( "applied description of method: " + methodDesc );
             tc.addMethod( methodDesc );
         }
 
 
-        System.out.println( "no implemented intfs:" + idecl.implementedInterfaces().size() );
-
         for( Object superio : idecl.getSuperInterfaceIdList() ) {
             Access myAc = (Access) superio;
-            System.out.println( "ACCESS IS :::: " + myAc );
             TypeDecl superdecl = Util.declarationFromTypeAccess( myAc );
             if( superdecl instanceof ClassDecl ) {
                 // this is Object (otherwise a class can't be a "superinterface")
@@ -223,10 +201,6 @@ public class JastaddTypeConstraints {
             tc.addImplementedType( new JastaddTypeDescriptor( superi ) );
         }
 
-        System.out.println( "from idecl " + idecl.getClass().getName() );
-        System.out.println( "from idecl(1) " + idecl.getParent().getClass().getName() );
-        System.out.println( "from idecl(2) " + idecl.getParent().getParent().getClass().getName() );
-
         if( idecl instanceof GenericInterfaceDecl ) {
             // note the difference between ParClassDecl and GenericClassDecl.
             // a _generic_ class has the parameters unrealized, e.g. Iterator
@@ -246,12 +220,8 @@ public class JastaddTypeConstraints {
         } else if( idecl instanceof RawInterfaceDecl ) {
             tc.assertNoTypeParameters();
 
-            System.out.println( "dumping tree before rewrite: " + idecl.getParent().getParent().dumpTreeNoRewrite() );
-            System.out.println( "dumping tree: " + idecl.getParent().getParent().dumpTree() );
-
             GenericInterfaceDecl gcd = ((GenericInterfaceDecl) ((RawInterfaceDecl) idecl).genericDecl());
             for( TypeVariable typeVar : gcd.getTypeParameterList() ) {
-                System.out.println( "yee: " + typeVar );
                 tc.addTypeParameter( new JastaddTypeParameterDescriptor( typeVar ).mapByScheme( scheme ) );
             }
 /*
@@ -262,16 +232,12 @@ public class JastaddTypeConstraints {
 */
         }
 
-        System.out.println( "setting specific type to " + idecl );
-
         tc.setSpecificType( new JastaddTypeDescriptor( idecl ).mapByScheme( scheme ) );
 
         return tc;
     }
 
     static void fromClassDeclInto( ClassDecl cdecl, TypeConstraint tc, ConcretificationScheme scheme ) {
-        System.out.println( "ASCENDING to add from: " + cdecl.fullName() + " " + cdecl.getClass().getName() );
-
         java.util.HashMap methodsMap = cdecl.methodsSignatureMap();
         for( Object keyo : methodsMap.keySet() ) {
             String key = (String) keyo;
@@ -482,7 +448,6 @@ public class JastaddTypeConstraints {
 
         Iterator<TypeParameterDescriptor> typeParametersI = tc.getTypeParametersIterator();
         while( typeParametersI.hasNext() ) {
-            System.out.println( "ADDING for copying A TYPE PARAMETER" );
             TypeParameterDescriptor typeParameter = typeParametersI.next();
             if( typeParameter instanceof JastaddTypeParameterDescriptor ) {
                 TypeVariable myAcc = ((JastaddTypeParameterDescriptor) typeParameter).getTypeVariable();
@@ -534,7 +499,7 @@ public class JastaddTypeConstraints {
         }
 
 
-        System.out.println( "CRAFTED this required type:" + rv.dumpTree() );
+        System.out.println( "made this required type:" + rv.dumpTree() );
 
         return rv;
     }

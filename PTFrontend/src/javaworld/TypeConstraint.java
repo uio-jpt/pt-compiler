@@ -36,12 +36,10 @@ public class TypeConstraint {
     }
 
     public void addTypeParameter( TypeParameterDescriptor tpd ) {
-        System.out.println( "adding type parameter " + tpd + " to " + this );
         typeParametersRequired.add( tpd );
     }
 
     public void setSpecificType( TypeDescriptor td ) {
-        System.out.println( "setting specific type " + td );
         specificType = td;
     }
 
@@ -155,12 +153,9 @@ public class TypeConstraint {
     }
 
     public void addMethod(MethodDescriptor m) {
-        System.out.println( "checking if has method? " + m );
         if( hasMethod( m ) ) {
-            System.out.println( "yes, has method" );
             return;
         }
-        System.out.println( "no, no such method, adding method " + m );
         methods.add( m );
     }
 
@@ -242,7 +237,6 @@ public class TypeConstraint {
                 implementedTypes.remove( toRemove );
             }
 
-            System.out.println( "YES adding " + td );
             implementedTypes.add( td );
         }
     }
@@ -291,7 +285,6 @@ public class TypeConstraint {
         Iterator<TypeParameterDescriptor> mine = typeParametersRequired.iterator();
         Iterator<TypeParameterDescriptor> constraining = constraint.typeParametersRequired.iterator();
         while( mine.hasNext() && constraining.hasNext() ) {
-            System.out.println( "CHECKING TPS" );
             if( !mine.next().mapByScheme(scheme).equals( constraining.next().mapByScheme(scheme) ) ) {
                 return false;
             }
@@ -303,18 +296,11 @@ public class TypeConstraint {
     }
 
     public boolean satisfies( TypeConstraint constraint, ConcretificationScheme scheme ) throws TypeConstraintFailed {
-        System.out.println( "trying for satisfaction of: " + constraint );
-
         if( !( (canBeClass && constraint.canBeClass)
                ||
                (canBeInterface && constraint.canBeInterface) ) ) {
             throw new TypeConstraintFailed( getName(), constraint.getName(), "required-type type mismatch" );
         }
-
-        System.out.println( "checking satisfies?" );
-        System.out.println( "requirement: " + constraint );
-        System.out.println( "candidate: " + this );
-        System.out.println( "candidate specific type: " + specificType );
 
         if( !satisfiesOnTypeParameters( constraint, scheme ) ) {
             throw new TypeConstraintFailed( getName(), constraint.getName(), "type parameters do not match" );
@@ -323,9 +309,7 @@ public class TypeConstraint {
         for( MethodDescriptor md : constraint.methods ) {
             // we must supply one method that conforms to md.
             boolean ok = false;
-            System.out.println( "we have " + methods.size() + " methods");
             for( MethodDescriptor cmd : methods ) {
-                System.out.println( "we have a method: " + cmd );
                 if( cmd.conformsTo( md, scheme ) ) {
                     ok = true;
                 }
@@ -350,7 +334,6 @@ public class TypeConstraint {
         for( TypeDescriptor mustExtend : constraint.extendedTypes ) {
             boolean okay = false;
             if( specificType != null ) {
-                System.out.println( "testing " + specificType + " vs " + mustExtend.mapByScheme( scheme ) );
                 if( specificType.isSubtypeOf( mustExtend.mapByScheme( scheme ) ) ) {
                     okay = true;
                 }
@@ -370,7 +353,6 @@ public class TypeConstraint {
             boolean okay = false;
 
             if( specificType != null ) {
-                System.out.println( "testing " + specificType + " vs " + mustImplement.mapByScheme( scheme ) );
 
                 if( specificType.isSubtypeOf( mustImplement.mapByScheme( scheme ) ) ) {
                     okay = true;

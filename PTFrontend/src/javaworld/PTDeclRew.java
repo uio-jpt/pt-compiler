@@ -134,8 +134,6 @@ public class PTDeclRew {
     protected void concretifyRequiredTypes() {
         Multimap<String,Access> concretifications = HashMultimap.create();
 
-        System.out.println( "CONCRETIFYING IN: " + ptDeclToBeRewritten.getID() );
-
         RequiredTypeRewriter rewriter = new RequiredTypeRewriter();
         java.util.Set<RequiredType> toBeDeleted = new java.util.HashSet<RequiredType>();
 
@@ -146,9 +144,6 @@ public class PTDeclRew {
 		for (PTInstDecl instDecl : ptDeclToBeRewritten.getPTInstDecls()) {
             for( RequiredTypeInstantiation rti : instDecl.getRequiredTypeInstantiationList() ) {
                 concretifications.put( rti.getRequiredTypeName(), (Access) rti.getConcreteTypeAccess() );
-
-                System.out.println( "concretifying " + rti.getRequiredTypeName() + " to " + rti.getConcreteTypeAccess() );
-
             }
         }
 
@@ -182,9 +177,7 @@ public class PTDeclRew {
 
             if( !stopError ) {
                 Access replacementAccess = concretifications.get( key ).iterator().next();
-                System.out.println( "replacementAccess is: " + replacementAccess );
                 replacementType = Util.declarationFromTypeAccess( replacementAccess );
-                System.out.println( "replacementType is: " + replacementType );
 
                 concretificationPlan.put( (RequiredType) tdecl, replacementType );
 
@@ -197,8 +190,6 @@ public class PTDeclRew {
             // failure
             return;
         }
-
-        System.out.println( "Creating ConcScheme with " + (ptDeclToBeRewritten.getPTDeclContext() != null));
 
         ConcretificationScheme scheme = new ConcretificationScheme( concretificationPlan, ptDeclToBeRewritten.getPTDeclContext() );
 
@@ -329,8 +320,6 @@ public class PTDeclRew {
             java.util.List<RequiredType> originatorReqTypes = new java.util.ArrayList<RequiredType>();
             TypeDecl nonRTOriginator = null;
 
-            System.out.println( "HERE'S A NAME: " + key );
-
             for( PTInstTuple tuple : destinationClassIDsWithInstTuples.get( key ) ) {
                 TypeDecl decl = tuple.getOriginator();
                 if( decl instanceof RequiredType ) {
@@ -375,8 +364,6 @@ public class PTDeclRew {
 
             RequiredType myTemporaryRequiredType = JastaddTypeConstraints.convertToRequiredType( key, new TypeConstraint(), ptDeclToBeRewritten.getPTDeclContext() );
 
-            System.out.println( "created and added RTT " + key + " in " + ptDeclToBeRewritten.getClass().getName() + " " + ptDeclToBeRewritten.getID() );
-
             ptDeclToBeRewritten.addRequiredType( myTemporaryRequiredType );
 
             for( RequiredType originatorRT : originatorReqTypes ) {
@@ -388,16 +375,12 @@ public class PTDeclRew {
     }
 
 	protected void createMergedRequiredTypes() {
-        System.out.println( "MERGE/COPYING IN: " + ptDeclToBeRewritten.getID() );
-
         ConcretificationScheme temporaryScheme = createRequiredTypeTargets();
 
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
         for( String key : destinationClassIDsWithInstTuples.keySet() ) {
             java.util.List<RequiredType> originatorReqTypes = new java.util.ArrayList<RequiredType>();
             TypeDecl nonRTOriginator = null;
-
-            System.out.println( "HERE'S A NAME: " + key );
 
             for( PTInstTuple tuple : destinationClassIDsWithInstTuples.get( key ) ) {
                 TypeDecl decl = tuple.getOriginator();
@@ -495,9 +478,6 @@ public class PTDeclRew {
             }
         }
 
-        System.out.println( "internal interfaces being renameD: " + internalInterfacesBeingRenamed );
-
-
         Set<String> genericNames = new HashSet<String>();
 
         for(String name : missingAddsInterfaceNames ) {
@@ -518,9 +498,6 @@ public class PTDeclRew {
             } else {
                 target = ptDeclToBeRewritten.lookupAddsInterface( name );
             }
-
-            System.out.println( "trying to extract from " + target );
-            System.out.println( "context ist " + ptDeclToBeRewritten );
 
             TypeConstraint otc = JastaddTypeConstraints.fromInterfaceDecl( target, new ConcretificationScheme( ptDeclToBeRewritten.getPTDeclContext() ) );
             TypeConstraint tc = new TypeConstraint();
@@ -548,7 +525,6 @@ public class PTDeclRew {
                         InterfaceDecl newDecl = (InterfaceDecl) newInterfaces.iterator().next();
                         Access newAccess = newDecl.createBoundAccess();
                         renamingMap.put( originalDecl, newAccess );
-                        System.out.println( "putting renaming: " + originalDecl + " ----> " + newAccess );
                     }
 
                     additional.addImplementedType( new JastaddTypeDescriptor( (AST.Access) superio ) );
@@ -579,13 +555,11 @@ public class PTDeclRew {
 
             for(Iterator<TypeDescriptor> it = otc.getImplementedTypesIterator(); it.hasNext(); ) {
                 JastaddTypeDescriptor jtd = (JastaddTypeDescriptor) it.next();
-                System.out.println( "adding some sort of superinterfaces " );
                 target.addSuperInterfaceId( (AST.Access) jtd.getAccess().fullCopy() );
             }
 
             for(Iterator<TypeDescriptor> it = tc.getImplementedTypesIterator(); it.hasNext(); ) {
                 JastaddTypeDescriptor jtd = (JastaddTypeDescriptor) it.next();
-                System.out.println( "adding some sort of superinterfaces " );
                 target.addSuperInterfaceId( (AST.Access) jtd.getAccess().fullCopy() );
             }
 
@@ -616,11 +590,7 @@ public class PTDeclRew {
             }
         }
 
-        System.out.println( "exeCUTING " + renamingMap + " at " + ptDeclToBeRewritten );
-
         ptDeclToBeRewritten.replaceTypeAccesses( renamingMap );
-
-        System.out.println( "DONE: " + ptDeclToBeRewritten );
     }
 
     protected void updateAccessesToInternalRenames() {

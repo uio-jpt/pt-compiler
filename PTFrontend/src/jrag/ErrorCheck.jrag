@@ -172,11 +172,8 @@ aspect ErrorCheck {
         boolean foundGood = false;
         for( BodyDecl bd : getBodyDeclList() ) {
             if( !(bd instanceof PTAbstractConstructor ) ) continue;
-            System.out.println( "can haz abstract constructor?" );
             PTAbstractConstructor ptac = (PTAbstractConstructor) bd;
-            System.out.println( "TRYING PTAC" );
             if( ptac.matchesConstructorInvocation( expr ) ) {
-                System.out.println( "PTAC OK" );
                 foundGood = true;
             }
         }
@@ -186,7 +183,6 @@ aspect ErrorCheck {
     boolean ClassDecl.promisesConstructor( ClassInstanceExpr expr ) {
         boolean foundGood = false;
         for( PTConstructorPromise promise : promisedConstructors() ) {
-            System.out.println( "checking constructor promise" );
             if( promise.matchesConstructorInvocation( expr ) ) {
                 foundGood = true;
             }
@@ -230,7 +226,6 @@ aspect ErrorCheck {
 
                 if( !t.promisesConstructor(this) ) {
                   String errorMessage = String.format( "illegal \"new %s(...)\" in template (no such constructor assumed)", t.fullName() );
-                  System.out.println( " t is: " + t.getClass().getName() + " " + t );
                   error( errorMessage );
                 }
             }

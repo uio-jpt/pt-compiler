@@ -76,7 +76,6 @@ public class Util {
         // TODO lots of code assuming instanceof TypeAccess should instead call this
         if( a instanceof AST.TypeAccess ) {
             AST.TypeDecl rv = ((AST.TypeAccess)a).decl();
-            System.out.println( "Ahoy-hoy: " + a + " --> " + rv );
 /* // this is really really really insanely verbose
             try {
                 AST.ASTNode everHigher = a;
