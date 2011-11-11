@@ -281,6 +281,21 @@ public class JastaddTypeConstraints {
             tc.addMethod( mdesc );
         }
 
+        java.util.HashMap fieldsMap = cdecl.memberFieldsMap();
+        for( Object keyo : fieldsMap.keySet() ) {
+            String key = (String) keyo;
+            // Oops, ignored.. TODO
+        }
+
+        for( Object cons : cdecl.constructors() ) {
+            ConstructorDecl constructor = (ConstructorDecl) cons;
+            ConstructorDescriptor cdesc = describeConstructorDecl( constructor, scheme);
+            cdesc.applyScheme( scheme );
+            tc.addConstructor( cdesc );
+        }
+
+        /*
+
         if( cdecl instanceof ParClassDecl ) {
             ParClassDecl pcdecl = (ParClassDecl) cdecl;
             GenericClassDecl gcdecl = (GenericClassDecl) pcdecl.genericDecl();
@@ -295,9 +310,9 @@ public class JastaddTypeConstraints {
                     cdesc.applyScheme( scheme );
                     tc.addConstructor( cdesc );
                 } else if( bd instanceof FieldDeclaration ) {
-                    /* We do not support field declarations in required types at the moment (should we? not sure)
+                    * We do not support field declarations in required types at the moment (should we? not sure)
                        but we do need to tolerate them in extraction from classes, for conformance checking.
-                    */
+                    /
                 } else {
                     System.out.println( "[debug/warning] fromClassDeclInto() did not expect " + bd.getClass().getName() );
                     System.out.println( "[debug/warning] was: " + bd.dumpTree() );
@@ -316,9 +331,9 @@ public class JastaddTypeConstraints {
                     cdesc.applyScheme( scheme );
                     tc.addConstructor( cdesc );
                 } else if( bd instanceof FieldDeclaration ) {
-                    /* We do not support field declarations in required types at the moment (should we? not sure)
+                    * We do not support field declarations in required types at the moment (should we? not sure)
                        but we do need to tolerate them in extraction from classes, for conformance checking.
-                    */
+                    /
                 } else {
                     System.out.println( "[debug/warning] fromClassDeclInto() did not expect " + bd.getClass().getName() );
                     System.out.println( "[debug/warning] was: " + bd.dumpTree() );
@@ -328,6 +343,7 @@ public class JastaddTypeConstraints {
             }
 
         }
+*/
 
 /*        // ?? check more
         ClassDecl sc = cdecl.superclass();
