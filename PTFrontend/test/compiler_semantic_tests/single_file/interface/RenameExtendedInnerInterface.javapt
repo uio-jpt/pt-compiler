@@ -1,0 +1,13 @@
+template T {
+    interface Foo {
+        void foo();
+    }
+
+    interface FooBar extends Foo {
+        void bar();
+    }
+}
+
+package P {
+    inst T with Foo => Foosh;
+}

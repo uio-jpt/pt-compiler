@@ -1,0 +1,43 @@
+template T {
+    interface X {
+    }
+}
+
+template U {
+    inst T with X => Y;
+    interface Fooable {
+        void foo();
+    }
+
+    interface Y adds extends Fooable {
+    }
+}
+
+template V {
+    inst U with Y => Z;
+    interface Barable {
+        void bar();
+    }
+
+    interface Z extends Fooable adds extends Barable {
+    }
+}
+
+package P {
+    inst V;
+
+    class Main implements Z {
+        public static void main(String args[]) {
+            new Main().foo();
+            new Main().bar();
+        }
+        
+        public void foo() {
+            System.out.println( "foo" );
+        }
+
+        public void bar() {
+            System.out.println( "bar" );
+        }
+    }
+}

@@ -17,7 +17,22 @@ aspect RequiredTypes {
   public ASTNode TypeAccess.visitReplaceTypeAccesses(Map<TypeDecl,Access> ht) {
     // it's fine to call decl() when there's no decl.
     // note however that it does NOT return null, but "unknown"
-    Access rv = ht.get( decl() );
+    TypeDecl myDecl = decl();
+    Access rv = ht.get( myDecl );
+
+    System.out.println( "oh yeah? " + myDecl );
+
+    // do-what-I-mean hack
+    if( rv == null && myDecl.isUnknown() ) {
+        System.out.println( "go ahead? " + getID() );
+        for( TypeDecl theirDecl : ht.keySet() ) {
+            System.out.println( "compare to " + theirDecl.getID() );
+            if( theirDecl.getID().equals( getID() ) ) {
+                rv = ht.get( theirDecl );
+            }
+        }
+    }
+
     return rv;
 /*
     SimpleSet myDecls = decls();

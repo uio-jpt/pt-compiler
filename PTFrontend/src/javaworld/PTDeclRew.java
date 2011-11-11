@@ -508,6 +508,8 @@ public class PTDeclRew {
             }
         }
 
+        Map<TypeDecl, Access> renamingMap = new java.util.HashMap<TypeDecl, Access> ();
+
         for( String name : getDestinationIDsForInterfaces() ) {
             Collection<PTInstTuple> ituples = getDestinationClassIDsWithInstTuples().get( name );
             InterfaceDecl target = null;
@@ -517,6 +519,9 @@ public class PTDeclRew {
                 target = ptDeclToBeRewritten.lookupAddsInterface( name );
             }
 
+            System.out.println( "trying to extract from " + target );
+            System.out.println( "context ist " + ptDeclToBeRewritten );
+
             TypeConstraint otc = JastaddTypeConstraints.fromInterfaceDecl( target, new ConcretificationScheme( ptDeclToBeRewritten.getPTDeclContext() ) );
             TypeConstraint tc = new TypeConstraint();
             boolean hadAddsInterface = !missingAddsInterfaceNames.contains( name );
@@ -524,7 +529,40 @@ public class PTDeclRew {
 
             for(PTInstTuple ituple : ituples) {
                 InterfaceDecl idecl = new InstTupleRew( ituple ).getRenamedSourceInterface();
-                tc.absorb( JastaddTypeConstraints.fromInterfaceDecl( idecl, new ConcretificationScheme( ptDeclToBeRewritten.getPTDeclContext() ) ) );
+                InterfaceDecl unrenamedOriginal = (InterfaceDecl) ituple.getOriginator();
+
+                TypeConstraint additional = new TypeConstraint();
+
+                // the unrenamed still has access to supertypes (unrenamed, obviously!)
+                // the renamed has the correct internals
+                // we do not need any recursion as we're not going to use constraint-checking here.
+                // so this is fromInterfaceDeclInto light.
+
+                for( Object superio : unrenamedOriginal.getSuperInterfaceIdList() ) {
+                    AST.Access myUnrenamedAccess = (AST.Access) ((AST.ASTNode)superio).fullCopy();
+                    InterfaceDecl originalDecl = (InterfaceDecl) Util.declarationFromTypeAccess( myUnrenamedAccess );
+                    String originalName = originalDecl.getID();
+                    String newName = internalInterfacesBeingRenamed.get( originalName );
+                    if( newName != null && !originalName.equals( newName ) ) {
+                        SimpleSet newInterfaces = ptDeclToBeRewritten.lookupTypeInPTDecl( newName );
+                        InterfaceDecl newDecl = (InterfaceDecl) newInterfaces.iterator().next();
+                        Access newAccess = newDecl.createBoundAccess();
+                        renamingMap.put( originalDecl, newAccess );
+                        System.out.println( "putting renaming: " + originalDecl + " ----> " + newAccess );
+                    }
+
+                    additional.addImplementedType( new JastaddTypeDescriptor( (AST.Access) superio ) );
+                }
+
+                java.util.HashMap lmsm = idecl.localMethodsSignatureMap();
+                for( Object methodKey : lmsm.keySet() ) {
+                    Object methodValue = lmsm.get( methodKey );
+                    MethodDecl method = (MethodDecl) methodValue;
+                    MethodDescriptor methodDesc = JastaddTypeConstraints.describeMethodDecl( method, new ConcretificationScheme( ptDeclToBeRewritten.getPTDeclContext() ) );
+                    additional.addMethod( methodDesc );
+                }
+
+                tc.absorb( additional );
             }
 
             /*
@@ -538,6 +576,12 @@ public class PTDeclRew {
             System.out.println( tc );
 
             target.setSuperInterfaceIdList( new AST.List() );
+
+            for(Iterator<TypeDescriptor> it = otc.getImplementedTypesIterator(); it.hasNext(); ) {
+                JastaddTypeDescriptor jtd = (JastaddTypeDescriptor) it.next();
+                System.out.println( "adding some sort of superinterfaces " );
+                target.addSuperInterfaceId( (AST.Access) jtd.getAccess().fullCopy() );
+            }
 
             for(Iterator<TypeDescriptor> it = tc.getImplementedTypesIterator(); it.hasNext(); ) {
                 JastaddTypeDescriptor jtd = (JastaddTypeDescriptor) it.next();
@@ -571,6 +615,12 @@ public class PTDeclRew {
                 System.out.println( "created interface " + name + ": " + target );
             }
         }
+
+        System.out.println( "exeCUTING " + renamingMap + " at " + ptDeclToBeRewritten );
+
+        ptDeclToBeRewritten.replaceTypeAccesses( renamingMap );
+
+        System.out.println( "DONE: " + ptDeclToBeRewritten );
     }
 
     protected void updateAccessesToInternalRenames() {
