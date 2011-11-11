@@ -164,6 +164,56 @@ aspect ErrorCheck {
         }
     }
 
+    boolean TypeDecl.promisesConstructor( ClassInstanceExpr expr ) {
+        return false;
+    }
+
+    boolean RequiredType.promisesConstructor( ClassInstanceExpr expr ) {
+        boolean foundGood = false;
+        for( BodyDecl bd : getBodyDeclList() ) {
+            if( !(bd instanceof PTAbstractConstructor ) ) continue;
+            System.out.println( "can haz abstract constructor?" );
+            PTAbstractConstructor ptac = (PTAbstractConstructor) bd;
+            System.out.println( "TRYING PTAC" );
+            if( ptac.matchesConstructorInvocation( expr ) ) {
+                System.out.println( "PTAC OK" );
+                foundGood = true;
+            }
+        }
+        return foundGood;
+    }
+
+    boolean ClassDecl.promisesConstructor( ClassInstanceExpr expr ) {
+        boolean foundGood = false;
+        for( PTConstructorPromise promise : promisedConstructors() ) {
+            System.out.println( "checking constructor promise" );
+            if( promise.matchesConstructorInvocation( expr ) ) {
+                foundGood = true;
+            }
+        }
+        return foundGood;
+    }
+
+    boolean ParClassDecl.promisesConstructor( ClassInstanceExpr expr ) {
+        // this is inspired by ParClassDecl.getImplementsList()
+        // pretty sure it's the "right" way
+        // (and also that all casts are justified)
+        // note the way .substitute() is used on a LIST
+        // this list must consist of all access nodes
+        // (this is nondestructive, like a mapcar)
+
+        boolean foundGood = false;
+
+        GenericClassDecl generic = (GenericClassDecl) genericDecl();
+        for( PTConstructorPromise promise : generic.promisedConstructors() ) {
+            if( promise.matchesConstructorInvocationSubstituted( expr, this ) ) {
+                foundGood = true;
+            }
+        }
+
+        return foundGood;
+    }
+
     refine Enums public void ClassInstanceExpr.nameCheck() {
         boolean doNormalChecking = true;
 
@@ -171,35 +221,17 @@ aspect ErrorCheck {
         EnumDecl parentEnum = (EnumDecl) getParentClass( EnumDecl.class );
 
         if( template != null && parentEnum == null ) {
-            TypeDecl t = getAccess().type();
+            TypeDecl t = Util.declarationFromTypeAccess( getAccess() );
             MethodDecl parentMethod = (MethodDecl) t.getParentClass( MethodDecl.class );
             boolean isLocalClass = parentMethod != null;
 
             if( !isLocalClass && t.getParentClass( PTTemplate.class ) == template ) {
                 doNormalChecking = false;
 
-                boolean foundGood = false;
-
-                if( t instanceof RequiredType ) {
-                    for( BodyDecl bd : t.getBodyDeclList() ) {
-                        if( !(bd instanceof PTAbstractConstructor ) ) continue;
-                        PTAbstractConstructor ptac = (PTAbstractConstructor) bd;
-                        System.out.println( "TRYING PTAC" );
-                        if( ptac.matchesConstructorInvocation( this ) ) {
-                            System.out.println( "PTAC OK" );
-                            foundGood = true;
-                        }
-                    }
-                }
-
-                for( PTConstructorPromise promise : t.promisedConstructors() ) {
-                    if( promise.matchesConstructorInvocation( this ) ) {
-                        foundGood = true;
-                    }
-                }
-
-                if( !foundGood ) {
-                    error( "no such constructor assumed" );
+                if( !t.promisesConstructor(this) ) {
+                  String errorMessage = String.format( "illegal \"new %s(...)\" in template (no such constructor assumed)", t.fullName() );
+                  System.out.println( " t is: " + t.getClass().getName() + " " + t );
+                  error( errorMessage );
                 }
             }
 

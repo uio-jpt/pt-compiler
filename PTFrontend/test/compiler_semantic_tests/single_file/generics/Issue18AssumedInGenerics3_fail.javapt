@@ -1,0 +1,35 @@
+template T {
+    class Maybe<T> {
+        T value;
+
+        Maybe() {
+            value = null;
+        }
+
+        Maybe(T value) {
+            this.value = value;
+        }
+
+        boolean isNothing() {
+            return value == null;
+        }
+
+        T get() {
+            return value;
+        }
+    }
+}
+
+template U {
+    inst T;
+
+    class D {
+        public void m() {
+            new Maybe<Integer>();           
+        }
+    }   
+}
+
+package P {
+    inst U;
+}

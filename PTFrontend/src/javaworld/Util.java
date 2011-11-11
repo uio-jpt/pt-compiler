@@ -96,4 +96,42 @@ public class Util {
         }
     }
 
+    public static AST.TypeDecl substituteDeclarationFromTypeAccess( AST.Access a ) {
+        System.out.println( "finding : " + a.getClass().getName() );
+        if( a instanceof AST.TypeAccess ) {
+            if( ( ((AST.TypeAccess)a).decl() ).isUnknown() ) {
+                new Throwable().printStackTrace();
+            }
+            return ((AST.TypeAccess)a).decl();
+        } else if( a instanceof AST.ParTypeAccess ) {
+            AST.ParTypeAccess pta = (AST.ParTypeAccess) a;
+            AST.TypeDecl generic = pta.genericDecl();
+            AST.ParTypeDecl ptaDecl = (AST.ParTypeDecl) a.type();
+            System.out.println( "GOING FOR IT" );
+            System.out.println( "GOING FOR IT WITH " + ptaDecl.getClass().getName() );
+
+            for( AST.ASTNode node : pta.getTypeArgumentList() ) {
+                System.out.println( "PUTTING" );
+                System.out.println( node.getClass().getName() );
+                System.out.println( node );
+            }
+            
+            AST.TypeAccess substituted = (AST.TypeAccess) generic.substitute( ptaDecl );
+            System.out.println( "WENT FOR IT TO " + substituted.getClass().getName() );
+            System.out.println( "yo " + substituted );
+            System.out.println( "yo " + substituted.decl().getClass().getName() );
+
+            if( generic instanceof AST.GenericTypeDecl ) {
+                AST.GenericTypeDecl genericDecl = (AST.GenericTypeDecl) generic;
+                AST.TypeDecl lookedUpType = genericDecl.lookupParTypeDecl( pta );
+                AST.ParTypeDecl ptd = (AST.ParTypeDecl) lookedUpType;
+
+                return lookedUpType;
+            }
+            return generic;
+        } else {
+            return null; // oops
+        }
+    }
+
 }

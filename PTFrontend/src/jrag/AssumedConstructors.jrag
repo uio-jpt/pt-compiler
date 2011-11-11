@@ -27,13 +27,22 @@ aspect AssumedConstructors {
         return true;
     }
 
-    public boolean PTAbstractConstructor.matchesConstructorInvocation( ClassInstanceExpr cie ) {
-        if( cie.getNumArg() != getNumParameter() ) {
+    public boolean List.parameterTypesMatchExpressions( List<Expr> exprs ) {
+        if( getNumChild() != exprs.getNumChild() ) {
             return false;
         }
 
-        for(int i=0;i<getNumParameter();i++) {
-            if( !cie.getArg(i).type().subtype( getParameter(i).type() ) ) {
+        final int n = getNumChild();
+        for(int i=0;i<n;i++) {
+            ASTNode node = getChild( i );
+            if( !(node instanceof ParameterDeclaration) ) {
+                return false;
+            }
+        }
+
+        for(int i=0;i<n;i++) {
+            ParameterDeclaration node = (ParameterDeclaration) getChild( i );
+            if( !exprs.getChild( i ).type().subtype( node.type() ) ) {
                 return false;
             }
         }
@@ -41,18 +50,20 @@ aspect AssumedConstructors {
         return true;
     }
 
+    public boolean PTAbstractConstructor.matchesConstructorInvocationSubstituted( ClassInstanceExpr cie, Parameterization pm ) {
+        return ((AST.List) getParameterList().substitute( pm )).parameterTypesMatchExpressions( cie.getArgList() );
+    }
+
+    public boolean PTAbstractConstructor.matchesConstructorInvocation( ClassInstanceExpr cie ) {
+        return getParameterList().parameterTypesMatchExpressions( cie.getArgList() );
+    }
+
+    public boolean PTConstructorPromise.matchesConstructorInvocationSubstituted( ClassInstanceExpr cie, Parameterization pm ) {
+        return ((AST.List) getParameterList().substitute( pm )).parameterTypesMatchExpressions( cie.getArgList() );
+    }
+
     public boolean PTConstructorPromise.matchesConstructorInvocation( ClassInstanceExpr cie ) {
-        if( cie.getNumArg() != getNumParameter() ) {
-            return false;
-        }
-
-        for(int i=0;i<getNumParameter();i++) {
-            if( !cie.getArg(i).type().subtype( getParameter(i).type() ) ) {
-                return false;
-            }
-        }
-
-        return true;
+        return getParameterList().parameterTypesMatchExpressions( cie.getArgList() );
     }
 
     public void ClassDecl.checkConstructorPromises() {
