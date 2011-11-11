@@ -227,14 +227,14 @@ PTDummyRename definition_renaming =
 
 // should this be missing modifiers?
 PTClassAddsDecl pt_adds_class = 
-  CLASS IDENTIFIER super.r_sup? interfaces.r_imp? ADDS pt_class_body.b
-    {: return new PTClassAddsDecl( new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b), r_sup, r_imp ); :}
+  CLASS IDENTIFIER super.r_sup? interfaces.r_imp? ADDS interfaces.novel_imp? pt_class_body.b
+    {: return new PTClassAddsDecl( new ClassDecl(new Modifiers(), IDENTIFIER, new Opt(), novel_imp, b), r_sup, r_imp ); :}
   ;
 
 // same comment applies, no mods, why
 PTClassAddsDecl pt_adds_class = 
-  CLASS IDENTIFIER type_parameters.p super.r_sup? interfaces.r_imp?  ADDS pt_class_body.b
-    {: return new PTClassAddsDecl( new GenericClassDecl(new Modifiers(), IDENTIFIER, new Opt(), new List(), b, p), r_sup, r_imp ); :}
+  CLASS IDENTIFIER type_parameters.p super.r_sup? interfaces.r_imp?  ADDS interfaces.novel_imp?pt_class_body.b
+    {: return new PTClassAddsDecl( new GenericClassDecl(new Modifiers(), IDENTIFIER, new Opt(), novel_imp, b, p), r_sup, r_imp ); :}
   ;
 
 InterfaceDecl pt_adds_intf = 

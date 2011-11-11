@@ -1,0 +1,45 @@
+template T {
+    class X {
+    }
+}
+
+template U {
+    inst T with X => Y;
+    interface Fooable {
+        void foo();
+    }
+
+    class Y adds implements Fooable {
+        public void foo() {
+            System.out.println("foo!" );
+        }
+    }
+}
+
+template V {
+    inst U with Y => Z;
+    interface Barable {
+        void bar();
+    }
+
+    class Z implements Fooable adds implements Barable {
+        public void bar() {
+            System.out.println( "bar!" );
+        }
+    }
+}
+
+package P {
+    inst V with Z => Main;
+
+    class Main adds implements java.lang.Runnable {
+        public static void main(String args[]) {
+            new Main().run();
+        }
+
+        public void run() {
+            foo();
+            bar();
+        }
+    }
+}
