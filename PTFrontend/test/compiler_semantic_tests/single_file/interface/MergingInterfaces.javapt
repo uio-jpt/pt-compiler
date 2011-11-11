@@ -1,0 +1,23 @@
+template T {
+    interface FooRunnable extends java.lang.Runnable {
+        void fooRun();
+    }
+}
+
+template U {
+    interface BarRunnable extends java.lang.Runnable {
+        void barRun();
+    }
+}
+
+package P {
+    inst T with FooRunnable => MyRunnable;
+    inst U with BarRunnable => MyRunnable;
+
+    class Main {
+        public static void main(String args[]) {
+            MyRunnable x = null;
+            java.lang.Runnable y = x;
+        }
+    }
+}
