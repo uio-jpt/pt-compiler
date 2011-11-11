@@ -195,7 +195,7 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append( getBaseTypeDecl().fullName() );
+        sb.append( getBaseTypeDecl().getID() );
         if( isParametrized() ) {
             sb.append( "<" );
             Joiner.on( "," ).appendTo( sb, typeParameters );

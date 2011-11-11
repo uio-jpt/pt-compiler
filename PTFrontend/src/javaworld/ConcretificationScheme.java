@@ -9,6 +9,8 @@ import AST.Access;
 import AST.PTDecl;
 import AST.ASTNode;
 
+import com.google.common.base.Joiner;
+
 public class ConcretificationScheme {
     private Map<RequiredType, TypeDecl> concretifications;
     private ASTNode context;
@@ -16,6 +18,14 @@ public class ConcretificationScheme {
     public ConcretificationScheme( Map<RequiredType, TypeDecl> concretifications, ASTNode context)  {
         this.concretifications = concretifications;
         this.context = context;
+    }
+
+    public String toString() {
+        java.util.List<String> l = new java.util.ArrayList();
+        for( RequiredType rt : concretifications.keySet() ) {
+            l.add( rt.getID() + " <= " + concretifications.get( rt ).getID() );
+        }
+        return "Concretifications(" + Joiner.on( "; " ).join( l ) + ")";
     }
 
     public ConcretificationScheme(ASTNode node) {

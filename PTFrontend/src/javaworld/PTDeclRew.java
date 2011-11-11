@@ -258,7 +258,7 @@ public class PTDeclRew {
             if( !stopError ) {
                 RequiredType reqType = (RequiredType) tdecl;
                 TypeConstraint cand = JastaddTypeConstraints.fromReferenceTypeDecl( replacementType, scheme );
-                TypeConstraint constraint = reqType.getTypeConstraint();
+                TypeConstraint constraint = reqType.getTypeConstraint( scheme );
                 if( cand == null ) {
                     if( replacementType == null ) {
                         ptDeclToBeRewritten.error( "concretification candidate not found" ); // TODO friendlier
@@ -266,12 +266,16 @@ public class PTDeclRew {
                         ptDeclToBeRewritten.error( "concretification candidate " + replacementType.getID() + " is unsuitable (not a known reference type)" );
                     }
                     stopError = true;
-                } else if( !cand.satisfies( constraint, scheme ) ) {
-                    ptDeclToBeRewritten.error( "concretification candidate " + replacementType.getID() + " does not satisfy constraints" );
-                    // TODO be more informative..
-
-                    stopError = true;
                 } else {
+                    try {
+                        cand.satisfies( constraint, scheme );
+                    }
+                    catch( TypeConstraintFailed e ) {
+                        ptDeclToBeRewritten.error( e.getMessage() );
+                        stopError = true;
+                    }
+                }
+                if( !stopError ) {
                     /*
                     String replacementName = replacementType.getID();
                     // TODO this should be a fully qualified access to avoid problems
@@ -317,8 +321,8 @@ public class PTDeclRew {
         }
     }
 
-	protected void createMergedRequiredTypes() {
-        System.out.println( "MERGE/COPYING IN: " + ptDeclToBeRewritten.getID() );
+    protected ConcretificationScheme createRequiredTypeTargets() {
+        Map<RequiredType, TypeDecl> concMapToTemporaries = new java.util.HashMap<RequiredType, TypeDecl> ();
 
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
         for( String key : destinationClassIDsWithInstTuples.keySet() ) {
@@ -350,6 +354,76 @@ public class PTDeclRew {
             java.util.Set<String> typesMerged = new java.util.HashSet<String>();
             
             for( RequiredType rt : originatorReqTypes ) {
+                if( rt instanceof RequiredClass ) {
+                    mustBeClass = true;
+                    typesMerged.add( "required class " + rt.getID() );
+                } else if( rt instanceof RequiredInterface ) {
+                    mustBeInterface = true;
+                    typesMerged.add( "required interface " + rt.getID() );
+                } else {
+                    // note, here we're removing potential freedom per article
+                    mustBeType = true;
+                    typesMerged.add( "required type " + rt.getID() );
+                }
+            }
+            int totalReqs = (mustBeType ? 1 : 0) + (mustBeClass ? 1 : 0) + (mustBeInterface ? 1 : 0);
+
+            if( totalReqs != 1 ) {
+                ptid.error( "will not perform heterogeneous merge of required types: " + Joiner.on( ", " ).join( typesMerged ) );
+                continue;
+            }
+
+            RequiredType myTemporaryRequiredType = JastaddTypeConstraints.convertToRequiredType( key, new TypeConstraint(), ptDeclToBeRewritten.getPTDeclContext() );
+
+            System.out.println( "created and added RTT " + key + " in " + ptDeclToBeRewritten.getClass().getName() + " " + ptDeclToBeRewritten.getID() );
+
+            ptDeclToBeRewritten.addRequiredType( myTemporaryRequiredType );
+
+            for( RequiredType originatorRT : originatorReqTypes ) {
+                concMapToTemporaries.put( originatorRT, myTemporaryRequiredType );
+            }
+        }
+
+        return new ConcretificationScheme( concMapToTemporaries, ptDeclToBeRewritten.getPTDeclContext() );
+    }
+
+	protected void createMergedRequiredTypes() {
+        System.out.println( "MERGE/COPYING IN: " + ptDeclToBeRewritten.getID() );
+
+        ConcretificationScheme temporaryScheme = createRequiredTypeTargets();
+
+		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
+        for( String key : destinationClassIDsWithInstTuples.keySet() ) {
+            java.util.List<RequiredType> originatorReqTypes = new java.util.ArrayList<RequiredType>();
+            TypeDecl nonRTOriginator = null;
+
+            System.out.println( "HERE'S A NAME: " + key );
+
+            for( PTInstTuple tuple : destinationClassIDsWithInstTuples.get( key ) ) {
+                TypeDecl decl = tuple.getOriginator();
+                if( decl instanceof RequiredType ) {
+                    RequiredType renamedDecl = new InstTupleRew( tuple ).getRenamedSourceRequiredType();
+                    originatorReqTypes.add( renamedDecl );
+                } else {
+                    nonRTOriginator = decl;
+                }
+            }
+
+            if( originatorReqTypes.size() == 0 ) continue;
+
+            /*
+
+            PTInstDecl ptid = (PTInstDecl) destinationClassIDsWithInstTuples.get( key ).iterator().next().getParentClass( PTInstDecl.class );
+
+            if( nonRTOriginator != null ) {
+                ptid.error( "cannot merge required type(s) with concrete type " + nonRTOriginator.getID() + " into " + key );
+                continue;
+            }
+
+            boolean mustBeType = false, mustBeClass = false, mustBeInterface = false;
+            java.util.Set<String> typesMerged = new java.util.HashSet<String>();
+            
+            for( RequiredType rt : originatorReqTypes ) {
                 if( rt.getTypeConstraint().mustBeClass() ) {
                     mustBeClass = true;
                     typesMerged.add( "required class " + rt.getID() );
@@ -368,18 +442,27 @@ public class PTDeclRew {
                 ptid.error( "will not perform heterogeneous merge of required types: " + Joiner.on( ", " ).join( typesMerged ) );
                 continue;
             }
+            */
 
             TypeConstraint tc = new TypeConstraint();
 
             for( RequiredType rt : originatorReqTypes ) {
-                tc.absorb( rt.getTypeConstraint() );
+                tc.absorb( rt.getTypeConstraint( temporaryScheme ) );
             }
 
             System.out.println( "creating new required type in: " + ptDeclToBeRewritten );
 
+            SimpleSet temporaryReqTypes = ptDeclToBeRewritten.lookupTypeInPTDecl( key );
+            if( temporaryReqTypes.size() != 1 ) {
+                ptDeclToBeRewritten.error( "internal compiler error -- failed to properly create temporary RT (expected 1 found " + temporaryReqTypes.size() + ")" );
+                continue;
+            }
+            ASTNode temporaryReqType = (ASTNode) temporaryReqTypes.iterator().next();
+            System.out.println( "replacing temporary reqtype of class " + temporaryReqType.getClass().getName() );
+
             RequiredType myRequiredType = JastaddTypeConstraints.convertToRequiredType( key, tc, ptDeclToBeRewritten.getPTDeclContext() );
 
-            ptDeclToBeRewritten.addRequiredType( myRequiredType );
+            temporaryReqType.replaceSelfWith( myRequiredType );
         }
     }
 /*

@@ -1,0 +1,23 @@
+template T {
+    required interface Graph { }
+
+    required interface Visitor  {
+      void m(Graph g);
+    }
+}
+
+template U {    
+    required interface G1 {}    
+}
+
+package P {
+    inst T with Graph => G1, Visitor <= MyVis;
+    inst U with G1 <= MyG1; 
+
+
+    interface MyG1 {}
+
+    interface MyVis {
+        void m(MyG1 g);
+    }
+}

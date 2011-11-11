@@ -49,11 +49,16 @@ public class MethodDescriptor {
 
     public boolean signatureEquals(MethodDescriptor that, ConcretificationScheme scheme ) {
         final int n = getArity();
+        System.out.println( "name mismatch?" );
         if( !name.equals( that.name ) ) return false;
+        System.out.println( "arity mismatch? " + n + " vs " + that.getArity() );
         if( n != that.getArity() ) return false;
         for(int i=0;i<n;i++) {
+            System.out.println( "parameter mine: " + getParameterType(i) + " => " + getParameterType(i).mapByScheme(scheme) );
+            System.out.println( "parameter theirs: " + that.getParameterType(i) + " => " + that.getParameterType(i).mapByScheme(scheme) );
             if( !getParameterType(i).mapByScheme( scheme ).equals( that.getParameterType(i).mapByScheme( scheme ) ) ) return false;
         }
+        System.out.println( "sig is fine" );
         return true;
     }
 
@@ -78,6 +83,8 @@ public class MethodDescriptor {
     public boolean conformsTo( MethodDescriptor that, ConcretificationScheme scheme ) {
         // Java semantics.
         // todo check more obscure things like throws clauses
+        System.out.println( "checking " + this + " vs " + that );
+        System.out.println( scheme );
 
         if( !signatureEquals( that, scheme ) ) return false; // sanity check
 

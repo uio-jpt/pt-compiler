@@ -44,7 +44,7 @@ aspect RequiredTypes {
       return true;
   }
 
-  public TypeConstraint RequiredType.getTypeConstraint() {
+  public TypeConstraint RequiredType.getTypeConstraint( ConcretificationScheme scheme ) {
       TypeConstraint rv = new TypeConstraint();
 
       if( this instanceof RequiredClass ) {
@@ -71,7 +71,7 @@ aspect RequiredTypes {
 
 
       for( BodyDecl bd : getBodyDecls() ) {
-          JastaddTypeConstraints.fromRequiredTypeBodyDeclInto( bd, rv, new  ConcretificationScheme( bd ) );
+          JastaddTypeConstraints.fromRequiredTypeBodyDeclInto( bd, rv, scheme );
       }
 
       System.out.println( "constructed " + rv );

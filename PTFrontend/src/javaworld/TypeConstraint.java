@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import com.google.common.base.Joiner;
 
 public class TypeConstraint {
+    String name; // purely for pretty messages
+
     boolean canBeClass;
     boolean canBeInterface;
 
@@ -130,6 +132,15 @@ public class TypeConstraint {
         sb.append( "]" );
 
         return sb.toString();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public TypeConstraint(String name) {
+        this();
+        this.name = name;
     }
 
     public TypeConstraint() {
@@ -265,14 +276,13 @@ public class TypeConstraint {
         return true;
     }
 
-    public boolean satisfies( TypeConstraint constraint, ConcretificationScheme scheme ) {
+    public boolean satisfies( TypeConstraint constraint, ConcretificationScheme scheme ) throws TypeConstraintFailed {
         System.out.println( "trying for satisfaction of: " + constraint );
 
         if( !( (canBeClass && constraint.canBeClass)
                ||
                (canBeInterface && constraint.canBeInterface) ) ) {
-            System.out.println( "ruled out on type" );
-            return false;
+            throw new TypeConstraintFailed( getName(), constraint.getName(), "required-type type mismatch" );
         }
 
         System.out.println( "checking satisfies?" );
@@ -281,20 +291,21 @@ public class TypeConstraint {
         System.out.println( "candidate specific type: " + specificType );
 
         if( !satisfiesOnTypeParameters( constraint, scheme ) ) {
-            return false;
+            throw new TypeConstraintFailed( getName(), constraint.getName(), "type parameters do not match" );
         }
 
         for( MethodDescriptor md : constraint.methods ) {
             // we must supply one method that conforms to md.
             boolean ok = false;
+            System.out.println( "we have " + methods.size() + " methods");
             for( MethodDescriptor cmd : methods ) {
+                System.out.println( "we have a method: " + cmd );
                 if( cmd.conformsTo( md, scheme ) ) {
                     ok = true;
                 }
             }
             if( !ok ) {
-                System.out.println( "ruled out on " + md );
-                return false;
+                throw new TypeConstraintFailed( getName(), constraint.getName(), "no method matches " + md );
             }
         }
 
@@ -306,8 +317,7 @@ public class TypeConstraint {
                 }
             }
             if( !ok ) {
-                System.out.println( "ruled out on " + cd );
-                return false;
+                throw new TypeConstraintFailed( getName(), constraint.getName(), "no constructor matches " + cd );
             }
         }
 
@@ -325,7 +335,9 @@ public class TypeConstraint {
                     okay = true;
                 }
             }
-            if( !okay ) return false;
+            if( !okay ) {
+                throw new TypeConstraintFailed( getName(), constraint.getName(), "does not extend type " + mustExtend );
+            }
         }
 
         for( TypeDescriptor mustImplement : constraint.implementedTypes ) {
@@ -344,34 +356,10 @@ public class TypeConstraint {
                     okay = true;
                 }
             }
-            if( !okay ) return false;
-        }
-
-/*
-        for( String name : constraint.nominalExtendedClassesExternal ) {
-            if( !nominalExtendedClassesExternal.contains( name ) ) {
-                return false;
+            if( !okay ) {
+                throw new TypeConstraintFailed( getName(), constraint.getName(), "does not implement type " + mustImplement );
             }
         }
-
-        for( String name : constraint.nominalExtendedClassesInternal ) {
-            if( !nominalExtendedClassesInternal.contains( name ) ) {
-                return false;
-            }
-        }
-
-        for( String name : constraint.nominalImplementedInterfacesExternal ) {
-            if( !nominalImplementedInterfacesExternal.contains( name ) ) {
-                return false;
-            }
-        }
-
-        for( String name : constraint.nominalImplementedInterfacesInternal ) {
-            if( !nominalImplementedInterfacesInternal.contains( name ) ) {
-                return false;
-            }
-        }
-*/
 
         return true;
     }
