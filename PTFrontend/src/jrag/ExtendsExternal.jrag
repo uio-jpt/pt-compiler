@@ -15,9 +15,10 @@ aspect ExtendsExternal {
     // this being an attribute of every ASTNode is a hack for
     // the same issue that gave us SimpleClass, I think
 
-    inh boolean ASTNode.isPtInternalClass();
-    eq ASTNode.getChild(int i).isPtInternalClass() = false;
-    eq SimpleClass.getClassDecl().isPtInternalClass() = true;
+    public boolean ASTNode.isPtInternalClass() { return false; }
+    public boolean ClassDecl.isPtInternalClass() {
+        return getParentClass( PTDecl.class ) != null;
+    }
 
     /* XXX hack. TODO fix */
     refine PrettyPrint public void Modifier.toString( StringBuffer sb ) {
