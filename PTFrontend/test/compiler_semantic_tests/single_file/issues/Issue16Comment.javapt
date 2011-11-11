@@ -1,0 +1,17 @@
+template T {
+  required interface RX { void foo(); }
+  required interface RI<T> extends RX { T getT(); }
+ }
+
+package P {
+   inst T with RI <= R, RX <= MyRX;
+
+
+    interface MyRX {
+        void foo();
+    }
+
+   interface R<T> extends MyRX {
+       T getT();
+   }
+}  

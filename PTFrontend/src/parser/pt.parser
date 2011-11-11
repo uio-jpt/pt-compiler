@@ -340,21 +340,21 @@ RequiredType ptr_required_spec =
     ;
 
 RequiredType ptr_r_type =
-    TYPE IDENTIFIER super.s? interfaces.i? type_parameters.p? LBRACE ptr_r_internal_decl.m* RBRACE
+    TYPE IDENTIFIER type_parameters.p? super.s? interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
         {:
             return new RequiredType( new Modifiers(), IDENTIFIER, m, s, i, p );
         :}
     ;
 
 RequiredInterface ptr_r_interface =
-    INTERFACE IDENTIFIER extends_interfaces.i? type_parameters.p? LBRACE ptr_r_internal_decl.m* RBRACE
+    INTERFACE IDENTIFIER type_parameters.p? extends_interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
         {:
             return new RequiredInterface( new Modifiers(), IDENTIFIER, m, new Opt(), i, p );
         :}
     ;
 
 RequiredClass ptr_r_class =
-    CLASS IDENTIFIER super.s? interfaces.i? type_parameters.p? LBRACE ptr_r_internal_decl.m* RBRACE
+    CLASS IDENTIFIER type_parameters.p? super.s? interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
         {:
             return new RequiredClass( new Modifiers(), IDENTIFIER, m, s, i, p );
         :}
