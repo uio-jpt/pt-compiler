@@ -10,8 +10,8 @@ template Strings {
     }
 
     class X {
-        StringAdder sa;     // "margebar"?
-        StringGetter sg;    // "margebar"?
+        StringAdder sa;     // "mergebar"?
+        StringGetter sg;    // "mergebar"?
 
         boolean transfer(int i) {
             return sa.add( sg.get(i) );
@@ -24,14 +24,11 @@ package P {
     inst Strings with StringAdder <= StringList,
                       StringGetter <= StringList,
 
-                      // LITT på sidelinjen:
                       // siden vi har merget reqTypene,
                       // kunne vi da (via noe mer syntaks?) merget denne variabelen?
                       X => X (sa -> sag, sg -> sag);
 
-    class X adds {
-
-    }
+    class X adds { }
 
     class List {
 

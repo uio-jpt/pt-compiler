@@ -1,0 +1,21 @@
+template T {
+
+    class C {
+        void m() {
+            System.out.println("super");
+        }
+    }
+}
+
+package P {
+    inst T;
+    
+    class D extends C {
+        
+        @Override
+        void r() {
+            System.out.println("override?");
+        }
+    }
+}
+

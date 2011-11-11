@@ -1,0 +1,11 @@
+template T {
+    required type X { }
+}
+
+template U {
+    inst T with
+        required type X adds {
+            void run();
+        };
+}
+

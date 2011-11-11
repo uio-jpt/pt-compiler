@@ -1,0 +1,37 @@
+
+template Strings {
+
+    required type StringAdder {
+        boolean add(String e);
+    }
+
+    required type StringGetter {
+        String get(int i);
+    }
+
+    class X {
+        StringAdder sa;
+        StringGetter sg;
+
+        boolean transfer(int i) {
+            return sa.add( sg.get(i) );
+        }
+    }
+
+}
+
+/*
+   Impliserer her at get() også skal fjerne Stringen som hentes ut.
+ */
+template RemoveStrings {
+    inst Strings with StringGetter => StringGetter( get(int) -> remove );
+}
+
+template StringAdderGetter {
+    inst RemoveStrings with StringAdder => StringList,
+                            StringGetter => StringList;
+}
+
+package P {
+    inst StringAdderGetter with StringList <= java.util.LinkedList<String>;
+}
