@@ -9,6 +9,7 @@ import AST.ParTypeAccess;
 import AST.TypeAccess;
 import AST.TypeDecl;
 import AST.Wildcard;
+import AST.WildcardExtends;
 import AST.RequiredType;
 import AST.PTDecl;
 import AST.Program;
@@ -25,6 +26,7 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     TypeDecl typeDeclaration;
 
     boolean isWildcard;
+    TypeDecl isWildcardExtending;
 
     List<JastaddTypeDescriptor> typeParameters;
 
@@ -53,6 +55,8 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
             }
         } else if( acc instanceof Wildcard ) {
             isWildcard = true;
+        } else if( acc instanceof WildcardExtends ) {
+            isWildcardExtending = ((WildcardExtends) acc).type();
         } else {
             throw new RuntimeException( "access of class " + acc.getClass().getName() + " passed to JastaddTypeDescriptor does not describe a type in any known way" );
         }
@@ -91,6 +95,9 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         if( isWildcard ) {
             new Wildcard();
         }
+        if( isWildcardExtending != null ) {
+            new WildcardExtends( isWildcardExtending.createBoundAccess() );
+        }
         if( isParametrized() ) {
             return parTypeAccess;
         }
@@ -98,6 +105,9 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     }
 
     public TypeDecl getBaseTypeDecl() {
+        if( isWildcardExtending != null ) {
+            return isWildcardExtending;
+        }
         if( byDeclaration ) {
             return typeDeclaration;
         }
@@ -108,6 +118,9 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     }
 
     public TypeDecl getTypeDecl() {
+        if( isWildcardExtending != null ) {
+            return isWildcardExtending;
+        }
         if( byDeclaration ) {
             return typeDeclaration;
         }
@@ -157,6 +170,8 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         
         if( isWildcard != jt.isWildcard ) return false;
 
+        if( isWildcardExtending != jt.isWildcardExtending ) return false;
+
         if( isParametrized() != jt.isParametrized() ) return false;
 
         if( getBaseTypeDecl() != jt.getBaseTypeDecl() ) return false;
@@ -191,6 +206,9 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     public String toString() {
         if( isWildcard ) {
             return "?";
+        }
+        if( isWildcardExtending != null ) {
+            return "? extends " + new JastaddTypeDescriptor( isWildcardExtending );
         }
 
         StringBuilder sb = new StringBuilder();

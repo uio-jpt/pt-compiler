@@ -34,6 +34,8 @@ import AST.GenericClassDecl;
 import AST.GenericInterfaceDecl;
 import AST.TypeVariable;
 import AST.RawInterfaceDecl;
+import AST.Parameterization;
+import AST.ParClassDecl;
 
 import AST.RequiredType;
 import AST.RequiredClass;
@@ -74,9 +76,34 @@ public class JastaddTypeConstraints {
                                );
     }
 
+    static MethodDescriptor describeMethodDeclSubstituting( MethodDecl mdecl, ConcretificationScheme scheme, Parameterization pm ) {
+        String name = mdecl.getID();
+        JastaddTypeDescriptor ret = new JastaddTypeDescriptor( Util.declarationFromTypeAccess( mdecl.getTypeAccess( )).substitute( pm ) );
+
+        List<TypeDescriptor> params = new Vector<TypeDescriptor>();
+        for( Object pdo : mdecl.getParameters().substitute( pm ) ) {
+            ParameterDeclaration pd = (ParameterDeclaration) pdo;
+            JastaddTypeDescriptor pt = new JastaddTypeDescriptor( pd.getTypeAccess() );
+
+            params.add( pt.mapByScheme( scheme ) );
+        }
+
+        return new MethodDescriptor( name, ret.mapByScheme( scheme ), params );
+
+    }
+
     static MethodDescriptor describeMethodDecl( MethodDecl mdecl, ConcretificationScheme scheme ) {
         String name = mdecl.getID();
         JastaddTypeDescriptor ret = new JastaddTypeDescriptor( mdecl.getTypeAccess() );
+
+        System.out.println( "LOOOKIE" + mdecl.getParameters().getClass().getName() );
+        for( ParameterDeclaration pd : mdecl.getParameters() ) {
+            System.out.println( "LOOKIE" + pd );
+        }
+        System.out.println( "WHAT I FOUND " + mdecl.getClass().getName() );
+        System.out.println( ".. " + mdecl.getParent().getParent().getClass().getName() );
+        System.out.println( ".. " + mdecl.getParent().getParent() );
+
 
         List<TypeDescriptor> params = new Vector<TypeDescriptor>();
         for( ParameterDeclaration pd : mdecl.getParameters() ) {
@@ -88,6 +115,18 @@ public class JastaddTypeConstraints {
         return new MethodDescriptor( name, ret.mapByScheme( scheme ), params );
 
     }
+
+    static ConstructorDescriptor describeConstructorDeclSubstituting( ConstructorDecl cdecl, ConcretificationScheme scheme, Parameterization pm ) {
+        List<TypeDescriptor> params = new Vector<TypeDescriptor>();
+        for( Object pdo : cdecl.getParameters().substitute( pm ) ) {
+            ParameterDeclaration pd = (ParameterDeclaration) pdo;
+            JastaddTypeDescriptor pt = new JastaddTypeDescriptor( pd.getTypeAccess() );
+            params.add( pt.mapByScheme( scheme ) );
+        }
+        return new ConstructorDescriptor( params );
+
+    }
+
 
     static ConstructorDescriptor describeConstructorDecl( ConstructorDecl cdecl, ConcretificationScheme scheme ) {
         List<TypeDescriptor> params = new Vector<TypeDescriptor>();
@@ -231,33 +270,74 @@ public class JastaddTypeConstraints {
     }
 
     static void fromClassDeclInto( ClassDecl cdecl, TypeConstraint tc, ConcretificationScheme scheme ) {
-        for( BodyDecl bd : cdecl.getBodyDecls() ) {
-            if( bd instanceof MethodDecl ) {
-                MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd, scheme );
-                mdesc.applyScheme( scheme );
-                tc.addMethod( mdesc );
-            } else if( bd instanceof ConstructorDecl ) {
-                ConstructorDescriptor cdesc = describeConstructorDecl( (ConstructorDecl) bd, scheme );
-                cdesc.applyScheme( scheme );
-                tc.addConstructor( cdesc );
-            } else if( bd instanceof FieldDeclaration ) {
-                /* We do not support field declarations in required types at the moment (should we? not sure)
-                   but we do need to tolerate them in extraction from classes, for conformance checking.
-                */
-            } else {
-                System.out.println( "[debug/warning] fromClassDeclInto() did not expect " + bd.getClass().getName() );
-                System.out.println( "[debug/warning] was: " + bd.dumpTree() );
-                System.out.println( "[debug/warning] was: " + bd );
-                // warn?
-            }
+        System.out.println( "ASCENDING to add from: " + cdecl.fullName() + " " + cdecl.getClass().getName() );
+
+        java.util.HashMap methodsMap = cdecl.methodsSignatureMap();
+        for( Object keyo : methodsMap.keySet() ) {
+            String key = (String) keyo;
+            MethodDecl md = (MethodDecl) methodsMap.get( key );
+            MethodDescriptor mdesc = describeMethodDecl( md, scheme );
+            mdesc.applyScheme( scheme );
+            tc.addMethod( mdesc );
         }
 
-        System.out.println ( "creating from " + cdecl.getID() );
+        if( cdecl instanceof ParClassDecl ) {
+            ParClassDecl pcdecl = (ParClassDecl) cdecl;
+            GenericClassDecl gcdecl = (GenericClassDecl) pcdecl.genericDecl();
 
+            for( BodyDecl bd : gcdecl.getBodyDecls() ) {
+                if( false && bd instanceof MethodDecl ) {
+                    MethodDescriptor mdesc = describeMethodDeclSubstituting( (MethodDecl) bd, scheme, pcdecl );
+                    mdesc.applyScheme( scheme );
+                    tc.addMethod( mdesc );
+                } else if( bd instanceof ConstructorDecl ) {
+                    ConstructorDescriptor cdesc = describeConstructorDeclSubstituting( (ConstructorDecl) bd, scheme, pcdecl );
+                    cdesc.applyScheme( scheme );
+                    tc.addConstructor( cdesc );
+                } else if( bd instanceof FieldDeclaration ) {
+                    /* We do not support field declarations in required types at the moment (should we? not sure)
+                       but we do need to tolerate them in extraction from classes, for conformance checking.
+                    */
+                } else {
+                    System.out.println( "[debug/warning] fromClassDeclInto() did not expect " + bd.getClass().getName() );
+                    System.out.println( "[debug/warning] was: " + bd.dumpTree() );
+                    System.out.println( "[debug/warning] was: " + bd );
+                    // warn?
+                }
+            }
+        } else {
+            for( BodyDecl bd : cdecl.getBodyDecls() ) {
+                if( false && bd instanceof MethodDecl ) {
+                    MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd, scheme );
+                    mdesc.applyScheme( scheme );
+                    tc.addMethod( mdesc );
+                } else if( bd instanceof ConstructorDecl ) {
+                    ConstructorDescriptor cdesc = describeConstructorDecl( (ConstructorDecl) bd, scheme );
+                    cdesc.applyScheme( scheme );
+                    tc.addConstructor( cdesc );
+                } else if( bd instanceof FieldDeclaration ) {
+                    /* We do not support field declarations in required types at the moment (should we? not sure)
+                       but we do need to tolerate them in extraction from classes, for conformance checking.
+                    */
+                } else {
+                    System.out.println( "[debug/warning] fromClassDeclInto() did not expect " + bd.getClass().getName() );
+                    System.out.println( "[debug/warning] was: " + bd.dumpTree() );
+                    System.out.println( "[debug/warning] was: " + bd );
+                    // warn?
+                }
+            }
+
+        }
+
+/*        // ?? check more
         ClassDecl sc = cdecl.superclass();
         if( sc != null ) {
             fromClassDeclInto( sc, tc, scheme );
         }
+*/
+
+        System.out.println ( "creating from " + cdecl.getID() );
+
     }
 
     static TypeConstraint fromClassDecl( ClassDecl cdecl, ConcretificationScheme scheme ) {
