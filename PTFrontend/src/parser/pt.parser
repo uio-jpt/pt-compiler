@@ -238,10 +238,10 @@ PTClassAddsDecl pt_adds_class =
   ;
 
 InterfaceDecl pt_adds_intf = 
-  INTERFACE IDENTIFIER extends_interfaces.i? ADDS interface_body.b
-    {: return new PTInterfaceAddsDecl(new Modifiers(), IDENTIFIER, new List() , b, i); :}
-  | INTERFACE IDENTIFIER type_parameters.p extends_interfaces.i? ADDS interface_body.b 
-    {:  return new PTGenericInterfaceAddsDecl(new Modifiers(), IDENTIFIER, new List(), i, b, p);  :}
+  INTERFACE IDENTIFIER extends_interfaces.i? ADDS extends_interfaces.novel_i? interface_body.b
+    {: return new PTInterfaceAddsDecl(new Modifiers(), IDENTIFIER, novel_i , b, i); :}
+  | INTERFACE IDENTIFIER type_parameters.p extends_interfaces.i? ADDS extends_interfaces.novel_i? interface_body.b 
+    {:  return new PTGenericInterfaceAddsDecl(new Modifiers(), IDENTIFIER, novel_i, i, b, p);  :}
   ;
 
 InterfaceDecl pt_intf_decl =

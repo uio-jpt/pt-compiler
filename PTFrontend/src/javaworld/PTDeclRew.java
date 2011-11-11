@@ -487,6 +487,17 @@ public class PTDeclRew {
         Set<String> addInterfaces = ptDeclToBeRewritten.getAdditionInterfaceNamesSet();
         Set<String> missingAddsInterfaceNames = Sets.difference( getDestinationIDsForInterfaces(), addInterfaces );
 
+        Map<String,String> internalInterfacesBeingRenamed = new java.util.HashMap<String,String>();
+
+        for( String dest : destinationClassIDsWithInstTuples.keySet() ) {
+            for( PTInstTuple ptit : destinationClassIDsWithInstTuples.get( dest ) ) {
+                internalInterfacesBeingRenamed.put( ptit.getOrgID(), dest );
+            }
+        }
+
+        System.out.println( "internal interfaces being renameD: " + internalInterfacesBeingRenamed );
+
+
         Set<String> genericNames = new HashSet<String>();
 
         for(String name : missingAddsInterfaceNames ) {
@@ -516,8 +527,6 @@ public class PTDeclRew {
                 tc.absorb( JastaddTypeConstraints.fromInterfaceDecl( idecl, new ConcretificationScheme( ptDeclToBeRewritten.getPTDeclContext() ) ) );
             }
 
-            System.out.println( "ILL now proceed assembling interface" );
-
             /*
             Set<String> addedSignatures = new HashSet<String> ();
 
@@ -525,6 +534,16 @@ public class PTDeclRew {
                 addedSignatures.add( (String) mdsig );
             }
             */
+
+            System.out.println( tc );
+
+            target.setSuperInterfaceIdList( new AST.List() );
+
+            for(Iterator<TypeDescriptor> it = tc.getImplementedTypesIterator(); it.hasNext(); ) {
+                JastaddTypeDescriptor jtd = (JastaddTypeDescriptor) it.next();
+                System.out.println( "adding some sort of superinterfaces " );
+                target.addSuperInterfaceId( (AST.Access) jtd.getAccess().fullCopy() );
+            }
 
             for(Iterator<MethodDescriptor> it = tc.getMethodsIterator(); it.hasNext(); ) {
                 MethodDescriptor method = it.next();

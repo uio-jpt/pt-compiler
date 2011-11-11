@@ -149,10 +149,16 @@ public class JastaddTypeConstraints {
 
 
 
-        for( Object superio : idecl.implementedInterfaces() ) {
-            InterfaceDecl superi = (InterfaceDecl) superio;
-            // these are really _extended_, not implemented
-            fromInterfaceDeclInto( superi, tc, scheme );
+        for( Object superio : idecl.getSuperInterfaceIdList() ) {
+            Access myAc = (Access) superio;
+/*
+            InterfaceDecl superi = (InterfaceDecl) Util.declarationFromTypeAccess( myAc );;
+            if( superi != null ) {
+                // these are really _extended_, not implemented
+                fromInterfaceDeclInto( superi, tc, scheme );
+            }
+*/
+            tc.addImplementedType( new JastaddTypeDescriptor( myAc ) );
         }
 
         System.out.println( "result was " + tc );
@@ -243,9 +249,11 @@ public class JastaddTypeConstraints {
         System.out.println ( "creating from " + cdecl.getID() );
 
         ClassDecl sc = cdecl.superclass();
+/*
         if( sc != null ) {
             fromClassDeclInto( sc, tc, scheme );
         }
+*/
     }
 
     static TypeConstraint fromClassDecl( ClassDecl cdecl, ConcretificationScheme scheme ) {

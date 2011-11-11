@@ -199,7 +199,10 @@ public class TypeConstraint {
         Set<TypeDescriptor> madeRedundant = new HashSet<TypeDescriptor>();
 
         for( TypeDescriptor myTd : extendedTypes ) {
-            if( td.isSubtypeOf( myTd ) ) {
+            if( td.equals( myTd ) ) {
+                ignorable = true;
+                break;
+            } else if( td.isSubtypeOf( myTd ) ) {
                 madeRedundant.add( td );
             } else if( myTd.isSubtypeOf( td ) ) {
                 // if I'm already extending a subtype ( a more specific type )
@@ -218,7 +221,30 @@ public class TypeConstraint {
     }
 
     public void addImplementedType( TypeDescriptor td ) {
-        implementedTypes.add( td );
+        boolean ignorable = false;
+        Set<TypeDescriptor> madeRedundant = new HashSet<TypeDescriptor>();
+
+        for( TypeDescriptor myTd : implementedTypes ) {
+            if( td.equals( myTd ) ) {
+                ignorable = true;
+                break;
+            } else if( td.isSubtypeOf( myTd ) ) {
+                madeRedundant.add( td );
+            } else if( myTd.isSubtypeOf( td ) ) {
+                // if I'm already extending a subtype ( a more specific type )
+               // then this is ignorable
+               ignorable = true;
+            }
+        }
+
+        if( !ignorable ) {
+            for( TypeDescriptor toRemove : madeRedundant ) {
+                implementedTypes.remove( toRemove );
+            }
+
+            System.out.println( "YES adding " + td );
+            implementedTypes.add( td );
+        }
     }
 
     public void absorb(TypeConstraint that) {
