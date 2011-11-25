@@ -84,6 +84,10 @@ aspect RequiredTypes {
       return td;
   }
 
+  public boolean RequiredType.subtype( TypeDecl that ) {
+    return instanceOf( that );
+  }
+
   public boolean RequiredType.instanceOf( TypeDecl that ) {
       List<Access> ifaces = getImplementsList();
       if( this == that ) {
