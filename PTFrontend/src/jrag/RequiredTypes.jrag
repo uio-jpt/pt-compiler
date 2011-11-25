@@ -90,19 +90,20 @@ aspect RequiredTypes {
 
   public boolean RequiredType.instanceOf( TypeDecl that ) {
       List<Access> ifaces = getImplementsList();
+      System.out.println( "checking (1) whether " + getID() + " isInstanceOf " + that.getID() );
       if( this == that ) {
           return true;
       }
-      System.out.println( "checking whether " + getID() + " isInstanceOf " + that.getID() );
+      System.out.println( "checking (2) whether " + getID() + " isInstanceOf " + that.getID() );
       for( Access a : ifaces ) {
             TypeDecl td = Util.declarationFromTypeAccess( a );
             if( td.instanceOf( that ) ) {
-              System.out.println( "checking whether " + getID() + " isInstanceOf " + that.getID() + ": true!" );
+      System.out.println( "checking (3) whether " + getID() + " isInstanceOf " + that.getID() + " true ");
                 return true;
             }
       }
       boolean rv = ( getDirectSupertype().instanceOf( that ) );
-      System.out.println( "checking whether " + getID() + " isInstanceOf " + that.getID() + ": (" + rv + ")!" );
+      System.out.println( "checking (4)whether " + getID() + " isInstanceOf " + that.getID() + ": (" + rv + ")!" );
       return rv;
   }
 
@@ -398,6 +399,90 @@ aspect RequiredTypes {
     return topLevelType().lookupType(name); // Fix to search imports
     // include type parameters if not static
   }
+
+  refine TypeConversion
+  eq ReferenceType.narrowingConversionTo(TypeDecl type) {
+    if(type.instanceOf(this))
+      return true;
+    if(isClassDecl() && !getModifiers().isFinal() && type.isInterfaceDecl())
+      return true;
+    if(isInterfaceDecl() && type.isClassDecl() && !type.getModifiers().isFinal())
+      return true;
+    if(isInterfaceDecl() && type.instanceOf(this))
+      return true;
+
+    System.out.println( "@@@@ checking requiredtypes" );
+    if((this instanceof RequiredType) && type.instanceOf(this))
+      return true;
+    System.out.println( "@@@@ done checing requiredtypes :[" );
+
+    if(fullName().equals("java.lang.Object") && type.isInterfaceDecl())
+      return true;
+    // Dragons
+    // TODO: Check if both are interfaces with compatible methods
+    if(isArrayDecl() && type.isArrayDecl() && elementType().instanceOf(type.elementType()))
+      return true;
+    return false;
+  }
+
+
+        /* TODO BEGIN */
+   eq RequiredType.supertypeRawClassDecl(RawClassDecl type) = true;
+   eq RequiredType.supertypeRawInterfaceDecl(RawInterfaceDecl type) = true;
+   eq RequiredType.supertypeTypeVariable(TypeVariable type) = true;
+   eq RequiredType.supertypeArrayDecl(ArrayDecl type) = false;
+        /* END, ALL WERE RED FLAGS */
+
+   eq RequiredType.supertypeClassDecl(ClassDecl type) {
+        // does the class extend this RT as a class?
+        // does the class implement this RT as an interface?
+
+        System.out.println ( "@@@ blue flag maybe fixed" );
+
+        for( Access a : type.getImplementsList() ) {
+            TypeDecl td = Util.declarationFromTypeAccess( a );
+            if( td.instanceOf( this ) ) {
+                return true;
+            }
+        }
+
+        if( type.hasSuperclass() && type.superclass() != null ) {
+            if( type.superclass().subtype( this ) ) {
+                return true;
+            }
+        }   
+        
+        return false;
+   }
+
+   eq RequiredType.supertypeInterfaceDecl(InterfaceDecl type) {
+        System.out.println ( "@@@ RED FLAG , not fixed" );
+        for( Access a : getImplementsList() ) {
+            TypeDecl td = Util.declarationFromTypeAccess( a );
+            if( td.instanceOf( type ) ) {
+                return true;
+            }
+        }
+        return getDirectSupertype().instanceOf( type );
+   }
+
+        /* TODO END */
+
+   eq RequiredType.supertypeGenericClassDecl(GenericClassDecl type) {
+        System.out.println( "@@@ HOo hoo " );
+        return supertypeClassDecl( type );
+   }
+
+   eq RequiredType.supertypeParClassDecl(ParClassDecl type) {
+        TypeDecl td = type.genericDecl();
+        boolean rv = td.subtype( this );
+        System.out.println( "@@@@ hullo " + rv + " " + this + ".supertypeParClassDecl(" + td + ") " );
+        return rv;
+   }
+   eq RequiredType.supertypeParInterfaceDecl(ParInterfaceDecl type) {
+        System.out.println( "@@@@ hullo 2" );
+        return type.genericDecl().subtype( this );
+   }
 
 
 }
