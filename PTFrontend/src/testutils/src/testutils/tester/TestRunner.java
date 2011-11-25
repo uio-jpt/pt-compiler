@@ -47,9 +47,16 @@ public class TestRunner extends PTFrontend implements TestCase {
             System.out.println( "Running test: " + name ); /* this is terribly useful when one test _crashes_ or gives unexpected
                                                               output on stdout/err without giving any errors. TODO transform
                                                               this into --verbose mode */
-
-			actual = process();
-			SemanticReport report = generateReport();
+			SemanticReport report = null;
+            try {
+                actual = process();
+            }
+            catch( Exception e ) {
+                report = new SemanticTotalFailureReport(name, filenames, e, containsPTPackage() );
+            }
+            if( report == null ) {
+                report = generateReport();
+            }
 			testReports.addReport(report);
 	}
 

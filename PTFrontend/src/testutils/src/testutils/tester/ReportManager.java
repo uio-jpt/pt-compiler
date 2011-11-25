@@ -7,6 +7,7 @@ public class ReportManager {
 
 	private List<SemanticReport> passedTests;
 	private List<SemanticReport> failedTests;
+	private List<SemanticReport> compilerCrashTests;
 	private List<SemanticReport> compilableTests;
 	private List<SimpleReport> compileReports;
 	private List<SimpleReport> compileReportErrors;
@@ -14,6 +15,7 @@ public class ReportManager {
 	public ReportManager() {
 		passedTests = new LinkedList<SemanticReport>();
 		failedTests = new LinkedList<SemanticReport>();
+		compilerCrashTests = new LinkedList<SemanticReport>();
 		compilableTests = new LinkedList<SemanticReport>();
 		compileReports = new LinkedList<SimpleReport>();
 		compileReportErrors = new LinkedList<SimpleReport>();
@@ -26,7 +28,11 @@ public class ReportManager {
 				compilableTests.add(report);
             }
 		} else {
-			failedTests.add(report);
+            if( report instanceof SemanticTotalFailureReport ) {
+                compilerCrashTests.add(report);
+            } else {
+                failedTests.add(report);
+            }
         }
 	}
 

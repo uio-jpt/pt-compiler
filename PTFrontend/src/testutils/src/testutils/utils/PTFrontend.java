@@ -89,7 +89,16 @@ public class PTFrontend {
 				if (!new File(name).exists())
 					System.out.println("WARNING: file \"" + name
 							+ "\" does not exist");
-				program.addSourceFile(name);
+                try {
+                    program.addSourceFile(name);
+                }
+                catch( Error expectedUnexpectedError ) {
+                    // Jastadd is throwing an Error here when our code crashes during compile.
+                    // wrapping it allows us to catch something narrower in TestRunner
+                    // (note that we could also crash during errorCheck, but that should be
+                    //  a normal Exception)
+                    throw new Exception( expectedUnexpectedError );
+                }
 			}
 
 			// TODO: I think there's a bug somewhere in errorcheck.
