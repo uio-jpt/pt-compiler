@@ -72,12 +72,34 @@ aspect RequiredTypes {
       return rv;
   }
 
+  public TypeDecl RequiredType.getDirectSupertype() {
+      if( ! hasSuperTypeAccess() ) {
+      /* Missing manual comment (or perhaps it's there somewhere): typeObject()
+         returns the literal type "java.lang.Object". */
+          return typeObject();
+      }
+      Access a = getSuperTypeAccess();
+      TypeDecl td = Util.declarationFromTypeAccess( a );
+
+      return td;
+  }
+
   public boolean RequiredType.instanceOf( TypeDecl that ) {
-      if( typeObject().instanceOf( that ) ) {
+      List<Access> ifaces = getImplementsList();
+      if( this == that ) {
           return true;
       }
-      // TODO use nominal superclasses!
-      return false;
+      System.out.println( "checking whether " + getID() + " isInstanceOf " + that.getID() );
+      for( Access a : ifaces ) {
+            TypeDecl td = Util.declarationFromTypeAccess( a );
+            if( td.instanceOf( that ) ) {
+              System.out.println( "checking whether " + getID() + " isInstanceOf " + that.getID() + ": true!" );
+                return true;
+            }
+      }
+      boolean rv = ( getDirectSupertype().instanceOf( that ) );
+      System.out.println( "checking whether " + getID() + " isInstanceOf " + that.getID() + ": (" + rv + ")!" );
+      return rv;
   }
 
   public boolean BodyDecl.isInRequiredType() {
