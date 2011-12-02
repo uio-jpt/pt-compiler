@@ -1,0 +1,22 @@
+aspect FullnameFix {
+    public String TypeVariable.toString() {
+        return name();
+    }
+
+
+    refine GenericsParTypeDecl
+    eq ParTypeDecl.nameWithArgs() {
+        StringBuffer s = new StringBuffer();
+        System.out.println( "@@@@ want nameWithArgs for: " + getID() );
+        s.append(name());
+        s.append("<");
+        for(int i = 0; i < getNumArgument(); i++) {
+          if(i != 0)
+            s.append(", ");
+          System.out.println( "@@@@ with arg of class: " + getArgument(i).getClass().getName() );
+          s.append(getArgument(i).type().toString());
+        }
+        s.append(">");
+        return s.toString();
+    }
+}
