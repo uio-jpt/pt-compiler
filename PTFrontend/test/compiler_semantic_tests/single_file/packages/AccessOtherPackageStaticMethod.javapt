@@ -1,0 +1,15 @@
+package P {
+    class C {
+        static void m() {
+            System.out.println("Hei.");
+        }
+    }
+}
+
+package Q {
+    class D {
+        public static void main (String[] args) {
+            P.C.m();
+        }
+    }
+}
