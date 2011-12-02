@@ -1,22 +1,43 @@
 aspect FullnameFix {
+/*
     public String TypeVariable.toString() {
-        return name();
+        if( packageName().equals("") ) {
+            return name();
+        }
+        return packageName() + "." + name();
+    }
+*/
+
+    public String TypeDecl.sourceOutputName() {
+        return fullName();
+    }
+
+    public String TypeVariable.sourceOutputName() {
+        if( packageName().equals("") ) {
+            return name();
+        }
+        return packageName() + "." + name();
     }
 
 
     refine GenericsParTypeDecl
     eq ParTypeDecl.nameWithArgs() {
         StringBuffer s = new StringBuffer();
-        System.out.println( "@@@@ want nameWithArgs for: " + getID() );
         s.append(name());
         s.append("<");
         for(int i = 0; i < getNumArgument(); i++) {
           if(i != 0)
             s.append(", ");
-          System.out.println( "@@@@ with arg of class: " + getArgument(i).getClass().getName() );
-          s.append(getArgument(i).type().toString());
+          TypeDecl td = getArgument(i).type();
+          if( td instanceof TypeVariable ) {
+              s.append( td.name());
+          } else if( td instanceof ParTypeDecl ) {
+              s.append( ((ParTypeDecl)td).nameWithArgs() );
+          } else {
+              s.append( td.fullName() );
+          }
         }
-        s.append(">");
+        s.append(" >");
         return s.toString();
     }
 }

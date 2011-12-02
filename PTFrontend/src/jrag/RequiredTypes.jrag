@@ -90,20 +90,16 @@ aspect RequiredTypes {
 
   public boolean RequiredType.instanceOf( TypeDecl that ) {
       List<Access> ifaces = getImplementsList();
-      System.out.println( "checking (1) whether " + getID() + " isInstanceOf " + that.getID() );
       if( this == that ) {
           return true;
       }
-      System.out.println( "checking (2) whether " + getID() + " isInstanceOf " + that.getID() );
       for( Access a : ifaces ) {
             TypeDecl td = Util.declarationFromTypeAccess( a );
             if( td.instanceOf( that ) ) {
-      System.out.println( "checking (3) whether " + getID() + " isInstanceOf " + that.getID() + " true ");
                 return true;
             }
       }
       boolean rv = ( getDirectSupertype().instanceOf( that ) );
-      System.out.println( "checking (4)whether " + getID() + " isInstanceOf " + that.getID() + ": (" + rv + ")!" );
       return rv;
   }
 
@@ -411,10 +407,8 @@ aspect RequiredTypes {
     if(isInterfaceDecl() && type.instanceOf(this))
       return true;
 
-    System.out.println( "@@@@ checking requiredtypes" );
     if((this instanceof RequiredType) && type.instanceOf(this))
       return true;
-    System.out.println( "@@@@ done checing requiredtypes :[" );
 
     if(fullName().equals("java.lang.Object") && type.isInterfaceDecl())
       return true;
@@ -476,11 +470,9 @@ aspect RequiredTypes {
    eq RequiredType.supertypeParClassDecl(ParClassDecl type) {
         TypeDecl td = type.genericDecl();
         boolean rv = td.subtype( this );
-        System.out.println( "@@@@ hullo " + rv + " " + this + ".supertypeParClassDecl(" + td + ") " );
         return rv;
    }
    eq RequiredType.supertypeParInterfaceDecl(ParInterfaceDecl type) {
-        System.out.println( "@@@@ hullo 2" );
         return type.genericDecl().subtype( this );
    }
 

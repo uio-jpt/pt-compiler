@@ -1,0 +1,267 @@
+
+/* Bound accesses just plain don't work for our purpose (we need to write to text).
+   So we must eliminate them all. */
+
+aspect SubstitutionFix {
+  refine LookupParTypeDecl
+  public Access RawClassDecl.substituteReturnType(Parameterization parTypeDecl) {
+
+    return new TypeAccess( ptPackageName(), name() );
+  }
+
+  refine LookupParTypeDecl
+  public Access RawInterfaceDecl.substituteReturnType(Parameterization parTypeDecl) {
+    return new TypeAccess( ptPackageName(), name() );
+  }
+
+  refine LookupParTypeDecl
+  public Access RawClassDecl.substituteParameterType(Parameterization parTypeDecl) {
+    return new TypeAccess( ptPackageName(), name() );
+  }
+
+  public TypeAccess TypeDecl.createNonBoundAccess() {
+    return new TypeAccess( ptPackageName(), name() );
+  }
+
+  refine LookupParTypeDecl
+  public Access RawInterfaceDecl.substituteParameterType(Parameterization parTypeDecl) {
+    return new TypeAccess( ptPackageName(), name() );
+  }
+
+  refine LookupParTypeDecl
+  public Access RawClassDecl.substitute(Parameterization parTypeDecl) {
+
+    return new TypeAccess( ptPackageName(), name() );
+  }
+
+  public String BoundTypeAccess.toString() {
+    // ew.
+    try {
+        return new TypeAccess( decl().ptPackageName(), getID() ).toString();
+    }
+    catch(Exception e) {
+        return super.toString();
+    }
+  }
+
+  refine LookupParTypeDecl
+  public Access RawInterfaceDecl.substitute(Parameterization parTypeDecl) {
+    return new TypeAccess( ptPackageName(), name() );
+  }
+
+  refine LookupParTypeDecl
+  public Access TypeDecl.substituteParameterType(Parameterization parTypeDecl) {
+    Access rv = substitute(parTypeDecl);
+    return rv;
+  }
+
+  refine LookupParTypeDecl
+  public Access TypeVariable.substitute(Parameterization parTypeDecl) {
+    boolean doDebug = getParentClass( PTPackage.class ) != null;
+    if( doDebug ) {
+        System.out.println( "BEGIN " + dumpTree() );
+    }
+    Access rv;
+    if(parTypeDecl.isRawType()) {
+      rv = erasure().createBoundAccess();
+    } else {
+      rv = parTypeDecl.substitute(this).createBoundAccess();
+    }
+    if( doDebug ) {
+        System.out.println( "END " + rv.dumpTree() );
+    }
+    return rv;
+  }
+
+  public String Access.getFriendlyName() {
+    try {
+        return toString();
+    }
+    catch(Exception e) {
+        return "[invisible access]";
+    }
+  }
+
+  public String TypeAccess.getFriendlyName() {
+    String foo = "";
+    try {
+        foo = decl().ptPackageName();
+    }
+    catch(Exception e) {
+        foo = "";
+    }
+    if( foo.equals( "" ) ) {
+        return name();
+    }
+    return foo + "." + name();
+  }
+
+  public String BoundTypeAccess.getFriendlyName() {
+    return toString();
+  }
+
+  refine GenericsPrettyPrint
+  public void TypeVariable.toString(StringBuffer s) {
+    System.out.println( "CUSTOM toString serving: " + dumpTree() );
+    s.append(name());
+    if(getNumTypeBound() > 0) {
+      s.append(" extends ");
+      s.append(getTypeBound(0).getFriendlyName());
+      for(int i = 1; i < getNumTypeBound(); i++) {
+        s.append(" & ");
+        s.append(getTypeBound(i).getFriendlyName());
+      }
+    }
+
+  }
+
+
+  public String TypeDecl.ptPackageName() {
+    String packageName = packageName();
+
+    if( getParentClass( PTPackage.class ) != null ) {
+        // this correction is needed now, but packageName() should be amended TODO
+        packageName = ((PTPackage) getParentClass( PTPackage.class )).getID() ;
+    }
+
+    return packageName;
+  }
+
+  public Access TypeDecl.substituteWithPackage(Parameterization parTypeDecl) {
+    String packageName = packageName();
+
+    if( getParentClass( PTPackage.class ) != null ) {
+        // this correction is needed now, but packageName() should be amended TODO
+        packageName = ((PTPackage) getParentClass( PTPackage.class )).getID() ;
+    }
+
+    return new TypeAccess( packageName, name() );
+  }
+
+  refine LookupParTypeDecl
+  public Access TypeDecl.substitute(Parameterization parTypeDecl) {
+    if( getParentClass( PTPackage.class ) != null ) {
+        return substituteWithPackage( parTypeDecl );
+    }
+
+      if(parTypeDecl instanceof ParTypeDecl && ((ParTypeDecl)parTypeDecl).genericDecl() == this)
+          return ((TypeDecl)parTypeDecl).createBoundAccess();            
+
+      if(isTopLevelType())
+          return createBoundAccess();
+
+      return enclosingType().substitute(parTypeDecl).qualifiesAccess(new TypeAccess(name()));
+  }
+
+  public Access ParTypeDecl.substituteWithPackage(Parameterization parTypeDecl) {
+    /* unsure about these first two */
+    if(parTypeDecl.isRawType())
+      return ((GenericTypeDecl)genericDecl()).rawType().createBoundAccess();
+
+
+    /*** this cannot work with the redirecting we currently use (stack overflow danger)
+    if(!usesTypeVariable())
+      return super.substitute(parTypeDecl);
+     */
+
+    List list = new List();
+
+    for(int i = 0; i < getNumArgument(); i++) {
+      list.add(getArgument(i));
+    }
+
+    String packageName = genericDecl().packageName();
+
+    if( genericDecl().getParentClass( PTPackage.class ) != null ) {
+        // this correction is needed now, but packageName() should be amended TODO
+        packageName = ((PTPackage) genericDecl().getParentClass( PTPackage.class )).getID() ;
+    }
+
+    Access rv = new ParTypeAccess(new TypeAccess( packageName, genericDecl().name() ), list.substitute( parTypeDecl ) );
+
+    return rv;
+  }
+
+  
+  refine LookupParTypeDecl
+  public Access ParTypeDecl.substitute(Parameterization parTypeDecl) {
+    // TODO: include nesting as well....
+    // ^^^ above line is from the JastaddJ code
+
+    if(parTypeDecl.isRawType())
+      return ((GenericTypeDecl)genericDecl()).rawType().createBoundAccess();
+    if(!usesTypeVariable())
+      return super.substitute(parTypeDecl);
+
+    if( getParentClass( PTPackage.class ) != null ) {
+        return substituteWithPackage( parTypeDecl );
+    }
+
+    List list = new List();
+/*
+    for(int i = 0; i < getNumArgument(); i++)
+      list.add(getArgument(i).type().substitute(parTypeDecl));
+*/
+
+    for(int i = 0; i < getNumArgument(); i++) {
+      list.add(getArgument(i));
+    }
+
+    Access rv = new ParTypeAccess(genericDecl().createQualifiedAccess(), list.substitute( parTypeDecl ) );
+
+    return rv;
+  }
+
+
+    refine LookupParTypeDecl
+    public List List.substitute(Parameterization parTypeDecl) {
+        List list = new List();
+
+        for(int i = 0; i < getNumChild(); i++) {
+          ASTNode node = getChild(i);
+          if(node instanceof Access) {
+            Access a = (Access)node;
+            TypeDecl at = a.type();
+            Access ats;
+            if( a instanceof TypeAccess && !((TypeAccess)a).getPackage().equals("") ) {
+                ats = at.substituteWithPackage( parTypeDecl );
+            } else {
+                ats = at.substitute( parTypeDecl );
+            }
+
+            list.add(ats);
+
+          }
+          else if(node instanceof VariableArityParameterDeclaration) {
+            VariableArityParameterDeclaration p = (VariableArityParameterDeclaration)node;
+            list.add(
+              new VariableArityParameterDeclarationSubstituted(
+                (Modifiers)p.getModifiers().fullCopy(),
+                // use the type acces since VariableArity adds to the dimension
+                p.getTypeAccess().type().substituteParameterType(parTypeDecl),
+                p.getID(),
+                p
+              )
+            );
+          }
+          else if(node instanceof ParameterDeclaration) {
+            ParameterDeclaration p = (ParameterDeclaration)node;
+            list.add(
+              new ParameterDeclarationSubstituted(
+                (Modifiers)p.getModifiers().fullCopy(),
+                p.type().substituteParameterType(parTypeDecl),
+                p.getID(),
+                p
+              )
+            );
+          }
+          else {
+            throw new Error("Can only substitute lists of access nodes but node number " + i + " is of type " + node.getClass().getName());
+          }
+        }
+        return list;
+  }
+
+
+
+}

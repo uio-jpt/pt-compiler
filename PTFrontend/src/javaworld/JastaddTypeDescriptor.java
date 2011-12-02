@@ -90,7 +90,11 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
             TypeAccess rv = new TypeAccess( typeDeclaration.fullName() );
             Access alt1 = typeDeclaration.createBoundAccess();
             Access alt2 = typeDeclaration.createQualifiedAccess();
-            return alt2;
+            String packageName = typeDeclaration.packageName();
+            if( typeDeclaration.getParentClass( AST.PTPackage.class ) != null ) {
+                packageName = ((AST.PTPackage)typeDeclaration.getParentClass( AST.PTPackage.class )).getID();
+            }
+            return new TypeAccess( packageName, typeDeclaration.name() );
         }
         if( isWildcard ) {
             new Wildcard();

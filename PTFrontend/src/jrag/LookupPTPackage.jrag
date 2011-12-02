@@ -12,6 +12,7 @@ aspect LookupPTPackage {
             SimpleSet ss = ptd.lookupTypeInPTDecl( typeName );
             if( ss.size() > 0 ) {
                 TypeDecl td = (TypeDecl) ss.iterator().next();
+//                System.out.println( "was ABLE to find: " + td.fullName() );
                 return td;
             }
         }
@@ -24,6 +25,8 @@ aspect LookupPTPackage {
         }
       }
     }
+
+//    System.out.println( "was unable to find: " + fullName );
 
     CompilationUnit u = getCompilationUnit(fullName);
     if(u != null) {

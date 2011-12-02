@@ -1,0 +1,46 @@
+aspect MergePTCompilationUnits {
+    public int Program.getNumberOfPTCompilationUnits() {
+        int rv = 0;
+        for(int i=0;i<getNumCompilationUnit();i++) {
+            if( getCompilationUnit(i) instanceof PTCompilationUnit ) {
+                rv++;
+            }
+        }
+        return rv;
+    }
+
+    rewrite Program {
+        when (getNumberOfPTCompilationUnits() > 1)
+        to Program {
+            String name = "$mergedPTCU$";
+            List<ImportDecl> p1 = new List<ImportDecl>();
+            List<TypeDecl> p2 = new List<TypeDecl>();
+            List<PTDecl> p3 = new List<PTDecl>();
+            
+            for(int i=0;i<getNumChild();) {
+                if( getChild(i) instanceof PTCompilationUnit ) {
+                    PTCompilationUnit ptcu = (PTCompilationUnit) getChild(i);
+                    for( ImportDecl id : ptcu.getImportDeclList() ) {
+                        p1 = p1.add( id );
+                    }
+                    for( TypeDecl td : ptcu.getTypeDeclList() ) {
+                        p2 = p2.add( td );
+                    }
+                    for( PTDecl pd : ptcu.getPTDeclList() ) {
+                        p3 = p3.add( pd );
+                    }
+
+                    removeChild(i);
+                } else {
+                    i++;
+                }
+            }
+
+            PTCompilationUnit ptuc = new PTCompilationUnit( name, p1, p2, p3 );
+            ptuc.addChild( ptuc );
+
+            flushCaches();
+        }
+    }
+
+}
