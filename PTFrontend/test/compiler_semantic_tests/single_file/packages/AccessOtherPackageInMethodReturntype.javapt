@@ -1,0 +1,11 @@
+package P {
+    class C { }
+}
+
+package Q {
+    class D {
+        P.C getC() {
+            return new P.C();
+        }
+    }
+}
