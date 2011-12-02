@@ -100,9 +100,11 @@ aspect ReferenceAttributes {
     }
     
     syn boolean PTDecl.dependenciesAreRewritten() {
-        for (PTInstDecl templateInst : getPTInstDecls()) 
-            if (!templateInst.isRewritten)
+        for (PTInstDecl templateInst : getPTInstDecls()) {
+            if (!templateInst.isRewritten) {
                 return false;
+            }
+        }
         return true;
     }
 

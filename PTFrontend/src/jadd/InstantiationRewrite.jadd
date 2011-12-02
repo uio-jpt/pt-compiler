@@ -38,7 +38,35 @@ aspect InstantiationRewrite {
         to PTInstDecl {
             this.isRewritten = true;
             addMissingDummyClassNodes();
+
+            hackToEnsureRewritesAreTried();
+            /* TODO _CHECK_ this.
+
+               This is only here to fix an apparent bug in Jastadd, and it is
+               a brittle solution.
+               Verify whether this is really a Jastadd bug, and if so,
+               fix and report. (The bug would be that some cases appear to
+               slip away from the rewriting transformations.)
+            */
+            
+
             return this;
+        }
+    }
+
+    public void ASTNode.hackToEnsureRewritesAreTried() {
+        /* This fixes (only as far as our requirements go!) a problem
+           where Jastadd seems not to keep its promises regarding
+           attempting to rewrite until further rewrites are impossible.
+        */
+
+        for( Object u : getProgram().getCompilationUnitList() ) {
+            if( u instanceof PTCompilationUnit ) {
+                PTCompilationUnit ptu = (PTCompilationUnit) u;
+                for( PTDecl ptd : ptu.getPTDecls() ) {
+                    ptd.is$Final( false );
+                }
+            }
         }
     }
             

@@ -13,3 +13,9 @@
   for FIELDS der det er gjort for methods. Dette burde
   aldri være vanskeligere, men det er allikevel hoppet
   over mange steder.
+
+
+refine: ClassPath.jrag
+        LookupType.jrag
+
+        CompilationUnit vs PTPackage

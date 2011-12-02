@@ -399,6 +399,7 @@ public class SimpleClassRew {
 	private boolean checkIfSane(
 			Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples) {
 		if (destinationClassIDsWithInstTuples.containsKey(decl.getID())) {
+            System.out.println( "@@@@ found: " + decl.getID() );
 			if (!decl.isAddsClass()) {
 				decl.error("Class "
 						+ decl.getID()
