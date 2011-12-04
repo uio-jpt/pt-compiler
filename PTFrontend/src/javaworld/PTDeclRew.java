@@ -114,7 +114,7 @@ public class PTDeclRew {
 			if (cunit == ownCU)
 				continue;
 			for (ImportDecl id : cunit.getImportDeclList()) {
-				if (!ptDeclToBeRewritten.hasImportDecl(id.toString())) {
+				if (!ptDeclToBeRewritten.hasImportDecl(id)) {
 					ImportDecl copy = (ImportDecl) id.copy();
 					ownCU.addImportDecl(copy);
 				}

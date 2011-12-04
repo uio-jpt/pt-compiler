@@ -88,7 +88,6 @@ public class SimpleClassRew {
         updateAbstractness();
 
         for (ClassDeclRew source : renamedSources) {
-            System.out.println( "SOURCE FOR " + source.getClassDecl().dumpTree() );
             source.applyMutator( parameterRewriter );
         }
 
@@ -100,8 +99,6 @@ public class SimpleClassRew {
 		}
 
 		// decl.getClassDecl().getConstructorDeclList()
-
-        System.out.println( "MERGED RESULT FOR " + decl.getClassDecl().dumpTree() );
 	}
 
 	/**

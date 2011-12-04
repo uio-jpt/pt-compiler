@@ -57,7 +57,7 @@ aspect SubstitutionFix {
 
   refine LookupParTypeDecl
   public Access TypeVariable.substitute(Parameterization parTypeDecl) {
-    boolean doDebug = getParentClass( PTPackage.class ) != null;
+    boolean doDebug = false && getParentClass( PTPackage.class ) != null;
     if( doDebug ) {
         System.out.println( "BEGIN " + dumpTree() );
     }

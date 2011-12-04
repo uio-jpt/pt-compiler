@@ -34,33 +34,23 @@ public class InstantiationRewriter {
 
 		PTDeclRew target = new PTDeclRew(decl);
 
-        System.out.println( "GOING TO REWRITE: " + decl.getID() );
-        System.out.println( "GOING TO REWRITE: " + decl.dumpTree() );
-
         target.getParameterRewriter();
         // this creates the mappings at a well-defined time
 
         target.createRenamedEnums();
         target.createEmptyMissingAddClasses();
         
-        System.out.println( "DID REWRITE # 1: " + decl.dumpTree() );
-
         target.createMergedInterfaces();
-        System.out.println( "DID REWRITE # 2: " + decl.dumpTree() );
         target.createMergedRequiredTypes();
-        System.out.println( "DID REWRITE # 3: " + decl.dumpTree() );
 
 		target.extendAddClassesWithInstantiatons();
-        System.out.println( "DID REWRITE # 4: " + decl.dumpTree() );
 
         target.updateAccessesToInternalRenames();
-        System.out.println( "DID REWRITE # 5: " + decl.dumpTree() );
 
 		target.copyImportDecls();
 		target.createInitIfPackage();
 
         target.concretifyRequiredTypes();
-        System.out.println( "DID REWRITE # 6: " + decl.dumpTree() );
 
 //        target.removeInstStatements();
 		target.flushCaches();
@@ -69,8 +59,5 @@ public class InstantiationRewriter {
 
         decl.flushCaches();
 
-        System.out.println( "all done: " + decl.dumpTree() );
-        System.out.println( "all done: " + decl );
-        System.out.println( "all done[2]: " + decl.dumpTree() );
 	}
 }

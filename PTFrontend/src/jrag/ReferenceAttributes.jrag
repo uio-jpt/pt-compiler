@@ -16,7 +16,7 @@ aspect ReferenceAttributes {
     inh PTInstDecl PTInstTuple.getInstDecl();
     inh PTTemplate CompilationUnit.lookupTemplateGlobal(String name);
     inh PTDecl PTDecl.lookupPTDecl(String name);
-    inh boolean PTDecl.hasImportDecl(String name);
+    inh boolean PTDecl.hasImportDecl(ImportDecl id);
 
     syn SimpleClass PTDecl.getSimpleClass(String name) {
         for (SimpleClass sc : getSimpleClasss()) 
@@ -36,10 +36,33 @@ aspect ReferenceAttributes {
         return superclass.getTopMostInternalSuperName();
     }
 
-    eq PTCompilationUnit.getPTDecl(int i).hasImportDecl(String name) {
-        for (ImportDecl decl : getImportDeclList())
-            if (name.equals(decl.toString()))
-                return true;
+    eq PTCompilationUnit.getPTDecl(int i).hasImportDecl(ImportDecl id) {
+        /* The try/catches here reflect that sometimes (before a rewrite,
+           which does not happen presumably because of some sort of funky
+           circularity, the JastaddJ method ImportDecl.toString() will
+           simply crash (because PackageOrAccess.toString() is not
+           implemented).
+
+           We assume (which is not strictly warranted) that these crashy
+           import declarations do not collide.
+
+           Long-term there must surely be better ways of checking for
+           ImportDecl collisions than using .toString(), which is
+           a pretty-printing method.
+        */
+        System.out.println( "checking for hasImportDecl. duringSyntacticClassification? " + duringSyntacticClassification() );
+        String name = null;
+        name = id.dumpString();
+
+        for (ImportDecl decl : getImportDeclList()) {
+            try {
+                if (name.equals(decl.dumpString())) {
+                    return true;
+                }
+            }
+            catch( Exception e ) {
+            }
+        }
         return false;
     }
     
