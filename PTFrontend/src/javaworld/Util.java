@@ -7,6 +7,9 @@ import AST.List;
 import AST.PTClassDecl;
 import AST.TemplateMethodAccess;
 import AST.TemplateMethodAccessShort;
+import AST.ImportDecl;
+import AST.TypeDecl;
+import AST.PTDecl;
 
 
 import com.google.common.base.Preconditions;
@@ -104,6 +107,72 @@ public class Util {
         } else {
             return null; // oops
         }
+    }
+
+    /* Note: this cannot be done as a rewrite -- Program (the root node in the AST)
+       doesn't get rewritten. We need to manually make this happen.
+       In fact, even adding methods to Program seems to be a no-op!
+
+    public static int getNumberOfPTCompilationUnits( AST.Program program ) {
+        int rv = 0;
+        for(int i=0;i<program.getNumCompilationUnit();i++) {
+            if( program.getCompilationUnit(i) instanceof AST.PTCompilationUnit ) {
+                rv++;
+            }
+        }
+        System.out.println( "number of ptcompilationunits: " + rv );
+        return rv;
+    }
+
+    */
+    public static void mergePtCompilationUnits( AST.Program program ) {
+
+/*
+            if( Util.getNumberOfPTCompilationUnits( program ) <= 1 ) {
+                return;
+            }
+
+*/
+            System.out.println( "PERFORMING MERGE OF COMPILATION UNITS" );
+
+            String name = "$mergedPTCU$";
+            List<ImportDecl> p1 = new List<ImportDecl>();
+            List<TypeDecl> p2 = new List<TypeDecl>();
+            List<PTDecl> p3 = new List<PTDecl>();
+
+            AST.List cul = (AST.List) program.getChildNoTransform(0);
+            
+            for(int i=0;i<cul.getNumChildNoTransform();) {
+                System.out.println( "child " + i + " is " + cul.getChildNoTransform(i).dumpString() );
+                if( cul.getChildNoTransform(i) instanceof AST.PTCompilationUnit ) {
+                    AST.PTCompilationUnit ptcu = (AST.PTCompilationUnit) cul.getChildNoTransform(i);
+
+                    /* Warning: iterating through these with foreach _will_ transform! */
+
+                    AST.List<AST.ImportDecl> ids = ptcu.getImportDeclListNoTransform();
+                    for(int j=0;j<ids.getNumChildNoTransform();j++) {
+                        p1 = p1.add( ids.getChildNoTransform(j) );
+                    }
+                    AST.List<AST.TypeDecl> tds = ptcu.getTypeDeclListNoTransform();
+                    for(int j=0;j<tds.getNumChildNoTransform();j++) {
+                        p2 = p2.add( tds.getChildNoTransform(j) );
+                    }
+                    AST.List<AST.PTDecl> pds = ptcu.getPTDeclListNoTransform();
+                    for(int j=0;j<pds.getNumChildNoTransform();j++) {
+                        p3 = p3.add( pds.getChildNoTransform(j) );
+                    }
+
+                    cul.removeChild(i);
+                } else {
+                    i++;
+                }
+            }
+
+            AST.PTCompilationUnit ptuc = new AST.PTCompilationUnit( name, p1, p2, p3 );
+            ptuc.setFromSource( true );
+            cul.addChild( ptuc );
+
+            System.out.println( "PERFORMED MERGE OF COMPILATION UNITS" );
     }
 
 }

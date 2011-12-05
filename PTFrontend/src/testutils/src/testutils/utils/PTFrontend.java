@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import javaworld.Util;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 
@@ -100,6 +102,10 @@ public class PTFrontend {
                     throw new Exception( expectedUnexpectedError );
                 }
 			}
+
+
+            System.out.println( program.dumpTreeNoRewrite() );
+            Util.mergePtCompilationUnits( program );
 
 			// TODO: I think there's a bug somewhere in errorcheck.
 			// for(Iterator iter = program.compilationUnitIterator();

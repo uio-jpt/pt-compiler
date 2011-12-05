@@ -46,6 +46,13 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
 
         if( acc instanceof TypeAccess ) {
             System.out.println( "initializing from typeaccess. " + acc );
+
+            if( ((TypeAccess)acc).getPackage().equals( "$mergedPTCU$" ) ) {
+                System.out.println( "MERGE-OOPS " + acc.dumpString() );
+                new Throwable().printStackTrace( System.out );
+                System.out.println( "oops " + acc.dumpTree() );
+            }
+
             typeAccess = (TypeAccess) acc;
         } else if( acc instanceof ParTypeAccess ) {
             parTypeAccess = (ParTypeAccess) acc;

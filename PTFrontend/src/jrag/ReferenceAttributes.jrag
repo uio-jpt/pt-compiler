@@ -18,6 +18,24 @@ aspect ReferenceAttributes {
     inh PTDecl PTDecl.lookupPTDecl(String name);
     inh boolean PTDecl.hasImportDecl(ImportDecl id);
 
+    public void ASTNode.addPTDeclDependenciesFrom( java.util.Set<PTDecl> rv ) {
+        for(int i=0;i<getNumChild();i++) {
+            getChild(i).addPTDeclDependenciesFrom( rv );
+        }
+    }
+
+    public void TypeAccess.addPTDeclDependenciesFrom( java.util.Set<PTDecl> rv ) {
+        String pName = packageName();
+        PTDecl parentPtDecl = (PTDecl) getParentClass( PTDecl.class );
+        if( parentPtDecl != null ) {
+            PTDecl dependency = parentPtDecl.lookupPTDecl( pName );
+            if( dependency != null ) {
+                rv.add( dependency );
+            }
+        }
+    }
+
+
     syn SimpleClass PTDecl.getSimpleClass(String name) {
         for (SimpleClass sc : getSimpleClasss()) 
             if (sc.getClassDecl().getID().equals(name))
@@ -50,7 +68,6 @@ aspect ReferenceAttributes {
            ImportDecl collisions than using .toString(), which is
            a pretty-printing method.
         */
-        System.out.println( "checking for hasImportDecl. duringSyntacticClassification? " + duringSyntacticClassification() );
         String name = null;
         name = id.dumpString();
 
@@ -121,13 +138,32 @@ aspect ReferenceAttributes {
         }
         return template.isRewritten;
     }
-    
+
     syn boolean PTDecl.dependenciesAreRewritten() {
         for (PTInstDecl templateInst : getPTInstDecls()) {
             if (!templateInst.isRewritten) {
                 return false;
             }
         }
+
+        java.util.Set<PTDecl> rv = new java.util.HashSet<PTDecl>();
+        addPTDeclDependenciesFrom( rv );
+        if( rv.contains( this ) ) {
+            rv.remove( this );
+        }
+
+        System.out.print( getID() + " is dependent by inheritance on: " );
+        for(PTDecl ptd : rv ) {
+            System.out.print( ptd.getID() + " " );
+        }
+        System.out.println();
+
+        for(PTDecl ptd : rv ) {
+            if( !ptd.isRewritten ) {
+                return false;
+            }
+        }
+
         return true;
     }
 

@@ -19,6 +19,7 @@ public class InstantiationRewriter {
 	}
 
 	public void run(PTDecl decl) { 
+        System.out.println( "beginning InstantiationRewriter: " + decl.getID() );
 		
 		// Går igjennom decl sine ClassDecls for å beregne hva som er
 		// "virtuelle" metoder som det siste som skjer før omskrivinga starter.
@@ -39,11 +40,10 @@ public class InstantiationRewriter {
 
         target.createRenamedEnums();
         target.createEmptyMissingAddClasses();
-        
-        target.createMergedInterfaces();
-        target.createMergedRequiredTypes();
 
-        System.out.println( "trying to extend package: " + decl.getID() );
+        target.createMergedInterfaces();
+
+        target.createMergedRequiredTypes();
 
 		target.extendAddClassesWithInstantiatons();
 
@@ -61,5 +61,6 @@ public class InstantiationRewriter {
 
         decl.flushCaches();
 
+        System.out.println( "finishing InstantiationRewriter: " + decl.getID() );
 	}
 }

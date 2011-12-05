@@ -16,7 +16,9 @@ package P {
 
 	class Main {
 		public static void main (String [] args) {
+            System.out.println( "this is a syntax error!" );
 			Comparable<X> = new C(); // fails for the wrong reason!
+            System.out.println( "that was a syntax error!" );
 		}
 	}
 }

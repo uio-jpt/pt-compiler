@@ -1,17 +1,24 @@
 aspect MergePTCompilationUnits {
+    /* Note: this cannot be done as a rewrite -- Program (the root node in the AST)
+       doesn't get rewritten. We need to manually make this happen. */
+
     public int Program.getNumberOfPTCompilationUnits() {
         int rv = 0;
         for(int i=0;i<getNumCompilationUnit();i++) {
             if( getCompilationUnit(i) instanceof PTCompilationUnit ) {
+                System.out.println( getCompilationUnit(i).pathName() + " is a pt compilation unit" );
                 rv++;
+            } else {
+                System.out.println( getCompilationUnit(i).pathName() + " is something else" );
             }
         }
+        System.out.println( "number of ptcompilationunits: " + rv );
         return rv;
     }
 
-    rewrite Program {
-        when (getNumberOfPTCompilationUnits() > 1)
-        to Program {
+    public void Program.mergePtCompilationUnits() {
+            System.out.println( "PERFORMING MERGE OF COMPILATION UNITS" );
+
             String name = "$mergedPTCU$";
             List<ImportDecl> p1 = new List<ImportDecl>();
             List<TypeDecl> p2 = new List<TypeDecl>();
@@ -40,7 +47,8 @@ aspect MergePTCompilationUnits {
             ptuc.addChild( ptuc );
 
             flushCaches();
-        }
+
+            System.out.println( "PERFORMED MERGE OF COMPILATION UNITS" );
     }
 
 }

@@ -102,7 +102,6 @@ aspect SubstitutionFix {
 
   refine GenericsPrettyPrint
   public void TypeVariable.toString(StringBuffer s) {
-    System.out.println( "CUSTOM toString serving: " + dumpTree() );
     s.append(name());
     if(getNumTypeBound() > 0) {
       s.append(" extends ");
@@ -115,7 +114,16 @@ aspect SubstitutionFix {
 
   }
 
+  eq PTPackage.getChild().packageName() = getID();
+//  eq PTTemplate.getChild().packageName() = "$FLOATING-IN-PT-TEMPLATE$";
+  eq PTTemplate.getChild().packageName() = "";
 
+  public String TypeDecl.ptPackageName() {
+    return packageName();
+  }
+
+
+/*
   public String TypeDecl.ptPackageName() {
     String packageName = packageName();
 
@@ -126,6 +134,7 @@ aspect SubstitutionFix {
 
     return packageName;
   }
+*/
 
   public Access TypeDecl.substituteWithPackage(Parameterization parTypeDecl) {
     String packageName = packageName();
