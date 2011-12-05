@@ -460,6 +460,11 @@ public class SimpleClassRew {
         return cd.getModifiers().isExtendsExternal();
     }
 
+    public boolean hasSuperclassInternalTo(PTDecl ptDecl) {
+        ClassDecl cd = decl.getClassDecl();
+        return cd.hasSuperclass() && cd.superclass().isPtInternalClassTo( ptDecl );
+    }
+
     public boolean hasExternalSuperclass() {
         ClassDecl cd = decl.getClassDecl();
         return cd.hasSuperclass() && !cd.superclass().isPtInternalClass();

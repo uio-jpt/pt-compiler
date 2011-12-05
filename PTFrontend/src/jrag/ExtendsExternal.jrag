@@ -16,8 +16,13 @@ aspect ExtendsExternal {
     // the same issue that gave us SimpleClass, I think
 
     public boolean ASTNode.isPtInternalClass() { return false; }
+    public boolean ASTNode.isPtInternalClassTo(PTDecl x) { return false; }
+
     public boolean ClassDecl.isPtInternalClass() {
         return getParentClass( PTDecl.class ) != null;
+    }
+    public boolean ClassDecl.isPtInternalClassTo(PTDecl x) {
+        return getParentClass( PTDecl.class ) == x;
     }
 
     /* XXX hack. TODO fix */

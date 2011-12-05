@@ -641,7 +641,7 @@ public class PTDeclRew {
                     try {
                         if ( superName == null
                             || visited.contains(superName)
-                            || decl.hasExternalSuperclass() ) {
+                            || !decl.hasSuperclassInternalTo( ptDeclToBeRewritten ) ) {
                             visited.add(decl.getName());
                             didMakeProgress = true;
                             decl.extendClass(getDestinationClassIDsWithInstTuples(),

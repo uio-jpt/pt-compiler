@@ -43,6 +43,8 @@ public class InstantiationRewriter {
         target.createMergedInterfaces();
         target.createMergedRequiredTypes();
 
+        System.out.println( "trying to extend package: " + decl.getID() );
+
 		target.extendAddClassesWithInstantiatons();
 
         target.updateAccessesToInternalRenames();
