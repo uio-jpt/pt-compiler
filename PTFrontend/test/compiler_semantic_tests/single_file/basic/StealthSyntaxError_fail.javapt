@@ -1,0 +1,9 @@
+package P {
+	class Main {
+		public static void main (String [] args) {
+            int = 42;
+            int = 89;
+            int = 100;
+		}
+	}
+}
