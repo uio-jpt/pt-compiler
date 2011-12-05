@@ -1478,6 +1478,8 @@ public class PTDeclRew {
                             } else {
                                 continue;
                             }
+
+                            System.out.println( "NOTING ERROR" );
                             ptdrExisting.error( "" + ptdrExisting + " conflicts with implied rename from root " + rootID + ": " + ptdr );
                         }
 

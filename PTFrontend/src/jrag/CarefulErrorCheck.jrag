@@ -1,0 +1,6 @@
+aspect CarefulErrorCheck {
+    public void PTCompilationUnit.addAlreadyDiscoveredErrors( Collection err, Collection warn ) {
+        err.addAll( errors );
+        warn.addAll( warnings );
+    }
+}

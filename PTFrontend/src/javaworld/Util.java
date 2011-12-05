@@ -125,7 +125,7 @@ public class Util {
     }
 
     */
-    public static void mergePtCompilationUnits( AST.Program program ) {
+    public static AST.List<AST.CompilationUnit> mergePtCompilationUnits( AST.Program program ) {
 
 /*
             if( Util.getNumberOfPTCompilationUnits( program ) <= 1 ) {
@@ -141,6 +141,8 @@ public class Util {
             List<PTDecl> p3 = new List<PTDecl>();
 
             AST.List cul = (AST.List) program.getChildNoTransform(0);
+
+            AST.List<AST.CompilationUnit> rv = new AST.List<AST.CompilationUnit>();
             
             for(int i=0;i<cul.getNumChildNoTransform();) {
                 System.out.println( "child " + i + " is " + cul.getChildNoTransform(i).dumpString() );
@@ -163,6 +165,8 @@ public class Util {
                     }
 
                     cul.removeChild(i);
+
+                    rv = rv.add( ptcu );
                 } else {
                     i++;
                 }
@@ -173,6 +177,8 @@ public class Util {
             cul.addChild( ptuc );
 
             System.out.println( "PERFORMED MERGE OF COMPILATION UNITS" );
+
+            return rv;
     }
 
 }

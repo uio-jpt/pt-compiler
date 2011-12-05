@@ -15,6 +15,7 @@ import testutils.tester.Log;
 import AST.BytecodeParser;
 import AST.BytecodeReader;
 import AST.CompilationUnit;
+import AST.PTCompilationUnit;
 import AST.JavaParser;
 import AST.Options;
 import AST.Problem;
@@ -104,8 +105,7 @@ public class PTFrontend {
 			}
 
 
-            System.out.println( program.dumpTreeNoRewrite() );
-            Util.mergePtCompilationUnits( program );
+            AST.List<AST.CompilationUnit> removedUnits = Util.mergePtCompilationUnits( program );
 
 			// TODO: I think there's a bug somewhere in errorcheck.
 			// for(Iterator iter = program.compilationUnitIterator();
@@ -115,8 +115,38 @@ public class PTFrontend {
 			// checkerr.checkErrors(unit);
 			// }
 
-			for (Iterator iter = program.compilationUnitIterator(); iter
-					.hasNext();) {
+            Collection totalErrors = new LinkedList();
+            Collection totalWarnings = new LinkedList();
+
+            for(int i=0;i<removedUnits.getNumChildNoTransform();i++) {
+				CompilationUnit unit = (CompilationUnit) removedUnits.getChildNoTransform(i);
+
+				if (unit.fromSource()) {
+					Collection errors = unit.parseErrors();
+					Collection warnings = new LinkedList();
+					// compute static semantic errors when there are no parse
+					// errors or
+					// the recover from parse errors option is specified
+					if ( unit instanceof PTCompilationUnit &&
+                         ( errors.isEmpty()
+                            || program.options().hasOption("-recover")) ) {
+                        ((PTCompilationUnit)unit).addAlreadyDiscoveredErrors(errors, warnings);
+					}
+
+                    totalErrors.addAll( errors );
+                    totalWarnings.addAll( warnings );
+				}
+			}
+
+
+            if( !totalErrors.isEmpty() ) {
+                processErrors( totalErrors, (CompilationUnit) program.compilationUnitIterator().next() );
+                return false;
+            }
+
+            program.flushCaches();
+
+            for(Iterator iter = program.compilationUnitIterator(); iter.hasNext(); ) {
 				CompilationUnit unit = (CompilationUnit) iter.next();
 
 				if (unit.fromSource()) {
@@ -129,11 +159,20 @@ public class PTFrontend {
 							|| program.options().hasOption("-recover")) {
 						unit.errorCheck(errors, warnings);
 					}
+
+                    if( unit instanceof PTCompilationUnit ) {
+                        totalWarnings.addAll( warnings );
+                    }
+
 					if (!errors.isEmpty()) {
 						processErrors(errors, unit);
 						return false;
 					} else {
-						processWarnings(warnings, unit);
+                        if( unit instanceof PTCompilationUnit ) {
+                            processWarnings( totalWarnings , unit);
+                        } else {
+                            processWarnings( warnings , unit);
+                        }
 						processNoErrors(unit);
 					}
 				}
