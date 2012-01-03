@@ -1,15 +1,19 @@
 #!/bin/bash
 
-# Latsabb-script for å kjøre jar-fila.
-# Setter automatisk output-folder til ./output/ ved å sende "-o output/" til JPT.jar.
-# Dette kan igjen overstyres med "./run -o <annen-output-folder>".
-#
-# Opsjoner:
-#   -o <path>   Kompiler til path.
-#   -v          Kjør kompilatoren i verbouse modus
-#   -x          Slett outputmappa først. Bruk med varsomhet!
-#   -c          Kompiler outputten som Java
-#   -r          Kjør outputten etter at den har blitt kompilert
+# Usage: ./run [-o <path>] [-h] [-v] [-x] [-c|r] <input>"
+#  
+# Shortcut script for running the compiler with the given arguments.
+# 
+# The output directory is by default set to ./output/ by sending "-o output/"
+# to JPT.jar. This can be overridden with the -o option.
+# 
+# Options:
+#   -o <path>   Set output directory to <path>
+#   -v          Run the compiler in verbose mode.
+#   -x          Deletes the output directory before compiling. Use with caution!
+#   -c          Compile the generated java files from the pt-compiler, with Ant
+#   -r          ... Then run it with java (not yet implemented)
+#   -h          Show help for the run script.
 
 
 outfolder="output/"
@@ -17,33 +21,63 @@ ptmode=
 cleanfirst=
 
 
-# Behandle options:
-args=`getopt :o:vcrx $*`
+showusage() {
+    sed -n 's/^# //; 3 p' $0
+}
+
+showinfo() {
+    # Print line 3 through 7
+    sed -n 's/^# //; 3,9 p' $0
+}
+
+showopts() {
+    # Print line 8 through 15
+    sed -n 's/^# //; 10,16 p' $0
+}
+
+
+# Parse options
+args=`getopt o:vcrxh $*`
 if test $? != 0
-	then
-		echo "Usage: $0 [-o <path> ] [-v] [-x] [-c|r]"
-		exit 1
+then
+    echo
+    showopts
+    exit 1
 fi
 
 set -- $args
 for i
 do
-	case "$i" in
-		-v) shift; ptmode="$ptmode -v" ;;
-		-o) shift; outfolder=$1 ; shift ;;
+    case "$i" in
+        -v) shift; ptmode="$ptmode -v" ;;
+        -o) shift; outfolder=$1 ; shift ;;
         -c) shift; thencompile=yesplease ;;
         -x) shift; cleanfirst=ifyousayso ;;
         -r) shift; echo "opt -r is not yet implemented." ;;
-	esac
+        -h) shift; shownhelp=yes ; showinfo ; showopts ;;
+    esac
 done
 
 shift
+
+# Ingen argumenter (bortsett fra evt opsjoner):
+if [[ -z "$@" ]]
+then
+    if [[ -z "$shownhelp" ]]
+    then
+        echo Missing input folder!
+        showusage
+
+    fi
+
+    exit
+fi
 
 
 # Kompilerer hvis ikke jar-fila finnes
 if [[ ! -e build/jar/JPT.jar ]]
 then
-	ant
+    ant jar
 fi
 
 
@@ -63,8 +97,8 @@ fi
 # Kjør kompilator og evt kompiler output
 java -jar build/jar/JPT.jar -o $outfolder $ptmode $@ && \
 
-if [[ -n "$thencompile" ]]
-then
-    (cd $outfolder && ant)
-fi
+    if [[ -n "$thencompile" ]]
+    then
+        (cd $outfolder && ant)
+    fi
 
