@@ -1,0 +1,31 @@
+template T1 {
+
+    class A {
+        String m(Object o) {
+			return "41";
+        }
+
+		String f() {
+			return m(7);
+		}
+    }
+}
+
+
+package overload_test {
+    inst T1;
+
+    class A adds {
+        String m(Integer i) {
+            return "42";
+        }
+    }
+   
+    class Main {
+
+        public static void main(String[] args) {
+            A a = new A();
+            System.out.println(a.f());
+        }
+    }
+}
