@@ -2,7 +2,7 @@ template T1 {
 
     class A {
         String m(Object o) {
-            return "41";
+            return "Original";
         }
 
         String f() {
@@ -17,7 +17,7 @@ package overload_test {
 
     class A adds {
         String m(Integer i) {
-            return "42";
+            return "Overload";
         }
     }
    
