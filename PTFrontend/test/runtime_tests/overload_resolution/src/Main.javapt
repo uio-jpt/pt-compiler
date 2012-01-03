@@ -6,7 +6,7 @@ template T1 {
         }
 
         String f() {
-            return m(7);
+            return m("test");
         }
     }
 }
@@ -16,7 +16,7 @@ package overload_test {
     inst T1;
 
     class A adds {
-        String m(Integer i) {
+        String m(String s) {
             return "Overload";
         }
     }
