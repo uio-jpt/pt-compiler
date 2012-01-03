@@ -2,12 +2,12 @@ template T1 {
 
     class A {
         String m(Object o) {
-			return "41";
+            return "41";
         }
 
-		String f() {
-			return m(7);
-		}
+        String f() {
+            return m(7);
+        }
     }
 }
 
