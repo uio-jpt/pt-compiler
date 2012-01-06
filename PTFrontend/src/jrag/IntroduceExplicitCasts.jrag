@@ -1,0 +1,33 @@
+aspect IntroduceExplicitCasts {
+    public void ASTNode.introduceExplicitCasts() {
+        for(int i = 0; i < getNumChild(); i++) {
+            ASTNode child  = getChild(i);
+            ASTNode replacement = child.introduceMethodAccessCasts();
+            if( replacement != null ) {
+                child.replaceSelfWith( replacement );
+            }
+            child.introduceExplicitCasts();
+        }
+    }
+
+    public ASTNode ASTNode.introduceMethodAccessCasts() {
+        return null;
+    }
+
+    public ASTNode MethodAccess.introduceMethodAccessCasts() {
+        // is this an access to a method that is defined within this template?
+        MethodDecl mdecl = decl();
+        Iterator<ParameterDeclaration> paramDecl = mdecl.getParameterList().iterator();
+        Iterator<Expr> argList = getArgList().iterator();
+        while( paramDecl.hasNext() && argList.hasNext() ) {
+            ParameterDeclaration pd = paramDecl.next();
+            TypeDecl tpd = pd.type();
+            Expr a = argList.next();
+            TypeDecl ta = a.type();
+            Expr ra = new CastExpr( new TypeAccess( tpd.packageName(), tpd.name() ), (Expr) a.fullCopy() );
+            a.replaceSelfWith( ra );
+        }
+        return null;
+    }
+    
+}

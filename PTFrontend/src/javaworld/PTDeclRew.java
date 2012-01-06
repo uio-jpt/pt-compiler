@@ -964,7 +964,6 @@ public class PTDeclRew {
 		 * rewrite list.
 		 */
 		for (SimpleClass decl : ptDeclToBeRewritten.getSimpleClassList()) {
-            System.out.println( "@@@@ creating rewriter for " + decl.getID() );
 			lb.add(new SimpleClassRew(decl));
         }
 		/*

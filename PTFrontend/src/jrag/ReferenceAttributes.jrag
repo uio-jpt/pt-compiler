@@ -152,7 +152,6 @@ aspect ReferenceAttributes {
             rv.remove( this );
         }
 
-        System.out.print( getID() + " is dependent by inheritance on: " );
         for(PTDecl ptd : rv ) {
             System.out.print( ptd.getID() + " " );
         }

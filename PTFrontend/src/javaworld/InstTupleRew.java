@@ -187,6 +187,9 @@ class InstTupleRew {
         TypeDecl x = instantiator.getOriginator();
 
 		ClassDecl ext = ((ClassDecl)x).fullCopy();
+
+        new IntroduceExplicitCastsRewriter().mutate( ext );
+
             /* problem:
                 the copy is shallow -- it contains references to types in the original.
                 these are not == to the corresponding ones in the copy.
@@ -204,9 +207,9 @@ class InstTupleRew {
 
 		ClassDeclRew rewriteClass = new ClassDeclRew(ext, getSourceTemplateName());
 
-//        HashMap<ASTNode,String> internalRenames = findInternalRenames( ext );
-//
-//        ext.visitRenameAccesses( internalRenames );
+        HashMap<ASTNode,String> internalRenames = findInternalRenames( ext );
+
+        ext.visitRenameAccesses( internalRenames );
 //        ext.visitRenameDeclarations( internalRenames );
 
 		rewriteClass.renameConstructors(instantiator);

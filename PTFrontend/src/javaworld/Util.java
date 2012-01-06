@@ -133,8 +133,6 @@ public class Util {
             }
 
 */
-            System.out.println( "PERFORMING MERGE OF COMPILATION UNITS" );
-
             String name = "$mergedPTCU$";
             List<ImportDecl> p1 = new List<ImportDecl>();
             List<TypeDecl> p2 = new List<TypeDecl>();
@@ -175,8 +173,6 @@ public class Util {
             AST.PTCompilationUnit ptuc = new AST.PTCompilationUnit( name, p1, p2, p3 );
             ptuc.setFromSource( true );
             cul.addChild( ptuc );
-
-            System.out.println( "PERFORMED MERGE OF COMPILATION UNITS" );
 
             return rv;
     }
