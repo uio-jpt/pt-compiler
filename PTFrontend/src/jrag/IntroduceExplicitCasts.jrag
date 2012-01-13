@@ -24,8 +24,15 @@ aspect IntroduceExplicitCasts {
             TypeDecl tpd = pd.type();
             Expr a = argList.next();
             TypeDecl ta = a.type();
-            Expr ra = new CastExpr( new TypeAccess( tpd.packageName(), tpd.name() ), (Expr) a.fullCopy() );
-            a.replaceSelfWith( ra );
+            if( tpd instanceof RequiredType ) {
+                // ignore required type
+            } else if( tpd instanceof TypeVariable ) {
+                // ignore type variables for now
+            } else {
+                System.out.println( "for method " + mdecl.name() + " introducing explicit cast to " + tpd.name() + " of type " + tpd.getClass().getName() );
+                Expr ra = new CastExpr( new TypeAccess( tpd.packageName(), tpd.name() ), (Expr) a.fullCopy() );
+                a.replaceSelfWith( ra );
+            }
         }
         return null;
     }
