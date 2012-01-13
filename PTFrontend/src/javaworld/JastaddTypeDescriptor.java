@@ -45,7 +45,7 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         typeParameters = new Vector<JastaddTypeDescriptor>();
 
         if( acc instanceof TypeAccess ) {
-            System.out.println( "initializing from typeaccess. " + acc );
+//            System.out.println( "initializing from typeaccess. " + acc );
 
             if( ((TypeAccess)acc).getPackage().equals( "$mergedPTCU$" ) ) {
                 System.out.println( "MERGE-OOPS " + acc.dumpString() );

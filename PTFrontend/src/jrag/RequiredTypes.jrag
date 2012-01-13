@@ -463,7 +463,6 @@ aspect RequiredTypes {
         /* TODO END */
 
    eq RequiredType.supertypeGenericClassDecl(GenericClassDecl type) {
-        System.out.println( "@@@ HOo hoo " );
         return supertypeClassDecl( type );
    }
 
