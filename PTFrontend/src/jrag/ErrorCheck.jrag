@@ -121,10 +121,20 @@ aspect ErrorCheck {
                 java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
                 java.util.Set<ASTNode> uncalled = new java.util.HashSet<ASTNode>();
 
+                System.out.println( "rewriting PTConstructorDecl in " + getID() );
+
+                boolean requiredTypesAsTParents = false;
 
                 for( ASTNode tparent : tparents ) {
-                    uncalled.add( tparent );
+                    System.out.println( "has tparent " + tparent.getClass().getName() );
+                    if( tparent instanceof RequiredType ) {
+                        requiredTypesAsTParents = true;
+                    } else {
+                        uncalled.add( tparent );
+                    }
                 }
+
+                assert( !requiredTypesAsTParents || uncalled.isEmpty() );
 
                 for( PTTSuperConstructorCall scc : getTSuperConstructorInvocationList() ) {
                     Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( parentPt );
@@ -296,7 +306,12 @@ aspect ErrorCheck {
             java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
 
             for( ASTNode tparent : tparents ) {
-                uncalled.add( tparent );
+                System.out.println( "has tparent " + tparent.getClass().getName() );
+                if( tparent instanceof RequiredType ) {
+                    //       requiredTypesAsTParents = true;
+                } else {
+                    uncalled.add( tparent );
+                }
             }
 
             for( PTTSuperConstructorCall scc : getTSuperConstructorInvocationList() ) {

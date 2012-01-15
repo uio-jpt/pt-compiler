@@ -12,6 +12,8 @@ import AST.ASTNode;
 import com.google.common.base.Joiner;
 
 public class ConcretificationScheme {
+    // must be prepared for this to change after object creation! (and keep up with changes)
+    // [this is done for autoconcretification]
     private Map<RequiredType, TypeDecl> concretifications;
     private ASTNode context;
 

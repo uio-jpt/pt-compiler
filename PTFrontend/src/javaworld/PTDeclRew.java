@@ -132,6 +132,10 @@ public class PTDeclRew {
     }
 
     protected void concretifyRequiredTypes() {
+        concretifyRequiredTypes( false );
+    }
+
+    protected void concretifyRequiredTypes(boolean alreadyAutoconcretified) {
         Multimap<String,Access> concretifications = HashMultimap.create();
 
         RequiredTypeRewriter rewriter = new RequiredTypeRewriter();
@@ -141,8 +145,17 @@ public class PTDeclRew {
 
         Map<RequiredType, TypeDecl> concretificationPlan = new HashMap<RequiredType, TypeDecl>();
 
+        java.util.Set<RequiredType> lacksExplicitConcretification = new java.util.HashSet<RequiredType>();
+
+        if( ptDeclToBeRewritten instanceof PTPackage ) {
+            for( RequiredType rt : ptDeclToBeRewritten.getRequiredTypeList() ) {
+                lacksExplicitConcretification.add( rt );
+            }
+        }
+
 		for (PTInstDecl instDecl : ptDeclToBeRewritten.getPTInstDecls()) {
             for( RequiredTypeInstantiation rti : instDecl.getRequiredTypeInstantiationList() ) {
+                System.out.println( "detected concretification " + rti.getRequiredTypeName() );
                 concretifications.put( rti.getRequiredTypeName(), (Access) rti.getConcreteTypeAccess() );
             }
         }
@@ -186,6 +199,10 @@ public class PTDeclRew {
 
         }
 
+        for( RequiredType rt : concretificationPlan.keySet() ) {
+            lacksExplicitConcretification.remove( rt );
+        }
+
         if( processed != concretifications.keySet().size() ) {
             // failure
             return;
@@ -193,79 +210,131 @@ public class PTDeclRew {
 
         ConcretificationScheme scheme = new ConcretificationScheme( concretificationPlan, ptDeclToBeRewritten.getPTDeclContext() );
 
+        // this needs to be done in specific order, TODO topological sort by internal extends-relations
+        // (?)
+        for( RequiredType rt : lacksExplicitConcretification ) {
+            TypeConstraint tc = rt.getTypeConstraint( scheme );
+            System.out.println( "should auto-concretify " + rt.getID() + " to constraints " + tc );
+
+            java.util.List<TypeDecl> supertypes = new java.util.ArrayList<TypeDecl> ();
+
+            TypeDecl dominatingSupertype = ptDeclToBeRewritten.getProgram().typeObject(); // java.lang.Object
+            supertypes.add( dominatingSupertype );
+
+            boolean mustBeClass = tc.mustBeClass();
+            boolean hasContents = tc.getMethodsIterator().hasNext()
+                                  || tc.getConstructorsIterator().hasNext();
+
+            for( Iterator<TypeDescriptor> itd = tc.getExtendedTypesIterator(); itd.hasNext(); ) {
+                TypeDescriptor td = itd.next();
+                TypeDecl tdecl = Util.declarationFromTypeAccess( td.mapByScheme( scheme ).getAccess() );
+                supertypes.add( tdecl );
+            }
+            for( Iterator<TypeDescriptor> itd = tc.getImplementedTypesIterator(); itd.hasNext(); ) {
+                TypeDescriptor td = itd.next();
+                TypeDecl tdecl = Util.declarationFromTypeAccess( td.mapByScheme( scheme ).getAccess() );
+                supertypes.add( tdecl );
+            }
+
+            for( TypeDecl tdecl : supertypes ) {
+                System.out.println( "is " + dominatingSupertype.fullName() + " a dominating supertype? then " + tdecl.fullName() + " must be a subtype.." );
+                if( !dominatingSupertype.subtype( tdecl ) ) {
+                    System.out.println( "but it is not. how about the other way around?" );
+                    if( tdecl.subtype( dominatingSupertype ) ) {
+                        System.out.println( "good!" );
+                        dominatingSupertype = tdecl;
+                    } else {
+                        System.out.println( "failed" );
+                        dominatingSupertype = null;
+                        break;
+                    }
+                }
+            }
+
+            System.out.println( "has contents? " + hasContents );
+            System.out.println( "has domSuper? " + (dominatingSupertype != null) );
+            System.out.println( "must be interface? " + tc.mustBeInterface() );
+
+            if( !hasContents
+                && dominatingSupertype != null
+                && !( ( dominatingSupertype.isClassDecl() && tc.mustBeInterface() )
+                      || ( dominatingSupertype.isInterfaceDecl() && tc.mustBeClass() ) )
+              ) {
+                System.out.println( "auto-concretify " + rt.getID() + " by replacing with dominating explicit supertype " + dominatingSupertype.fullName() );
+
+                concretificationPlan.put( rt, dominatingSupertype );
+                
+            } else {
+                System.out.println( "cannot auto-concretify " + rt.getID() + " by replacement with existing type" );
+                try {
+                    TypeDecl td = JastaddTypeConstraints.convertToTypeDecl( rt.getID(), tc, ptDeclToBeRewritten );
+
+                    if( td instanceof InterfaceDecl ) {
+                        ptDeclToBeRewritten.addInterfaceDecl( (InterfaceDecl) td );
+
+                        concretificationPlan.put( rt, td );
+                    } else if( td instanceof ClassDecl ) {
+                        ptDeclToBeRewritten.addSimpleClass( new PTClassDecl( (ClassDecl) td ) );
+
+                        concretificationPlan.put( rt, td );
+                    } else {
+                        throw new OperationImpossible( "conversion resulted in unexpected type " + td.getClass().getName() + " (internal error)" );
+                    }
+                }
+                catch( OperationImpossible e ) {
+                    System.out.println( "failed to auto-concretify " + rt.getID() );
+                }
+            }
+        }
+
+        {
+            boolean didChange;
+            do {
+                // TODO ensure no cycles possible (with erroneous code)
+
+                didChange = false;
+
+                for( RequiredType tdecl : concretificationPlan.keySet() ) {
+                    TypeDecl tdval = concretificationPlan.get( tdecl );
+                    if( tdval instanceof RequiredType ) {
+                        TypeDecl tdvalval = concretificationPlan.get( tdval );
+                        System.out.println( "performing redirect: "  + tdecl.getID() + " --> " + tdval.getID() + " --> " + tdvalval.getID() );
+                        concretificationPlan.put( tdecl, tdvalval );
+                        didChange = true;
+                    }
+                }
+            } while( didChange );
+        }
+
         for( RequiredType tdecl : concretificationPlan.keySet() ) {
             boolean stopError = false;
             String key = tdecl.getID();
             TypeDecl replacementType = concretificationPlan.get( tdecl );
 
-/*
-        
-            SimpleSet matches = ptDeclToBeRewritten.lookupTypeInPTDecl( key );
-            if( matches.size() < 1 ) {
-                ptDeclToBeRewritten.error( "concretification of unknown type: " + key );
-                stopError = true;
-            } else if( matches.size() > 1 ) {
-                // detected elsewhere
-                stopError = true;
-            } else {
-                tdecl = (TypeDecl) matches.iterator().next();
-                if( !(tdecl instanceof RequiredType) ) {
-                    stopError = true;
-                    ptDeclToBeRewritten.error( "concretification of non-required type/class/interface: " + key );
-                }
-            }
-            if( concretifications.get( key ).size() > 1 ) {
-                ptDeclToBeRewritten.error( "multiple concretifications of " + key );
-                stopError = true;
-            }
-
-            TypeDecl replacementType  = null;
-            String replacement = "";
-
-            if( !stopError ) {
-                replacement = concretifications.get( key ).iterator().next();
-                PTInstDecl instDeclFirst = (PTInstDecl) ptDeclToBeRewritten.getPTInstDecls().iterator().next(); // hack
-                SimpleSet rightMatches = ptDeclToBeRewritten.lookupTypeInPTDecl( replacement );
-                if( rightMatches.size() == 0 ) {
-                    rightMatches = ptDeclToBeRewritten.lookupType( replacement );
-                }
-                if( rightMatches.size() < 1 ) {
-                    ptDeclToBeRewritten.error( "concretifying " + key + " with unknown type " +  replacement );
-                    stopError = true;
-                } else if( rightMatches.size() > 2 ) {
-                    stopError = true;
-                } else {
-                    try {
-                        replacementType = (TypeDecl) rightMatches.iterator().next();
-                    }
-                    catch( ClassCastException e ) {
-                        stopError = true;
-                    }
-                }
-            }
-*/
-
             // check conformance
             if( !stopError ) {
                 RequiredType reqType = (RequiredType) tdecl;
-                TypeConstraint cand = JastaddTypeConstraints.fromReferenceTypeDecl( replacementType, scheme );
-                TypeConstraint constraint = reqType.getTypeConstraint( scheme );
-                if( cand == null ) {
-                    if( replacementType == null ) {
-                        ptDeclToBeRewritten.error( "concretification candidate not found" ); // TODO friendlier
-                    } else {
-                        ptDeclToBeRewritten.error( "concretification candidate " + replacementType.getID() + " is unsuitable (not a known reference type)" );
-                    }
-                    stopError = true;
-                } else {
-                    try {
-                        cand.satisfies( constraint, scheme );
-                    }
-                    catch( TypeConstraintFailed e ) {
-                        ptDeclToBeRewritten.error( e.getMessage() );
+                if( ! lacksExplicitConcretification.contains( tdecl ) ) {
+                    TypeConstraint cand = JastaddTypeConstraints.fromReferenceTypeDecl( replacementType, scheme );
+                    TypeConstraint constraint = reqType.getTypeConstraint( scheme );
+                    if( cand == null ) {
+                        if( replacementType == null ) {
+                            ptDeclToBeRewritten.error( "concretification candidate not found" ); // TODO friendlier
+                        } else {
+                            ptDeclToBeRewritten.error( "concretification candidate " + replacementType.getID() + " is unsuitable (not a known reference type)" );
+                        }
                         stopError = true;
+                    } else {
+                        try {
+                            cand.satisfies( constraint, scheme );
+                        }
+                        catch( TypeConstraintFailed e ) {
+                            ptDeclToBeRewritten.error( e.getMessage() );
+                            stopError = true;
+                        }
                     }
                 }
+
                 if( !stopError ) {
                     /*
                     String replacementName = replacementType.getID();
@@ -277,9 +346,14 @@ public class PTDeclRew {
                     */
 
 //                    Access access = replacementType.createQualifiedAccess();
-                    Access originalAccess = concretifications.get( tdecl.getID() ).iterator().next();
-//                    System.out.println( "created access " + access.dumpTree() + " of type " + access.getClass().getName() + " from "  + replacementType.getClass().getName() );
-//                    System.out.println( "original access was " + originalAccess.dumpTree() + " of type " + access.getClass().getName() + " from "  + replacementType.getClass().getName() );
+                    Collection<Access> originalAccesses = concretifications.get( tdecl.getID() );
+                    Access originalAccess;
+                    if( originalAccesses.iterator().hasNext() ) {
+                        originalAccess = originalAccesses.iterator().next();
+                    } else {
+                        System.out.println( "adding rewrite from required type " + reqType.getID() + " --> " + replacementType.getID() );
+                        originalAccess = replacementType.createBoundAccess();
+                    }
 
                     rewriter.addRewrite( reqType, originalAccess );
                     toBeDeleted.add( reqType );
@@ -287,6 +361,7 @@ public class PTDeclRew {
             }
         }
 
+        System.out.println( "performing all rewrites" );
         rewriter.mutate( ptDeclToBeRewritten );
 
         {
@@ -938,6 +1013,7 @@ public class PTDeclRew {
                     List<PTTSuperConstructorCall> explicitInvocations = new AST.List<PTTSuperConstructorCall>();
                     explicitInvocations.add( explicitInvocation );
 
+                    System.out.println( "creating PTConstructorDecl named " + constructorName );
                     PTConstructorDecl myConstructor = new PTConstructorDecl( newMods,
                                                                              constructorName,
                                                                              constructorParameters,
