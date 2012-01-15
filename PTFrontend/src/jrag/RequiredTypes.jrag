@@ -420,18 +420,19 @@ aspect RequiredTypes {
   }
 
 
-        /* TODO BEGIN */
-   eq RequiredType.supertypeRawClassDecl(RawClassDecl type) = true;
-   eq RequiredType.supertypeRawInterfaceDecl(RawInterfaceDecl type) = true;
-   eq RequiredType.supertypeTypeVariable(TypeVariable type) = true;
+   eq RequiredType.supertypeRawClassDecl(RawClassDecl type) = supertypeParClassDecl( type );
+   eq RequiredType.supertypeRawInterfaceDecl(RawInterfaceDecl type) = supertypeParInterfaceDecl( type );
+   eq RequiredType.supertypeTypeVariable(TypeVariable type) {
+    for(int i = 0; i < type.getNumTypeBound(); i++)
+      if(type.getTypeBound(i).type().subtype(this))
+        return true;
+    return false;
+   }
    eq RequiredType.supertypeArrayDecl(ArrayDecl type) = false;
-        /* END, ALL WERE RED FLAGS */
 
    eq RequiredType.supertypeClassDecl(ClassDecl type) {
         // does the class extend this RT as a class?
         // does the class implement this RT as an interface?
-
-        System.out.println ( "@@@ blue flag maybe fixed" );
 
         for( Access a : type.getImplementsList() ) {
             TypeDecl td = Util.declarationFromTypeAccess( a );
