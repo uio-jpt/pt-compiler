@@ -289,7 +289,12 @@ aspect RequiredTypes {
                 superType = null;
             }
             if( superType instanceof ClassDecl ) {
-                error( "required type (non-class) " + getID() + " cannot extend class " + superType.getID() );
+                boolean isObject = superType == typeObject(); // temporary exception for EXPLICIT extends object which has been used as workaround
+                if( !isObject ) {
+                    error( "required type (non-class) " + getID() + " cannot extend class " + superType.getID() );
+                } else {
+                    System.out.println( "required type (non-class) " + getID() + " should not explicitly extend Object" );
+                }
             }
         }
     }
