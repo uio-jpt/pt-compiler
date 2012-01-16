@@ -352,7 +352,7 @@ public class PTDeclRew {
                         originalAccess = originalAccesses.iterator().next();
                     } else {
                         System.out.println( "adding rewrite from required type " + reqType.getID() + " --> " + replacementType.getID() );
-                        originalAccess = replacementType.createBoundAccess();
+                        originalAccess = replacementType.createQualifiedAccess();
                     }
 
                     rewriter.addRewrite( reqType, originalAccess );
