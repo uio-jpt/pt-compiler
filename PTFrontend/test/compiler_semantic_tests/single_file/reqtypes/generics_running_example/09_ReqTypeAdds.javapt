@@ -34,9 +34,11 @@ template StringAdderGetter {
 }
 
 template T {
-    inst StringAdderGetter with required type StringList adds {
+    inst StringAdderGetter;
+
+    required type StringList adds {
             String get(int i);
-    };
+    }
 }
 
 package P {
