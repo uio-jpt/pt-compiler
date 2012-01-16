@@ -1,6 +1,6 @@
 PTCompilationUnit : CompilationUnit ::= PTDecl*;
 
-abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* InterfaceDecl* PTEnumDecl* RequiredType* PTDeclContext;
+abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* InterfaceDecl* PTEnumDecl* RequiredType* RequiredTypeAddition:RequiredType* PTDeclContext;
 PTTemplate : PTDecl ::= TypeParameter:TypeVariable*;
 PTPackage : PTDecl;
 
@@ -66,6 +66,10 @@ TabstractMethodDecl : MethodDecl;
 RequiredType : ReferenceType ::= [SuperTypeAccess:Access] Implements:Access* TypeParameter:TypeVariable*;
 RequiredClass : RequiredType;
 RequiredInterface : RequiredType;
+
+RequiredTypeAdds : RequiredType;
+RequiredClassAdds : RequiredClass;
+RequiredInterfaceAdds : RequiredInterface;
 
 
 // PTAbstractConstructor : BodyDecl ::= Modifiers <ID:String> Parameter:ParameterDeclaration* Exception:Access*;

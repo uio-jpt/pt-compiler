@@ -452,6 +452,11 @@ public class PTDeclRew {
 	protected void createMergedRequiredTypes() {
         ConcretificationScheme temporaryScheme = createRequiredTypeTargets();
 
+        Multimap<String, RequiredType> localRtAdds = HashMultimap.create();
+        for( RequiredType rta : ptDeclToBeRewritten.getRequiredTypeAdditions() ) {
+            localRtAdds.put( rta.getID(), rta );
+        }
+
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
         for( String key : destinationClassIDsWithInstTuples.keySet() ) {
             java.util.List<RequiredType> originatorReqTypes = new java.util.ArrayList<RequiredType>();
@@ -468,6 +473,8 @@ public class PTDeclRew {
             }
 
             if( originatorReqTypes.size() == 0 ) continue;
+
+
 
             /*
 
@@ -508,6 +515,11 @@ public class PTDeclRew {
                 tc.absorb( rt.getTypeConstraint( temporaryScheme ) );
             }
 
+            for( RequiredType rt : localRtAdds.get( key ) ) {
+                tc.absorb( rt.getTypeConstraint( temporaryScheme ) );
+            }
+            localRtAdds.removeAll( key );
+
             System.out.println( "creating new required type in: " + ptDeclToBeRewritten );
 
             SimpleSet temporaryReqTypes = ptDeclToBeRewritten.lookupTypeInPTDecl( key );
@@ -521,6 +533,12 @@ public class PTDeclRew {
             RequiredType myRequiredType = JastaddTypeConstraints.convertToRequiredType( key, tc, ptDeclToBeRewritten.getPTDeclContext() );
 
             temporaryReqType.replaceSelfWith( myRequiredType );
+        }
+
+        for( String key : localRtAdds.keySet() ) {
+            for( RequiredType rt : localRtAdds.get( key ) ) {
+                rt.error( "required type-adds to nonexistent required type " + key );
+            }
         }
     }
 /*

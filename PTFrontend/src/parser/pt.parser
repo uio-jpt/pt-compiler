@@ -58,6 +58,7 @@ PTDecl pt_template =
                                       cc.getInterfaces(),
                                       cc.getEnums(),
                                       cc.getRequiredTypes(),
+                                      cc.getRequiredTypeAdditions(),
                                       new PTDeclContext(),
                                       (ps == null) ? new AST.List<TypeVariable>() : ps );
           :}
@@ -67,7 +68,7 @@ PTDecl pt_package =
  PACKAGE IDENTIFIER LBRACE inst_class_or_interface_single.l* RBRACE
           {:
                 javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
-                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums(), cc.getRequiredTypes(), new PTDeclContext());
+                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums(), cc.getRequiredTypes(), cc.getRequiredTypeAdditions(), new PTDeclContext());
           :}
           ;
 
@@ -337,6 +338,27 @@ RequiredType ptr_required_spec =
     REQUIRED ptr_r_type.a {: return a; :}
     | REQUIRED ptr_r_class.a {: return a; :}
     | REQUIRED ptr_r_interface.a {: return a; :}
+    ;
+
+RequiredType ptr_r_type =
+    TYPE IDENTIFIER type_parameters.p? ADDS super.s? interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
+        {:
+            return new RequiredTypeAdds( new Modifiers(), IDENTIFIER, m, s, i, p );
+        :}
+    ;
+
+RequiredInterface ptr_r_interface =
+    INTERFACE IDENTIFIER type_parameters.p? ADDS extends_interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
+        {:
+            return new RequiredInterfaceAdds( new Modifiers(), IDENTIFIER, m, new Opt(), i, p );
+        :}
+    ;
+
+RequiredClass ptr_r_class =
+    CLASS IDENTIFIER type_parameters.p? ADDS super.s? interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
+        {:
+            return new RequiredClassAdds( new Modifiers(), IDENTIFIER, m, s, i, p );
+        :}
     ;
 
 RequiredType ptr_r_type =

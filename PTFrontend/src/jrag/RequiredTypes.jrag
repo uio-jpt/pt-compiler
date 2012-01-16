@@ -10,6 +10,20 @@ aspect RequiredTypes {
         }
   }
 
+  public boolean ASTNode.isRequiredAdds() {
+    return false;
+  }
+  public boolean RequiredTypeAdds.isRequiredAdds() {
+    return true;
+  }
+  public boolean RequiredClassAdds.isRequiredadds() {
+    return true;
+  }
+  public boolean RequiredInterfaceAdds.isRequiredadds() {
+    return true;
+  }
+
+
   public ASTNode ASTNode.visitReplaceTypeAccesses(Map<TypeDecl,Access> ht) {
     return null;
   }
@@ -250,6 +264,16 @@ aspect RequiredTypes {
         }
         return rv;
     }
+
+    public void RequiredTypeAdds.nameCheck() {
+    }
+
+    public void RequiredInterfaceAdds.nameCheck() {
+    }
+
+    public void RequiredClassAdds.nameCheck() {
+    }
+
 
     public void RequiredType.nameCheck() {
         super.nameCheck();
