@@ -1,0 +1,17 @@
+template T {
+    required type X {
+        void bar();
+    }
+}
+
+template U {
+    inst T;
+
+    required type Y adds {
+        void run();
+    }
+}
+
+package P {
+    inst U;
+}
