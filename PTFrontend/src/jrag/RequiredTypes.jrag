@@ -153,15 +153,19 @@ aspect RequiredTypes {
     eq RequiredType.methodsSignatureMap() {
         HashMap map = new HashMap( localMethodsSignatureMap() );
 
+        TypeDecl superType;
         if( hasSuperTypeAccess() ) {
-            TypeDecl superType = Util.declarationFromTypeAccess( getSuperTypeAccess() );
-            if( superType != null ) {
-                  for(Iterator iter = superType.methodsIterator(); iter.hasNext(); ) {
-                    MethodDecl m = (MethodDecl)iter.next();
-                    if(!m.isPrivate() && m.accessibleFrom(this) && !localMethodsSignatureMap().containsKey(m.signature()))
-                      putSimpleSetElement(map, m.signature(), m);
-                  }
-            }
+            superType = Util.declarationFromTypeAccess( getSuperTypeAccess() );
+        } else {
+            superType = typeObject();
+        }
+
+        if( superType != null ) {
+              for(Iterator iter = superType.methodsIterator(); iter.hasNext(); ) {
+                MethodDecl m = (MethodDecl)iter.next();
+                if(!m.isPrivate() && m.accessibleFrom(this) && !localMethodsSignatureMap().containsKey(m.signature()))
+                  putSimpleSetElement(map, m.signature(), m);
+              }
         }
 
         for( Access a : getImplementsList() ) {

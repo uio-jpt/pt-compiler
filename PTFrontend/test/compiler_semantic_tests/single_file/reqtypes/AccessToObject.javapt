@@ -1,0 +1,14 @@
+template T {
+    required type X {
+    }
+
+    class Y {
+        void f(X x) {
+            System.out.println( x.toString() );
+        }
+    }
+}
+
+package P {
+    inst T;
+}
