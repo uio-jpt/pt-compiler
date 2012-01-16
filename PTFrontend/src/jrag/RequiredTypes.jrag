@@ -278,6 +278,21 @@ aspect RequiredTypes {
     public void RequiredClassAdds.nameCheck() {
     }
 
+    public void RequiredType.typeCheck() {
+        super.typeCheck();
+
+        if( ! (this instanceof RequiredClass) ) {
+            TypeDecl superType;
+            if( hasSuperTypeAccess() ) {
+                superType = Util.declarationFromTypeAccess( getSuperTypeAccess() );
+            } else {
+                superType = null;
+            }
+            if( superType instanceof ClassDecl ) {
+                error( "required type (non-class) " + getID() + " cannot extend class " + superType.getID() );
+            }
+        }
+    }
 
     public void RequiredType.nameCheck() {
         super.nameCheck();
