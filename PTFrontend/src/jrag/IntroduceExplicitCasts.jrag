@@ -4,8 +4,9 @@ aspect IntroduceExplicitCasts {
             ASTNode child  = getChild(i);
             ASTNode replacement = child.introduceMethodAccessCasts();
             if( replacement != null ) {
-                child.replaceSelfWith( replacement );
+                getChild(i).replaceSelfWith( replacement );
             }
+            child = getChild(i);
             child.introduceExplicitCasts();
         }
     }
@@ -18,7 +19,19 @@ aspect IntroduceExplicitCasts {
         // is this an access to a method that is defined within this template?
         MethodDecl mdecl = decl();
         Iterator<ParameterDeclaration> paramDecl = mdecl.getParameterList().iterator();
-        Iterator<Expr> argList = getArgList().iterator();
+        MethodAccess baseAccess = this;
+
+        if( mdecl instanceof ParMethodDecl ) {
+            ParMethodDecl pmdecl = (ParMethodDecl) mdecl;
+
+            ParMethodAccess pma = new ParMethodAccess( getID(), getArgList().fullCopy(), pmdecl.getTypeArgumentList().fullCopy() );
+
+            replaceSelfWith( pma );
+            baseAccess = pma;
+        }
+
+        Iterator<Expr> argList = baseAccess.getArgList().iterator();
+
         while( paramDecl.hasNext() && argList.hasNext() ) {
             ParameterDeclaration pd = paramDecl.next();
             TypeDecl tpd = pd.type();
@@ -34,6 +47,11 @@ aspect IntroduceExplicitCasts {
                 a.replaceSelfWith( ra );
             }
         }
+
+        if( baseAccess != this ) {
+            return baseAccess;
+        }
+
         return null;
     }
     

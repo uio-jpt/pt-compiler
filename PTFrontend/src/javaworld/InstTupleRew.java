@@ -187,8 +187,15 @@ class InstTupleRew {
         TypeDecl x = instantiator.getOriginator();
 
 		ClassDecl ext = ((ClassDecl)x).fullCopy();
+        // be aware that after this, going upwards into the parent and then
+        // (apparently) backwards into the child will NOT find the copy, but
+        // the original child, thus it will not reflect changes.
+        // fullCopy sanely copies down but not up, yet this can be an
+        // unintended consequencem.. ext.getParent() does NOT simply give some
+        // context for ext!
 
         new IntroduceExplicitCastsRewriter().mutate( ext );
+        ext.getParentClass( PTDecl.class ).flushCaches();
 
             /* problem:
                 the copy is shallow -- it contains references to types in the original.
