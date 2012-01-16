@@ -1,8 +1,6 @@
 template T {
 
     required type Foo {
-        Foo();
-
         String s();
     } 
 
