@@ -46,7 +46,22 @@ aspect ErrorCheck {
     }
 
     refine TypeCheck public void  ClassInstanceExpr.typeCheck() {
-        TypeCheck.ClassInstanceExpr.typeCheck();
+        // duplicated below to allow for inst rt : // TypeCheck.ClassInstanceExpr.typeCheck();
+
+        if(isQualified() && qualifier().isTypeAccess() && !qualifier().type().isUnknown())
+          error("*** The expression in a qualified class instance expr must not be a type name");
+        // 15.9
+        if(isQualified() && !type().isInnerClass() && !((ClassDecl)type()).superclass().isInnerClass() && !type().isUnknown()) {
+          error("*** Qualified class instance creation can only instantiate inner classes and their anonymous subclasses" );
+        }
+        if(!type().isClassDecl() && !(type() instanceof RequiredClass)) {
+          error("*** Can only instantiate classes, which " + type().typeName() + " is not");
+        }
+        typeCheckEnclosingInstance();
+        typeCheckAnonymousSuperclassEnclosingInstance();
+
+
+
         // check that expr is not a template class if new expr is made
         // from within a template class and its list of arguments is
         // greater than 1.
