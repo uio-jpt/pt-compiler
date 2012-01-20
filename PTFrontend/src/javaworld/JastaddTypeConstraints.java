@@ -47,6 +47,7 @@ import java.util.Vector;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public class JastaddTypeConstraints {
     static Access simpleTypeDescriptorToAccess( TypeDescriptor td ) {

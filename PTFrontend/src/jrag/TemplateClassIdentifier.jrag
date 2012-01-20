@@ -36,7 +36,7 @@ aspect TemplateClassIdentifier {
     }
 
     public Set<ASTNode> TemplateClassIdentifier.locateTemplateClass( PTDecl root ) {
-        Set<ASTNode> rv = new HashSet<ASTNode>();
+        Set<ASTNode> rv = new LinkedHashSet<ASTNode>();
         for( PTInstDecl ptid : root.getPTInstDeclList() ) {
             if( hasInstantiationName() && !ptid.getInstantiationName().equals( getInstantiationName() ) ) continue;
     

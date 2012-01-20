@@ -54,30 +54,38 @@ aspect RequiredTypes {
   public TypeConstraint RequiredType.getTypeConstraint( ConcretificationScheme scheme ) {
       TypeConstraint rv = new TypeConstraint();
 
+      System.out.println( "making required type constraint -- origin of asymmetry?" );
+
       if( this instanceof RequiredClass ) {
+          System.out.println( "requiring class" );
           rv.requireClass();
       }
       if( this instanceof RequiredInterface ) {
+          System.out.println( "requiring interface" );
           rv.requireInterface();
       }
 
       if( hasSuperTypeAccess() ) {
+          System.out.println( "adding STA" );
           rv.addSuperType( new JastaddTypeDescriptor( getSuperTypeAccess() ) );
       }
 
       for( Access a : getImplementsList() ) {
           TypeAccess ta = (TypeAccess) a;
           TypeDecl td = ta.decl();
+          System.out.println( "adding implements :: " + td.getID() );
 
           rv.addImplementedType( new JastaddTypeDescriptor( td ) );
       }
 
         for( TypeVariable a : getTypeParameterList() ) {
+            System.out.println( "adding TV :: " + a.dumpTree() );
             rv.addTypeParameter( new JastaddTypeParameterDescriptor( a ) );
         }
 
 
       for( BodyDecl bd : getBodyDecls() ) {
+          System.out.println( "adding from bodyDecl :: " + bd.dumpTree() );
           JastaddTypeConstraints.fromRequiredTypeBodyDeclInto( bd, rv, scheme );
       }
 
@@ -217,7 +225,7 @@ aspect RequiredTypes {
 
     public boolean RequiredType.isExtendsCircular() {
         // circularity not in the RT part will be detected by JaJ
-        Set<RequiredType> extendedRTs = new HashSet<RequiredType>() ;
+        Set<RequiredType> extendedRTs = new LinkedHashSet<RequiredType>() ;
         Access nextSuper = getSuperTypeAccessOrNull();
         extendedRTs.add( this );
         while( nextSuper != null ) {
@@ -239,7 +247,7 @@ aspect RequiredTypes {
                 return true;
             }
 
-            Set<RequiredType> newForbidden = new java.util.HashSet<RequiredType> ( forbidden );
+            Set<RequiredType> newForbidden = new java.util.LinkedHashSet<RequiredType> ( forbidden );
             newForbidden.add( rt );
             
             if( rt.isLocallyImplementsCircular( newForbidden ) ) {
@@ -251,7 +259,7 @@ aspect RequiredTypes {
 
     public boolean RequiredType.isImplementsCircular() {
         // circularity not in the RT part will be detected by JaJ
-        Set<RequiredType> extendedRTs = new HashSet<RequiredType>() ;
+        Set<RequiredType> extendedRTs = new LinkedHashSet<RequiredType>() ;
         extendedRTs.add( this );
         return isLocallyImplementsCircular( extendedRTs );
     }

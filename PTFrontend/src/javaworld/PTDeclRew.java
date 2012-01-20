@@ -8,11 +8,13 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import com.google.common.base.Joiner;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 // it _might_ be argued that AST.* could be appropriate..
 import AST.PTInterfaceAddsDecl;
@@ -139,13 +141,13 @@ public class PTDeclRew {
         Multimap<String,Access> concretifications = HashMultimap.create();
 
         RequiredTypeRewriter rewriter = new RequiredTypeRewriter();
-        java.util.Set<RequiredType> toBeDeleted = new java.util.HashSet<RequiredType>();
+        java.util.Set<RequiredType> toBeDeleted = new java.util.LinkedHashSet<RequiredType>();
 
         /* see email, per now assume: <= on target name (after renames) */
 
-        Map<RequiredType, TypeDecl> concretificationPlan = new HashMap<RequiredType, TypeDecl>();
+        Map<RequiredType, TypeDecl> concretificationPlan = new LinkedHashMap<RequiredType, TypeDecl>();
 
-        java.util.Set<RequiredType> lacksExplicitConcretification = new java.util.HashSet<RequiredType>();
+        java.util.Set<RequiredType> lacksExplicitConcretification = new java.util.LinkedHashSet<RequiredType>();
 
         if( ptDeclToBeRewritten instanceof PTPackage ) {
             for( RequiredType rt : ptDeclToBeRewritten.getRequiredTypeList() ) {
@@ -388,7 +390,7 @@ public class PTDeclRew {
     }
 
     protected ConcretificationScheme createRequiredTypeTargets() {
-        Map<RequiredType, TypeDecl> concMapToTemporaries = new java.util.HashMap<RequiredType, TypeDecl> ();
+        Map<RequiredType, TypeDecl> concMapToTemporaries = new java.util.LinkedHashMap<RequiredType, TypeDecl> ();
 
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
         for( String key : destinationClassIDsWithInstTuples.keySet() ) {
@@ -581,7 +583,7 @@ public class PTDeclRew {
             }
         }
 
-        Map<TypeDecl, Access> renamingMap = new java.util.HashMap<TypeDecl, Access> ();
+        Map<TypeDecl, Access> renamingMap = new java.util.LinkedHashMap<TypeDecl, Access> ();
 
         for( String name : getDestinationIDsForInterfaces() ) {
             Collection<PTInstTuple> ituples = getDestinationClassIDsWithInstTuples().get( name );
@@ -687,7 +689,7 @@ public class PTDeclRew {
     }
 
     protected void updateAccessesToInternalRenames() {
-        Map<BodyDecl, BodyDecl> virtualsToReals = new java.util.HashMap<BodyDecl, BodyDecl> ();
+        Map<BodyDecl, BodyDecl> virtualsToReals = new java.util.LinkedHashMap<BodyDecl, BodyDecl> ();
         for( PTInstDecl ptid : ptDeclToBeRewritten.getPTInstDecls() ) {
             for( PTInstTuple ptit : ptid.getPTInstTupleList() ) {
                 new InstTupleRew( ptit ).createVirtualRenamingDeclarations(virtualsToReals);
@@ -1329,10 +1331,10 @@ public class PTDeclRew {
                     }
                     ClassDecl classDecl = (ClassDecl) tdecl;
 
-                    HashSet<ClassDecl> extendedClasses = new HashSet<ClassDecl>();
+                    HashSet<ClassDecl> extendedClasses = new LinkedHashSet<ClassDecl>();
                     precopyAddExtendedClassesOf( classDecl, extendedClasses );
 
-                    HashSet<InterfaceDecl> implementedInterfaces = new HashSet<InterfaceDecl>();
+                    HashSet<InterfaceDecl> implementedInterfaces = new LinkedHashSet<InterfaceDecl>();
                     for( Access a : classDecl.getImplementsList() ) {
                         if( a instanceof TypeAccess ) {
                             TypeAccess ta = (TypeAccess) a;

@@ -146,7 +146,7 @@ aspect ReferenceAttributes {
             }
         }
 
-        java.util.Set<PTDecl> rv = new java.util.HashSet<PTDecl>();
+        java.util.Set<PTDecl> rv = new java.util.LinkedHashSet<PTDecl>();
         addPTDeclDependenciesFrom( rv );
         if( rv.contains( this ) ) {
             rv.remove( this );
@@ -175,7 +175,7 @@ aspect ReferenceAttributes {
         with add root ClassDecl;
     TemplateConstructor contributes getTClassID() to ClassDecl.getMergedClassesWithConstructors() for getClassDecl();    
     
-    coll Set<PTPackage> CompilationUnit.getPTPackages() [new HashSet<PTPackage>()]
+    coll Set<PTPackage> CompilationUnit.getPTPackages() [new LinkedHashSet<PTPackage>()]
         with add root CompilationUnit;
     PTPackage contributes this to CompilationUnit.getPTPackages() for getCompilationUnit();
 
@@ -201,7 +201,7 @@ aspect ReferenceAttributes {
     }
 
     coll Set<VarAccess> FieldDeclaration.fieldAccess()
-        [new HashSet<VarAccess>()] with add root ClassDecl;
+        [new LinkedHashSet<VarAccess>()] with add root ClassDecl;
 
     VarAccess contributes this 
         when (decl() instanceof FieldDeclaration)
@@ -209,8 +209,8 @@ aspect ReferenceAttributes {
         for ((FieldDeclaration) decl());
 
     coll Set<MethodAccess> MethodDecl.methodAccess()
-//        [new HashSet<MethodAccess>()] with add root ClassDecl;
-        [new HashSet<MethodAccess>()] with add root TypeDecl;
+//        [new LinkedHashSet<MethodAccess>()] with add root ClassDecl;
+        [new LinkedHashSet<MethodAccess>()] with add root TypeDecl;
 
     MethodAccess contributes this 
         to MethodDecl.methodAccess()

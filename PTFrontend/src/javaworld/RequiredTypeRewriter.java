@@ -5,6 +5,7 @@
 package javaworld;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import AST.TypeDecl;
@@ -13,7 +14,7 @@ import AST.Access;
 import AST.ASTNode;
 
 class RequiredTypeRewriter extends NodeMutator {
-    Map< TypeDecl, Access > mappings = new HashMap<TypeDecl, Access>();
+    Map< TypeDecl, Access > mappings = new LinkedHashMap<TypeDecl, Access>();
     /* TypeDecl do not have hashCode or equality beyond that of Object,
        so different type variables of the same name in different templates
        should not collide (by object identity they are distinct). */

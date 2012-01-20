@@ -5,6 +5,7 @@ import java.util.Vector;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.ArrayList;
 
@@ -65,14 +66,14 @@ public class TypeConstraint {
 
     public void applyScheme( ConcretificationScheme scheme ) {
         Set<MethodDescriptor> oldMd = methods;
-        methods = new HashSet<MethodDescriptor> ();
+        methods = new LinkedHashSet<MethodDescriptor> ();
         for( MethodDescriptor md : methods ) {
             md.applyScheme( scheme );
             addMethod( md );
         }
 
         Set<ConstructorDescriptor> oldCons = constructors;
-        constructors = new HashSet<ConstructorDescriptor> ();
+        constructors = new LinkedHashSet<ConstructorDescriptor> ();
         for( ConstructorDescriptor md : oldCons ) {
             md.applyScheme( scheme );
             addConstructor( md );
@@ -143,11 +144,11 @@ public class TypeConstraint {
 
     public TypeConstraint() {
         canBeClass = canBeInterface = true;
-        methods = new HashSet<MethodDescriptor>();
-        constructors = new HashSet<ConstructorDescriptor>();
+        methods = new LinkedHashSet<MethodDescriptor>();
+        constructors = new LinkedHashSet<ConstructorDescriptor>();
 
-        implementedTypes = new HashSet<TypeDescriptor>();
-        extendedTypes = new HashSet<TypeDescriptor>();
+        implementedTypes = new LinkedHashSet<TypeDescriptor>();
+        extendedTypes = new LinkedHashSet<TypeDescriptor>();
 
         typeParametersRequired = new ArrayList<TypeParameterDescriptor> ();
     }
@@ -191,7 +192,7 @@ public class TypeConstraint {
 
     public void addSuperType(TypeDescriptor td ) {
         boolean ignorable = false;
-        Set<TypeDescriptor> madeRedundant = new HashSet<TypeDescriptor>();
+        Set<TypeDescriptor> madeRedundant = new LinkedHashSet<TypeDescriptor>();
 
         for( TypeDescriptor myTd : extendedTypes ) {
             if( td.equals( myTd ) ) {
@@ -217,7 +218,7 @@ public class TypeConstraint {
 
     public void addImplementedType( TypeDescriptor td ) {
         boolean ignorable = false;
-        Set<TypeDescriptor> madeRedundant = new HashSet<TypeDescriptor>();
+        Set<TypeDescriptor> madeRedundant = new LinkedHashSet<TypeDescriptor>();
 
         for( TypeDescriptor myTd : implementedTypes ) {
             if( td.equals( myTd ) ) {

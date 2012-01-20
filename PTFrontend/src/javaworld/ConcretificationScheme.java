@@ -31,12 +31,12 @@ public class ConcretificationScheme {
     }
 
     public ConcretificationScheme(ASTNode node) {
-        this.concretifications = new java.util.HashMap<RequiredType,TypeDecl> ();
+        this.concretifications = new java.util.LinkedHashMap<RequiredType,TypeDecl> ();
         this.context = node;
     }
 
     public ConcretificationScheme() {
-        this.concretifications = new java.util.HashMap<RequiredType,TypeDecl>();
+        this.concretifications = new java.util.LinkedHashMap<RequiredType,TypeDecl>();
         System.out.println(" [warning] making ConcretificationScheme with null context" );
     }
 
@@ -49,7 +49,7 @@ public class ConcretificationScheme {
     }
 
     public Map<TypeDecl, TypeAccess> createDeclToAccessMap() {
-        Map<TypeDecl, TypeAccess> rv = new java.util.HashMap<TypeDecl,TypeAccess> ();
+        Map<TypeDecl, TypeAccess> rv = new java.util.LinkedHashMap<TypeDecl,TypeAccess> ();
         for( RequiredType rt : concretifications.keySet() ) {
             TypeDecl targetDecl = concretifications.get( rt );
             TypeAccess targetAccess = new AST.TypeAccess( targetDecl.getID() );

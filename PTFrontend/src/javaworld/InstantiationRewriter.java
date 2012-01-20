@@ -62,5 +62,18 @@ public class InstantiationRewriter {
         decl.flushCaches();
 
         System.out.println( "finishing InstantiationRewriter: " + decl.getID() );
+
+        hashSetTest();
 	}
+
+    public static void hashSetTest() {
+        java.util.HashSet<String> foo = new java.util.HashSet<String>();
+        for(int i=0;i<10;i++) {
+            foo.add( "String" + i );
+        }
+        for(String x : foo ) {
+            System.out.print( x + " " );
+        }
+        System.out.println();
+    }
 }

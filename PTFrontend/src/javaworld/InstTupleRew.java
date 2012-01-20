@@ -23,6 +23,7 @@ import AST.PTDecl;
 
 import java.util.Iterator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import com.google.common.collect.Maps;
 import com.google.common.base.Joiner;
@@ -74,7 +75,7 @@ class InstTupleRew {
         // XXX what about types that can only be found in the parent, are these renamed correctly?
         // do any such exist? is the parent always ptdecl?
 
-        HashMap< ASTNode, String > rv = new HashMap< ASTNode, String >();
+        HashMap< ASTNode, String > rv = new LinkedHashMap< ASTNode, String >();
 
         for( PTDummyRename ptdr : instantiator.getPTDummyRenameList() ) {
             String originalId = ptdr.getOrgID();
