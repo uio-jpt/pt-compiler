@@ -95,16 +95,22 @@ public class JastaddTypeConstraints {
 
     static MethodDescriptor describeMethodDecl( MethodDecl mdecl, ConcretificationScheme scheme ) {
         String name = mdecl.getID();
+        System.out.println( "handling return type" );
         JastaddTypeDescriptor ret = new JastaddTypeDescriptor( mdecl.getTypeAccess() );
+        System.out.println( "done handling return type" );
+        TypeDescriptor mappedReturnType = ret.mapByScheme( scheme );
+        System.out.println( "really done handling return type" );
 
+        System.out.println( "handling parameters" );
         List<TypeDescriptor> params = new Vector<TypeDescriptor>();
         for( ParameterDeclaration pd : mdecl.getParameters() ) {
             JastaddTypeDescriptor pt = new JastaddTypeDescriptor( pd.getTypeAccess() );
 
             params.add( pt.mapByScheme( scheme ) );
         }
+        System.out.println( "done handling parameters" );
 
-        return new MethodDescriptor( name, ret.mapByScheme( scheme ), params );
+        return new MethodDescriptor( name, mappedReturnType, params );
 
     }
 
@@ -131,12 +137,16 @@ public class JastaddTypeConstraints {
     }
 
     public static void fromRequiredTypeBodyDeclInto( BodyDecl bd, TypeConstraint tc, ConcretificationScheme scheme ) {
-        // be aware: PTAbstractConstructor convenience-inhertis from MethodDecl, so order here is important
+        // be aware: PTAbstractConstructor convenience-inherits from MethodDecl, so order here is important
         if( bd instanceof PTAbstractConstructor ) {
             ConstructorDescriptor cdesc = describeMethodDecl( (MethodDecl) bd, scheme ).toConstructorDescriptor();
+            System.out.println( "from bd " + bd.dumpTree() );
+            System.out.println( "adding cd " + cdesc );
             tc.addConstructor( cdesc );
         } else if( bd instanceof MethodDecl ) {
             MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd, scheme );
+            System.out.println( "from bd " + bd.dumpTree() );
+            System.out.println( "adding md " + mdesc );
             tc.addMethod( mdesc );
         } else {
               // oops

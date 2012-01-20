@@ -214,6 +214,8 @@ public class PTDeclRew {
 
         // this needs to be done in specific order, TODO topological sort by internal extends-relations
         // (?)
+        // doesn't seem to require toposort by extends relations
+        // we can't toposort by access as this can be circular, so we can exclude that as a solution
         for( RequiredType rt : lacksExplicitConcretification ) {
             TypeConstraint tc = rt.getTypeConstraint( scheme );
             System.out.println( "should auto-concretify " + rt.getID() + " to constraints " + tc );

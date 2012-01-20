@@ -48,11 +48,12 @@ public class ConcretificationScheme {
         return context;
     }
 
-    public Map<TypeDecl, TypeAccess> createDeclToAccessMap() {
-        Map<TypeDecl, TypeAccess> rv = new java.util.LinkedHashMap<TypeDecl,TypeAccess> ();
+    public Map<TypeDecl, Access> createDeclToAccessMap() {
+        Map<TypeDecl, Access> rv = new java.util.LinkedHashMap<TypeDecl,Access> ();
         for( RequiredType rt : concretifications.keySet() ) {
             TypeDecl targetDecl = concretifications.get( rt );
-            TypeAccess targetAccess = new AST.TypeAccess( targetDecl.getID() );
+//            TypeAccess targetAccess = new AST.TypeAccess( targetDecl.getID() );
+            Access targetAccess = (Access) targetDecl.createQualifiedAccess();
             rv.put( rt, targetAccess );
         }
         return rv;
