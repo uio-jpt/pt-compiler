@@ -6,6 +6,8 @@ template T3 {
     
     class U adds {
         U () { 
+            tsuper[B]();
+            tsuper[C]();
             System.out.println("T3.U");
         }
     }
