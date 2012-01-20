@@ -1,0 +1,21 @@
+template T {
+    required type C {
+        public int x, y;
+    }
+
+    class D {
+        void foo(C c) {
+            System.out.println( c.x );
+            System.out.println( c.y );
+        }
+    }
+}
+
+package P {
+    inst T with C <= MyC;
+    
+    class MyC {
+        public int x = 42;
+        public int y = 82;
+    }
+}

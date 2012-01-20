@@ -542,6 +542,15 @@ aspect RequiredTypes {
 */
 
   refine NameCheck
+  public void FieldDeclaration.nameCheck() {
+    NameCheck.FieldDeclaration.nameCheck();
+
+    if( (hostType() instanceof RequiredType) && !(hostType() instanceof RequiredClass) ) {
+        error( "required-type field only permissible in required class" );
+    }
+  }
+
+  refine NameCheck
   public void VarAccess.nameCheck() {
     if(decls().isEmpty() && (!isQualified() || !qualifier().type().isUnknown() || qualifier().isPackageAccess()))
       error("no field named " + name());
