@@ -384,6 +384,7 @@ RequiredClass ptr_r_class =
 
 BodyDecl ptr_r_internal_decl =
     abstract_method_declaration.m {: return m; :}
+    | field_declaration.m {: return m; :} 
     | ptr_abstract_constructor.m {: return m; :} 
     ;
 

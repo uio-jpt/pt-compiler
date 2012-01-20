@@ -532,5 +532,48 @@ aspect RequiredTypes {
         return type.genericDecl().subtype( this );
    }
 
+   boolean TypeDecl.isRequiredType() {
+    return this instanceof RequiredType;
+   }
+/*
+   boolean FieldDeclaration.isInstanceVariable() {
+    return (hostType().isClassDecl() || hostType().isRequiredType() || hostType().isAnonymous()) && !isStatic();
+   }
+*/
+
+  refine NameCheck
+  public void VarAccess.nameCheck() {
+    if(decls().isEmpty() && (!isQualified() || !qualifier().type().isUnknown() || qualifier().isPackageAccess()))
+      error("no field named " + name());
+    if(decls().size() > 1) {
+      StringBuffer s = new StringBuffer();
+      s.append("several fields named " + name());
+      for(Iterator iter = decls().iterator(); iter.hasNext(); ) {
+        Variable v = (Variable)iter.next();
+        s.append("\n    " + v.type().typeName() + "." + v.name() + " declared in " + v.hostType().typeName());
+      }
+      error(s.toString());
+    }
+      
+    // 8.8.5.1
+    if(inExplicitConstructorInvocation() && !isQualified() && decl().isInstanceVariable() && hostType() == decl().hostType())
+      error("instance variable " + name() + " may not be accessed in an explicit constructor invocation");
+
+    Variable v = decl();
+    if(!v.isFinal() && !v.isClassVariable() && (!v.hostType().isRequiredType()) && !v.isInstanceVariable() && v.hostType() != hostType())
+      error("A parameter/variable used but not declared in an inner class must be declared final");
+
+    // 8.3.2.3
+    if((decl().isInstanceVariable() || decl().isClassVariable()) && !isQualified()) {
+      if(hostType() != null && !hostType().declaredBeforeUse(decl(), this)) {
+        if(inSameInitializer() && !simpleAssignment() && inDeclaringClass()) {
+          BodyDecl b = closestBodyDecl(hostType());
+          error("variable " + decl().name() + " is used in " + b + " before it is declared");
+        }
+      }
+    }
+
+  }
+
 
 }
