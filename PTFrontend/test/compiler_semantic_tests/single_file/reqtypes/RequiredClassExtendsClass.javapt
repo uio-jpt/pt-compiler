@@ -1,0 +1,6 @@
+template T {
+    class C {
+    }
+    required class X extends C {
+    }
+}

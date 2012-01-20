@@ -3,10 +3,11 @@ template T {
 }
 
 template U {
-    inst T with
-        required type X adds {
-            void run();
-        };
+    inst T;
+
+    required type X adds {
+        void run();
+    }
 }
 
 package P {

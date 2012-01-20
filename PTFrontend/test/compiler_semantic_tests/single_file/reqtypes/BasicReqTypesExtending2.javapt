@@ -8,7 +8,7 @@ template T {
     interface Z {
     }
 
-    required type Foo extends X implements Y, Z {
+    required class Foo extends X implements Y, Z {
     } 
 
 }

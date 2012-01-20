@@ -46,7 +46,22 @@ aspect ErrorCheck {
     }
 
     refine TypeCheck public void  ClassInstanceExpr.typeCheck() {
-        TypeCheck.ClassInstanceExpr.typeCheck();
+        // duplicated below to allow for inst rt : // TypeCheck.ClassInstanceExpr.typeCheck();
+
+        if(isQualified() && qualifier().isTypeAccess() && !qualifier().type().isUnknown())
+          error("*** The expression in a qualified class instance expr must not be a type name");
+        // 15.9
+        if(isQualified() && !type().isInnerClass() && !((ClassDecl)type()).superclass().isInnerClass() && !type().isUnknown()) {
+          error("*** Qualified class instance creation can only instantiate inner classes and their anonymous subclasses" );
+        }
+        if(!type().isClassDecl() && !(type() instanceof RequiredClass)) {
+          error("*** Can only instantiate classes, which " + type().typeName() + " is not");
+        }
+        typeCheckEnclosingInstance();
+        typeCheckAnonymousSuperclassEnclosingInstance();
+
+
+
         // check that expr is not a template class if new expr is made
         // from within a template class and its list of arguments is
         // greater than 1.
@@ -119,12 +134,22 @@ aspect ErrorCheck {
                 PTDecl parentPt = (PTDecl) getParentClass( PTDecl.class );
                 java.util.List<ASTNode> tparents = parentPt.getTemplateDeclarationsMergedTo( getClassDecl().getID() );
                 java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
-                java.util.Set<ASTNode> uncalled = new java.util.HashSet<ASTNode>();
+                java.util.Set<ASTNode> uncalled = new java.util.LinkedHashSet<ASTNode>();
 
+                System.out.println( "rewriting PTConstructorDecl in " + getID() );
+
+                boolean requiredTypesAsTParents = false;
 
                 for( ASTNode tparent : tparents ) {
-                    uncalled.add( tparent );
+                    System.out.println( "has tparent " + tparent.getClass().getName() );
+                    if( tparent instanceof RequiredType ) {
+                        requiredTypesAsTParents = true;
+                    } else {
+                        uncalled.add( tparent );
+                    }
                 }
+
+                assert( !requiredTypesAsTParents || uncalled.isEmpty() );
 
                 for( PTTSuperConstructorCall scc : getTSuperConstructorInvocationList() ) {
                     Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( parentPt );
@@ -290,13 +315,18 @@ aspect ErrorCheck {
         if( parentPt != null ) {
             java.util.List<ASTNode> tparents = parentPt.getTemplateDeclarationsMergedTo( getClassDecl().getID() );
 
-            java.util.Set<ASTNode> uncalled = new java.util.HashSet<ASTNode>();
-            java.util.Set<ASTNode> called = new java.util.HashSet<ASTNode>();
+            java.util.Set<ASTNode> uncalled = new java.util.LinkedHashSet<ASTNode>();
+            java.util.Set<ASTNode> called = new java.util.LinkedHashSet<ASTNode>();
 
             java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
 
             for( ASTNode tparent : tparents ) {
-                uncalled.add( tparent );
+                System.out.println( "has tparent " + tparent.getClass().getName() );
+                if( tparent instanceof RequiredType ) {
+                    //       requiredTypesAsTParents = true;
+                } else {
+                    uncalled.add( tparent );
+                }
             }
 
             for( PTTSuperConstructorCall scc : getTSuperConstructorInvocationList() ) {
@@ -347,8 +377,8 @@ aspect ErrorCheck {
     public void PTInstDecl.collectErrors() {
         super.collectErrors();
 
-        java.util.HashSet<String> mappedTo = new java.util.HashSet<String>();
-        java.util.HashSet<String> duplicates = new java.util.HashSet<String>();
+        java.util.HashSet<String> mappedTo = new java.util.LinkedHashSet<String>();
+        java.util.HashSet<String> duplicates = new java.util.LinkedHashSet<String>();
 
         for( PTInstTuple instTuples : getPTInstTuples() ) {
             String destID = instTuples.getID();

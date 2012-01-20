@@ -1,0 +1,21 @@
+template T {
+    required class X {
+        X();
+    }
+
+    class Y {
+        public void f() {
+            new X();
+        }
+    }
+}
+
+package P {
+    inst T with X <= MyX;
+
+    class MyX {
+        MyX() {
+            System.out.println("Ahoy hoy");
+        }
+    }
+}

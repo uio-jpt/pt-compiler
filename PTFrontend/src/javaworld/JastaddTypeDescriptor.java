@@ -42,18 +42,13 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         typeAccess = null;
         parTypeAccess = null;
 
+        System.out.println( "initializing from access " + acc.dumpTree() );
+
         typeParameters = new Vector<JastaddTypeDescriptor>();
 
         if( acc instanceof TypeAccess ) {
-//            System.out.println( "initializing from typeaccess. " + acc );
-
-            if( ((TypeAccess)acc).getPackage().equals( "$mergedPTCU$" ) ) {
-                System.out.println( "MERGE-OOPS " + acc.dumpString() );
-                new Throwable().printStackTrace( System.out );
-                System.out.println( "oops " + acc.dumpTree() );
-            }
-
             typeAccess = (TypeAccess) acc;
+            System.out.println( "initializing okay with typeA " + typeAccess.dumpTree() );
         } else if( acc instanceof ParTypeAccess ) {
             parTypeAccess = (ParTypeAccess) acc;
             final int n = parTypeAccess.getNumTypeArgument();
@@ -116,6 +111,7 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     }
 
     public TypeDecl getBaseTypeDecl() {
+        System.out.println( "getting baseTypeDecl.." );
         if( isWildcardExtending != null ) {
             return isWildcardExtending;
         }
@@ -125,6 +121,8 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         if( isParametrized() ) {
             return parTypeAccess.genericDecl();
         }
+        System.out.println( "from base access " + typeAccess.dumpTree() );
+        System.out.println( "returning " + typeAccess.decl().getID() );
         return typeAccess.decl();
     }
 
@@ -236,7 +234,9 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     public TypeDescriptor mapByScheme( ConcretificationScheme scheme ) {
         Access myAccess = (Access) getAccess().fullCopy();
 
-        Map<TypeDecl, TypeAccess> dtaMap = scheme.createDeclToAccessMap();
+        System.out.println( "going to map " + myAccess.dumpTree() + " by a scheme" );
+
+        Map<TypeDecl, Access> dtaMap = scheme.createDeclToAccessMap();
 
         // hack to make sure we can reuse this method to replace roots as well
         AST.List parent = new AST.List();
@@ -247,7 +247,15 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         parent.replaceTypeAccesses( dtaMap );
         myAccess = (Access) parent.getChild(0);
 
+        System.out.println( "this access is now " + myAccess.dumpTree() );
+
         TypeDecl myDecl = Util.declarationFromTypeAccess( myAccess );
+
+        TypeDecl myDeclOther = Util.declarationFromTypeAccess( getAccess() );
+
+        System.out.println( "found declaration " + myDecl.getID() + " unknown? " + myDecl.isUnknown() );
+        System.out.println( "see also (unmapped) " + myDeclOther.getID() + " unknown? " + myDeclOther.isUnknown() );
+
         return new JastaddTypeDescriptor( myDecl );
     }
 }

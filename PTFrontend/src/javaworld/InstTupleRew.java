@@ -23,6 +23,7 @@ import AST.PTDecl;
 
 import java.util.Iterator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import com.google.common.collect.Maps;
 import com.google.common.base.Joiner;
@@ -74,7 +75,7 @@ class InstTupleRew {
         // XXX what about types that can only be found in the parent, are these renamed correctly?
         // do any such exist? is the parent always ptdecl?
 
-        HashMap< ASTNode, String > rv = new HashMap< ASTNode, String >();
+        HashMap< ASTNode, String > rv = new LinkedHashMap< ASTNode, String >();
 
         for( PTDummyRename ptdr : instantiator.getPTDummyRenameList() ) {
             String originalId = ptdr.getOrgID();
@@ -187,8 +188,15 @@ class InstTupleRew {
         TypeDecl x = instantiator.getOriginator();
 
 		ClassDecl ext = ((ClassDecl)x).fullCopy();
+        // be aware that after this, going upwards into the parent and then
+        // (apparently) backwards into the child will NOT find the copy, but
+        // the original child, thus it will not reflect changes.
+        // fullCopy sanely copies down but not up, yet this can be an
+        // unintended consequencem.. ext.getParent() does NOT simply give some
+        // context for ext!
 
         new IntroduceExplicitCastsRewriter().mutate( ext );
+        ext.getParentClass( PTDecl.class ).flushCaches();
 
             /* problem:
                 the copy is shallow -- it contains references to types in the original.

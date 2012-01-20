@@ -5,6 +5,7 @@ import testutils.utils.CriticalPTException;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.ArrayList;
@@ -163,7 +164,7 @@ public class SimpleClassRew {
       * implemented interfaces of the merged classes.
       */
     private void updateImplementsNames() {
-        HashSet<JastaddTypeDescriptor> accessSet = Sets.newHashSet();
+        HashSet<JastaddTypeDescriptor> accessSet = new LinkedHashSet<JastaddTypeDescriptor>();
 
 
         for( Object o : decl.getClassDecl().getImplementsList() ) {

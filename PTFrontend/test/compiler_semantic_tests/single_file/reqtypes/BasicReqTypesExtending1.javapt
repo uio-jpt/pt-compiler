@@ -2,7 +2,7 @@ template T {
     class X {
     }
 
-    required type Foo extends X {
+    required class Foo extends X {
     } 
 
 }

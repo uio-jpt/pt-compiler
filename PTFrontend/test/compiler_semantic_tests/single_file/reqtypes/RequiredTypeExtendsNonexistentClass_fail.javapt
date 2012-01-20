@@ -1,0 +1,4 @@
+template T {
+    required type X extends C {
+    }
+}

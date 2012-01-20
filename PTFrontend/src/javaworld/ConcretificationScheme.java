@@ -12,6 +12,8 @@ import AST.ASTNode;
 import com.google.common.base.Joiner;
 
 public class ConcretificationScheme {
+    // must be prepared for this to change after object creation! (and keep up with changes)
+    // [this is done for autoconcretification]
     private Map<RequiredType, TypeDecl> concretifications;
     private ASTNode context;
 
@@ -29,12 +31,12 @@ public class ConcretificationScheme {
     }
 
     public ConcretificationScheme(ASTNode node) {
-        this.concretifications = new java.util.HashMap<RequiredType,TypeDecl> ();
+        this.concretifications = new java.util.LinkedHashMap<RequiredType,TypeDecl> ();
         this.context = node;
     }
 
     public ConcretificationScheme() {
-        this.concretifications = new java.util.HashMap<RequiredType,TypeDecl>();
+        this.concretifications = new java.util.LinkedHashMap<RequiredType,TypeDecl>();
         System.out.println(" [warning] making ConcretificationScheme with null context" );
     }
 
@@ -46,11 +48,12 @@ public class ConcretificationScheme {
         return context;
     }
 
-    public Map<TypeDecl, TypeAccess> createDeclToAccessMap() {
-        Map<TypeDecl, TypeAccess> rv = new java.util.HashMap<TypeDecl,TypeAccess> ();
+    public Map<TypeDecl, Access> createDeclToAccessMap() {
+        Map<TypeDecl, Access> rv = new java.util.LinkedHashMap<TypeDecl,Access> ();
         for( RequiredType rt : concretifications.keySet() ) {
             TypeDecl targetDecl = concretifications.get( rt );
-            TypeAccess targetAccess = new AST.TypeAccess( targetDecl.getID() );
+//            TypeAccess targetAccess = new AST.TypeAccess( targetDecl.getID() );
+            Access targetAccess = (Access) targetDecl.createQualifiedAccess();
             rv.put( rt, targetAccess );
         }
         return rv;

@@ -58,6 +58,7 @@ PTDecl pt_template =
                                       cc.getInterfaces(),
                                       cc.getEnums(),
                                       cc.getRequiredTypes(),
+                                      cc.getRequiredTypeAdditions(),
                                       new PTDeclContext(),
                                       (ps == null) ? new AST.List<TypeVariable>() : ps );
           :}
@@ -67,7 +68,7 @@ PTDecl pt_package =
  PACKAGE IDENTIFIER LBRACE inst_class_or_interface_single.l* RBRACE
           {:
                 javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
-                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums(), cc.getRequiredTypes(), new PTDeclContext());
+                return new PTPackage(IDENTIFIER, cc.getInstDecls(), cc.getSimpleClasses(), cc.getInterfaces(), cc.getEnums(), cc.getRequiredTypes(), cc.getRequiredTypeAdditions(), new PTDeclContext());
           :}
           ;
 
@@ -340,6 +341,27 @@ RequiredType ptr_required_spec =
     ;
 
 RequiredType ptr_r_type =
+    TYPE IDENTIFIER type_parameters.p? ADDS super.s? interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
+        {:
+            return new RequiredTypeAdds( new Modifiers(), IDENTIFIER, m, s, i, p );
+        :}
+    ;
+
+RequiredInterface ptr_r_interface =
+    INTERFACE IDENTIFIER type_parameters.p? ADDS extends_interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
+        {:
+            return new RequiredInterfaceAdds( new Modifiers(), IDENTIFIER, m, new Opt(), i, p );
+        :}
+    ;
+
+RequiredClass ptr_r_class =
+    CLASS IDENTIFIER type_parameters.p? ADDS super.s? interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
+        {:
+            return new RequiredClassAdds( new Modifiers(), IDENTIFIER, m, s, i, p );
+        :}
+    ;
+
+RequiredType ptr_r_type =
     TYPE IDENTIFIER type_parameters.p? super.s? interfaces.i? LBRACE ptr_r_internal_decl.m* RBRACE
         {:
             return new RequiredType( new Modifiers(), IDENTIFIER, m, s, i, p );
@@ -362,6 +384,7 @@ RequiredClass ptr_r_class =
 
 BodyDecl ptr_r_internal_decl =
     abstract_method_declaration.m {: return m; :}
+    | field_declaration.m {: return m; :} 
     | ptr_abstract_constructor.m {: return m; :} 
     ;
 

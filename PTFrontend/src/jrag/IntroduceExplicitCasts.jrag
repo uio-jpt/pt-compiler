@@ -4,8 +4,9 @@ aspect IntroduceExplicitCasts {
             ASTNode child  = getChild(i);
             ASTNode replacement = child.introduceMethodAccessCasts();
             if( replacement != null ) {
-                child.replaceSelfWith( replacement );
+                getChild(i).replaceSelfWith( replacement );
             }
+            child = getChild(i);
             child.introduceExplicitCasts();
         }
     }
@@ -18,7 +19,28 @@ aspect IntroduceExplicitCasts {
         // is this an access to a method that is defined within this template?
         MethodDecl mdecl = decl();
         Iterator<ParameterDeclaration> paramDecl = mdecl.getParameterList().iterator();
-        Iterator<Expr> argList = getArgList().iterator();
+        MethodAccess baseAccess = this;
+
+        if( mdecl instanceof ParMethodDecl ) {
+            ParMethodDecl pmdecl = (ParMethodDecl) mdecl;
+
+            List<Access> typeArgs = new List<Access>();
+            for( Access a : pmdecl.getTypeArgumentList() ) {
+                TypeDecl erasedType = a.type().erasure();
+                System.out.println( "ERASED TYPE ARG " + erasedType.createQualifiedAccess().dumpTree() );
+                typeArgs = typeArgs.add( erasedType.createQualifiedAccess() );
+            }
+
+            ParMethodAccess pma = new ParMethodAccess( getID(), getArgList().fullCopy(), typeArgs );
+
+            System.out.println( "PROPOSING TO REPLACE " + dumpTree() + " WITH " + pma.dumpTree() );
+
+            replaceSelfWith( pma );
+            baseAccess = pma;
+        }
+
+        Iterator<Expr> argList = baseAccess.getArgList().iterator();
+
         while( paramDecl.hasNext() && argList.hasNext() ) {
             ParameterDeclaration pd = paramDecl.next();
             TypeDecl tpd = pd.type();
@@ -26,14 +48,25 @@ aspect IntroduceExplicitCasts {
             TypeDecl ta = a.type();
             if( tpd instanceof RequiredType ) {
                 // ignore required type
+                System.out.println( "ignoring RT " + tpd.dumpTree() );
             } else if( tpd instanceof TypeVariable ) {
                 // ignore type variables for now
+                System.out.println( "ignoring TV " + tpd.dumpTree() );
             } else {
                 System.out.println( "for method " + mdecl.name() + " introducing explicit cast to " + tpd.name() + " of type " + tpd.getClass().getName() );
                 Expr ra = new CastExpr( new TypeAccess( tpd.packageName(), tpd.name() ), (Expr) a.fullCopy() );
                 a.replaceSelfWith( ra );
             }
         }
+
+        if( getID().equals( "graph_search" ) ) {
+            System.out.println( "dumping result of graph_search: " + baseAccess.dumpTree() );
+        }
+
+        if( baseAccess != this ) {
+            return baseAccess;
+        }
+
         return null;
     }
     

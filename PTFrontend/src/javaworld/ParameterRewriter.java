@@ -16,6 +16,7 @@
 package javaworld;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import AST.TypeVariable;
@@ -23,7 +24,7 @@ import AST.TypeAccess;
 import AST.ASTNode;
 
 class ParameterRewriter extends NodeMutator {
-    Map< TypeVariable, TypeAccess > mappings = new HashMap<TypeVariable, TypeAccess>();
+    Map< TypeVariable, TypeAccess > mappings = new LinkedHashMap<TypeVariable, TypeAccess>();
     /* TypeVariables do not have hashCode or equality beyond that of Object,
        so different type variables of the same name in different templates
        should not collide (by object identity they are distinct). */

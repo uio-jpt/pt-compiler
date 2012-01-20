@@ -4,6 +4,7 @@ import AST.TypeVariable;
 import AST.TypeDecl;
 import AST.List;
 import AST.TypeAccess;
+import AST.Access;
 
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public class JastaddTypeParameterDescriptor implements TypeParameterDescriptor {
     public TypeParameterDescriptor mapByScheme( ConcretificationScheme scheme ) {
         TypeVariable myVariable = parameter.fullCopy();
 
-        Map<TypeDecl, TypeAccess> dtaMap = scheme.createDeclToAccessMap();
+        Map<TypeDecl, Access> dtaMap = scheme.createDeclToAccessMap();
 
         // hack to make sure we can reuse this method to replace roots as well
         AST.List parent = new AST.List();

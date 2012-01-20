@@ -12,7 +12,7 @@ aspect RedundantExtends {
     public void PTInterfaceAddsDecl.checkRedundantExtends() {
         super.checkRedundantExtends();
 
-        Set<TypeDecl> superinterfaces = new HashSet<TypeDecl> ();
+        Set<TypeDecl> superinterfaces = new LinkedHashSet<TypeDecl> ();
         for( Access a : getSuperInterfaceIdList() ) {
             TypeDecl td = null;
 
@@ -52,14 +52,14 @@ aspect RedundantExtends {
     public void PTClassAddsDecl.checkRedundantExtends() {
         super.checkRedundantExtends();
 
-        Set<TypeDecl> superclasses = new HashSet<TypeDecl> ();
+        Set<TypeDecl> superclasses = new LinkedHashSet<TypeDecl> ();
         ClassDecl cd = getClassDecl();
 
         if( cd.hasSuperclass() ) {
             superclasses.add( cd.superclass() );
         }
 
-        Set<TypeDecl> implemented_interfaces = new HashSet<TypeDecl> ();
+        Set<TypeDecl> implemented_interfaces = new LinkedHashSet<TypeDecl> ();
         for( Access a : cd.getImplementsList() ) {
             TypeDecl td = null;
 
@@ -111,7 +111,7 @@ aspect RedundantExtends {
     public void PTGenericInterfaceAddsDecl.checkRedundantExtends() {
         super.checkRedundantExtends();
 
-        Set<TypeDecl> superinterfaces = new HashSet<TypeDecl> ();
+        Set<TypeDecl> superinterfaces = new LinkedHashSet<TypeDecl> ();
         for( Access a : getSuperInterfaceIdList() ) {
             TypeDecl td = null;
 

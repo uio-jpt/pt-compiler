@@ -29,7 +29,7 @@ aspect PTEnumWorkaround {
       for( BodyDecl bd : getBodyDeclList() ) {
           bd.flushCaches();
 
-          java.util.HashSet<AST.ASTNode> visited = new java.util.HashSet<AST.ASTNode>();
+          java.util.HashSet<AST.ASTNode> visited = new java.util.LinkedHashSet<AST.ASTNode>();
           java.util.LinkedList<AST.ASTNode> q = new java.util.LinkedList<AST.ASTNode>();
           q.addLast( bd );
           visited.add( bd );

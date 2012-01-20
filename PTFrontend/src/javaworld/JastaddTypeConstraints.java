@@ -47,6 +47,7 @@ import java.util.Vector;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public class JastaddTypeConstraints {
     static Access simpleTypeDescriptorToAccess( TypeDescriptor td ) {
@@ -94,16 +95,22 @@ public class JastaddTypeConstraints {
 
     static MethodDescriptor describeMethodDecl( MethodDecl mdecl, ConcretificationScheme scheme ) {
         String name = mdecl.getID();
+        System.out.println( "handling return type" );
         JastaddTypeDescriptor ret = new JastaddTypeDescriptor( mdecl.getTypeAccess() );
+        System.out.println( "done handling return type" );
+        TypeDescriptor mappedReturnType = ret.mapByScheme( scheme );
+        System.out.println( "really done handling return type" );
 
+        System.out.println( "handling parameters" );
         List<TypeDescriptor> params = new Vector<TypeDescriptor>();
         for( ParameterDeclaration pd : mdecl.getParameters() ) {
             JastaddTypeDescriptor pt = new JastaddTypeDescriptor( pd.getTypeAccess() );
 
             params.add( pt.mapByScheme( scheme ) );
         }
+        System.out.println( "done handling parameters" );
 
-        return new MethodDescriptor( name, ret.mapByScheme( scheme ), params );
+        return new MethodDescriptor( name, mappedReturnType, params );
 
     }
 
@@ -130,12 +137,16 @@ public class JastaddTypeConstraints {
     }
 
     public static void fromRequiredTypeBodyDeclInto( BodyDecl bd, TypeConstraint tc, ConcretificationScheme scheme ) {
-        // be aware: PTAbstractConstructor convenience-inhertis from MethodDecl, so order here is important
+        // be aware: PTAbstractConstructor convenience-inherits from MethodDecl, so order here is important
         if( bd instanceof PTAbstractConstructor ) {
             ConstructorDescriptor cdesc = describeMethodDecl( (MethodDecl) bd, scheme ).toConstructorDescriptor();
+            System.out.println( "from bd " + bd.dumpTree() );
+            System.out.println( "adding cd " + cdesc );
             tc.addConstructor( cdesc );
         } else if( bd instanceof MethodDecl ) {
             MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd, scheme );
+            System.out.println( "from bd " + bd.dumpTree() );
+            System.out.println( "adding md " + mdesc );
             tc.addMethod( mdesc );
         } else {
               // oops
@@ -407,7 +418,93 @@ public class JastaddTypeConstraints {
     }
 */
 
+    public static TypeDecl convertToTypeDecl( String name, TypeConstraint tc, AST.ASTNode context ) throws OperationImpossible {
+        // TODO eliminate code duplication with convertToRequiredType
+
+        TypeDecl rv;
+        AST.List<BodyDecl> bodyDecls = new AST.List<BodyDecl>();
+
+        AST.Opt<Access> superClassAccess = new AST.Opt<Access>();
+        AST.List<Access> superInterfaceAccess = new AST.List<Access>();
+
+        AST.List<TypeVariable> typeParameters = new AST.List<TypeVariable>();
+        
+
+        Iterator<TypeDescriptor> extendedTypesI = tc.getExtendedTypesIterator();
+        while( extendedTypesI.hasNext() ) {
+            TypeDescriptor extendedType = extendedTypesI.next();
+            if( extendedType instanceof JastaddTypeDescriptor ) {
+                Access myAcc = ((JastaddTypeDescriptor) extendedType).getAccess();
+                superClassAccess = new AST.Opt<Access>( (Access) myAcc.fullCopy() );
+            }
+        }
+
+        Iterator<TypeDescriptor> implementedTypesI = tc.getImplementedTypesIterator();
+        while( implementedTypesI.hasNext() ) {
+            TypeDescriptor implementedType = implementedTypesI.next();
+            if( implementedType instanceof JastaddTypeDescriptor ) {
+                Access myAcc = ((JastaddTypeDescriptor) implementedType).getAccess();
+                superInterfaceAccess = superInterfaceAccess.add( (Access) myAcc.fullCopy() );
+            }
+        }
+
+        Iterator<TypeParameterDescriptor> typeParametersI = tc.getTypeParametersIterator();
+        while( typeParametersI.hasNext() ) {
+            TypeParameterDescriptor typeParameter = typeParametersI.next();
+            if( typeParameter instanceof JastaddTypeParameterDescriptor ) {
+                TypeVariable myAcc = ((JastaddTypeParameterDescriptor) typeParameter).getTypeVariable();
+                typeParameters = typeParameters.add( (TypeVariable) myAcc.fullCopy() );
+            }
+        }
+
+        assert( typeParameters.getNumChild() == 0 ); // TODO
+
+        if( tc.getConstructorsIterator().hasNext() ) {
+            throw new OperationImpossible( "cannot automatically concretify required type with assumed constructor" );
+        }
+
+        boolean mustBeClass = tc.mustBeClass() || superClassAccess.getNumChild() > 0;
+
+        if( mustBeClass ) {
+            rv = new AST.ClassDecl( new Modifiers(), name, superClassAccess, superInterfaceAccess, bodyDecls );
+            rv.getModifiers().addModifier( new AST.Modifier("abstract") );
+        } else {
+            rv = new AST.InterfaceDecl( new Modifiers(), name, superInterfaceAccess, bodyDecls );
+        }
+
+        Iterator<MethodDescriptor> methodsI = tc.getMethodsIterator();
+        while( methodsI.hasNext() ) {
+            MethodDescriptor methodDesc = methodsI.next();
+            BodyDecl bodyDecl = methodDescriptorToBodyDecl( methodDesc );
+            ((MethodDecl)bodyDecl).getModifiers().addModifier( new AST.Modifier( "abstract" ) );
+            rv.addBodyDecl( bodyDecl );
+        }
+
+/*
+        Set<String> addedSignatures = new HashSet<String> ();
+
+        Iterator<MethodDescriptor> methodsI = tc.getMethodsIterator();
+        while( methodsI.hasNext() ) {
+            MethodDescriptor methodDesc = methodsI.next();
+            BodyDecl bodyDecl = methodDescriptorToBodyDecl( methodDesc );
+            bodyDecl.setParent( context );
+            String signature = ((MethodDecl)bodyDecl).signature() + "::Method";
+
+            if( !addedSignatures.contains( signature ) ) {
+                System.out.println( "did add " + signature + " " + bodyDecl);
+                addedSignatures.add( signature );
+                rv.addBodyDecl( bodyDecl );
+            } else {
+                System.out.println( "ignored " + signature );
+            }
+        }
+*/
+
+        return rv;
+    }
+
     public static RequiredType convertToRequiredType( String name, TypeConstraint tc, AST.ASTNode context ) {
+        // TODO also apply changes to convertToTypeDecl, or eliminate code duplication
         // TODO think about modifiers, these are discarded here
         RequiredType rv;
         AST.List<BodyDecl> bodyDecls = new AST.List<BodyDecl>();

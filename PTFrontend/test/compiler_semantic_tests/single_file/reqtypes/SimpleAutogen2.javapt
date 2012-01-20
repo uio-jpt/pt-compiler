@@ -1,0 +1,26 @@
+template T {
+    interface MyConcreteRunnable extends Runnable {
+    }
+
+    required interface MySecondRunnable extends MyRunnable {
+    }
+
+    required interface MyRunnable extends MyConcreteRunnable, Runnable {
+    }
+
+    required interface MyThirdRunnable extends MySecondRunnable {
+        void f();
+    }
+
+    class C {
+        void f() {
+            MyRunnable x;
+            MySecondRunnable y;
+            MyThirdRunnable z;
+        }
+    }
+}
+
+package P {
+    inst T;
+}
