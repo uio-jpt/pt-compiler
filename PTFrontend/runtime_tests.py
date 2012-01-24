@@ -103,7 +103,7 @@ class RunTest(object):
             self.withErrors.extend(test.withErrors)
         except (GenerationFailedException, SubprocException):
             self.withErrors.extend([ (test.basePath,"Error reported by JPT.jar") ])
-        except (OSError, e):
+        except OSError, e:
             self.withErrors.extend([ (test.basePath,e.strerror) ] )
         except CompileFailedException:
             self.withErrors.extend([ (test.basePath,"Error reported by javac") ] )
