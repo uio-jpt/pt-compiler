@@ -328,6 +328,8 @@ PTConstructorPromise pt_constructor_assumption =
 TemplateClassIdentifier pt_tc_identifier =
     LBRACK IDENTIFIER.a COLON IDENTIFIER.b RBRACK
     {: return new TemplateClassIdentifier( a, "" , b, ""); :}
+    | LBRACK IDENTIFIER.a COLON RBRACK
+    {: return new TemplateClassIdentifier( a, "", "", "" ); :}
     | LBRACK IDENTIFIER.a DOT IDENTIFIER.b RBRACK
     {: return new TemplateClassIdentifier( "", a , b, "" ); :}
     | LBRACK IDENTIFIER.a RBRACK

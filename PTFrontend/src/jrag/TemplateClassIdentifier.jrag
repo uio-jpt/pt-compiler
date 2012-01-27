@@ -44,11 +44,8 @@ aspect TemplateClassIdentifier {
     }
 
     public boolean TemplateClassIdentifier.instantiationMatches( PTInstDecl ptid ) {
-        System.out.println( "examining " + ptid.dumpTree() + " with " + ptid.getInternalName());
-
         if( hasInstantiationName() ) {
-            System.out.println( "requiring instantiation name " + getInstantiationName() );
-            String externalName = ""; // todo
+            String externalName = ptid.getInstantiationName();
             if( !externalName.equals( getInstantiationName() ) ) {
                 return false;
             }
