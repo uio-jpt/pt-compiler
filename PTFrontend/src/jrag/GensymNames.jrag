@@ -1,0 +1,10 @@
+aspect GensymNames {
+    String PTInstDecl.instantiationInternalName = null;
+
+    public String PTInstDecl.getInternalName() {
+        if( this.instantiationInternalName == null ) {
+            this.instantiationInternalName = javaworld.Gensym.getInstance().newIdentifier( getID() );
+        }
+        return this.instantiationInternalName;
+    }
+}

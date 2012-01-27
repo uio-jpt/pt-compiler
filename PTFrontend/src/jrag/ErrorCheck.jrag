@@ -128,48 +128,72 @@ aspect ErrorCheck {
 
     protected boolean PTConstructorDecl.tsupersWereExpanded = false;
 
+    // why is this in errorcheck? TODO code reorg
     rewrite PTConstructorDecl {
             when (this.tsupersWereExpanded == false)
             to PTConstructorDecl {
                 PTDecl parentPt = (PTDecl) getParentClass( PTDecl.class );
-                java.util.List<ASTNode> tparents = parentPt.getTemplateDeclarationsMergedTo( getClassDecl().getID() );
+//                java.util.List<ASTNode> tparents = parentPt.getTemplateDeclarationsMergedTo( getClassDecl().getID() );
                 java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
-                java.util.Set<ASTNode> uncalled = new java.util.LinkedHashSet<ASTNode>();
+                java.util.Map<PTInstDecl,ASTNode> uncalled = new java.util.LinkedHashMap<PTInstDecl,ASTNode>();
 
                 System.out.println( "rewriting PTConstructorDecl in " + getID() );
 
                 boolean requiredTypesAsTParents = false;
 
-                for( ASTNode tparent : tparents ) {
-                    System.out.println( "has tparent " + tparent.getClass().getName() );
-                    if( tparent instanceof RequiredType ) {
-                        requiredTypesAsTParents = true;
-                    } else {
-                        uncalled.add( tparent );
+                for( PTInstDecl ptid : parentPt.getPTInstDecls() ) {
+                    for( PTInstTuple ptit : ptid.getPTInstTuples() ) {
+                        if( ptit.getID().equals( getClassDecl().getID() ) ) {
+                            SimpleSet tparents = ptid.getTemplate().lookupTypeInPTDecl( ptit.getOrgID() );
+                            if( tparents.size() != 1 ) {
+                                error( "lookup of " + ptit.getOrgID() + " in template failed unexpectedly (returned " + tparents.size() + " result(s))" );
+                            }
+
+                            ASTNode tparent = (ASTNode) tparents.iterator().next();
+
+                            if( tparent instanceof RequiredType ) {
+                                requiredTypesAsTParents = true;
+                            } else {
+                                uncalled.put( ptid, tparent );
+                            }
+                        }
                     }
                 }
 
                 assert( !requiredTypesAsTParents || uncalled.isEmpty() );
 
                 for( PTTSuperConstructorCall scc : getTSuperConstructorInvocationList() ) {
-                    Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( parentPt );
-                    if( decls.size() == 1 ) {
-                        ASTNode decl = (ASTNode) decls.iterator().next();
+                    Set<PTInstDecl> instDecls = scc.getTemplateClassIdentifier().locateInstantiation( parentPt );
+                    if( instDecls.size() == 1 ) {
+                        PTInstDecl decl = instDecls.iterator().next();
                         uncalled.remove( decl );
                     }
                 }
 
-                for( ASTNode node : uncalled ) {
+
+                for( PTInstDecl ptid : uncalled.keySet() ) {
+                    System.out.println( "SHOULD NOW BE ADDING STUFF " );
+
+                    ASTNode node = uncalled.get( ptid );
                     ClassDecl cd = (ClassDecl) node;
                     PTTemplate template = (PTTemplate) node.getParentClass( PTTemplate.class );
+
+                    System.out.println( "uncalled class is " + node.dumpTree() );
+
                     boolean hasZeroArityConstructor = false;
                     for( ConstructorDecl consd : cd.getConstructorDeclList() ) {
+                        System.out.println( "constructor with arity " + consd.arity() );
                         if( consd.arity() > 0 ) continue;
                         hasZeroArityConstructor = true;
                     }
+                    System.out.println( "end enumeration of constructors" );
 
                     if( hasZeroArityConstructor ) {
-                        PTTSuperConstructorCall myCall = new PTTSuperConstructorCall( new TemplateClassIdentifier( "", template.getID(), cd.getID() ) , new AST.List() );
+                        TemplateClassIdentifier tci = TemplateClassIdentifier.extractFrom( ptid, cd.getID() );
+                        // new TemplateClassIdentifier( "", template.getID(), cd.getID(), "" );
+                        PTTSuperConstructorCall myCall = new PTTSuperConstructorCall( tci , new AST.List() );
+
+                        System.out.println( "adding one call: " + myCall.dumpTree() );
 
                         // added in arbitrary order!
                         addTSuperConstructorInvocation( myCall );
@@ -313,26 +337,35 @@ aspect ErrorCheck {
         }
 
         if( parentPt != null ) {
-            java.util.List<ASTNode> tparents = parentPt.getTemplateDeclarationsMergedTo( getClassDecl().getID() );
-
-            java.util.Set<ASTNode> uncalled = new java.util.LinkedHashSet<ASTNode>();
+            java.util.Map<PTInstDecl,ASTNode> uncalled = new java.util.LinkedHashMap<PTInstDecl,ASTNode>();
             java.util.Set<ASTNode> called = new java.util.LinkedHashSet<ASTNode>();
 
-            java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
+            for( PTInstDecl ptid : parentPt.getPTInstDecls() ) {
+                for( PTInstTuple ptit : ptid.getPTInstTuples() ) {
+                    if( ptit.getID().equals( getClassDecl().getID() ) ) {
+                        SimpleSet tparents = ptid.getTemplate().lookupTypeInPTDecl( ptit.getOrgID() );
+                        if( tparents.size() != 1 ) {
+                            error( "lookup of " + ptit.getOrgID() + " in template failed unexpectedly (returned " + tparents.size() + " result(s))" );
+                        }
 
-            for( ASTNode tparent : tparents ) {
-                System.out.println( "has tparent " + tparent.getClass().getName() );
-                if( tparent instanceof RequiredType ) {
-                    //       requiredTypesAsTParents = true;
-                } else {
-                    uncalled.add( tparent );
+                        ASTNode tparent = (ASTNode) tparents.iterator().next();
+
+                        if( tparent instanceof RequiredType ) {
+                            ;
+                        } else {
+                            uncalled.put( ptid, tparent );
+                        }
+                    }
                 }
             }
 
+
+            java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
+
             for( PTTSuperConstructorCall scc : getTSuperConstructorInvocationList() ) {
-                Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( parentPt );
-                if( decls.size() == 1 ) {
-                    ASTNode decl = (ASTNode) decls.iterator().next();
+                Set<PTInstDecl> instDecls = scc.getTemplateClassIdentifier().locateInstantiation( parentPt );
+                if( instDecls.size() == 1 ) {
+                    PTInstDecl decl = (PTInstDecl) instDecls.iterator().next();
 
                     uncalled.remove( decl );
 
@@ -348,7 +381,7 @@ aspect ErrorCheck {
                 }
             }
             
-            for( ASTNode decl : uncalled ) {
+            for( PTInstDecl ptid : uncalled.keySet()) {
                 error( "tsuper constructor not called" ); // TODO better message
             }
         }

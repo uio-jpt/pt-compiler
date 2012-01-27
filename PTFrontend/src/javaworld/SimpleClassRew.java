@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import AST.PTInstDecl;
+
 import AST.Access;
 import AST.Block;
 import AST.BodyDecl;
@@ -484,7 +486,20 @@ public class SimpleClassRew {
             java.util.List<Stmt> stmts = new ArrayList<Stmt>();
 
             for(PTTSuperConstructorCall scc : pcdecl.getTSuperConstructorInvocationList() ) {
-                Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( (PTDecl) scc.getParentClass( PTDecl.class ) );
+                PTDecl contextOfAccess = (PTDecl) scc.getParentClass( PTDecl.class );
+                Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( contextOfAccess );
+                Set<PTInstDecl> superInstantiations = scc.getTemplateClassIdentifier().locateInstantiation( contextOfAccess );
+
+                if( superInstantiations.size() > 1 ) {
+                    scc.error( "ambiguous reference to instantiation" );
+                    continue;
+                }
+                if( superInstantiations.size() != 1 ) {
+                    scc.error( "reference to unknown instantiation rewriting class" );
+                    continue;
+                }
+
+                PTInstDecl superInstantiation = superInstantiations.iterator().next();
 
                 if( decls.size() == 1 ) {
                     TypeDecl decl = (TypeDecl) decls.iterator().next();
@@ -493,7 +508,7 @@ public class SimpleClassRew {
                     if( template != null ) {
                         String superTemplateID = template.getID();
 
-                        String methodName = Util.toMinitName( superTemplateID, tsuperClassID );
+                        String methodName = Util.toUniqueMinitName( superInstantiation, tsuperClassID );
                         AST.List<Expr> args = scc.getArgs().fullCopy();
 
                         Stmt stmt = new ExprStmt( new MethodAccess( methodName, args ) );

@@ -1,0 +1,5 @@
+aspect Parents {
+    inh PTInstDecl PTInstTuple.getParentInstDecl();
+
+    eq PTInstDecl.getPTInstTuple().getParentInstDecl() = this;
+}

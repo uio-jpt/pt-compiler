@@ -157,7 +157,7 @@ PTInstDecl pt_inst_decl =
           return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, ptitList, rtiList ); :}
 | INST IDENTIFIER.templateName pt_type_arguments.ts? SEMICOLON
        {:
-          return new PTInstDecl( "$noname$", templateName, (ts == null) ? new List<Access>() : ts, new List(), new List() );
+          return new PTInstDecl( "", templateName, (ts == null) ? new List<Access>() : ts, new List(), new List() );
        :}
 | INST IDENTIFIER.templateName pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
        {:
@@ -171,7 +171,7 @@ PTInstDecl pt_inst_decl =
               }
           }
 
-          return new PTInstDecl( "$noname$", templateName, (ts == null) ? new List<Access>() : ts, ptitList, rtiList );
+          return new PTInstDecl( "", templateName, (ts == null) ? new List<Access>() : ts, ptitList, rtiList );
        :}
 ;
 
@@ -327,11 +327,11 @@ PTConstructorPromise pt_constructor_assumption =
 
 TemplateClassIdentifier pt_tc_identifier =
     LBRACK IDENTIFIER.a COLON IDENTIFIER.b RBRACK
-    {: return new TemplateClassIdentifier( a, "" , b ); :}
+    {: return new TemplateClassIdentifier( a, "" , b, ""); :}
     | LBRACK IDENTIFIER.a DOT IDENTIFIER.b RBRACK
-    {: return new TemplateClassIdentifier( "", a , b ); :}
+    {: return new TemplateClassIdentifier( "", a , b, "" ); :}
     | LBRACK IDENTIFIER.a RBRACK
-    {: return new TemplateClassIdentifier( "", "" , a ); :}
+    {: return new TemplateClassIdentifier( "", "" , a, "" ); :}
  ;
 
 RequiredType ptr_required_spec =

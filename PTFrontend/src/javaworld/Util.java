@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 import AST.Expr;
 import AST.List;
 import AST.PTClassDecl;
+import AST.PTInstDecl;
 import AST.TemplateMethodAccess;
 import AST.TemplateMethodAccessShort;
 import AST.ImportDecl;
@@ -66,13 +67,29 @@ public class Util {
 				templateID);
 	}
 
+    public static String toUniqueMinitName( PTInstDecl instantiation, String oldName ) {
+        System.out.println( "new minit is producing " + instantiation.getInternalName() + oldName );
+
+        return instantiation.getInternalName() + oldName;
+    }
+
 
 	public static String toMinitName(String templateID, String tclassID) {
-		return String.format("minit$%s$%s", templateID, tclassID);
+		String rv = String.format("minit$%s$%s", templateID, tclassID);
+
+        System.out.println( "WARNING old minit produced " + rv );
+        new Exception().printStackTrace();
+
+        return rv;
 	}
 
 	public static String toMinitName(String tclassID) {
-		return String.format("minit$%s", tclassID);
+        String rv = String.format("minit$%s", tclassID);
+
+        System.out.println( "WARNING old minit produced " + rv );
+        new Exception().printStackTrace();
+
+		return rv;
 	}
 
     public static AST.TypeDecl declarationFromTypeAccess( AST.Access a ) {
