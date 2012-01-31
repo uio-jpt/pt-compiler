@@ -1,0 +1,36 @@
+template T {
+    class D {
+    }
+
+    class C {
+        C() {
+            System.out.println( "Name of D is " + D.class.getName() );
+        }
+    }
+}
+
+package P {
+    InstOxa: inst T with D => OXA;
+    InstOxb: inst T with D => OXB;
+    InstOxc: inst T with D => OXC;
+    InstOxd: inst T with D => OXD;
+    InstOxe: inst T with D => OXE;
+    InstOxf: inst T with D => OXF;
+
+    class C adds {
+        C() {
+            tsuper[InstOxa:]();
+            tsuper[InstOxb:]();
+            tsuper[InstOxc:]();
+            tsuper[InstOxd:]();
+            tsuper[InstOxe:]();
+            tsuper[InstOxf:]();
+        }
+    }
+
+    class Main {
+        public static void main(String args[]) {
+            new C();
+        }
+    }
+}

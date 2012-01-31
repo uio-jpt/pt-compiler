@@ -8,16 +8,19 @@ class ConstructorRew {
 	private final ConstructorDecl cd;
 	private final String templateID;
 	private final String tclassID;
+    private final PTInstDecl instantiation;
 
-	ConstructorRew(ConstructorDecl cd, String templateID, String tclassID) {
+	ConstructorRew(ConstructorDecl cd, String templateID, String tclassID, PTInstDecl instantiation) {
 		this.cd = cd;
 		this.templateID = templateID;
 		this.tclassID = tclassID;
+        this.instantiation = instantiation;
 	}
 
 	protected MethodDecl toMethodDecl() {
         // This seems to preserve parameter lists, so it should ac
-		String modifiedMethodName = Util.toMinitName(templateID, tclassID);
+//		String modifiedMethodName = Util.toMinitName( templateID, tclassID);
+		String modifiedMethodName = Util.toUniqueMinitName( instantiation, tclassID);
 		MethodDecl md = new TemplateConstructor(cd.getModifiers(),
 				new TypeAccess("void"), modifiedMethodName,
 				cd.getParameterList(), new List<Access>(), new Opt<Block>(
@@ -26,28 +29,30 @@ class ConstructorRew {
 		String supername = cd.getClassDecl().getSuperClassName();
 
 //        assert( cd instanceof PTConstructorDecl ); // TODO export this assumption to the types, file name etc
+
+        // there is code duplication with simpleclassrew here, annoying, todo
+
         if( cd instanceof PTConstructorDecl ) {
             PTConstructorDecl pcd = (PTConstructorDecl) cd;
 
-/*
-		if (
-            supername != null
-            && !cd.getClassDecl().inheritsFromExtendsExternal()
-            ) {
-            // If the class has an internal superclass, we add a minit call to it.
-            // This is NOTBACKWARDSE.
-            // In backwards E, the package (or instantiating template) should be calling us
-            // (the right side of the E).
-
-			String methodName = Util.toMinitName(templateID, supername);
-			MethodAccess supercall = new MethodAccess(methodName, new List<Expr>());
-            System.out.println( "adding call statement to " + templateID + ":" + supername + ": " + methodName + " = " + supercall);
-			md.getBlock().addStmt(new ExprStmt(supercall));
-		}
-*/
-
             for(PTTSuperConstructorCall scc : pcd.getTSuperConstructorInvocationList() ) {
-                Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( (PTDecl) scc.getParentClass( PTDecl.class ) );
+                PTDecl contextOfAccess = (PTDecl) scc.getParentClass( PTDecl.class );
+                Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( contextOfAccess );
+                Set<PTInstDecl> superInstantiations = scc.getTemplateClassIdentifier().locateInstantiation( contextOfAccess );
+
+                if( superInstantiations.size() > 1 ) {
+                    scc.error( "ambiguous reference to instantiation" );
+                    continue;
+                }
+                if( superInstantiations.size() != 1 ) {
+                    scc.error( "reference to unknown instantiation rewriting constructor" );
+                    System.out.println( "SOUGHT THIS, FOUND NOTHING " + scc.getTemplateClassIdentifier() );
+                    continue;
+                }
+
+                PTInstDecl superInstantiation = superInstantiations.iterator().next();
+
+                System.out.println( "will convert tsuper-constructor-call " + scc.dumpTree() + " to a method call" );
                 
                 if( decls.size() == 1 ) {
                     TypeDecl decl = (TypeDecl) decls.iterator().next();
@@ -55,8 +60,9 @@ class ConstructorRew {
                     PTTemplate template = (PTTemplate) decl.getParentClass( PTTemplate.class );
                     if( template != null ) {
                         String superTemplateID = template.getID();
+                        System.out.println( "the super-template-id is " + superTemplateID );
 
-                        String methodName = Util.toMinitName( superTemplateID, tsuperClassID );
+                        String methodName = Util.toUniqueMinitName( superInstantiation, tsuperClassID );
                         AST.List<Expr> args = scc.getArgs().fullCopy();
 
                         Stmt stmt =  new ExprStmt( new MethodAccess( methodName, args ) );

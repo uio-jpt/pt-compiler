@@ -17,7 +17,7 @@ PTGenericInterfaceAddsDecl : PTGenericInterfaceDecl ::= RedundantExtends:Access*
 
 PTEnumDecl : EnumDecl;
 
-TemplateClassIdentifier ::= <InstantiationName:String> <TemplateName:String> <TypeName:String>;
+TemplateClassIdentifier ::= <InstantiationName:String> <TemplateName:String> <TypeName:String> <InternalName:String>;
 
 PTInstDecl ::= <InstantiationName:String> <ID> TypeArgument:Access* PTInstTuple* RequiredTypeInstantiation*;
 // inst T<...> with A => X;

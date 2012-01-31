@@ -80,8 +80,7 @@ class ClassDeclRew {
 			i++;
 			if (decl instanceof ConstructorDecl) {
 				ConstructorDecl cd = (ConstructorDecl) decl;
-				ConstructorRew cdRew = new ConstructorRew(cd, sourceTemplateID,
-						instantiator.getOrgID());
+				ConstructorRew cdRew = new ConstructorRew(cd, sourceTemplateID,	instantiator.getOrgID(), instantiator.getParentInstDecl() );
 				try {
 					decl = cdRew.toMethodDecl();
 					ext.setBodyDecl(decl, i);

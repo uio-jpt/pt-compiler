@@ -12,6 +12,9 @@ aspect TemplateClassIdentifier {
         if( hasTemplateName() ) {
             rv = getTemplateName() + "." + rv;
         }
+        if( hasInternalName() ) {
+            rv = "[" + getInternalName() + "]." + rv;
+        }
         return rv;
     }
 
@@ -27,20 +30,67 @@ aspect TemplateClassIdentifier {
         return getTypeName() != null && getTypeName().length() > 0;
     }
 
+    public boolean TemplateClassIdentifier.hasInternalName() {
+        return getInternalName() != null && getInternalName().length() > 0;
+    }
+
     public static TemplateClassIdentifier TemplateClassIdentifier.extractFrom( PTInstDecl instDecl, String name ) {
-        return new TemplateClassIdentifier( instDecl.getInstantiationName(), instDecl.getID(),  name );
+        return new TemplateClassIdentifier( "", "", name, instDecl.getInternalName() );
+//        return new TemplateClassIdentifier( instDecl.getInstantiationName(), instDecl.getID(),  name );
     }
 
     public String TemplateClassIdentifier.getDollarSuffix() {
         return "$" + getInstantiationName() + "$" + getTemplateName() + "$" + getTypeName() + "$";
     }
 
+    public boolean TemplateClassIdentifier.instantiationMatches( PTInstDecl ptid ) {
+        if( hasInstantiationName() ) {
+            String externalName = ptid.getInstantiationName();
+            if( !externalName.equals( getInstantiationName() ) ) {
+                return false;
+            }
+        }
+        
+        System.out.println( "iname ok" );
+
+        if( hasTemplateName() ) {
+            if( !ptid.getID().equals( getTemplateName() ) ) {
+                return false;
+            }
+        }
+
+        System.out.println( "tname ok" );
+
+        if( hasInternalName() ) {
+            if( !ptid.getInternalName().equals( getInternalName() ) ) {
+                return false;
+            }
+        }
+
+        System.out.println( "internalname ok" );
+
+        // the type-name thing should be phased out entirely
+
+        return true;
+}
+
+public Set<PTInstDecl> TemplateClassIdentifier.locateInstantiation( PTDecl root ) {
+    Set<PTInstDecl> rv = new LinkedHashSet<PTInstDecl>();
+
+        System.out.println( "looking for instantiation " + toString() );
+
+        for( PTInstDecl ptid : root.getPTInstDecls() ) {
+            if( instantiationMatches( ptid ) ) {
+                rv.add( ptid );
+            }
+        }
+        return rv;
+    }
+
     public Set<ASTNode> TemplateClassIdentifier.locateTemplateClass( PTDecl root ) {
         Set<ASTNode> rv = new LinkedHashSet<ASTNode>();
         for( PTInstDecl ptid : root.getPTInstDeclList() ) {
-            if( hasInstantiationName() && !ptid.getInstantiationName().equals( getInstantiationName() ) ) continue;
-    
-            if( hasTemplateName() && !ptid.getID().equals( getTemplateName() ) ) continue;
+            if( !instantiationMatches( ptid ) ) continue;
             
             for( PTInstTuple ptit : ptid.getPTInstTupleList() ) {
 

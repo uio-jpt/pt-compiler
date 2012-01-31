@@ -1,6 +1,7 @@
 package javaworld;
 
 import AST.PTDecl;
+import AST.PTInstDecl;
 import AST.PTPackage;
 import AST.ClassDecl;
 import AST.InterfaceDecl;
@@ -26,6 +27,10 @@ public class InstantiationRewriter {
 		for (ClassDecl c: decl.getClassList()) {
 			c.findVirtualMethods();
 		}
+
+        for(PTInstDecl ptid : decl.getPTInstDecls()) {
+            System.out.println( "instantiation " + ptid.dumpTree() + " is adopting or has adopted internal name: " + ptid.getInternalName() );
+        }
 
         // could we use clone and then _mutate_ the objects we're
         // _copying_ from, to subject them to extensive treatment, e.g.
