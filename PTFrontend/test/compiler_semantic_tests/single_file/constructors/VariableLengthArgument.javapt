@@ -4,7 +4,7 @@ template T {
 			System.out.println(someInts.length);
 		} 
 
-		assumed A(int... someIs);
+		assumed A(int... someInts);
 		
 	}
 }
