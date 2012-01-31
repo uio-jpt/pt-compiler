@@ -1,0 +1,12 @@
+template T {
+    class MyEx extends external java.io.IOException {
+        public void m(java.lang.Throwable t) {
+            getCause();
+            initCause(t);
+        }
+    }
+}
+
+package P {
+    inst T;
+}
