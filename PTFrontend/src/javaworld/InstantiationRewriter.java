@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class InstantiationRewriter {
     int dumpStage = 1;
-    boolean dumpTrees = true;
+    boolean dumpTrees = false;
 
 	public InstantiationRewriter() {
 	}
