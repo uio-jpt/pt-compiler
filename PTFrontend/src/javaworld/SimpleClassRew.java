@@ -78,6 +78,7 @@ public class SimpleClassRew {
 			Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples,
             ParameterRewriter parameterRewriter
             ) {
+        System.out.println ( "[dump before] " + decl.dumpTree() );
 		if (!checkIfSane(destinationClassIDsWithInstTuples)) {
 			return;
 		}
@@ -85,14 +86,18 @@ public class SimpleClassRew {
 		renamedSources = getRenamedInstClassesRewriters();
 		possibleConflicts = getPossibleConflicts();
 		computeClassToTemplateMultimap();
+        System.out.println ( "[dump update sup?] " + decl.dumpTree() );
 		updateSuperName();
+        System.out.println ( "[dump update sup!] " + decl.dumpTree() );
         updateImplementsNames();
 
         updateAbstractness();
 
+        System.out.println ( "[dump right before] " + decl.dumpTree() );
         for (ClassDeclRew source : renamedSources) {
             source.applyMutator( parameterRewriter );
         }
+        System.out.println ( "[dump right after] " + decl.dumpTree() );
 
 		if (mergingIsPossible()) {
 			renameResolvedConflicts();
@@ -102,6 +107,8 @@ public class SimpleClassRew {
 		}
 
 		// decl.getClassDecl().getConstructorDeclList()
+
+        System.out.println ( "[dump after] " + decl.dumpTree() );
 	}
 
 	/**
@@ -199,33 +206,74 @@ public class SimpleClassRew {
 	 * Sets the supername of this class to the supername of the merged classes.
 	 */
 	private void updateSuperName() {
-		HashSet<String> names = Sets.newHashSet();
+        java.util.LinkedHashSet<TypeDecl> externalDecls = new java.util.LinkedHashSet<TypeDecl> ();
+        java.util.LinkedHashSet<String> internalNames = new java.util.LinkedHashSet<String> ();
         boolean oneExternal = false;
+        System.out.println( "updating super name" );
 		for (ClassDeclRew x : renamedSources) {
+            System.out.println( "glomming " + x.getClassDecl().dumpTree() );
+            String superClassName = x.getClassDecl().getSuperClassName();
+
             ClassDecl sup = x.getClassDecl().superclass();
             if( sup.superclass() == null ) { // meaning, if this is Object
+                System.out.println( "superclass was object" );
                 continue;
             }
-			names.add(x.getSuperClassName());
-            if( sup != null && !sup.isPtInternalClass() ) {
+
+            System.out.println( "adding superclass" );
+            if( sup != null && !sup.isPtInternalClass() && !sup.isUnknown() ) {
+                // if unknown, we assume internal TODO better solution
+                // for some reason (investigate why) lookup in the parent template
+                // found with getParentClass does not seem to work here. may
+                // be i a "limbo" state, not fully constructed yet?
+                System.out.println( "was external of type " + sup.getClass().getName() + " id " + sup.getID() );
                 oneExternal = true;
+                externalDecls.add( sup );
+            } else {
+                
+                System.out.println( "was internal, name " + sup.getID() + " or " + x.getClassDecl().getSuperClassName() );
+                internalNames.add( superClassName);
             }
 		}
-		names.remove(null); // classes without superclass
-        if( oneExternal && names.size() > 1 ) {
+        if( externalDecls.contains( null ) ) {
+            System.out.println( "removing null" );
+            externalDecls.remove(null); // classes without superclass
+        }
+        if( oneExternal && (internalNames.size() + externalDecls.size()) > 1 ) {
             // note that per spec we do not even check whether these all extend each other
+            java.util.LinkedHashSet<String> realNames = new java.util.LinkedHashSet<String> ();
+            for( TypeDecl td : externalDecls ) {
+                realNames.add( td.fullName() );
+            }
+            for( String name : internalNames ) {
+                realNames.add( name );
+            }
             decl.error(String.format(
                     "Merge error for %s: distinct external superclasses %s cannot be merged\n",
-                    decl.getID(), Joiner.on(" and ").join(names)));
+                    decl.getID(), Joiner.on(" and ").join(realNames)));
         } else {
             try {
-                decl.getClassDecl().setSuperClassAccess(
-                        new TypeAccess(Iterables.getOnlyElement(names)));
+                if( externalDecls.size() > 0 ) {
+                    TypeDecl td = ((TypeDecl) Iterables.getOnlyElement(externalDecls));
+                    System.out.println( "ok new super by decl is " + td.getID() );
+                    decl.getClassDecl().setSuperClassAccess( td.createQualifiedAccess() );
+                } else {
+                    String name =  (Iterables.getOnlyElement(internalNames));
+                    System.out.println( "ok new super by name is " + name );
+                    decl.getClassDecl().setSuperClassAccess( new TypeAccess( name ) );
+                }
             } catch (NoSuchElementException e) { // no superclasses
             } catch (IllegalArgumentException e) {
+                java.util.LinkedHashSet<String> realNames = new java.util.LinkedHashSet<String> ();
+                for( TypeDecl td : externalDecls ) {
+                    realNames.add( td.fullName() );
+                }
+                for( String name : internalNames ) {
+                    realNames.add( name );
+                }
                 decl.error(String.format(
                         "Merge error for %s. Superclasses %s must be merged.\n",
-                        decl.getID(), Joiner.on(" and ").join(names)));
+                        decl.getID(), Joiner.on(" and ").join(realNames)));
             }
         }
 	}

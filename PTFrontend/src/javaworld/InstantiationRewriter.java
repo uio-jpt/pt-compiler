@@ -15,12 +15,23 @@ import java.util.Map;
    node. */
 
 public class InstantiationRewriter {
+    int dumpStage = 1;
+    boolean dumpTrees = true;
 
 	public InstantiationRewriter() {
 	}
+    
+    void dumpTree( PTDecl decl ) {
+        if( dumpTrees ) {
+            System.out.println( "[debug tree dump " + dumpStage + "] " + decl.dumpTree() );
+            dumpStage += 1;
+        }
+    }
 
 	public void run(PTDecl decl) { 
         System.out.println( "beginning InstantiationRewriter: " + decl.getID() );
+
+        dumpTree( decl );
 		
 		// Går igjennom decl sine ClassDecls for å beregne hva som er
 		// "virtuelle" metoder som det siste som skjer før omskrivinga starter.
@@ -38,33 +49,63 @@ public class InstantiationRewriter {
 
         decl.flushCaches();
 
+        dumpTree( decl );
+
 		PTDeclRew target = new PTDeclRew(decl);
 
         target.getParameterRewriter();
         // this creates the mappings at a well-defined time
 
+        dumpTree( decl );
+
         target.createRenamedEnums();
+
+        dumpTree( decl );
+
         target.createEmptyMissingAddClasses();
+
+        dumpTree( decl );
 
         target.createMergedInterfaces();
 
+        dumpTree( decl );
+
         target.createMergedRequiredTypes();
+
+        dumpTree( decl );
 
 		target.extendAddClassesWithInstantiatons();
 
+        dumpTree( decl );
+
         target.updateAccessesToInternalRenames();
 
+        dumpTree( decl );
+
 		target.copyImportDecls();
+
+        dumpTree( decl );
+
 		target.createInitIfPackage();
 
+        dumpTree( decl );
+
         target.concretifyRequiredTypes();
+
+        dumpTree( decl );
 
 //        target.removeInstStatements();
 		target.flushCaches();
 
+        dumpTree( decl );
+
         decl.checkRedundantExtends();
 
+        dumpTree( decl );
+
         decl.flushCaches();
+
+        dumpTree( decl );
 
         System.out.println( "finishing InstantiationRewriter: " + decl.getID() );
 	}
