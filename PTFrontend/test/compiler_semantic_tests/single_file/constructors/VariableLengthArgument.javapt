@@ -1,20 +1,20 @@
 template T {
-	class A {
-	   public A(int... someInts) {
-			System.out.println(someInts.length);
-		} 
+    class A {
+       public A(int... someInts) {
+            System.out.println(someInts.length);
+        } 
 
-		assumed A(int... someInts);
-		
-	}
+        assumed A(int... someInts);
+        
+    }
 }
 
 
 package P {
-	inst T;
-	class Main {
-		public static void main(String[] args) {
-			new A(1, 2, 3);		
-		}
-	}
+    inst T;
+    class Main {
+        public static void main(String[] args) {
+            new A(1, 2, 3);     
+        }
+    }
 }
