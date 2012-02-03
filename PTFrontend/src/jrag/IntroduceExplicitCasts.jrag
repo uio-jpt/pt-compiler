@@ -43,10 +43,15 @@ aspect IntroduceExplicitCasts {
 
         while( paramDecl.hasNext() && argList.hasNext() ) {
             ParameterDeclaration pd = paramDecl.next();
+            Access tacc = (Access) pd.getTypeAccess();
             TypeDecl tpd = pd.type();
             Expr a = argList.next();
             TypeDecl ta = a.type();
-            if( tpd instanceof RequiredType ) {
+            if( tacc instanceof ArrayTypeAccess ) {
+                System.out.println( "for method " + mdecl.name() + " introducing explicit cast to array" );
+                Expr ra = new CastExpr( (TypeAccess) tacc.fullCopy(), (Expr) a.fullCopy() );
+                a.replaceSelfWith( ra );
+            } else if( tpd instanceof RequiredType ) {
                 // ignore required type
                 System.out.println( "ignoring RT " + tpd.dumpTree() );
             } else if( tpd instanceof TypeVariable ) {
