@@ -532,6 +532,10 @@ public class PTDeclRew {
                 continue;
             }
             ASTNode temporaryReqType = (ASTNode) temporaryReqTypes.iterator().next();
+            if( !(temporaryReqType instanceof RequiredType) ) {
+                temporaryReqType.error( "[implementation restriction, issue 7] [TODO] classes cannot currently share names with incoming required types -- give the class another name" );
+                continue;
+            }
             System.out.println( "replacing temporary reqtype of class " + temporaryReqType.getClass().getName() );
 
             RequiredType myRequiredType = JastaddTypeConstraints.convertToRequiredType( key, tc, ptDeclToBeRewritten.getPTDeclContext() );
