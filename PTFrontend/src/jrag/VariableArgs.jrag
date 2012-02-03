@@ -1,0 +1,3 @@
+aspect PtVariableArgs {
+    eq PTConstructorPromise.getParameter(int i).variableArityValid() = i == getNumParameter() - 1;
+}
