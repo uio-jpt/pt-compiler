@@ -284,6 +284,12 @@ PTTSuperConstructorCall explicit_tsuper_invocation =
         PTTSuperConstructorCall m = new PTTSuperConstructorCall( tci, args );
         return m;
     :}
+    | 
+    TSUPER LPAREN argument_list.args? RPAREN SEMICOLON
+    {:
+        PTTSuperConstructorCall m = new PTTSuperConstructorCall( new TemplateClassIdentifier( "", "", "", "" ) , args );
+        return m;
+    :}
     ;
     
 List pt_class_body =
