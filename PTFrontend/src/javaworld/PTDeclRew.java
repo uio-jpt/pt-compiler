@@ -726,6 +726,7 @@ public class PTDeclRew {
 	protected void extendAddClassesWithInstantiatons() {
 		Set<String> visited = Sets.newHashSet();
         boolean didMakeProgress;
+
 		while (visited.size() < simpleClasses.size()) {
             // This loop is a bit of a wart as it's apt to go infinite-loop
             // during testing if something is wrong elsewhere so its
@@ -765,7 +766,6 @@ public class PTDeclRew {
                 return; // TODO: this will probably lead to some confusing error messages
 //                throw new CriticalPTException( "extendAddClassesWithInstantiatons() is confused -- would loop infinitely" );
             }
-
 		}
 
         // TODO: here (?) is the appropriate place to fix --
@@ -1087,11 +1087,17 @@ public class PTDeclRew {
                                  addClasses ),
                                  extendingExternalsClasses.keySet() );
         for(String name : extendingExternalsClasses.keySet() ) {
+            /* TODO cleanup, why are these treated separatedly? led to a bug, see continue workaround below */
+
             /* I believe checking for clashes is done elsewhere, so here we just take the FIRST
                extends-external class.
                TODO make this deterministic. (Note that it is only nondeterministic if there IS
                another error, though.)
             */
+
+            if( ! Sets.difference( getDestinationIDsForNonEnumClasses(), addClasses ).contains( name ) ) {
+                continue;
+            }
 
             Access superClassAccess = (Access) extendingExternalsClasses.get(name).iterator().next().getSuperClassAccess().fullCopy();
 

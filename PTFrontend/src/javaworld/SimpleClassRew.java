@@ -211,6 +211,8 @@ public class SimpleClassRew {
                 continue;
             }
 
+            System.out.println( "unknown? " + sup.isUnknown() );
+
             if( sup != null && !sup.isPtInternalClass() && !sup.isUnknown() ) {
                 // if unknown, we assume internal TODO better solution
                 // for some reason (investigate why) lookup in the parent template
@@ -221,6 +223,8 @@ public class SimpleClassRew {
             } else {
                 internalNames.add( superClassName);
             }
+
+            System.out.println( "==> " + oneExternal );
 		}
         if( externalDecls.contains( null ) ) {
             externalDecls.remove(null); // classes without superclass
@@ -242,6 +246,9 @@ public class SimpleClassRew {
                 if( externalDecls.size() > 0 ) {
                     TypeDecl td = ((TypeDecl) Iterables.getOnlyElement(externalDecls));
                     decl.getClassDecl().setSuperClassAccess( td.createQualifiedAccess() );
+                    if( !decl.getClassDecl().getModifiers().isExtendsExternal() ) {
+                        decl.getClassDecl().getModifiers().addModifier( new AST.Modifier( "extendsexternal" ) );
+                    }
                 } else {
                     String name =  (Iterables.getOnlyElement(internalNames));
                     decl.getClassDecl().setSuperClassAccess( new TypeAccess( name ) );
@@ -503,6 +510,10 @@ public class SimpleClassRew {
     public boolean hasExternalSuperclass() {
         ClassDecl cd = decl.getClassDecl();
         return cd.hasSuperclass() && !cd.superclass().isPtInternalClass();
+    }
+
+    public ClassDecl getClassDecl() {
+        return decl.getClassDecl();
     }
 
     public void rewriteConstructorsInPackage() {
