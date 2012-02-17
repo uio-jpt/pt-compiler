@@ -746,8 +746,13 @@ public class PTDeclRew {
                             || !decl.hasSuperclassInternalTo( ptDeclToBeRewritten ) ) {
                             visited.add(decl.getName());
                             didMakeProgress = true;
+
+                            System.out.println( "about to extendClass " + decl.getClassDecl().getID() );
+                            System.out.println( "name has generic origins? " + (null != nameHasGenericOrigin( decl.getClassDecl().getID() ) ) );
+
                             decl.extendClass(getDestinationClassIDsWithInstTuples(),
-                                             getParameterRewriter());
+                                             getParameterRewriter(),
+                                             nameHasGenericOrigin( decl.getClassDecl().getID() ) );
                         }
                     }
                     catch( CriticalPTException e ) {
@@ -880,66 +885,53 @@ public class PTDeclRew {
         return new InstTupleRew(tup).getRenamedSourceInterface();
     }
 
-    protected InterfaceDecl createInterfaceAddsDeclForName( String name, java.util.Collection<PTInstTuple> instTuples) {
-        Modifiers mods = new Modifiers();
+    public AST.List<AST.TypeVariable> nameHasGenericOrigin( String name ) {
+        java.util.Collection<PTInstTuple> instTuples = getDestinationClassIDsWithInstTuples().get( name );
 
-        /*
-        Opt<Access> optAccess;
-
-        if( superClassAccess != null ) {
-            optAccess = new Opt<Access>( superClassAccess );
-        } else {
-            optAccess = new Opt<Access>();
-        }
-        */
-
-
-        GenericInterfaceDecl gtype = null;
+        TypeDecl gtype = null;
         int genericOrigins = 0, nonGenericOrigins = 0;
         for( PTInstTuple instTuple : instTuples ) {
             if( instTuple.getOriginator().isGenericType() ) {
                 genericOrigins++;
-                gtype = (GenericInterfaceDecl) instTuple.getOriginator();
+                gtype = instTuple.getOriginator();
             } else {
                 nonGenericOrigins++;
             }
         }
 
-        InterfaceDecl cls;
-        
         if( genericOrigins == 0 ) {
-            cls = new PTInterfaceAddsDecl(mods,
-                                          name,
-                                          new List<Access>(),
-                                          new List<BodyDecl>(),
-                                          new List());
+            return null;
         } else if( genericOrigins == 1 && nonGenericOrigins == 0 ) {
-            // this is simple to handle -- copy the arguments
-            cls = new PTGenericInterfaceAddsDecl( mods,
-                                                  name,
-                                                  new List<Access>(),
-                                                  new List<BodyDecl>(),
-                                                  gtype.getTypeParameterList().fullCopy(),
-                                                  new List()
-                                                  );
+            if( gtype instanceof GenericClassDecl ) {
+                return ((GenericClassDecl)gtype).getTypeParameterList().fullCopy();
+            }
+            if( gtype instanceof GenericInterfaceDecl ) {
+                return ((GenericInterfaceDecl)gtype).getTypeParameterList().fullCopy();
+            }
+            // more? see index
+            throw new CriticalPTException( "single-generic origin type unhandled: " + gtype.getClass().getName() );
         } else if( genericOrigins == 1 && nonGenericOrigins != 0 ) {
             // C<A> + D --> CD<A>
-            // hard to handle -- we now need to change all type accesses 
+            // hard to handle -- we now need to change all type accesses (in D, because they may be "A")
 
             gtype.error( "merge target " + name + " has generic and non-generic origins [not implemented yet]" );
             throw new CriticalPTException( "mixed-generic origins, giving up" );
         } else {
-            // problems with multiple generics: C<A> + D<B> --> CD<?,?> (order?)
-            // this seems fundamental
-
             gtype.error( "merge target " + name + " has multiple generic origins" );
             throw new CriticalPTException( "multiple generic origins, giving up" );
         }
-
-        return cls;
     }
 
+    protected InterfaceDecl createInterfaceAddsDeclForName( String name, java.util.Collection<PTInstTuple> instTuples) {
+        Modifiers mods = new Modifiers();
 
+        AST.List<AST.TypeVariable> typePars = nameHasGenericOrigin( name );
+        if( typePars == null ) {
+            return new PTInterfaceAddsDecl( mods, name, new List<Access>(), new List<BodyDecl>(), new List() );
+        } else {
+            return new PTGenericInterfaceAddsDecl( mods, name, new List<Access>(), new List<BodyDecl>(), typePars, new List() );
+        }
+    }
 
 
     protected ClassDecl createClassDeclForName( String name, java.util.Collection<PTInstTuple> instTuples, boolean addExtendsExternal, Access superClassAccess ) {
@@ -970,6 +962,8 @@ public class PTDeclRew {
         }
 
         ClassDecl cls;
+
+        // TODO eliminate code duplication w/ nameHasGenericOrigin
         
         if( genericOrigins == 0 ) {
             cls = new ClassDecl(mods,

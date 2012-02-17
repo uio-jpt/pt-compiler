@@ -76,7 +76,8 @@ public class SimpleClassRew {
 	 */
 	public void extendClass(
 			Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples,
-            ParameterRewriter parameterRewriter
+            ParameterRewriter parameterRewriter,
+            AST.List<AST.TypeVariable> typeParameters
             ) {
 		if (!checkIfSane(destinationClassIDsWithInstTuples)) {
 			return;
@@ -87,6 +88,44 @@ public class SimpleClassRew {
 		computeClassToTemplateMultimap();
 		updateSuperName();
         updateImplementsNames();
+
+        if( typeParameters != null ) {
+            /* A messy past leaves us with the type parameters _sometimes_ having been added
+               at this point (when there was no explicit adds class), and _sometimes_ not.
+
+               TODO removing the old code to add type parameters leaving only this which
+               should work in the general code, but for now this is written to tolerate
+               the type parameters already having been added.
+
+               The user could not manually add type parameters to an adds class; this would
+               be a syntax error. (But it IS not, yet! TODO)
+            */
+
+            AST.GenericClassDecl gcd;
+
+            if( !(getClassDecl() instanceof AST.GenericClassDecl) ) {
+                AST.ClassDecl cd = getClassDecl();
+                gcd = new AST.GenericClassDecl( cd.getModifiers().fullCopy(),
+                                                cd.getID(),
+                                                cd.getSuperClassAccessOpt().fullCopy(),
+                                                cd.getImplementsList().fullCopy(),
+                                                cd.getBodyDeclList().fullCopy(),
+                                                new AST.List() );
+                cd.replaceSelfWith( gcd );
+            } else {
+                gcd = (AST.GenericClassDecl) getClassDecl();
+            }
+
+            if( gcd.getTypeParameterList().getNumChild() == 0 ) {
+                System.out.println( "[debug] TODO add type parameters" );
+                gcd.setTypeParameterList( typeParameters );
+            } else {
+                System.out.println( "[debug] type parameters were already added to " + getClassDecl().getID() + ", hoping these were correct" );
+            }
+            
+        }
+
+        System.out.println( "extending add-class " + decl.getClassDecl().getID() );
 
         updateAbstractness();
 

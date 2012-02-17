@@ -21,7 +21,7 @@ template T {
 package P {
 	inst T;
 
-    class Container<E> adds {
+    class Container adds {
         Container(E e) {
             tsuper[T.Container](e);
         }
