@@ -48,7 +48,7 @@ aspect IntroduceExplicitCasts {
             Expr a = argList.next();
             TypeDecl ta = a.type();
             Expr parenthesizedA = new ParExpr( (Expr) a.fullCopy() );
-            if( tacc instanceof ArrayTypeAccess ) {
+            if( tpd instanceof ArrayDecl ) {
                 System.out.println( "for method " + mdecl.name() + " introducing explicit cast to array" );
                 Expr ra = new CastExpr( (TypeAccess) tacc.fullCopy(), parenthesizedA );
                 a.replaceSelfWith( ra );
@@ -59,7 +59,7 @@ aspect IntroduceExplicitCasts {
                 // ignore type variables for now
                 System.out.println( "ignoring TV " + tpd.dumpTree() );
             } else {
-                System.out.println( "for method " + mdecl.name() + " introducing explicit cast to " + tpd.name() + " of type " + tpd.getClass().getName() );
+                System.out.println( "for method " + mdecl.name() + " introducing explicit cast to " + tpd.name() + " of type " + tpd.getClass().getName() + ", access type " + tacc.getClass().getName());
                 Expr ra = new CastExpr( new TypeAccess( tpd.packageName(), tpd.name() ), parenthesizedA );
                 a.replaceSelfWith( ra );
             }
