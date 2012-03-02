@@ -87,6 +87,32 @@ public Set<PTInstDecl> TemplateClassIdentifier.locateInstantiation( PTDecl root 
         return rv;
     }
 
+    public Set<ASTNode> TemplateClassIdentifier.locateTemplateClassMergingTo( PTDecl root, String name ) {
+        Set<ASTNode> rv = new LinkedHashSet<ASTNode>();
+        for( PTInstDecl ptid : root.getPTInstDeclList() ) {
+            if( !instantiationMatches( ptid ) ) continue;
+            
+            for( PTInstTuple ptit : ptid.getPTInstTupleList() ) {
+                if( !ptit.getID().equals( name ) ) continue;
+
+                if( hasTypeName() && !ptit.getOrgID().equals( getTypeName() ) ) continue;
+                
+                String declID = ptit.getOrgID();
+                PTTemplate template = ptid.getTemplate();
+                if( template == null ) continue;
+                SimpleSet decls = template.ptLookupTypeIn( declID );
+
+                Iterator i = decls.iterator();
+                while( i.hasNext() ) {
+                    Object o = i.next();
+                    rv.add( (ASTNode) o );
+                }
+            }
+        }
+
+        return rv;
+    }
+
     public Set<ASTNode> TemplateClassIdentifier.locateTemplateClass( PTDecl root ) {
         Set<ASTNode> rv = new LinkedHashSet<ASTNode>();
         for( PTInstDecl ptid : root.getPTInstDeclList() ) {

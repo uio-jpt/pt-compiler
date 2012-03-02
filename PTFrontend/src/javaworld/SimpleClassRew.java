@@ -570,7 +570,7 @@ public class SimpleClassRew {
 
             for(PTTSuperConstructorCall scc : pcdecl.getTSuperConstructorInvocationList() ) {
                 PTDecl contextOfAccess = (PTDecl) scc.getParentClass( PTDecl.class );
-                Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClass( contextOfAccess );
+                Set<ASTNode> decls = scc.getTemplateClassIdentifier().locateTemplateClassMergingTo( contextOfAccess, decl.getClassDecl().getID() );
                 Set<PTInstDecl> superInstantiations = scc.getTemplateClassIdentifier().locateInstantiation( contextOfAccess );
 
                 if( superInstantiations.size() > 1 ) {
@@ -597,6 +597,8 @@ public class SimpleClassRew {
                         Stmt stmt = new ExprStmt( new MethodAccess( methodName, args ) );
                         stmts.add( stmt );
                     }
+                } else {
+                    System.out.println( "[warning] resolving PTSuperConstructorCall, decls size is " + decls.size() + " (ambiguous) -- likely a problem" );
                 }
             }
 
