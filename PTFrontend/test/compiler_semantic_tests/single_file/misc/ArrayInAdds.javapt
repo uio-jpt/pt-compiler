@@ -1,0 +1,14 @@
+template T {
+    class A {
+        Object[] objects = new Object[10];
+    }
+}
+
+package P {
+    inst T;
+    class A adds {
+        void m() {
+            System.out.println(objects.length);
+        }
+    }
+}

@@ -217,6 +217,7 @@ public class SimpleClassRew {
                 ParTypeAccess pta = (ParTypeAccess) o; // parametrized type
                 accessSet.add( new JastaddTypeDescriptor( pta ) );
             } else {
+                System.out.println( "unexpected type was: " + ((ASTNode)o).dumpTree() );
                 decl.error( "internal compiler error: in implements-list, encountered unexpected type " + o.getClass().getName() );
             }
         }

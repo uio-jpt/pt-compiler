@@ -1,0 +1,87 @@
+/* Name resolution (as in ResolveAmbiguousNames.jrag in JastaddJ)
+   cannot be done in adds classes _before_ fields etc. are added.
+   Thus we need to delay this rewrite.
+
+   A peculiar restriction that comes with this solution is that
+   .toString() for debugging (meaning, before the rewriting
+   processes have completed) is not necessarily safe.
+   This is because AmbiguousAccess and friends do not actually
+   have an implemented toString method, presumably because
+   JastaddJ was set up with the assumption that these were
+   short-lived, rapidly-rewritten classes. (One workaround could
+   be to just add these methods for the relevant classes.)
+
+   There have been a number of Heisenbugs of this kind before
+   this, so I think it may be better to conclude that .toString()
+   on sections of the AST for debugging is simply not a good idea.
+   .dumpTree() should be used instead (it is also _far_ superior
+   in terms of giving an idea of what the AST looks like, because
+   JastaddJ sometimes prints weirdly and some of our own elements
+   are hidden).
+*/
+
+aspect DelayNameResolution {
+    // seems like it's not possible to define by inh something on ASTNode in general,
+    // thus this slightly hackish technique. Still better than using reflection
+    // which there was/is still previously a lot of.
+    public PTDecl ASTNode.descendantOfPtDecl() {
+        ASTNode parent = getParent();
+        if( parent == this || parent == null ) {
+            return null;
+        }
+        return parent.descendantOfPtDecl();
+    }
+    public PTDecl PTDecl.descendantOfPtDecl() {
+        return this;
+    }
+
+    public boolean ASTNode.isDescendantOfPtDecl() {
+        return descendantOfPtDecl() != null;
+    }
+
+    public boolean PTDecl.readyForNameResolution = false;
+
+    public void PTDecl.markReadyForNameResolution() {
+        this.readyForNameResolution = true;
+    }
+
+    public boolean ASTNode.isInImplementsList() {
+        ASTNode parent = getParent();
+        if( parent == null || !(parent instanceof List) ) {
+            return false;
+        }
+        ASTNode gparent = parent.getParent();
+        if( gparent == null || !(gparent instanceof ClassDecl) ) {
+            return false;
+        }
+        if( ((ClassDecl)gparent).getImplementsList() != parent ) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean ASTNode.isProperDescendantOfImplementsList() {
+        ASTNode node = this;
+        while( node != null ) {
+            if( node.isInImplementsList() ) {
+                return true;
+            }
+            if( node.getParent() == node ) {
+                break;
+            } else {
+                node = node.getParent();
+            }
+        }
+        return false;
+    }
+
+    public boolean Access.readyForNameResolution() {
+        /* The point of this is that we need to delay name resolution for accesses
+           that may refer to fields that haven't yet been copied into an adds class,
+           but other access rewrites -- specifically, the ones in types in implements
+           lists -- need to be performed earlier so the types are apparent for
+           the merging methods.
+        */
+        return isProperDescendantOfImplementsList() || (!isDescendantOfPtDecl() || descendantOfPtDecl().readyForNameResolution);
+    }
+}

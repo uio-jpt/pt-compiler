@@ -524,7 +524,7 @@ public class PTDeclRew {
             }
             localRtAdds.removeAll( key );
 
-            System.out.println( "creating new required type in: " + ptDeclToBeRewritten );
+            System.out.println( "creating new required type in: " + ptDeclToBeRewritten.dumpTree() );
 
             SimpleSet temporaryReqTypes = ptDeclToBeRewritten.lookupTypeInPTDecl( key );
             if( temporaryReqTypes.size() != 1 ) {
@@ -1141,6 +1141,10 @@ public class PTDeclRew {
 		}
 		return destinationClassIDsWithInstTuples;
 	}
+
+    public void markReadyForNameResolution() {
+        ptDeclToBeRewritten.markReadyForNameResolution();
+    }
 
     public boolean isPackage() {
         return ptDeclToBeRewritten instanceof PTPackage;

@@ -66,6 +66,7 @@ public class InstantiationRewriter {
 
         dumpTree( decl );
 
+
         target.createMergedInterfaces();
 
         dumpTree( decl );
@@ -74,9 +75,16 @@ public class InstantiationRewriter {
 
         dumpTree( decl );
 
-		target.extendAddClassesWithInstantiatons();
+            target.extendAddClassesWithInstantiatons();
 
-        dumpTree( decl );
+            dumpTree( decl );
+
+            // fields are now present and it should be okay to rewrite ambiguous accesses
+            target.markReadyForNameResolution();
+            target.flushCaches();
+
+            dumpTree( decl );
+
 
         target.updateAccessesToInternalRenames();
 
