@@ -916,10 +916,56 @@ public class PTDeclRew {
 
             gtype.error( "merge target " + name + " has generic and non-generic origins [not implemented yet]" );
             throw new CriticalPTException( "mixed-generic origins, giving up" );
+        } else if( genericOrigins > 1 && nonGenericOrigins == 0 ) {
+            AST.List<TypeVariable> referenceTypePars = null;
+            if( gtype instanceof GenericClassDecl ) {
+                referenceTypePars = ((GenericClassDecl)gtype).getTypeParameterList().fullCopy();
+            }
+            if( gtype instanceof GenericInterfaceDecl ) {
+                referenceTypePars = ((GenericInterfaceDecl)gtype).getTypeParameterList().fullCopy();
+            }
+            System.out.println( "checking " + referenceTypePars.dumpTree() );
+
+            for( PTInstTuple instTuple : instTuples ) {
+                TypeDecl otherGType = instTuple.getOriginator();
+                AST.List<TypeVariable> candidateTypePars = null;
+                if( otherGType instanceof GenericClassDecl ) {
+                    candidateTypePars = ((GenericClassDecl)otherGType).getTypeParameterList().fullCopy();
+                }
+                if( otherGType instanceof GenericInterfaceDecl ) {
+                    candidateTypePars = ((GenericInterfaceDecl)otherGType).getTypeParameterList().fullCopy();
+                }
+
+                System.out.println( "against " + candidateTypePars.dumpTree() );
+
+                boolean listsEqual = false;
+                if( referenceTypePars.getNumChild() == candidateTypePars.getNumChild() ) {
+                    int i;
+                    for(i=0;i< referenceTypePars.getNumChild(); i++ ) {
+                        TypeVariable x = (TypeVariable) referenceTypePars.getChild(i);
+                        TypeVariable y = (TypeVariable) candidateTypePars.getChild(i);
+                        if( !( x.instanceOf( y ) && y.instanceOf( x ) ) ) {
+                            System.out.println( "mismatch on parameter " + i + ": " + x.dumpTree() + " versus " + y.dumpTree() );
+                            break;
+                        }
+                    }
+                    if( i == referenceTypePars.getNumChild() ) {
+                        listsEqual = true;
+                    }
+                }
+
+                if( !listsEqual ) {
+                    throw new CriticalPTException( "generic origin consistency check failed, giving up" );
+                }
+            }
+
+            return referenceTypePars;
         } else {
             gtype.error( "merge target " + name + " has multiple generic origins" );
-            throw new CriticalPTException( "multiple generic origins, giving up" );
+            throw new CriticalPTException( "multiple generic origins, giving up (" + genericOrigins + " generic, " + nonGenericOrigins + " non-generic)" );
         }
+
+        // TODO: these exceptions should be caught and translated to an error message, weren't they in the past?
     }
 
     protected InterfaceDecl createInterfaceAddsDeclForName( String name, java.util.Collection<PTInstTuple> instTuples) {
@@ -962,8 +1008,25 @@ public class PTDeclRew {
         }
 
         ClassDecl cls;
+        AST.List<AST.TypeVariable> typePars = nameHasGenericOrigin( name );
+
+        if( typePars == null ) {
+            cls = new ClassDecl(mods,
+                                name,
+                                optAccess,
+                                new List<Access>(),
+                                new List<BodyDecl>());
+        } else {
+            cls = new GenericClassDecl( mods,
+                                        name,
+                                        optAccess,
+                                        new List<Access>(),
+                                        new List<BodyDecl>(),
+                                        typePars.fullCopy() );
+        }
 
         // TODO eliminate code duplication w/ nameHasGenericOrigin
+/*
         
         if( genericOrigins == 0 ) {
             cls = new ClassDecl(mods,
@@ -992,6 +1055,7 @@ public class PTDeclRew {
             gtype.error( "merge target " + name + " has multiple generic origins" );
             throw new CriticalPTException( "multiple generic origins, giving up" );
         }
+*/
 
         /* Here's an exception to these classes being empty: if we have just one originator, and
            it has at least one constructor with positive arity, we will create redirecting constructors.

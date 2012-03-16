@@ -1,0 +1,32 @@
+template T {
+    class C<A,B,C> {
+        void takeA(A x) {
+            System.out.println( "A: " + x );
+        }
+        void takeB(B x) {
+            System.out.println( "B: " + x );
+        }
+        void takeC(C x) {
+            System.out.println( "C: " + x );
+        }
+    }
+}
+
+template U {
+    class D<A,B,C extends Exception> {
+        void takeprimeA(A x) {
+            System.out.println( "A': " + x );
+        }
+        void takeprimeB(B x) {
+            System.out.println( "B': " + x );
+        }
+        void takeprimeC(C x) {
+            System.out.println( "C': " + x );
+        }
+    }
+}
+
+package P {
+    inst T with C => Merged;
+    inst U with D => Merged;
+}
