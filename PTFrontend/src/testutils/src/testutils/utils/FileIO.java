@@ -44,8 +44,17 @@ public class FileIO extends File {
 		return folderMap;
 	}
 
+	public FileIO createExtendedPackagePath(String packageName) {
+		String [] package_path = packageName.split("\\.");
+		String path = getPath();
+		for (String i : package_path) {
+			path += File.separator + i;
+		}
+		return new FileIO(path);
+	}
+	
 	public FileIO createExtendedPath(String packageName) {
-		 String path = getPath() + File.separator + packageName;
+		String path = getPath() + File.separator + packageName;
 		return new FileIO(path);
 	}
 

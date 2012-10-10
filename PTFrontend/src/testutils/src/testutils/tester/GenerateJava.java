@@ -78,14 +78,13 @@ public class GenerateJava {
 	private void writePackages() {
 		for (String packageName : compilerInterface.getPackageNames()) {
 			FileIO packageFolder = outputSrcFolder
-					.createExtendedPath(packageName);
+					.createExtendedPackagePath(packageName);
 			packageFolder.mkdir();
-			writePackage(packageFolder);
+			writePackage(packageFolder, packageName);
 		}
 	}
 
-	private void writePackage(FileIO packageFolder) {
-		String packageName = packageFolder.getName();
+	private void writePackage(FileIO packageFolder, String packageName) {
 		for (String classname : compilerInterface.getClassnames(packageName)) {
 			FileIO classFile = packageFolder.createExtendedPath(classname
 					+ ".java");

@@ -1,0 +1,7 @@
+package P.p {
+    class C { }
+}
+
+package Q.q {
+    class D extends P.p.C { }
+}
