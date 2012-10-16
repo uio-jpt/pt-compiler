@@ -406,7 +406,8 @@ public class SimpleClassRew {
 //                        System.out.println( " with sig " + meth.signature() );
                         isUnneededTabstractMethodDecl = true;
                     }
-
+				//	System.out.println("Adding tabstract signature: " + target.hostType().methodsSignature(meth.signature()));
+				//	FOO BAR;
                     decl.addTabstractSignature( meth.signature() );
                 }
 
