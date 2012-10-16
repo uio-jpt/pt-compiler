@@ -87,31 +87,31 @@ aspect Tabstractness {
 
     public void SimpleClass.checkTabstractsInstantiated() {
         for(String tabSig : getTabstractSignatures())
-		{	
-			boolean found = false;
-			for(String sig : getClassDecl().methodSignatures())
-			{
-				// Fugly hack to get around the fact that the tabstract signatures
-				// do not have package name in them, while implementing signatures
-				// in packages have... Not entirely fail-safe, to say the least.
-				String plainSig = sig.replace(getClassDecl().packageName() + ".", "");
-				if(tabSig.equals(sig) || tabSig.equals(plainSig))
-				{
-					found = true;
-					break;
-				}
-			}
-			if(!found)
-				error( "tabstract with signature " + tabSig + " was never implemented" );
-		}
-		// OLD (broken) implementation
-		/*System.out.println("***PACKAGE NAME: " + getClassDecl().packageName());
-		for( String sig : getTabstractSignatures() ) {
+        {   
+            boolean found = false;
+            for(String sig : getClassDecl().methodSignatures())
+            {
+                // Fugly hack to get around the fact that the tabstract signatures
+                // do not have package name in them, while implementing signatures
+                // in packages have... Not entirely fail-safe, to say the least.
+                String plainSig = sig.replace(getClassDecl().packageName() + ".", "");
+                if(tabSig.equals(sig) || tabSig.equals(plainSig))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found)
+                error( "tabstract with signature " + tabSig + " was never implemented" );
+        }
+        // OLD (broken) implementation
+        /*System.out.println("***PACKAGE NAME: " + getClassDecl().packageName());
+        for( String sig : getTabstractSignatures() ) {
             if( getClassDecl().hostType().methodsSignature( sig ) == SimpleSet.emptySet ) {
                 error( "tabstract with signature " + sig + " was never implemented" );
             }
         }
-		*/
+        */
     }
 
     public void PTPackage.checkTabstractsInstantiated() {

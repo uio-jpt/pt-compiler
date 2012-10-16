@@ -125,8 +125,6 @@ public class SimpleClassRew {
             
         }
 
-        System.out.println( "extending add-class " + decl.getClassDecl().getID() );
-
         updateAbstractness();
 
         for (ClassDeclRew source : renamedSources) {
@@ -251,8 +249,6 @@ public class SimpleClassRew {
                 continue;
             }
 
-            System.out.println( "unknown? " + sup.isUnknown() );
-
             if( sup != null && !sup.isPtInternalClass() && !sup.isUnknown() ) {
                 // if unknown, we assume internal TODO better solution
                 // for some reason (investigate why) lookup in the parent template
@@ -263,8 +259,6 @@ public class SimpleClassRew {
             } else {
                 internalNames.add( superClassName);
             }
-
-            System.out.println( "==> " + oneExternal );
 		}
         if( externalDecls.contains( null ) ) {
             externalDecls.remove(null); // classes without superclass
@@ -406,8 +400,6 @@ public class SimpleClassRew {
 //                        System.out.println( " with sig " + meth.signature() );
                         isUnneededTabstractMethodDecl = true;
                     }
-				//	System.out.println("Adding tabstract signature: " + target.hostType().methodsSignature(meth.signature()));
-				//	FOO BAR;
                     decl.addTabstractSignature( meth.signature() );
                 }
 
@@ -482,7 +474,6 @@ public class SimpleClassRew {
 	private boolean checkIfSane(
 			Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples) {
 		if (destinationClassIDsWithInstTuples.containsKey(decl.getID())) {
-            System.out.println( "@@@@ found: " + decl.getID() );
 			if (!decl.isAddsClass()) {
 				decl.error("Class "
 						+ decl.getID()
@@ -563,7 +554,6 @@ public class SimpleClassRew {
                 // This must be an implicit, empty constructor.
                 // We have no tsuper statements to add, yet is it okay to just skip?
                 // We might still need to generate an error, but that can be done elsewhere?
-                System.out.println( "SKIPPING" );
                 continue;
             }
             PTConstructorDecl pcdecl = (PTConstructorDecl) cdecl;
@@ -609,17 +599,4 @@ public class SimpleClassRew {
             }
         }
     }
-
-/*
-    public void createVirtualRenamingDeclarations( Map<BodyDecl, BodyDecl> virtualsToReals ) {
-        if( instTuples == null ) {
-            System.out.println( "[warning] null instTuples -- TODO check whether this should happens" );
-            return;
-        }
-        for( PTInstTuple tuple : instTuples ) {
-            InstTupleRew instTupleRew = new InstTupleRew( tuple );
-            instTupleRew.createVirtualRenamingDeclarations( virtualsToReals );
-        }
-    }
-*/
 }
