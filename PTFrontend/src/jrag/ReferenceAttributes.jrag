@@ -5,11 +5,10 @@ aspect ReferenceAttributes {
         PTTemplate ans = getTemplate(getID());
         if (ans != null)
             return ans;
-        System.out.println( "getting template " + getID() + " FAILED" );
+        // System.out.println( "getting template " + getID() + " FAILED" );
         error(String.format("Instantiation of non-existing template %s.",getID()));
 
-         // ugly, why?
-        throw new CriticalPTException("egl test");
+         throw new CriticalPTException("Could not fint template " + getID());
     }
     syn PTTemplate PTInstTuple.getTemplate() = getInstDecl().getTemplate();
     inh PTTemplate PTInstDecl.getTemplate(String name);
@@ -155,7 +154,7 @@ aspect ReferenceAttributes {
         for(PTDecl ptd : rv ) {
             System.out.print( ptd.getID() + " " );
         }
-        System.out.println();
+        // System.out.println();
 
         for(PTDecl ptd : rv ) {
             if( !ptd.isRewritten ) {

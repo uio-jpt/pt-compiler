@@ -2,7 +2,7 @@ aspect PTConstructorDecl {
     rewrite ConstructorDecl {
         when ( !(this instanceof PTConstructorDecl) && getParentClass( PTDecl.class ) != null )
         to PTConstructorDecl {
-            System.out.println( "rewriting constructorDecl in " + getID() );
+            // System.out.println( "rewriting constructorDecl in " + getID() );
             return new PTConstructorDecl( getModifiers().fullCopy(),
                                           getID(),
                                           getParameters().fullCopy(),

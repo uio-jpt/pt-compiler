@@ -42,13 +42,13 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         typeAccess = null;
         parTypeAccess = null;
 
-        System.out.println( "initializing from access " + acc.dumpTree() );
+        // System.out.println( "initializing from access " + acc.dumpTree() );
 
         typeParameters = new Vector<JastaddTypeDescriptor>();
 
         if( acc instanceof TypeAccess ) {
             typeAccess = (TypeAccess) acc;
-            System.out.println( "initializing okay with typeA " + typeAccess.dumpTree() );
+            // System.out.println( "initializing okay with typeA " + typeAccess.dumpTree() );
         } else if( acc instanceof ParTypeAccess ) {
             parTypeAccess = (ParTypeAccess) acc;
             final int n = parTypeAccess.getNumTypeArgument();
@@ -111,7 +111,7 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     }
 
     public TypeDecl getBaseTypeDecl() {
-        System.out.println( "getting baseTypeDecl.." );
+        // System.out.println( "getting baseTypeDecl.." );
         if( isWildcardExtending != null ) {
             return isWildcardExtending;
         }
@@ -121,8 +121,8 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         if( isParametrized() ) {
             return parTypeAccess.genericDecl();
         }
-        System.out.println( "from base access " + typeAccess.dumpTree() );
-        System.out.println( "returning " + typeAccess.decl().getID() );
+        // System.out.println( "from base access " + typeAccess.dumpTree() );
+        // System.out.println( "returning " + typeAccess.decl().getID() );
         return typeAccess.decl();
     }
 
@@ -208,7 +208,7 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
 
         boolean rv =  myDecl.subtype( theirDecl );
 
-        System.out.println( "is " + myDecl.fullName() + " a subtype of " + theirDecl.fullName() + "? " + rv );
+        // System.out.println( "is " + myDecl.fullName() + " a subtype of " + theirDecl.fullName() + "? " + rv );
         return rv;
     }
 
@@ -234,7 +234,7 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
     public TypeDescriptor mapByScheme( ConcretificationScheme scheme ) {
         Access myAccess = (Access) getAccess().fullCopy();
 
-        System.out.println( "going to map " + myAccess.dumpTree() + " by a scheme" );
+        // System.out.println( "going to map " + myAccess.dumpTree() + " by a scheme" );
 
         Map<TypeDecl, Access> dtaMap = scheme.createDeclToAccessMap();
 
@@ -247,14 +247,14 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         parent.replaceTypeAccesses( dtaMap );
         myAccess = (Access) parent.getChild(0);
 
-        System.out.println( "this access is now " + myAccess.dumpTree() );
+        // System.out.println( "this access is now " + myAccess.dumpTree() );
 
         TypeDecl myDecl = Util.declarationFromTypeAccess( myAccess );
 
         TypeDecl myDeclOther = Util.declarationFromTypeAccess( getAccess() );
 
-        System.out.println( "found declaration " + myDecl.getID() + " unknown? " + myDecl.isUnknown() );
-        System.out.println( "see also (unmapped) " + myDeclOther.getID() + " unknown? " + myDeclOther.isUnknown() );
+        // System.out.println( "found declaration " + myDecl.getID() + " unknown? " + myDecl.isUnknown() );
+        // System.out.println( "see also (unmapped) " + myDeclOther.getID() + " unknown? " + myDeclOther.isUnknown() );
 
         return new JastaddTypeDescriptor( myDecl );
     }

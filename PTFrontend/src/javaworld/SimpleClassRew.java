@@ -117,10 +117,10 @@ public class SimpleClassRew {
             }
 
             if( gcd.getTypeParameterList().getNumChild() == 0 ) {
-                System.out.println( "[debug] TODO add type parameters" );
+                // System.out.println( "[debug] TODO add type parameters" );
                 gcd.setTypeParameterList( typeParameters );
             } else {
-                System.out.println( "[debug] type parameters were already added to " + getClassDecl().getID() + ", hoping these were correct" );
+                // System.out.println( "[debug] type parameters were already added to " + getClassDecl().getID() + ", hoping these were correct" );
             }
             
         }
@@ -215,7 +215,7 @@ public class SimpleClassRew {
                 ParTypeAccess pta = (ParTypeAccess) o; // parametrized type
                 accessSet.add( new JastaddTypeDescriptor( pta ) );
             } else {
-                System.out.println( "unexpected type was: " + ((ASTNode)o).dumpTree() );
+                // System.out.println( "unexpected type was: " + ((ASTNode)o).dumpTree() );
                 decl.error( "internal compiler error: in implements-list, encountered unexpected type " + o.getClass().getName() );
             }
         }

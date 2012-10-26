@@ -6,18 +6,18 @@ aspect MergePTCompilationUnits {
         int rv = 0;
         for(int i=0;i<getNumCompilationUnit();i++) {
             if( getCompilationUnit(i) instanceof PTCompilationUnit ) {
-                System.out.println( getCompilationUnit(i).pathName() + " is a pt compilation unit" );
+                // System.out.println( getCompilationUnit(i).pathName() + " is a pt compilation unit" );
                 rv++;
             } else {
-                System.out.println( getCompilationUnit(i).pathName() + " is something else" );
+                // System.out.println( getCompilationUnit(i).pathName() + " is something else" );
             }
         }
-        System.out.println( "number of ptcompilationunits: " + rv );
+        // System.out.println( "number of ptcompilationunits: " + rv );
         return rv;
     }
 
     public void Program.mergePtCompilationUnits() {
-            System.out.println( "PERFORMING MERGE OF COMPILATION UNITS" );
+            // System.out.println( "PERFORMING MERGE OF COMPILATION UNITS" );
 
             String name = "$mergedPTCU$";
             List<ImportDecl> p1 = new List<ImportDecl>();
@@ -48,7 +48,7 @@ aspect MergePTCompilationUnits {
 
             flushCaches();
 
-            System.out.println( "PERFORMED MERGE OF COMPILATION UNITS" );
+            // System.out.println( "PERFORMED MERGE OF COMPILATION UNITS" );
     }
 
 }

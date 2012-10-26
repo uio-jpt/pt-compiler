@@ -54,42 +54,42 @@ aspect RequiredTypes {
   public TypeConstraint RequiredType.getTypeConstraint( ConcretificationScheme scheme ) {
       TypeConstraint rv = new TypeConstraint();
 
-      System.out.println( "making required type constraint -- origin of asymmetry?" );
+      // System.out.println( "making required type constraint -- origin of asymmetry?" );
 
       if( this instanceof RequiredClass ) {
-          System.out.println( "requiring class" );
+          // System.out.println( "requiring class" );
           rv.requireClass();
       }
       if( this instanceof RequiredInterface ) {
-          System.out.println( "requiring interface" );
+          // System.out.println( "requiring interface" );
           rv.requireInterface();
       }
 
       if( hasSuperTypeAccess() ) {
-          System.out.println( "adding STA" );
+          // System.out.println( "adding STA" );
           rv.addSuperType( new JastaddTypeDescriptor( getSuperTypeAccess() ) );
       }
 
       for( Access a : getImplementsList() ) {
           TypeAccess ta = (TypeAccess) a;
           TypeDecl td = ta.decl();
-          System.out.println( "adding implements :: " + td.getID() );
+          // System.out.println( "adding implements :: " + td.getID() );
 
           rv.addImplementedType( new JastaddTypeDescriptor( td ) );
       }
 
         for( TypeVariable a : getTypeParameterList() ) {
-            System.out.println( "adding TV :: " + a.dumpTree() );
+            // System.out.println( "adding TV :: " + a.dumpTree() );
             rv.addTypeParameter( new JastaddTypeParameterDescriptor( a ) );
         }
 
 
       for( BodyDecl bd : getBodyDecls() ) {
-          System.out.println( "adding from bodyDecl :: " + bd.dumpTree() );
+          // System.out.println( "adding from bodyDecl :: " + bd.dumpTree() );
           JastaddTypeConstraints.fromRequiredTypeBodyDeclInto( bd, rv, scheme );
       }
 
-      System.out.println( "constructed " + rv );
+      // System.out.println( "constructed " + rv );
 
       return rv;
   }
@@ -301,7 +301,7 @@ aspect RequiredTypes {
                 if( !isObject ) {
                     error( "required type (non-class) " + getID() + " cannot extend class " + superType.getID() );
                 } else {
-                    System.out.println( "required type (non-class) " + getID() + " should not explicitly extend Object" );
+                    System.out.println( "[warning] required type (non-class) " + getID() + " should not explicitly extend Object" );
                 }
             }
         }
@@ -507,7 +507,7 @@ aspect RequiredTypes {
    }
 
    eq RequiredType.supertypeInterfaceDecl(InterfaceDecl type) {
-        System.out.println ( "@@@ RED FLAG , not fixed" );
+        // System.out.println ( "@@@ RED FLAG , not fixed" );
         for( Access a : getImplementsList() ) {
             TypeDecl td = Util.declarationFromTypeAccess( a );
             if( td.instanceOf( type ) ) {

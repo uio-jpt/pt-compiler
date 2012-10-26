@@ -19,8 +19,8 @@ public class JastaddTypeParameterDescriptor implements TypeParameterDescriptor {
         if( !(that instanceof JastaddTypeParameterDescriptor) ) {
             return false;
         }
-        System.out.println( "checking equality between " + parameter + " and " + ((JastaddTypeParameterDescriptor)that).parameter );
-        System.out.println( "checking subtypes: " + subtypeOf( that ) + " " + that.subtypeOf( this ) );
+        // System.out.println( "checking equality between " + parameter + " and " + ((JastaddTypeParameterDescriptor)that).parameter );
+        // System.out.println( "checking subtypes: " + subtypeOf( that ) + " " + that.subtypeOf( this ) );
 
         return subtypeOf( that ) && that.subtypeOf( this );
     }

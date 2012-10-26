@@ -50,7 +50,7 @@ aspect JastAddAspectRefinements {
             if(getBodyDecl(i) instanceof MethodDecl) {
                 MethodDecl decl = (MethodDecl)getBodyDecl(i);
                 if( false && decl.isTabstract() ) {
-                    System.out.println( "excluded because tabstract (is this really wise?)" );
+                    // System.out.println( "excluded because tabstract (is this really wise?)" );
                 } else {
                     map.put(decl.signature(), decl);
                 }

@@ -137,7 +137,7 @@ aspect ErrorCheck {
                 java.util.Map<String, PTTemplate> templatesMap = parentPt.getInstantiatedTemplatesMap();
                 java.util.Map<PTInstDecl,ASTNode> uncalled = new java.util.LinkedHashMap<PTInstDecl,ASTNode>();
 
-                System.out.println( "rewriting PTConstructorDecl in " + getID() );
+                // System.out.println( "rewriting PTConstructorDecl in " + getID() );
 
                 boolean requiredTypesAsTParents = false;
 
@@ -172,28 +172,28 @@ aspect ErrorCheck {
 
 
                 for( PTInstDecl ptid : uncalled.keySet() ) {
-                    System.out.println( "SHOULD NOW BE ADDING STUFF " );
+                    // System.out.println( "SHOULD NOW BE ADDING STUFF " );
 
                     ASTNode node = uncalled.get( ptid );
                     ClassDecl cd = (ClassDecl) node;
                     PTTemplate template = (PTTemplate) node.getParentClass( PTTemplate.class );
 
-                    System.out.println( "uncalled class is " + node.dumpTree() );
+                    // System.out.println( "uncalled class is " + node.dumpTree() );
 
                     boolean hasZeroArityConstructor = false;
                     for( ConstructorDecl consd : cd.getConstructorDeclList() ) {
-                        System.out.println( "constructor with arity " + consd.arity() );
+                        // System.out.println( "constructor with arity " + consd.arity() );
                         if( consd.arity() > 0 ) continue;
                         hasZeroArityConstructor = true;
                     }
-                    System.out.println( "end enumeration of constructors" );
+                    // System.out.println( "end enumeration of constructors" );
 
                     if( hasZeroArityConstructor ) {
                         TemplateClassIdentifier tci = TemplateClassIdentifier.extractFrom( ptid, cd.getID() );
                         // new TemplateClassIdentifier( "", template.getID(), cd.getID(), "" );
                         PTTSuperConstructorCall myCall = new PTTSuperConstructorCall( tci , new AST.List() );
 
-                        System.out.println( "adding one call: " + myCall.dumpTree() );
+                        // System.out.println( "adding one call: " + myCall.dumpTree() );
 
                         // added in arbitrary order!
                         addTSuperConstructorInvocation( myCall );
@@ -423,7 +423,7 @@ aspect ErrorCheck {
         }
         
         if( !duplicates.isEmpty() ) {
-            System.out.println( "warning: duplicate destination IDs in merge (merging classes from same package is deprecated): " + Joiner.on( ", " ).join( duplicates ) );
+            System.out.println( "[warning]: duplicate destination IDs in merge (merging classes from same package is deprecated): " + Joiner.on( ", " ).join( duplicates ) );
         }
     }
 }

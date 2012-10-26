@@ -29,7 +29,6 @@ public class InstantiationRewriter {
     }
 
 	public void run(PTDecl decl) { 
-        System.out.println( "beginning InstantiationRewriter: " + decl.getID() );
 
         dumpTree( decl );
 		
@@ -39,9 +38,9 @@ public class InstantiationRewriter {
 			c.findVirtualMethods();
 		}
 
-        for(PTInstDecl ptid : decl.getPTInstDecls()) {
-            System.out.println( "instantiation " + ptid.dumpTree() + " is adopting or has adopted internal name: " + ptid.getInternalName() );
-        }
+        // for(PTInstDecl ptid : decl.getPTInstDecls()) {
+        //     System.out.println( "instantiation " + ptid.dumpTree() + " is adopting or has adopted internal name: " + ptid.getInternalName() );
+        // }
 
         // could we use clone and then _mutate_ the objects we're
         // _copying_ from, to subject them to extensive treatment, e.g.
@@ -115,6 +114,6 @@ public class InstantiationRewriter {
 
         dumpTree( decl );
 
-        System.out.println( "finishing InstantiationRewriter: " + decl.getID() );
+        // System.out.println( "finishing InstantiationRewriter: " + decl.getID() );
 	}
 }

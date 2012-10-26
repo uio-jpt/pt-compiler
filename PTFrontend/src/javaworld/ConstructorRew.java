@@ -52,15 +52,12 @@ class ConstructorRew {
 
                 PTInstDecl superInstantiation = superInstantiations.iterator().next();
 
-                System.out.println( "will convert tsuper-constructor-call " + scc.dumpTree() + " to a method call" );
-                
                 if( decls.size() == 1 ) {
                     TypeDecl decl = (TypeDecl) decls.iterator().next();
                     String tsuperClassID = decl.getID();
                     PTTemplate template = (PTTemplate) decl.getParentClass( PTTemplate.class );
                     if( template != null ) {
                         String superTemplateID = template.getID();
-                        System.out.println( "the super-template-id is " + superTemplateID );
 
                         String methodName = Util.toUniqueMinitName( superInstantiation, tsuperClassID );
                         AST.List<Expr> args = scc.getArgs().fullCopy();

@@ -21,8 +21,8 @@ class CompilePackageJavaParser implements JavaParser {
     public CompilationUnit parse(InputStream is, String fileName)
         throws IOException, beaver.Parser.Exception {
         CompilationUnit cu = new parser.JavaParser().parse(is, fileName);
-        System.out.println(cu.dumpTreeNoRewrite());
-        System.out.println(cu.toString());
+        // System.out.println(cu.dumpTreeNoRewrite());
+        // System.out.println(cu.toString());
         return cu;
     }
 }

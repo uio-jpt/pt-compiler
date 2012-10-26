@@ -51,7 +51,7 @@ aspect TemplateClassIdentifier {
             }
         }
         
-        System.out.println( "iname ok" );
+        // System.out.println( "iname ok" );
 
         if( hasTemplateName() ) {
             if( !ptid.getID().equals( getTemplateName() ) ) {
@@ -59,7 +59,7 @@ aspect TemplateClassIdentifier {
             }
         }
 
-        System.out.println( "tname ok" );
+        // System.out.println( "tname ok" );
 
         if( hasInternalName() ) {
             if( !ptid.getInternalName().equals( getInternalName() ) ) {
@@ -67,7 +67,7 @@ aspect TemplateClassIdentifier {
             }
         }
 
-        System.out.println( "internalname ok" );
+        // System.out.println( "internalname ok" );
 
         // the type-name thing should be phased out entirely
 
@@ -77,7 +77,7 @@ aspect TemplateClassIdentifier {
 public Set<PTInstDecl> TemplateClassIdentifier.locateInstantiation( PTDecl root ) {
     Set<PTInstDecl> rv = new LinkedHashSet<PTInstDecl>();
 
-        System.out.println( "looking for instantiation " + toString() );
+        // System.out.println( "looking for instantiation " + toString() );
 
         for( PTInstDecl ptid : root.getPTInstDecls() ) {
             if( instantiationMatches( ptid ) ) {

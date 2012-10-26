@@ -95,20 +95,20 @@ public class JastaddTypeConstraints {
 
     static MethodDescriptor describeMethodDecl( MethodDecl mdecl, ConcretificationScheme scheme ) {
         String name = mdecl.getID();
-        System.out.println( "handling return type" );
+        // System.out.println( "handling return type" );
         JastaddTypeDescriptor ret = new JastaddTypeDescriptor( mdecl.getTypeAccess() );
-        System.out.println( "done handling return type" );
+        // System.out.println( "done handling return type" );
         TypeDescriptor mappedReturnType = ret.mapByScheme( scheme );
-        System.out.println( "really done handling return type" );
+        // System.out.println( "really done handling return type" );
 
-        System.out.println( "handling parameters" );
+        // System.out.println( "handling parameters" );
         List<TypeDescriptor> params = new Vector<TypeDescriptor>();
         for( ParameterDeclaration pd : mdecl.getParameters() ) {
             JastaddTypeDescriptor pt = new JastaddTypeDescriptor( pd.getTypeAccess() );
 
             params.add( pt.mapByScheme( scheme ) );
         }
-        System.out.println( "done handling parameters" );
+        // System.out.println( "done handling parameters" );
 
         return new MethodDescriptor( name, mappedReturnType, params );
 
@@ -140,13 +140,13 @@ public class JastaddTypeConstraints {
         // be aware: PTAbstractConstructor convenience-inherits from MethodDecl, so order here is important
         if( bd instanceof PTAbstractConstructor ) {
             ConstructorDescriptor cdesc = describeMethodDecl( (MethodDecl) bd, scheme ).toConstructorDescriptor();
-            System.out.println( "from bd " + bd.dumpTree() );
-            System.out.println( "adding cd " + cdesc );
+            // System.out.println( "from bd " + bd.dumpTree() );
+            // System.out.println( "adding cd " + cdesc );
             tc.addConstructor( cdesc );
         } else if( bd instanceof MethodDecl ) {
             MethodDescriptor mdesc = describeMethodDecl( (MethodDecl) bd, scheme );
-            System.out.println( "from bd " + bd.dumpTree() );
-            System.out.println( "adding md " + mdesc );
+            // System.out.println( "from bd " + bd.dumpTree() );
+            // System.out.println( "adding md " + mdesc );
             tc.addMethod( mdesc );
         } else {
               // oops
@@ -195,7 +195,7 @@ public class JastaddTypeConstraints {
             tc.addImplementedType( new JastaddTypeDescriptor( myAc ) );
         }
 
-        System.out.println( "result was " + tc );
+        // System.out.println( "result was " + tc );
     }
 
     static TypeConstraint fromInterfaceDecl( InterfaceDecl idecl, ConcretificationScheme scheme ) {
@@ -329,7 +329,7 @@ public class JastaddTypeConstraints {
         }
 */
 
-        System.out.println ( "creating from " + cdecl.getID() );
+        // System.out.println ( "creating from " + cdecl.getID() );
 
     }
 
@@ -571,11 +571,11 @@ public class JastaddTypeConstraints {
             String signature = ((MethodDecl)bodyDecl).signature() + "::Method";
 
             if( !addedSignatures.contains( signature ) ) {
-                System.out.println( "did add " + signature + " " + bodyDecl);
+                // System.out.println( "did add " + signature + " " + bodyDecl);
                 addedSignatures.add( signature );
                 rv.addBodyDecl( bodyDecl );
             } else {
-                System.out.println( "ignored " + signature );
+                // System.out.println( "ignored " + signature );
             }
         }
 
@@ -588,15 +588,15 @@ public class JastaddTypeConstraints {
             String signature = ((PTAbstractConstructor)bodyDecl).signature() + "::Constructor";
             if( !addedSignatures.contains( signature ) ) {
                 addedSignatures.add( signature );
-                System.out.println( "did add " + signature + " " + bodyDecl);
+                // System.out.println( "did add " + signature + " " + bodyDecl);
                 rv.addBodyDecl( bodyDecl );
             } else {
-                System.out.println( "ignored " + signature );
+                // System.out.println( "ignored " + signature );
             }
         }
 
 
-        System.out.println( "made this required type:" + rv.dumpTree() );
+        // System.out.println( "made this required type:" + rv.dumpTree() );
 
         return rv;
     }

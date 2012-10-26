@@ -27,13 +27,13 @@ aspect IntroduceExplicitCasts {
             List<Access> typeArgs = new List<Access>();
             for( Access a : pmdecl.getTypeArgumentList() ) {
                 TypeDecl erasedType = a.type().erasure();
-                System.out.println( "ERASED TYPE ARG " + erasedType.createQualifiedAccess().dumpTree() );
+                // System.out.println( "ERASED TYPE ARG " + erasedType.createQualifiedAccess().dumpTree() );
                 typeArgs = typeArgs.add( erasedType.createQualifiedAccess() );
             }
 
             ParMethodAccess pma = new ParMethodAccess( getID(), getArgList().fullCopy(), typeArgs );
 
-            System.out.println( "PROPOSING TO REPLACE " + dumpTree() + " WITH " + pma.dumpTree() );
+            // System.out.println( "PROPOSING TO REPLACE " + dumpTree() + " WITH " + pma.dumpTree() );
 
             replaceSelfWith( pma );
             baseAccess = pma;
@@ -49,25 +49,25 @@ aspect IntroduceExplicitCasts {
             TypeDecl ta = a.type();
             Expr parenthesizedA = new ParExpr( (Expr) a.fullCopy() );
             if( tpd instanceof ArrayDecl ) {
-                System.out.println( "for method " + mdecl.name() + " introducing explicit cast to array" );
+                // System.out.println( "for method " + mdecl.name() + " introducing explicit cast to array" );
                 Expr ra = new CastExpr( (TypeAccess) tacc.fullCopy(), parenthesizedA );
                 a.replaceSelfWith( ra );
             } else if( tpd instanceof RequiredType ) {
                 // ignore required type
-                System.out.println( "ignoring RT " + tpd.dumpTree() );
+                // System.out.println( "ignoring RT " + tpd.dumpTree() );
             } else if( tpd instanceof TypeVariable ) {
                 // ignore type variables for now
-                System.out.println( "ignoring TV " + tpd.dumpTree() );
+                // System.out.println( "ignoring TV " + tpd.dumpTree() );
             } else {
-                System.out.println( "for method " + mdecl.name() + " introducing explicit cast to " + tpd.name() + " of type " + tpd.getClass().getName() + ", access type " + tacc.getClass().getName());
+                // System.out.println( "for method " + mdecl.name() + " introducing explicit cast to " + tpd.name() + " of type " + tpd.getClass().getName() + ", access type " + tacc.getClass().getName());
                 Expr ra = new CastExpr( new TypeAccess( tpd.packageName(), tpd.name() ), parenthesizedA );
                 a.replaceSelfWith( ra );
             }
         }
 
-        if( getID().equals( "graph_search" ) ) {
-            System.out.println( "dumping result of graph_search: " + baseAccess.dumpTree() );
-        }
+        // if( getID().equals( "graph_search" ) ) {
+        //     // System.out.println( "dumping result of graph_search: " + baseAccess.dumpTree() );
+        // }
 
         if( baseAccess != this ) {
             return baseAccess;

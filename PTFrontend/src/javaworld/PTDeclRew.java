@@ -157,7 +157,7 @@ public class PTDeclRew {
 
 		for (PTInstDecl instDecl : ptDeclToBeRewritten.getPTInstDecls()) {
             for( RequiredTypeInstantiation rti : instDecl.getRequiredTypeInstantiationList() ) {
-                System.out.println( "detected concretification " + rti.getRequiredTypeName() );
+                // System.out.println( "detected concretification " + rti.getRequiredTypeName() );
                 concretifications.put( rti.getRequiredTypeName(), (Access) rti.getConcreteTypeAccess() );
             }
         }
@@ -218,7 +218,7 @@ public class PTDeclRew {
         // we can't toposort by access as this can be circular, so we can exclude that as a solution
         for( RequiredType rt : lacksExplicitConcretification ) {
             TypeConstraint tc = rt.getTypeConstraint( scheme );
-            System.out.println( "should auto-concretify " + rt.getID() + " to constraints " + tc );
+            // System.out.println( "should auto-concretify " + rt.getID() + " to constraints " + tc );
 
             java.util.List<TypeDecl> supertypes = new java.util.ArrayList<TypeDecl> ();
 
@@ -241,35 +241,35 @@ public class PTDeclRew {
             }
 
             for( TypeDecl tdecl : supertypes ) {
-                System.out.println( "is " + dominatingSupertype.fullName() + " a dominating supertype? then " + tdecl.fullName() + " must be a subtype.." );
+                // System.out.println( "is " + dominatingSupertype.fullName() + " a dominating supertype? then " + tdecl.fullName() + " must be a subtype.." );
                 if( !dominatingSupertype.subtype( tdecl ) ) {
-                    System.out.println( "but it is not. how about the other way around?" );
+                    // System.out.println( "but it is not. how about the other way around?" );
                     if( tdecl.subtype( dominatingSupertype ) ) {
-                        System.out.println( "good!" );
+                        // System.out.println( "good!" );
                         dominatingSupertype = tdecl;
                     } else {
-                        System.out.println( "failed" );
+                        // System.out.println( "failed" );
                         dominatingSupertype = null;
                         break;
                     }
                 }
             }
 
-            System.out.println( "has contents? " + hasContents );
-            System.out.println( "has domSuper? " + (dominatingSupertype != null) );
-            System.out.println( "must be interface? " + tc.mustBeInterface() );
+            // System.out.println( "has contents? " + hasContents );
+            // System.out.println( "has domSuper? " + (dominatingSupertype != null) );
+            // System.out.println( "must be interface? " + tc.mustBeInterface() );
 
             if( !hasContents
                 && dominatingSupertype != null
                 && !( ( dominatingSupertype.isClassDecl() && tc.mustBeInterface() )
                       || ( dominatingSupertype.isInterfaceDecl() && tc.mustBeClass() ) )
               ) {
-                System.out.println( "auto-concretify " + rt.getID() + " by replacing with dominating explicit supertype " + dominatingSupertype.fullName() );
+                // System.out.println( "auto-concretify " + rt.getID() + " by replacing with dominating explicit supertype " + dominatingSupertype.fullName() );
 
                 concretificationPlan.put( rt, dominatingSupertype );
                 
             } else {
-                System.out.println( "cannot auto-concretify " + rt.getID() + " by replacement with existing type" );
+                // System.out.println( "cannot auto-concretify " + rt.getID() + " by replacement with existing type" );
                 try {
                     TypeDecl td = JastaddTypeConstraints.convertToTypeDecl( rt.getID(), tc, ptDeclToBeRewritten );
 
@@ -286,7 +286,7 @@ public class PTDeclRew {
                     }
                 }
                 catch( OperationImpossible e ) {
-                    System.out.println( "failed to auto-concretify " + rt.getID() );
+                    // System.out.println( "failed to auto-concretify " + rt.getID() );
                 }
             }
         }
@@ -302,7 +302,7 @@ public class PTDeclRew {
                     TypeDecl tdval = concretificationPlan.get( tdecl );
                     if( tdval instanceof RequiredType ) {
                         TypeDecl tdvalval = concretificationPlan.get( tdval );
-                        System.out.println( "performing redirect: "  + tdecl.getID() + " --> " + tdval.getID() + " --> " + tdvalval.getID() );
+                        // System.out.println( "performing redirect: "  + tdecl.getID() + " --> " + tdval.getID() + " --> " + tdvalval.getID() );
                         concretificationPlan.put( tdecl, tdvalval );
                         didChange = true;
                     }
@@ -355,7 +355,7 @@ public class PTDeclRew {
                     if( originalAccesses.iterator().hasNext() ) {
                         originalAccess = originalAccesses.iterator().next();
                     } else {
-                        System.out.println( "adding rewrite from required type " + reqType.getID() + " --> " + replacementType.getID() );
+                        // System.out.println( "adding rewrite from required type " + reqType.getID() + " --> " + replacementType.getID() );
                         originalAccess = replacementType.createQualifiedAccess();
                     }
 
@@ -365,7 +365,7 @@ public class PTDeclRew {
             }
         }
 
-        System.out.println( "performing all rewrites" );
+        // System.out.println( "performing all rewrites" );
         rewriter.mutate( ptDeclToBeRewritten );
 
         {
@@ -524,7 +524,7 @@ public class PTDeclRew {
             }
             localRtAdds.removeAll( key );
 
-            System.out.println( "creating new required type in: " + ptDeclToBeRewritten.dumpTree() );
+            // System.out.println( "creating new required type in: " + ptDeclToBeRewritten.dumpTree() );
 
             SimpleSet temporaryReqTypes = ptDeclToBeRewritten.lookupTypeInPTDecl( key );
             if( temporaryReqTypes.size() != 1 ) {
@@ -536,7 +536,7 @@ public class PTDeclRew {
                 temporaryReqType.error( "[implementation restriction, issue 7] [TODO] classes cannot currently share names with incoming required types -- give the class another name" );
                 continue;
             }
-            System.out.println( "replacing temporary reqtype of class " + temporaryReqType.getClass().getName() );
+            // System.out.println( "replacing temporary reqtype of class " + temporaryReqType.getClass().getName() );
 
             RequiredType myRequiredType = JastaddTypeConstraints.convertToRequiredType( key, tc, ptDeclToBeRewritten.getPTDeclContext() );
 
@@ -650,7 +650,7 @@ public class PTDeclRew {
             }
             */
 
-            System.out.println( tc );
+            // System.out.println( tc );
 
             target.setSuperInterfaceIdList( new AST.List() );
 
@@ -687,7 +687,7 @@ public class PTDeclRew {
                 if( hadAddsInterface ) {
                     System.out.print( "plus adds class " );
                 }
-                System.out.println( "created interface " + name + ": " + target );
+                // System.out.println( "created interface " + name + ": " + target );
             }
         }
 
@@ -747,8 +747,8 @@ public class PTDeclRew {
                             visited.add(decl.getName());
                             didMakeProgress = true;
 
-                            System.out.println( "about to extendClass " + decl.getClassDecl().getID() );
-                            System.out.println( "name has generic origins? " + (null != nameHasGenericOrigin( decl.getClassDecl().getID() ) ) );
+                            // System.out.println( "about to extendClass " + decl.getClassDecl().getID() );
+                            // System.out.println( "name has generic origins? " + (null != nameHasGenericOrigin( decl.getClassDecl().getID() ) ) );
 
                             decl.extendClass(getDestinationClassIDsWithInstTuples(),
                                              getParameterRewriter(),
@@ -924,7 +924,7 @@ public class PTDeclRew {
             if( gtype instanceof GenericInterfaceDecl ) {
                 referenceTypePars = ((GenericInterfaceDecl)gtype).getTypeParameterList().fullCopy();
             }
-            System.out.println( "checking " + referenceTypePars.dumpTree() );
+            // System.out.println( "checking " + referenceTypePars.dumpTree() );
 
             for( PTInstTuple instTuple : instTuples ) {
                 TypeDecl otherGType = instTuple.getOriginator();
@@ -936,7 +936,7 @@ public class PTDeclRew {
                     candidateTypePars = ((GenericInterfaceDecl)otherGType).getTypeParameterList().fullCopy();
                 }
 
-                System.out.println( "against " + candidateTypePars.dumpTree() );
+                // System.out.println( "against " + candidateTypePars.dumpTree() );
 
                 boolean listsEqual = false;
                 if( referenceTypePars.getNumChild() == candidateTypePars.getNumChild() ) {
@@ -945,7 +945,7 @@ public class PTDeclRew {
                         TypeVariable x = (TypeVariable) referenceTypePars.getChild(i);
                         TypeVariable y = (TypeVariable) candidateTypePars.getChild(i);
                         if( !( x.instanceOf( y ) && y.instanceOf( x ) ) ) {
-                            System.out.println( "mismatch on parameter " + i + ": " + x.dumpTree() + " versus " + y.dumpTree() );
+                            // System.out.println( "mismatch on parameter " + i + ": " + x.dumpTree() + " versus " + y.dumpTree() );
                             break;
                         }
                     }
@@ -1097,7 +1097,7 @@ public class PTDeclRew {
                     List<PTTSuperConstructorCall> explicitInvocations = new AST.List<PTTSuperConstructorCall>();
                     explicitInvocations.add( explicitInvocation );
 
-                    System.out.println( "creating PTConstructorDecl named " + constructorName );
+                    // System.out.println( "creating PTConstructorDecl named " + constructorName );
                     PTConstructorDecl myConstructor = new PTConstructorDecl( newMods,
                                                                              constructorName,
                                                                              constructorParameters,
@@ -1648,7 +1648,7 @@ public class PTDeclRew {
                                 continue;
                             }
 
-                            System.out.println( "NOTING ERROR" );
+                            // System.out.println( "NOTING ERROR" );
                             ptdrExisting.error( "" + ptdrExisting + " conflicts with implied rename from root " + rootID + ": " + ptdr );
                         }
 
@@ -1656,7 +1656,7 @@ public class PTDeclRew {
 
                         PTDummyRename newRename = (PTDummyRename) ptdr.fullCopy();
 
-                        System.out.println( "adding implied rename " + newRename + " to baseid " + baseID );
+                        // System.out.println( "adding implied rename " + newRename + " to baseid " + baseID );
 
                         ptit.addPTDummyRename( newRename );
                     }

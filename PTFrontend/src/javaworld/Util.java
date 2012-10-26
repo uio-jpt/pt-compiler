@@ -68,7 +68,7 @@ public class Util {
 	}
 
     public static String toUniqueMinitName( PTInstDecl instantiation, String oldName ) {
-        System.out.println( "new minit is producing " + instantiation.getInternalName() + oldName );
+        // System.out.println( "new minit is producing " + instantiation.getInternalName() + oldName );
 
         return instantiation.getInternalName() + oldName;
     }
@@ -77,7 +77,7 @@ public class Util {
 	public static String toMinitName(String templateID, String tclassID) {
 		String rv = String.format("minit$%s$%s", templateID, tclassID);
 
-        System.out.println( "WARNING old minit produced " + rv );
+        // System.out.println( "WARNING old minit produced " + rv );
         new Exception().printStackTrace();
 
         return rv;
@@ -86,7 +86,7 @@ public class Util {
 	public static String toMinitName(String tclassID) {
         String rv = String.format("minit$%s", tclassID);
 
-        System.out.println( "WARNING old minit produced " + rv );
+        // System.out.println( "WARNING old minit produced " + rv );
         new Exception().printStackTrace();
 
 		return rv;
@@ -160,7 +160,7 @@ public class Util {
             AST.List<AST.CompilationUnit> rv = new AST.List<AST.CompilationUnit>();
             
             for(int i=0;i<cul.getNumChildNoTransform();) {
-                System.out.println( "child " + i + " is " + cul.getChildNoTransform(i).dumpString() );
+                // System.out.println( "child " + i + " is " + cul.getChildNoTransform(i).dumpString() );
                 if( cul.getChildNoTransform(i) instanceof AST.PTCompilationUnit ) {
                     AST.PTCompilationUnit ptcu = (AST.PTCompilationUnit) cul.getChildNoTransform(i);
 

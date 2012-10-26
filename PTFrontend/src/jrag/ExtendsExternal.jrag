@@ -22,7 +22,7 @@ aspect ExtendsExternal {
         return getParentClass( PTDecl.class ) != null;
     }
     public boolean ClassDecl.isPtInternalClassTo(PTDecl x) {
-        System.out.println( "checking for ict " + getID() );
+        // System.out.println( "checking for ict " + getID() );
         return getParentClass( PTDecl.class ) == x;
     }
 
