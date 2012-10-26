@@ -1,10 +1,8 @@
-template T {
-	class W extends Exception {  // should fail - must use extends external
-	}
-}
+
+
 
 package P {
-	inst T;
+	class W extends Exception {  /* okay to extend external here; we are in a package */ }
 	
     class X {
         public static void main(String args[]) {

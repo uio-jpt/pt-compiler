@@ -79,6 +79,12 @@ aspect ExtendsExternal {
             return; // can't break the rules if you don't have a superclass
         }
 
+		if(getParentClass( PTPackage.class ) != null) {
+			// we are in a package, do not check for this stuff
+			return;
+		}
+		
+
         ClassDecl directSuper = superclass(); 
         if( !directSuper.hasSuperclass() ) {
             return; // the only class that doesn't have a superclass is Object, which we're not counting (otherwise every class would have to be extends external Object)
