@@ -91,7 +91,7 @@ aspect ExtendsExternal {
         }
 
         if( !directSuper.isPtInternalClass() && !getModifiers().isExtendsExternal() ) {
-            error( "PT-internal class " + getID() + " cannot extend from external class " + directSuper.getID() + ", use \"extend external\"" );
+            error( "PT-internal class " + getID() + " cannot extend from external class " + directSuper.getID() + ", use \"extends external\"" );
         }
 
         if( directSuper.isPtInternalClass() && getModifiers().isExtendsExternal() ) {
