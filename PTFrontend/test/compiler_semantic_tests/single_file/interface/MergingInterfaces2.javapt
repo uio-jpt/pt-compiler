@@ -1,0 +1,31 @@
+template T {
+    interface FooRunnable {
+        void fooRun();
+    }
+
+    class A implements FooRunnable {
+	public void fooRun() { }
+    }
+}
+
+template U {
+    interface BarRunnable {
+        void barRun();
+    }
+
+    class B implements BarRunnable {
+	public void barRun() { }
+    }
+}
+
+package P {
+    inst T with FooRunnable => MyRunnable, A => AB;
+    inst U with BarRunnable => MyRunnable, B => AB;
+
+    class Main {
+        public static void main(String args[]) {
+	    new AB().fooRun();
+	    new AB().barRun();
+        }
+    }
+}
