@@ -1,0 +1,26 @@
+template T {
+    class A {
+        A() { System.out.println("T.A()"); } // konstruktør
+        void m() { System.out.println("T.A.m()"); } // vanlig metode
+    }
+
+    class B {
+        B() { System.out.println("T.B()"); }
+    }
+}
+
+template U {
+    class A {
+        A() { System.out.println("U.A()"); }
+        void m() { System.out.println("U.A.m()"); }
+    }
+}
+
+package P {
+    inst T;
+    class A adds {
+        void m() {
+            tsuper.m();
+	}
+    }
+}

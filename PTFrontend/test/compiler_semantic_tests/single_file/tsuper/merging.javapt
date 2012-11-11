@@ -1,0 +1,38 @@
+template T {
+    class A {
+        A() { System.out.println("T.A()"); } // konstruktør
+        void m() { System.out.println("T.A.m()"); } // vanlig metode
+    }
+
+    class B {
+        B() { System.out.println("T.B()"); }
+    }
+}
+
+template U {
+    class A {
+        A() { System.out.println("U.A()"); }
+        void m() { System.out.println("U.A.m()"); }
+    }
+}
+
+package P {
+    inst T with A => X (m() -> n); // her MÅ vi døpe om minst den ene deklarasjonen av m
+    inst U with A => X;
+
+    class X adds {
+       X() {
+          // her må vi kalle på konstruktører i template-klassene
+          tsuper[T.A]();
+          tsuper[U.A]();
+          // template-navnet er unikt i seg selv, så kallene over
+          // betyr det samme som den forenklede formen under:
+          //tsuper[T.]();
+          //tsuper[U.]();
+       }
+
+        // void m() {
+        //     tsuper.m(); // går til U.A.m()
+        // }
+    }
+}

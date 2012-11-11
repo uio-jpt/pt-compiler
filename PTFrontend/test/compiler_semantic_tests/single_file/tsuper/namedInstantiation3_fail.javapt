@@ -1,0 +1,32 @@
+template T {
+    class A {
+        A() { System.out.println("T.A()"); } // konstruktør
+        void m() { System.out.println("T.A.m()"); } // vanlig metode
+    }
+
+    class B {
+        B() { System.out.println("T.B()"); }
+    }
+}
+
+template U {
+    class A {
+        A() { System.out.println("U.A()"); }
+        void m() { System.out.println("U.A.m()"); }
+    }
+}
+
+package P {
+    Z1: inst T with A => X;
+    Z2: inst T with A => X (m() -> n);
+    class X adds {
+       X() {
+          // her må vi bruke instansnavnet for å skille de to tsuper-konstruktørene:
+          tsuper[T.A]();
+          tsuper[Z2:A]();
+          // som over så er instansnavnet i seg selv unikt her, så vi kan egentlig droppe klassenavnet:
+          // tsuper[Z1:]();
+          // tsuper[Z2:]();
+       }
+    }
+}

@@ -1,0 +1,31 @@
+template T {
+    class A {
+        A() { System.out.println("T.A()"); } // konstruktør
+        void m() { System.out.println("T.A.m()"); } // vanlig metode
+    }
+
+    class B {
+        B() { System.out.println("T.B()"); }
+    }
+}
+
+template U {
+    class A {
+        A() { System.out.println("U.A()"); }
+        void m() { System.out.println("U.A.m()"); }
+    }
+}
+
+package P {
+    inst T with B => X;
+    inst U with A => X;
+
+    class X adds {
+       X() {
+          // her må vi kalle på konstruktører i template-klassene
+          // klassenavnet er unikt i seg selv
+          tsuper[A]();
+          tsuper[B]();
+       }
+    }
+}

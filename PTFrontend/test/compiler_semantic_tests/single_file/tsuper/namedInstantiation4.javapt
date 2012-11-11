@@ -1,0 +1,34 @@
+template T {
+    class A {
+        A() { System.out.println("T.A()"); } // konstruktør
+        void m() { System.out.println("T.A.m()"); } // vanlig metode
+    }
+
+    class B {
+        B() { System.out.println("T.B()"); }
+    }
+}
+
+template U {
+    class A {
+        A() { System.out.println("U.A()"); }
+        void m() { System.out.println("U.A.m()"); }
+    }
+}
+
+package P {
+    // her merger vi altså klassene T.A, T.B og U.A sammen:
+    Z1: inst T with A => X, B => X;
+    Z2: inst T with A => X (m() -> n1);
+    Z3: inst U with A => X (m() -> n2);
+
+    class X adds {
+	X() {
+	    // her MÅ vi bruke full kvalifisering for å skille konstruktørene fra hverandre:
+	    tsuper[Z1:A]();
+	    tsuper[Z1:B]();
+	    tsuper[Z2:A]();
+	    tsuper[Z3:A]();
+	}
+    }
+}
