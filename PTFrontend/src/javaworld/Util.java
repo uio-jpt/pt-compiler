@@ -52,6 +52,8 @@ public class Util {
 		String methodName = from.getID();
 		List<Expr> argList = from.getArgList(); // getArgListNoTransform??
 		String tclassID = from.getTClassID();
+		if (tclassID.equals(""))
+		    tclassID = host.getID();
 		try {
 			templateID = host.getClassDecl().lookupTemplateForTClass(tclassID);
 		} catch (NoSuchElementException e) {

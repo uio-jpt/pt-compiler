@@ -273,6 +273,13 @@ Access explicit_merged_method_invocation =
             return m;
         }
     :}
+    | TSUPER merged_method_name.methodName LPAREN argument_list.args? RPAREN
+    {:
+	TemplateMethodAccessShort m = new TemplateMethodAccessShort(methodName, args, "", "");
+	m.setStart(TSUPER.getStart());
+	m.setEnd(RPAREN.getEnd());
+	return m;
+    :}
     ;
 
 String merged_method_name =
