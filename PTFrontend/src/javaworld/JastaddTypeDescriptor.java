@@ -171,6 +171,15 @@ public class JastaddTypeDescriptor implements TypeDescriptor {
         return typeParameters.size();
     }
 
+    public int hashCode() {
+	return getAccess().toString().hashCode();
+    }
+
+    public boolean equals(Object that) {
+	if (that instanceof TypeDescriptor)
+	    return equals((TypeDescriptor) that);
+	return super.equals(that);
+    }
 
     public boolean equals( TypeDescriptor that ) {
         if( !(that instanceof JastaddTypeDescriptor) ) return false;
