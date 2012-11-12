@@ -5,6 +5,7 @@ import testutils.utils.CriticalPTException;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -565,8 +566,28 @@ public class SimpleClassRew {
                 Set<PTInstDecl> superInstantiations = scc.getTemplateClassIdentifier().locateInstantiation( contextOfAccess );
 
                 if( superInstantiations.size() > 1 ) {
-                    scc.error( "ambiguous reference to instantiation" );
-                    continue;
+		    // The tsuper call may be ambiguous. We need to do some more checks by looping through the instantiations
+		    // and removing the instantiations that are not relevant. Hopefully we'll end up with an instantiations list
+		    // which only contains one element.
+		    for (Iterator<PTInstDecl> i = superInstantiations.iterator(); i.hasNext(); ) {
+			PTInstDecl ptid = i.next();
+			String renamed = ptid.getRenamedClasses().get(scc.getTemplateClassIdentifier().toString());
+			if (renamed == null || !renamed.equals(decl.getClassDecl().getID()))  {
+			    // This instantiation is irrelevant, so we remove it from the list.
+			    i.remove();
+			}
+		    }
+		    
+		    if (superInstantiations.size() > 1) {
+			// Still ambiguous. Nothing more we can do.
+			scc.error( "ambiguous reference to instantiation" );
+			continue;
+		    }
+		    else if (superInstantiations.size() == 1) {
+			// We've resolved the ambiguity. Let the TemplateClassIdentifier know it.
+			for (PTInstDecl ptid : superInstantiations)
+			    scc.getTemplateClassIdentifier().setTemplateName(ptid.getID());
+		    }
                 }
                 if( superInstantiations.size() != 1 ) {
                     scc.error( "reference to unknown instantiation rewriting class" );
