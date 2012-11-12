@@ -338,7 +338,7 @@ aspect ErrorCheck {
 
         if( parentPt != null ) {
             java.util.Map<PTInstDecl,ASTNode> uncalled = new java.util.LinkedHashMap<PTInstDecl,ASTNode>();
-            java.util.Set<ASTNode> called = new java.util.LinkedHashSet<ASTNode>();
+            java.util.Set<String> called = new java.util.LinkedHashSet<String>();
 
             for( PTInstDecl ptid : parentPt.getPTInstDecls() ) {
                 for( PTInstTuple ptit : ptid.getPTInstTuples() ) {
@@ -369,11 +369,8 @@ aspect ErrorCheck {
 
                     uncalled.remove( decl );
 
-                    if( called.contains( decl ) ) {
+		    if (!called.add(scc.getTemplateClassIdentifier().toString()))
                         scc.error( "tsuper-constructor called twice" );
-                    } else {
-                        called.add( decl );
-                    }
 
                     // TODO check that there's a constructor with matching parameters
                     // not urgent, because this leads to an error message
