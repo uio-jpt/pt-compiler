@@ -85,6 +85,7 @@ public class SimpleClassRew {
         }
         instTuples = destinationClassIDsWithInstTuples.get(decl.getID());
         renamedSources = getRenamedInstClassesRewriters();
+        checkConflicts();
         possibleConflicts = getPossibleConflicts();
         computeClassToTemplateMultimap();
         updateSuperName();
@@ -316,6 +317,26 @@ public class SimpleClassRew {
         return true;
     }
 
+    private void checkConflicts() {
+	Set<String> collisions = new HashSet<String>();
+	Set<String> declaredMethods = new HashSet<String>();
+        
+        for (ClassDeclRew renamedDecl : renamedSources) {
+	    for (BodyDecl bd : renamedDecl.getClassDecl().getBodyDecls()) {
+		if (bd instanceof MethodDecl) {
+		    MethodDecl md = (MethodDecl) bd;
+		    if (!md.isTabstract()) {
+			if (!declaredMethods.add(md.signature()))
+			    collisions.add(md.signature());
+		    }
+		}
+	    }
+	}
+
+	for (String s : collisions)
+	    decl.error(s + " is an unresolved conflict during merging.\n");
+    }
+
     /**
      * Had a bug with views, switched to immutableSets. Code may be written more
      * concise. Returns intersection of all renamed signatures (fields and
@@ -327,6 +348,8 @@ public class SimpleClassRew {
      * @return A set of possible conflicts. 'Possible' means that an adds method
      *         may resolve the conflict.
      */
+    // TODO: This should probably be renamed as it no longer serves the purpose of finding
+    // possible conflicts, but rather finding which methods are overridden in the adds class.
     private Set<String> getPossibleConflicts() {
         Set<String> collisions = ImmutableSet.of();
 
