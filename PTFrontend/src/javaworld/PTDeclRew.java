@@ -868,7 +868,6 @@ public class PTDeclRew {
 
     protected PTEnumDecl getRenamedEnumByName(String name) {
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
-        Set<String> rv = new TreeSet<String>();
         PTInstTuple tup = Iterables.getOnlyElement( destinationClassIDsWithInstTuples.get(name));
         return new InstTupleRew(tup).getRenamedSourceEnum();
     }
