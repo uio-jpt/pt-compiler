@@ -76,7 +76,8 @@ public class Gensym {
         sb.append( prefix );
         sb.append( Joiner.on( "_" ).join( numbers ) );
         sb.append( suffix );
-        sb.append( originalName );
+        String newName = originalName.replace('.', '$');
+        sb.append(newName);
         return sb.toString();
     }
 

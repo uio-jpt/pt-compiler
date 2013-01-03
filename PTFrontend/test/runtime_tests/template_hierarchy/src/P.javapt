@@ -1,0 +1,14 @@
+package merge_simple {
+    inst templates.T with TA => X(x->ta_x);
+
+    class X adds {
+        int m(){
+            return tsuper[TA].m();
+        }
+
+        public static void main(String[] args) {
+            X x = new X();
+            System.out.println("x.m(): " + x.m());
+        }
+    }
+}

@@ -49,10 +49,10 @@ Modifier modifier =
     ;
 
 PTDecl pt_template =
- TEMPLATE IDENTIFIER type_parameters.ps? LBRACE inst_class_or_interface_single.l+ RBRACE
+ TEMPLATE name_decl.n type_parameters.ps? LBRACE inst_class_or_interface_single.l+ RBRACE
           {:
                 javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
-                return new PTTemplate(IDENTIFIER,
+                return new PTTemplate(n.getID(),
                                       cc.getInstDecls(),
                                       cc.getSimpleClasses(),
                                       cc.getInterfaces(),
@@ -138,11 +138,11 @@ Access pt_type_argument =
  ;
 
 PTInstDecl pt_inst_decl =
-   IDENTIFIER.name COLON INST IDENTIFIER.templateName pt_type_arguments.ts? SEMICOLON
+   IDENTIFIER.name COLON INST name_decl.templateName pt_type_arguments.ts? SEMICOLON
        {:
-          return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, new List(), new List());
+          return new PTInstDecl(name, templateName.getID(), (ts == null) ? new List<Access>() : ts, new List(), new List());
        :}
-| IDENTIFIER.name COLON INST IDENTIFIER.templateName pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
+| IDENTIFIER.name COLON INST name_decl.templateName pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
        {:
           AST.List<RequiredTypeInstantiation> rtiList = new AST.List<RequiredTypeInstantiation>();
           AST.List<PTInstTuple> ptitList = new AST.List<PTInstTuple>();
@@ -154,12 +154,12 @@ PTInstDecl pt_inst_decl =
               }
           }
 
-          return new PTInstDecl(name, templateName, (ts == null) ? new List<Access>() : ts, ptitList, rtiList ); :}
-| INST IDENTIFIER.templateName pt_type_arguments.ts? SEMICOLON
+          return new PTInstDecl(name, templateName.getID(), (ts == null) ? new List<Access>() : ts, ptitList, rtiList ); :}
+| INST name_decl.templateName pt_type_arguments.ts? SEMICOLON
        {:
-          return new PTInstDecl( "", templateName, (ts == null) ? new List<Access>() : ts, new List(), new List() );
+          return new PTInstDecl( "", templateName.getID(), (ts == null) ? new List<Access>() : ts, new List(), new List() );
        :}
-| INST IDENTIFIER.templateName pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
+| INST name_decl.templateName pt_type_arguments.ts? WITH dummy_class_list.dcl SEMICOLON
        {:
           AST.List<RequiredTypeInstantiation> rtiList = new AST.List<RequiredTypeInstantiation>();
           AST.List<PTInstTuple> ptitList = new AST.List<PTInstTuple>();
@@ -171,7 +171,7 @@ PTInstDecl pt_inst_decl =
               }
           }
 
-          return new PTInstDecl( "", templateName, (ts == null) ? new List<Access>() : ts, ptitList, rtiList );
+          return new PTInstDecl( "", templateName.getID(), (ts == null) ? new List<Access>() : ts, ptitList, rtiList );
        :}
 ;
 
@@ -347,8 +347,8 @@ TemplateClassIdentifier pt_tc_identifier =
     {: return new TemplateClassIdentifier( a, "" , b, ""); :}
     | LBRACK IDENTIFIER.a COLON RBRACK
     {: return new TemplateClassIdentifier( a, "", "", "" ); :}
-    | LBRACK IDENTIFIER.a DOT IDENTIFIER.b RBRACK
-    {: return new TemplateClassIdentifier( "", a , b, "" ); :}
+    | LBRACK name_decl.a DOT IDENTIFIER.b RBRACK
+    {: return new TemplateClassIdentifier( "", a.getID() , b, "" ); :}
     | LBRACK IDENTIFIER.a RBRACK
     {: return new TemplateClassIdentifier( "", "" , a, "" ); :}
  ;

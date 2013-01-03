@@ -1,0 +1,14 @@
+template templates.T {
+
+    class TA {
+        int x;
+
+        TA(){
+            x = 5;
+        }
+        
+        int m () {
+            return x;
+        }
+    }
+}

@@ -118,21 +118,39 @@ public class CompileToPackage extends PTFrontend {
 	 * tsuper[<templatename.classname>] with tsuper$<templatename$classname>$()
 	 * tsuper[<classname>].f() with tsuper$<classname>$f()
 	 * tsuper[<templatename.classname>].f() with tsuper$<templatename$classname>$f()
+	 * tsuper[<templatepath.templatename.classname>].f() with tsuper$<templatepath$templatename$classname>$f()
+	 *   where template path is <directory>(.<directory>)*
 	 */
 	private String makeJavaCompilable(String ptCode) {
-		String tmp;
-		String regSimple = "tsuper\\[(\\w+)\\]\\.?"; 
-		String regComplex = "tsuper\\[(\\w+)\\.(\\w+)\\]\\.?";
-		String replacementSimple = "tsuper\\$$1\\$";
-		String replacementComplex = replacementSimple + "$2\\$";
-
-		Pattern sp = Pattern.compile(regSimple);
-		Pattern cp = Pattern.compile(regComplex);
-		Matcher ms= sp.matcher(ptCode);
-		tmp = ms.replaceAll(replacementSimple);
-		Matcher mc= cp.matcher(tmp);
-		return mc.replaceAll(replacementComplex);
-	}
+        String reg = "tsuper";
+        Pattern p = Pattern.compile(reg);
+        String[] strings = p.split(ptCode);
+        StringBuilder sb = new StringBuilder(strings[0]);
+        for (int i = 1; i < strings.length; ++i) {
+            String str = strings[i];
+            if (str.charAt(0) != '[') {
+                sb.append(str);
+                continue;
+            }
+            sb.append("tsuper");
+            int j = 0;
+            for ( ; j < str.length() - 1; ++j) {
+                char c = str.charAt(j);
+                if (c == '[' || c == '.')
+                    sb.append('$');
+                else if (c == ']') {
+                    sb.append('$');
+                    break;
+                }
+                else
+                    sb.append(c);
+            }
+            if (str.charAt(++j) == '.')
+                ++j;
+            sb.append(str.substring(j));
+        }
+        return sb.toString();
+    }
 
 	public List<String> getSourceWithErrors() {
 		return sourceWithErrors;
