@@ -1,0 +1,27 @@
+template T {
+	class A {
+		void m() { System.out.println("m()"); }
+	}
+}
+
+template U<template V inst T> {
+	class A adds {
+		void n() { System.out.println("n()"); }
+	}
+}
+
+template T2<template V inst T> {
+	inst U<V>;
+}
+
+package P {
+	inst T2<T>;
+
+	class A adds {
+		public static void main(String[] args) {
+			A a = new A();
+			a.m();
+			a.n();
+		}
+	}
+}

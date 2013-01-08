@@ -1,0 +1,33 @@
+template T {
+	class A {
+		void m() { System.out.println("m()"); }
+	}
+}
+
+template T2 inst T {
+	class B {
+		int f() { return 42; }
+	}
+}
+
+template U<template V inst T> {
+	class A adds {
+		void n() { System.out.println("n() in U"); }
+	}
+
+	class B {
+		int ff() { return 6 * 9; }
+	}
+}
+
+package P {
+	inst U<T2>;
+
+	class A adds {
+		public static void main(String[] args) {
+			A a = new A();
+			a.m();
+			a.n();
+		}
+	}
+}
