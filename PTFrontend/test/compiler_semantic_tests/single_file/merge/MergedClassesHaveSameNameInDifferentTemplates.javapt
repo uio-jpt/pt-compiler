@@ -1,0 +1,12 @@
+template T1 {
+	class A { void f() { System.out.println("T1.A"); } }
+}
+
+template T2 {
+	class A { void g() { System.out.println("T1.A"); } }
+}
+
+package P {
+	inst T1;
+	inst T2;
+}
