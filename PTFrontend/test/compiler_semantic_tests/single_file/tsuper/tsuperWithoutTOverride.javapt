@@ -1,0 +1,14 @@
+template T {
+	class A {
+		void m() {
+			System.out.println("Inside m()");
+		}
+	}
+}
+
+package P { 
+    inst T; 
+    class A adds { 
+        void f() { tsuper.m(); }
+    }
+}
