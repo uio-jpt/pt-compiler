@@ -1,0 +1,19 @@
+template T {
+	class FP {
+		int i = 42;
+		void f(int j) {
+			System.out.println(i);
+		}
+	}
+}
+
+package P {
+	inst T with FP => FP (i -> j);
+
+	class FP adds {
+		public static void main(String[] args) {
+			FP fp = new FP();
+			fp.f(7);
+		}
+	}
+}
