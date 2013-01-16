@@ -1,6 +1,6 @@
 package merge_simple {
     inst T with TA => X(x->ta_x),
-        TX => X(x->tx_x,f()->ff);
+        TX => X(x->tx_x,f()->ff,m()->mm);
 
     class X adds {
         int m(){
