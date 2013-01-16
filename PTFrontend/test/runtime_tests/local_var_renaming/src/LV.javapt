@@ -1,0 +1,20 @@
+template T {
+	class LV {
+		int i = 41;
+		void f() {
+            int j = 1;
+			System.out.println(i + j);
+		}
+	}
+}
+
+package P {
+	inst T with LV => LV (i -> j);
+
+	class LV adds {
+		public static void main(String[] args) {
+			LV lv = new LV();
+			lv.f();
+		}
+	}
+}
