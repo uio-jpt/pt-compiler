@@ -249,6 +249,9 @@ aspect LookupType {
     inh ClassDecl TemplateMethodAccess.getClassDecl(String className);
 
     eq ASTNode.getChild(int i).getClassDecl(String className) {
+        // Returning null doesn't seem to break anything, but this
+        // whole TemplateMethodAccess thing needs a re-think.
+        return null;
     }
     eq PTCompilationUnit.getPTDecl(int j).getClassDecl(String className) {
         for (int i=0; i<getNumPTDecl(); i++) {
