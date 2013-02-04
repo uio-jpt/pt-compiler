@@ -8,7 +8,7 @@ aspect ReferenceAttributes {
         // System.out.println( "getting template " + getID() + " FAILED" );
         error(String.format("Instantiation of non-existing template %s.",getID()));
 
-         throw new CriticalPTException("Could not fint template " + getID());
+         throw new CriticalPTException("Could not find template " + getID());
     }
     syn PTTemplate PTInstTuple.getTemplate() = getInstDecl().getTemplate();
     inh PTTemplate PTInstDecl.getTemplate(String name);
