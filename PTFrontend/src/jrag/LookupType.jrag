@@ -206,6 +206,7 @@ aspect LookupType {
         if( c.size() > 0 ) {
             return c;
         }
+        return lookupType(name);
     }
 
     eq PTDecl.getSimpleClass(int i).lookupType(String name) {
@@ -213,6 +214,7 @@ aspect LookupType {
         if( c.size() > 0 ) {
             return c;
         }
+        return lookupType(name);
     }
 
     eq PTDecl.getInterfaceDecl(int i).lookupType(String name) {
@@ -220,9 +222,7 @@ aspect LookupType {
         if( c.size() > 0 ) {
             return c;
         }
-
-        SimpleSet rv = lookupType( name ); // ? // ??
-        return rv;
+        return lookupType(name);
     }
 
     eq PTDecl.getPTInstDecl(int i).lookupType(String name) {
@@ -230,6 +230,7 @@ aspect LookupType {
         if( c.size() > 0 ) {
             return c;
         }
+        return lookupType(name);
     }
 
     eq PTDecl.getRequiredType(int i).lookupType(String name) {
@@ -237,6 +238,7 @@ aspect LookupType {
         if( c.size() > 0 ) {
             return c;
         }
+        return lookupType(name);
     }
 
     eq PTDecl.getPTDeclContext().lookupType(String name) {
@@ -244,6 +246,7 @@ aspect LookupType {
         if( c.size() > 0 ) {
             return c;
         }
+        return lookupType(name);
     }
 
     inh ClassDecl TemplateMethodAccess.getClassDecl(String className);
