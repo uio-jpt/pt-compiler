@@ -3,6 +3,9 @@ Program ::= CompilationUnit*;
 // 7.3 Compilation Units
 CompilationUnit ::= <PackageDecl:java.lang.String> ImportDecl* TypeDecl*;
 
+// ES
+PrimitiveCompilationUnit : CompilationUnit;
+
 // 7.5 Import Declarations
 abstract ImportDecl ::= Access;
 SingleTypeImportDecl : ImportDecl;
@@ -81,6 +84,10 @@ VariableDeclaration : Stmt ::= Modifiers TypeAccess:Access <ID:String> [Init:Exp
 
 VariableDecl ::= <ID:String> Dims* [Init:Expr];
 
+/**
+ * A parameter declaration as used in either method parameter lists
+ * or as a catch clause parameter.
+ */
 ParameterDeclaration ::= Modifiers TypeAccess:Access <ID:String>;
 
 ArrayInit : Expr ::= Init:Expr*;
@@ -120,16 +127,6 @@ AssignXorExpr : AssignBitwiseExpr ;
 AssignOrExpr : AssignBitwiseExpr ;
 
 abstract PrimaryExpr : Expr;
-
-abstract Literal : PrimaryExpr ::= <LITERAL:String>;
-IntegerLiteral : Literal ;
-LongLiteral : Literal ;
-FloatingPointLiteral : Literal ;
-DoubleLiteral : Literal ;
-BooleanLiteral : Literal ;
-CharacterLiteral : Literal ;
-StringLiteral : Literal ;
-NullLiteral : Literal ;
 
 ParExpr : PrimaryExpr ::= Expr;
 
@@ -220,7 +217,6 @@ ThrowStmt : Stmt ::= Expr;
 SynchronizedStmt : Stmt ::= Expr Block;
 
 TryStmt : Stmt ::= Block CatchClause* [Finally:Block];
-CatchClause ::= Parameter:ParameterDeclaration Block;
 
 AssertStmt : Stmt ::= first:Expr [Expr];
 

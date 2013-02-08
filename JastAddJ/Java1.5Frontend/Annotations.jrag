@@ -442,16 +442,18 @@ aspect Annotations {
   point where the annotation is used, or a compile-time error occurs.
   Comment: This is done by the access control framework*/
 
-  /* The return type of this method defines the element type of the element-value
-  pair. An ElementValueArrayInitializer is similar to a normal array initializer
-  (§10.6), except that annotations are permitted in place of expressions.*/
+  /**
+   * The return type of this method defines the element type of the element-value
+   * pair. An ElementValueArrayInitializer is similar to a normal array initializer
+   * (§10.6), except that annotations are permitted in place of expressions.
+   */
   syn lazy TypeDecl ElementValuePair.type() {
-    Iterator iter = enclosingAnnotationDecl().memberMethods(getName()).iterator();
-    if(iter.hasNext()) {
-      MethodDecl m = (MethodDecl)iter.next();
-      return m.type();
-    }
-    return unknownType();
+    Map methodMap = enclosingAnnotationDecl().localMethodsSignatureMap();
+    MethodDecl method = (MethodDecl) methodMap.get(getName()+"()");
+    if (method != null)
+      return method.type();
+    else
+      return unknownType();
   }
   inh TypeDecl ElementValuePair.unknownType();
 
@@ -501,7 +503,9 @@ aspect Annotations {
   /* It is a compile-time error if the element type is not commensurate with the ElementValue.*/
   public void ElementValuePair.typeCheck() {
     if(!type().commensurateWith(getElementValue()))
-      error(type().typeName() + " is not commensurate with " + getElementValue().type().typeName());
+      error("can not construct annotation with " + getName() +
+          " = " + getElementValue().toString() + "; " + type().typeName() +
+          " is not commensurate with " + getElementValue().type().typeName());
   }
   syn TypeDecl ElementValue.type() = unknownType();
   eq ElementConstantValue.type() = getExpr().type();

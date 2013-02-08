@@ -429,7 +429,7 @@ List catches =
   | catches.l catch_clause.c                   {: return l.add(c); :}
   ;
 CatchClause catch_clause =
-    CATCH LPAREN formal_parameter.p RPAREN block.b {: return new CatchClause(p, b); :}
+    CATCH LPAREN formal_parameter.p RPAREN block.b {: return new BasicCatch(p, b); :}
   ;
 Block finally =
     FINALLY block.b {: return b; :}
@@ -547,12 +547,19 @@ Access method_invocation =
                                                                MethodAccess m = new MethodAccess(pn.getID(), l);
                                                                m.setStart(pn.getStart()); // add location information
                                                                m.setEnd(RPAREN.getEnd()); // add location information
+                                                               m.IDstart = pn.getStart();
+                                                               m.IDend = pn.getStart() + pn.getID().length() - 1;
                                                                d.replaceLast(m);
                                                                return d;
                                                              }
                                                              else {
                                                                ParseName pn = (ParseName)n;
-                                                               return new MethodAccess(pn.getID(), l);
+                                                               MethodAccess m = new MethodAccess(pn.getID(), l);
+                                                               m.setStart(pn.getStart()); // add location information
+                                                               m.setEnd(RPAREN.getEnd()); // add location information
+                                                               m.IDstart = pn.getStart();
+                                                               m.IDend = pn.getStart() + pn.getID().length() - 1;
+                                                               return m;
                                                              }
                                                                :}
    | primary.p DOT IDENTIFIER LPAREN argument_list.l? RPAREN 
@@ -625,7 +632,7 @@ Expr unary_expression_not_plus_minus =
   ;
 Expr cast_expression =
     LPAREN primitive_type.t dims.d? RPAREN unary_expression.e      {: return new CastExpr(t.addArrayDims(d), e); :}
-  | LPAREN name.n dims.d? RPAREN unary_expression_not_plus_minus.e {: return new CastExpr(n.addArrayDims(d), e); :}
+  | LPAREN name.t dims.d? RPAREN unary_expression_not_plus_minus.e {: return new CastExpr(t.addArrayDims(d), e); :}
   ;
 Expr multiplicative_expression =
     unary_expression.e                                     {: return e; :}

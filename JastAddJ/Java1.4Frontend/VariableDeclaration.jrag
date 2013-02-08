@@ -4,36 +4,13 @@
  * modified BSD license with this compiler.
  * 
  * Copyright (c) 2005-2008, Torbjorn Ekman
+ *                    2011, Jesper Öqvist <jesper.oqvist@cs.lth.se>
  * All rights reserved.
  */
 
 aspect Variables {
-  interface Variable {
-    public String name();
-    public TypeDecl type();
-    // 4.5.3
-    public boolean isClassVariable();
-    public boolean isInstanceVariable();
-    public boolean isMethodParameter();
-    public boolean isConstructorParameter();
-    public boolean isExceptionHandlerParameter();
-    public boolean isLocalVariable();
-    // 4.5.4
-    public boolean isFinal();
-
-    public boolean isBlank();
-    public boolean isStatic();
-    public boolean isSynthetic();
-
-    public TypeDecl hostType();
-
-    public Expr getInit();
-    public boolean hasInit();
-
-    public Constant constant();
-  }
-  
   VariableDeclaration implements Variable;
+  syn boolean VariableDeclaration.isParameter() = false;
   // 4.5.3
   syn boolean VariableDeclaration.isClassVariable() = false;
   syn boolean VariableDeclaration.isInstanceVariable() = false;
@@ -43,6 +20,7 @@ aspect Variables {
   syn boolean VariableDeclaration.isLocalVariable() = true;
   // 4.5.4
   syn boolean VariableDeclaration.isFinal() = getModifiers().isFinal();
+  syn boolean VariableDeclaration.isVolatile() = getModifiers().isVolatile();
   syn boolean VariableDeclaration.isBlank() = !hasInit();
   syn boolean VariableDeclaration.isStatic() = false;
   
@@ -51,6 +29,7 @@ aspect Variables {
   syn lazy Constant VariableDeclaration.constant() = type().cast(getInit().constant());
 
   FieldDeclaration implements Variable;
+  syn boolean FieldDeclaration.isParameter() = false;
   // 4.5.3
   syn boolean FieldDeclaration.isClassVariable() = isStatic() || hostType().isInterfaceDecl();
   syn boolean FieldDeclaration.isInstanceVariable() = (hostType().isClassDecl() || hostType().isAnonymous() )&& !isStatic();
@@ -65,6 +44,8 @@ aspect Variables {
   syn lazy Constant FieldDeclaration.constant() = type().cast(getInit().constant());
 
   ParameterDeclaration implements Variable;
+  syn boolean ParameterDeclaration.isParameter() = true;
+
   // 4.5.3
   syn boolean ParameterDeclaration.isClassVariable() = false;
   syn boolean ParameterDeclaration.isInstanceVariable() = false;
@@ -80,9 +61,9 @@ aspect Variables {
   eq MethodDecl.getParameter().isMethodParameter() = true;
   eq MethodDecl.getParameter().isConstructorParameter() = false;
   eq MethodDecl.getParameter().isExceptionHandlerParameter() = false;
-  eq CatchClause.getParameter().isMethodParameter() = false;
-  eq CatchClause.getParameter().isConstructorParameter() = false;
-  eq CatchClause.getParameter().isExceptionHandlerParameter() = true;
+  eq BasicCatch.getParameter().isMethodParameter() = false;
+  eq BasicCatch.getParameter().isConstructorParameter() = false;
+  eq BasicCatch.getParameter().isExceptionHandlerParameter() = true;
 
   eq Program.getChild().isMethodParameter() = false;
   eq Program.getChild().isConstructorParameter() = false;
@@ -90,6 +71,7 @@ aspect Variables {
   
   // 4.5.4
   syn boolean ParameterDeclaration.isFinal() = getModifiers().isFinal();
+  syn boolean ParameterDeclaration.isVolatile() = getModifiers().isVolatile();
   syn boolean ParameterDeclaration.isBlank() = true;
   syn boolean ParameterDeclaration.isStatic() = false;
   
@@ -104,6 +86,16 @@ aspect Variables {
 }
 
 aspect VariableDeclarationTransformation {
+  // when splitting a FieldDecl into multiple FieldDeclarations, provide every FieldDeclaration with a reference
+  // to the original FieldDecl; if only a single FieldDeclaration results, no reference is stored
+  private FieldDecl FieldDeclaration.fieldDecl = null;
+  public FieldDecl FieldDeclaration.getFieldDecl() {
+	  return fieldDecl;
+  }
+  public void FieldDeclaration.setFieldDecl(FieldDecl fieldDecl) {
+	  this.fieldDecl = fieldDecl;
+  }
+	
   // FieldDecl with single VariableDecl -> FieldDeclaration
   rewrite FieldDecl {
     when(getNumVariableDecl() == 1)
@@ -132,6 +124,7 @@ aspect VariableDeclarationTransformation {
           f.getModifiersNoTransform().clearLocations();
           f.getTypeAccessNoTransform().clearLocations();
         }
+        f.setFieldDecl(this);
         varList.add(f);
       }
       return varList;

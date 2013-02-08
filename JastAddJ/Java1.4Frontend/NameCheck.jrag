@@ -36,8 +36,13 @@ aspect NameCheck {
     for(int i = 0; i < getNumImportDecl(); i++) {
       ImportDecl decl = getImportDecl(i);
       if(decl instanceof SingleTypeImportDecl) {
-        if(localLookupType(decl.getAccess().type().name()).contains(decl.getAccess().type()))
-          error("" + decl + " is conflicting with visible type");
+        TypeDecl importedType = decl.getAccess().type();
+        Iterator iter = localLookupType(importedType.name()).iterator();
+        while (iter.hasNext()) {
+          TypeDecl local = (TypeDecl) iter.next();
+          if (local != importedType)
+            error("imported type " + decl + " is conflicting with visible type");
+        }
       }
     }
   }
@@ -80,7 +85,7 @@ aspect NameCheck {
   }
 
   // 8.8.5
-  syn lazy boolean ConstructorDecl.circularThisInvocation(ConstructorDecl decl) {
+  syn lazy boolean ConstructorDecl.circularThisInvocation(ConstructorDecl decl) circular [true] {
     if(hasConstructorInvocation()) {
       Expr e = ((ExprStmt)getConstructorInvocation()).getExpr();
       if(e instanceof ConstructorAccess) {
@@ -176,7 +181,7 @@ aspect NameCheck {
 
   public void VarAccess.nameCheck() {
     if(decls().isEmpty() && (!isQualified() || !qualifier().type().isUnknown() || qualifier().isPackageAccess()))
-      error("no field named " + name());
+      error("no field named " + name() + " is accessible");
     if(decls().size() > 1) {
       StringBuffer s = new StringBuffer();
       s.append("several fields named " + name());
@@ -287,7 +292,7 @@ aspect NameCheck {
 
   inh VariableScope ParameterDeclaration.outerScope();
   inh VariableScope VariableDeclaration.outerScope();
-  eq CatchClause.getParameter().outerScope() = this;
+  eq BasicCatch.getParameter().outerScope() = this;
   eq Block.getStmt().outerScope() = this;
   eq TypeDecl.getBodyDecl().outerScope() = this;
   eq ForStmt.getInitStmt().outerScope() = this;
@@ -303,13 +308,13 @@ aspect NameCheck {
       if(var instanceof VariableDeclaration) {
         VariableDeclaration decl = (VariableDeclaration)var;
         if(decl != this && decl.enclosingBodyDecl() == enclosingBodyDecl())
-  	      error("duplicate declaration of local variable " + name() + " in enclosing scope");
+          error("duplicate declaration of local variable " + name() + " in enclosing scope");
       }
       // 8.4.1
       else if(var instanceof ParameterDeclaration) {
         ParameterDeclaration decl = (ParameterDeclaration)var;
-	      if(decl.enclosingBodyDecl() == enclosingBodyDecl())
-  	      error("duplicate declaration of local variable and parameter " + name());
+        if(decl.enclosingBodyDecl() == enclosingBodyDecl())
+          error("duplicate declaration of local variable and parameter " + name());
       }
     }
     if(getParent().getParent() instanceof Block) {
@@ -318,9 +323,9 @@ aspect NameCheck {
         if(block.getStmt(i) instanceof Variable) {
           Variable v = (Variable)block.getStmt(i);
           if(v.name().equals(name()) && v != this) {
-     	    error("duplicate declaration of local variable " + name());
+            error("duplicate declaration of local variable " + name());
           }
-	}
+        }
       }
     }
   }
@@ -331,12 +336,12 @@ aspect NameCheck {
       Variable var = (Variable)iter.next();
       if(var instanceof VariableDeclaration) {
         VariableDeclaration decl = (VariableDeclaration)var;
-	      if(decl.enclosingBodyDecl() == enclosingBodyDecl())
-  	      error("duplicate declaration of local variable " + name());
+        if(decl.enclosingBodyDecl() == enclosingBodyDecl())
+          error("duplicate declaration of local variable " + name());
       }
       else if(var instanceof ParameterDeclaration) {
         ParameterDeclaration decl = (ParameterDeclaration)var;
-	      if(decl.enclosingBodyDecl() == enclosingBodyDecl())
+        if(decl.enclosingBodyDecl() == enclosingBodyDecl())
           error("duplicate declaration of local variable " + name());
       }
     }

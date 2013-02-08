@@ -11,7 +11,7 @@ aspect Enums {
 
   /* 
      1) It is a compile-time error to attempt to explicitly instantiate an enum type
-     (§15.9.1).
+     (ï¿½15.9.1).
   */
   syn boolean TypeDecl.isEnumDecl() = false;
   eq EnumDecl.isEnumDecl() = true;
@@ -27,7 +27,7 @@ aspect Enums {
   eq EnumConstant.isEnumConstant() = true;
 
   /*
-    5) Enum types (§8.9) must not be declared abstract; doing so will result in a
+    5) Enum types (ï¿½8.9) must not be declared abstract; doing so will result in a
     compile-time error. 
   */
   eq EnumDecl.getModifiers().mayBeAbstract() = false;
@@ -97,7 +97,10 @@ aspect Enums {
         );
         addBodyDecl(
           new ConstructorDecl(
-            new Modifiers(new List().add(new Modifier("private")).add(new Modifier("synthetic"))),
+            new Modifiers(new List().add(
+              new Modifier("private")).add(
+        new Modifier("synthetic"))
+            ),
             name(),
             parameterList,
             new List(),
@@ -133,6 +136,18 @@ aspect Enums {
     }
   }
   protected void ConstructorDecl.transformEnumConstructors() {
+    // make sure constructor is private
+    Modifiers newModifiers = new Modifiers(new List());
+    for (int i = 0; i < getModifiers().getNumModifier(); ++i) {
+      String modifier = getModifiers().getModifier(i).getID();
+      if (modifier.equals("public") || modifier.equals("private") ||
+        modifier.equals("protected"))
+          continue;
+      newModifiers.addModifier(new Modifier(modifier));
+    }
+    newModifiers.addModifier(new Modifier("private"));
+    setModifiers(newModifiers);
+
     // add implicit super constructor access since we are traversing
     // without doing rewrites
     if(!hasConstructorInvocation()) {
@@ -178,57 +193,80 @@ aspect Enums {
   syn lazy Access EnumConstant.getTypeAccess() {
     return hostType().createQualifiedAccess();
   }
-
-  syn lazy Opt EnumConstant.getInitOpt() {
-    return new Opt(
-        new ClassInstanceExpr(
-          hostType().createQualifiedAccess(),
-          createArgumentList(),
-          createOptAnonymousDecl()
-        )
-    );
+  
+  public EnumConstant.EnumConstant(Modifiers mods, String name, List<Expr> args, List<BodyDecl> bds) {
+    this(mods, name, args, new Opt<Expr>(new EnumInstanceExpr(createOptAnonymousDecl(bds))));
   }
 
   /*
     3) An enum constant may be followed by arguments, which are passed to the
     constructor of the enum type when the constant is created during class
     initialization as described later in this section. The constructor to be
-    invoked is chosen using the normal overloading rules (§15.12.2). If the
+    invoked is chosen using the normal overloading rules (ï¿½15.12.2). If the
     arguments are omitted, an empty argument list is assumed. 
   */
+  
+  syn lazy Access EnumInstanceExpr.getAccess() {
+    return hostType().createQualifiedAccess();
+  }
 
-  private List EnumConstant.createArgumentList() {
-    List argList = new List();
-    argList.add(new StringLiteral(getID()));
-    argList.add(new IntegerLiteral(Integer.toString(((List)getParent()).getIndexOfChild(this))));
-    for(int i = 0; i < getNumArg(); i++)
-      argList.add(getArg(i).fullCopy());
+  syn lazy List<Expr> EnumInstanceExpr.getArgList() {
+    EnumConstant ec = (EnumConstant)getParent().getParent();
+    List<EnumConstant> ecs = (List<EnumConstant>)ec.getParent();
+    int idx = ecs.getIndexOfChild(ec);
+    if(idx == -1)
+      throw new Error("internal: cannot determine numeric value of enum constant");
+    List<Expr> argList = new List<Expr>();
+    argList.add(Literal.buildStringLiteral(ec.name()));
+    argList.add(Literal.buildIntegerLiteral(idx));
+    for(Expr arg : ec.getArgs())
+      argList.add((Expr)arg.fullCopy());
     return argList;
   }
 
   /*
     4) The optional class body of an enum constant implicitly defines an anonymous
-    class declaration (§15.9.5) that extends the immediately enclosing enum type.
+    class declaration (ï¿½15.9.5) that extends the immediately enclosing enum type.
     The class body is governed by the usual rules of anonymous classes; in
     particular it cannot contain any constructors.
 
     TODO: work on error messages
   */
   
-  private Opt EnumConstant.createOptAnonymousDecl() {
-    if(getNumBodyDecl() == 0)
-      return new Opt();
-    List list = getBodyDeclList();
-    setBodyDeclList(new List()); // TODO: get rid of this side-effect
-    return new Opt(
+  private static Opt<TypeDecl> EnumConstant.createOptAnonymousDecl(List<BodyDecl> bds) {
+    if(bds.getNumChildNoTransform() == 0)
+      return new Opt<TypeDecl>();
+    return new Opt<TypeDecl>(
       new AnonymousDecl(
         new Modifiers(),
         "Anonymous",
-        list
+        bds
       )
     );
   }
-
+  
+  // simulate list of body declarations
+  public int EnumConstant.getNumBodyDecl() {
+    int cnt = 0;
+    ClassInstanceExpr init = (ClassInstanceExpr)getInit();
+    if(!init.hasTypeDecl())
+      return 0;
+    for(BodyDecl bd : init.getTypeDecl().getBodyDecls())
+      if(!(bd instanceof ConstructorDecl))
+        ++cnt;
+    return cnt;
+  }
+  
+  public BodyDecl EnumConstant.getBodyDecl(int i) {
+    ClassInstanceExpr init = (ClassInstanceExpr)getInit();
+    if(init.hasTypeDecl())
+      for(BodyDecl bd : init.getTypeDecl().getBodyDecls())
+        if(!(bd instanceof ConstructorDecl))
+          if(i-- == 0)
+            return bd;
+    throw new ArrayIndexOutOfBoundsException(i);
+  }
+  
   /*
     7) It is a compile-time error for the class body of an enum constant to declare
     an abstract method.
@@ -288,7 +326,7 @@ aspect Enums {
           new ArrayCreationExpr(
             new ArrayTypeWithSizeAccess(
               createQualifiedAccess(),
-              new IntegerLiteral(Integer.toString(enumConstants().size()))
+              Literal.buildIntegerLiteral(enumConstants().size())
             ),
             new Opt(
               new ArrayInit(
@@ -383,31 +421,26 @@ aspect Enums {
   inh TypeDecl EnumDecl.typeString();
 
   /*
-    6) It is a compile-time error for an enum type E to have an abstract method m as
-    a member unless E has one or more enum constants, and all of E's enum
-    constants have class bodies that provide concrete implementations of m. 
- 
-    TODO: better error messages
+    14) It is a compile-time error to reference a static field of an enum type that
+    is not a compile-time constant (ï¿½15.28) from constructors, instance
+    initializer blocks, or instance variable initializer expressions of that
+    type.
   */
 
+  /**
+   * @return true if the enum decl contains an abstract method declaration
+   */
   eq EnumDecl.isAbstract() {
-    for(int i = 0; i < getNumBodyDecl(); i++) {
-      if(getBodyDecl(i) instanceof MethodDecl) {
+    for (int i = 0; i < getNumBodyDecl(); i++) {
+      if (getBodyDecl(i) instanceof MethodDecl) {
         MethodDecl m = (MethodDecl)getBodyDecl(i);
-        if(m.isAbstract())
+        if (m.isAbstract())
           return true;
       }
     }
     return false;
   }
   
-  /*
-    14) It is a compile-time error to reference a static field of an enum type that
-    is not a compile-time constant (§15.28) from constructors, instance
-    initializer blocks, or instance variable initializer expressions of that
-    type.
-  */
-
   protected void ASTNode.checkEnum(EnumDecl enumDecl) {
     for(int i = 0; i < getNumChild(); i++)
       getChild(i).checkEnum(enumDecl);
@@ -444,7 +477,7 @@ aspect Enums {
 
   // 8.9
   
-  /* 2) An enum constant may be preceded by annotation (§9.7) modifiers. If an
+  /* 2) An enum constant may be preceded by annotation (ï¿½9.7) modifiers. If an
   annotation a on an enum constant corresponds to an annotation type T, and T
   has a (meta-)annotation m that corresponds to annotation.Target, then m must
   have an element whose value is annotation.ElementType.FIELD, or a
@@ -477,13 +510,22 @@ aspect Enums {
   eq ConstCase.getValue().lookupVariable(String name)
     = switchType().isEnumDecl() ? switchType().memberFields(name) : lookupVariable(name);
   
-  eq EnumConstant.isConstant() = true;
-  
+  syn boolean Expr.isEnumConstant() = false;
+  eq VarAccess.isEnumConstant() = varDecl() instanceof EnumConstant;
+
   refine TypeCheck public void ConstCase.typeCheck() {
-    if(switchType().isEnumDecl() && (!(getValue() instanceof VarAccess) || !(getValue().varDecl() instanceof EnumConstant)))
+    boolean isEnumConstant = getValue().isEnumConstant();
+    if(switchType().isEnumDecl() && !isEnumConstant) {
       error("Unqualified enumeration constant required");
-    else
-      refined();
+    } else {
+      TypeDecl switchType = switchType();
+      TypeDecl type = getValue().type();
+      if(!type.assignConversionTo(switchType, getValue()))
+        error("Constant expression must be assignable to Expression");
+      if(!getValue().isConstant() && !getValue().type().isUnknown() &&
+          !isEnumConstant) 
+        error("Switch expression must be constant");
+    }
   }
   refine NameCheck eq ConstCase.constValue(Case c) {
     if(switchType().isEnumDecl()) {
@@ -582,5 +624,156 @@ aspect Enums {
       s.append(indent() + "}");
     }
     s.append(",\n");
+  }
+
+  /**
+   * From the Java Language Specification, third edition, section 8.9 Enums:
+   *
+   * It is a compile-time error for an enum type E to have an abstract method
+   * m as a member unless E has one or more enum constants, and all of E's enum
+   * constants have class bodies that provide concrete implementations of m.
+   */
+  eq EnumDecl.unimplementedMethods() {
+    Collection<MethodDecl> methods = new LinkedList<MethodDecl>();
+    for (Iterator iter = interfacesMethodsIterator(); iter.hasNext(); ) {
+      MethodDecl method = (MethodDecl)iter.next();
+      SimpleSet set = (SimpleSet)localMethodsSignature(method.signature());
+      if (set.size() == 1) {
+        MethodDecl n = (MethodDecl)set.iterator().next();
+        if (!n.isAbstract()) 
+    continue;
+      }
+      boolean implemented = false;
+      set = (SimpleSet)ancestorMethods(method.signature());
+      for (Iterator i2 = set.iterator(); i2.hasNext(); ) {
+        MethodDecl n = (MethodDecl)i2.next();
+        if (!n.isAbstract()) {
+          implemented = true;
+    break;
+  }
+      }
+      if (!implemented)
+  methods.add(method);
+    }
+
+    for (Iterator iter = localMethodsIterator(); iter.hasNext(); ) {
+      MethodDecl method = (MethodDecl)iter.next();
+      if (method.isAbstract())
+        methods.add(method);
+    }
+
+    Collection unimplemented = new ArrayList();
+    for (MethodDecl method : methods) {
+      if (enumConstants().isEmpty()) {
+  unimplemented.add(method);
+  continue;
+      }
+      boolean missing = false;
+      for (Iterator iter = enumConstants().iterator(); iter.hasNext(); ) {
+  if (!((EnumConstant) iter.next()).implementsMethod(method)) {
+    missing = true;
+    break;
+        }
+      }
+      if (missing)
+  unimplemented.add(method);
+    }
+
+    return unimplemented;
+  }
+
+  /**
+   * Check that the enum does not contain unimplemented abstract methods.
+   */
+  public void EnumDecl.checkModifiers() {
+    super.checkModifiers();
+    if (!unimplementedMethods().isEmpty()) {
+      StringBuffer s = new StringBuffer();
+      s.append("" + name() + " lacks implementations in one or more " +
+    "enum constants for the following methods:\n");
+      for (Iterator iter = unimplementedMethods().iterator(); iter.hasNext(); ) {
+        MethodDecl m = (MethodDecl)iter.next();
+        s.append("  " + m.signature() + " in " + m.hostType().typeName() + "\n");
+      }
+      error(s.toString());
+    }
+  }
+
+  syn SimpleSet EnumConstant.localMethodsSignature(String signature) {
+    SimpleSet set = (SimpleSet)localMethodsSignatureMap().get(signature);
+    if(set != null) return set;
+    return SimpleSet.emptySet;
+  }
+
+  // signature -> method declaration
+  syn lazy HashMap EnumConstant.localMethodsSignatureMap() {
+    HashMap map = new HashMap(getNumBodyDecl());
+    for(int i = 0; i < getNumBodyDecl(); i++) {
+      if(getBodyDecl(i) instanceof MethodDecl) {
+        MethodDecl decl = (MethodDecl)getBodyDecl(i);
+        map.put(decl.signature(), decl);
+      }
+    }
+    return map;
+  }
+
+  syn boolean EnumConstant.implementsMethod(MethodDecl method) {
+    SimpleSet set = (SimpleSet)localMethodsSignature(method.signature());
+    if (set.size() == 1) {
+      MethodDecl n = (MethodDecl)set.iterator().next();
+      if (!n.isAbstract())
+  return true;
+    }
+    return false;
+  }
+
+  refine Modifiers
+  public void MethodDecl.checkModifiers() {
+    super.checkModifiers();
+    if(hostType().isClassDecl()) {
+      // 8.4.3.1
+      if(!hostType().isEnumDecl() && isAbstract() && !hostType().isAbstract())
+        error("class must be abstract to include abstract methods");
+      // 8.4.3.1
+      if(isAbstract() && isPrivate())
+        error("method may not be abstract and private");
+      // 8.4.3.1
+      // 8.4.3.2
+      if(isAbstract() && isStatic())
+        error("method may not be abstract and static");
+      if(isAbstract() && isSynchronized())
+        error("method may not be abstract and synchronized");
+      // 8.4.3.4
+      if(isAbstract() && isNative())
+        error("method may not be abstract and native");
+      if(isAbstract() && isStrictfp())
+        error("method may not be abstract and strictfp");
+      if(isNative() && isStrictfp())
+        error("method may not be native and strictfp");
+    }
+    if(hostType().isInterfaceDecl()) {
+      // 9.4
+      if(isStatic())
+        error("interface method " + signature() + " in " +
+            hostType().typeName() +  " may not be static");
+      if(isStrictfp())
+        error("interface method " + signature() + " in " +
+            hostType().typeName() +  " may not be strictfp");
+      if(isNative())
+        error("interface method " + signature() + " in " +
+            hostType().typeName() +  " may not be native");
+      if(isSynchronized())
+        error("interface method " + signature() + " in " +
+            hostType().typeName() +  " may not be synchronized");
+      if(isProtected())
+        error("interface method " + signature() + " in " +
+            hostType().typeName() +  " may not be protected");
+      if(isPrivate())
+        error("interface method " + signature() + " in " +
+            hostType().typeName() +  " may not be private");
+      else if(isFinal())
+        error("interface method " + signature() + " in " +
+            hostType().typeName() +  " may not be final");
+    }
   }
 }

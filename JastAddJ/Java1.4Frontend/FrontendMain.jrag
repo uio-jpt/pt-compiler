@@ -27,43 +27,54 @@ aspect FrontendMain {
 
       if(program.options().hasOption("-version")) {
         printVersion();
-        return false;
+        return true;
       }
       if(program.options().hasOption("-help") || files.isEmpty()) {
         printUsage();
-        return false;
+        return true;
       }
 
       try {
         for(Iterator iter = files.iterator(); iter.hasNext(); ) {
           String name = (String)iter.next();
           if(!new File(name).exists())
-            System.out.println("WARNING: file \"" + name + "\" does not exist");
+            System.err.println("WARNING: file \"" + name + "\" does not exist");
           program.addSourceFile(name);
         }
 
         for(Iterator iter = program.compilationUnitIterator(); iter.hasNext(); ) {
           CompilationUnit unit = (CompilationUnit)iter.next();
           if(unit.fromSource()) {
-            Collection errors = unit.parseErrors();
-            Collection warnings = new LinkedList();
-            // compute static semantic errors when there are no parse errors or 
-            // the recover from parse errors option is specified
-            if(errors.isEmpty() || program.options().hasOption("-recover"))
-              unit.errorCheck(errors, warnings);
-            if(!errors.isEmpty()) {
-              processErrors(errors, unit);
+            try {
+              Collection errors = unit.parseErrors();
+              Collection warnings = new LinkedList();
+              // compute static semantic errors when there are no parse errors
+              // or the recover from parse errors option is specified
+              if(errors.isEmpty() || program.options().hasOption("-recover"))
+                unit.errorCheck(errors, warnings);
+              if(!errors.isEmpty()) {
+                processErrors(errors, unit);
+                return false;
+              }
+              else {
+               if(!warnings.isEmpty())
+                 processWarnings(warnings, unit);
+                processNoErrors(unit);
+              }
+            } catch (Throwable t) {
+              System.err.println("Errors:");
+              System.err.println("Fatal exception while processing " +
+                  unit.pathName() + ":");
+              t.printStackTrace(System.err);
               return false;
-            }
-            else {
-              processWarnings(warnings, unit);
-              processNoErrors(unit);
             }
           }
         }
-      } catch (Exception e) {
-        System.err.println(e.getMessage());
-        e.printStackTrace();
+      } catch (Throwable t) {
+        System.err.println("Errors:");
+        System.err.println("Fatal exception:");
+        t.printStackTrace(System.err);
+        return false;
       }
       return true;
     }
@@ -80,6 +91,7 @@ aspect FrontendMain {
       options.addKeyOption("-verbose");
       options.addKeyOption("-deprecation");
       options.addKeyValueOption("-classpath");
+      options.addKeyValueOption("-cp");
       options.addKeyValueOption("-sourcepath");
       options.addKeyValueOption("-bootclasspath");
       options.addKeyValueOption("-extdirs");
@@ -97,21 +109,22 @@ aspect FrontendMain {
     }
 
     protected void processErrors(Collection errors, CompilationUnit unit) {
-      System.out.println("Errors:");
+      System.err.println("Errors:");
       for(Iterator iter2 = errors.iterator(); iter2.hasNext(); ) {
-        System.out.println(iter2.next());
+        System.err.println(iter2.next());
       }
     }
     protected void processWarnings(Collection warnings, CompilationUnit unit) {
+      System.err.println("Warnings:");
       for(Iterator iter2 = warnings.iterator(); iter2.hasNext(); ) {
-        System.out.println(iter2.next());
+        System.err.println(iter2.next());
       }
     }
     protected void processNoErrors(CompilationUnit unit) {
     }
 
     protected void printUsage() {
-      printVersion();
+      printLongVersion();
       System.out.println(
           "\n" + name() + "\n\n" +
           "Usage: java " + name() + " <options> <source files>\n" +
@@ -126,8 +139,12 @@ aspect FrontendMain {
           );
     }
 
-    protected void printVersion() {
+    protected void printLongVersion() {
       System.out.println(name() + " " + url() + " Version " + version());
+    }
+
+    protected void printVersion() {
+      System.out.println(name() + " " + version());
     }
 
     protected String name() {

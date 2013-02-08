@@ -31,10 +31,13 @@ aspect ClassPath {
   inh CompilationUnit TypeDecl.compilationUnit();
   eq CompilationUnit.getChild().compilationUnit() = this;
 
-  // add a filename to the list of source files to process
-  public void Program.addSourceFile(String name) {
-    sourceFiles.addSourceFile(name);
-
+  /**
+   * Add a filename to the list of source files to process.
+   * @return The CompilationUnit representing the source file,
+   * or <code>null</code> if no such file exists
+   */
+  public CompilationUnit Program.addSourceFile(String name) {
+    return sourceFiles.addSourceFile(name);
   }
 
   // iterate over all source files and demand-loaded compilation units
@@ -108,7 +111,7 @@ aspect ClassPath {
           classPart = part;
       }
       
-      if(sourcePart != null && (classPart == null || classPart.age <= sourcePart.age)) {
+      if(sourcePart != null && (classPart == null || classPart.age < sourcePart.age)) {
         CompilationUnit unit = sourcePart.getCompilationUnit();
         int index = name.lastIndexOf('.');
         if(index == -1)
@@ -222,6 +225,8 @@ aspect ClassPath {
       String[] userClasses = null;
       if(options().hasValueForOption("-classpath"))
         userClasses = options().getValueForOption("-classpath").split(File.pathSeparator);
+      else if(options().hasValueForOption("-cp"))
+        userClasses = options().getValueForOption("-cp").split(File.pathSeparator);
       else {
         String s = System.getProperty("java.class.path");
         if(s != null && s.length() > 0) {
@@ -426,7 +431,7 @@ aspect ClassPath {
         if(classFile.isFile()) {
           is = new FileInputStream(classFile);
           age = classFile.lastModified();
-          pathName = classFile.getAbsolutePath();
+          pathName = classFile.getPath();
           relativeName = fileName + fileSuffix();
           fullName = canonicalName;
           return true;
@@ -505,7 +510,7 @@ aspect ClassPath {
         File classFile = new File(f);
         if(classFile.isFile()) {
           is = new FileInputStream(classFile);
-          pathName = classFile.getAbsolutePath(); // TODO: check me"";
+          pathName = classFile.getPath();
           relativeName = f;
           fullName = canonicalName;
           sourceFiles.remove(canonicalName);
@@ -514,12 +519,18 @@ aspect ClassPath {
       }
       return false;
     }
-    public void addSourceFile(String name) {
+
+    /**
+     * Add a source file to be parsed.
+     * @return The CompilationUnit representing the source file,
+     * or <code>null</code> if no such file exists
+     */
+    public CompilationUnit addSourceFile(String name) {
       try {
         File classFile = new File(name);
         if(classFile.isFile()) {
           is = new FileInputStream(classFile);
-          this.pathName = classFile.getAbsolutePath();
+          this.pathName = classFile.getPath();
           relativeName = name;
           fullName = name; // is this ok
           CompilationUnit u = getCompilationUnit();
@@ -536,9 +547,11 @@ aspect ClassPath {
               }
             }
           }
+          return u;
         }
       } catch (IOException e) {
       }
+      return null;
     }
   }
 

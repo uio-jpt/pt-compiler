@@ -95,7 +95,6 @@ aspect ConstructorLookup {
     return null;
   }
 
-  // add implicit constructor
   syn lazy Collection TypeDecl.constructors() {
     Collection c = new ArrayList();
     for(int i = 0; i < getNumBodyDecl(); i++) {
@@ -103,25 +102,6 @@ aspect ConstructorLookup {
         c.add(getBodyDecl(i));
       }
     }
-    /*
-    if(c.isEmpty() && isClassDecl()) {
-      Modifiers m = new Modifiers();
-      if(isPublic()) m.addModifier(new Modifier("public"));
-      else if(isProtected()) m.addModifier(new Modifier("protected"));
-      else if(isPrivate()) m.addModifier(new Modifier("private"));
-      addBodyDecl(
-          new ConstructorDecl(
-            m,
-            name(),
-            new List(),
-            new List(),
-            new Opt(),
-            new Block()
-          )
-      );
-      c.add(getBodyDecl(getNumBodyDecl()-1));
-    }
-    */
     return c;
   }
 }
@@ -178,10 +158,29 @@ aspect ImplicitConstructor {
   syn boolean List.requiresDefaultConstructor() {
     if(getParent() instanceof ClassDecl) {
       ClassDecl c = (ClassDecl)getParent();
-      return c.getBodyDeclList() == this && !(c instanceof AnonymousDecl) && c.noConstructor();
+      return c.noConstructor() && c.getBodyDeclListNoTransform() == this && !(c instanceof AnonymousDecl);
     }
     return false;
   }
+
+  /**
+   * Flag to indicate if this constructor is an auto-generated
+   * default constructor. Default constructors are not pretty
+   * printed.
+   */
+  private boolean ConstructorDecl.isDefaultConstructor = false;
+  /**
+   * Set the default constructor flag. Causes this constructor
+   * to not be pretty printed.
+   */
+  public void ConstructorDecl.setDefaultConstructor() {
+    isDefaultConstructor = true;
+  }
+  /**
+   * @return true if this is an auto-generated default constructor
+   */
+  syn boolean ConstructorDecl.isDefaultConstructor() =
+    isDefaultConstructor;
     
   rewrite List {
     when(requiresDefaultConstructor())
@@ -191,21 +190,23 @@ aspect ImplicitConstructor {
       if(c.isPublic()) m.addModifier(new Modifier("public"));
       else if(c.isProtected()) m.addModifier(new Modifier("protected"));
       else if(c.isPrivate()) m.addModifier(new Modifier("private"));
-      c.addBodyDecl(
-          new ConstructorDecl(
+      ConstructorDecl constructor = new ConstructorDecl(
             m,
             c.name(),
             new List(),
             new List(),
             new Opt(),
             new Block()
-          )
       );
+      constructor.setDefaultConstructor();
+      c.addBodyDecl(constructor);
       return this;
     }
   }
 
   syn boolean ClassDecl.noConstructor() {
+    if(!compilationUnit().fromSource())
+      return false;
     for(int i = 0; i < getNumBodyDecl(); i++)
       if(getBodyDecl(i) instanceof ConstructorDecl)
         return false;
