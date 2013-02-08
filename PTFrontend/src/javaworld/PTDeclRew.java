@@ -618,6 +618,7 @@ public class PTDeclRew {
 
                 for( Object superio : unrenamedOriginal.getSuperInterfaceIdList() ) {
                     AST.Access myUnrenamedAccess = (AST.Access) ((AST.ASTNode)superio).fullCopy();
+                    myUnrenamedAccess.setParent(((AST.ASTNode)superio).getParent());
                     InterfaceDecl originalDecl = (InterfaceDecl) Util.declarationFromTypeAccess( myUnrenamedAccess );
                     String originalName = originalDecl.getID();
                     String newName = internalInterfacesBeingRenamed.get( originalName );

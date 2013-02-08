@@ -63,6 +63,7 @@ class InstTupleRew {
 
             if( dummyCopy instanceof MethodDecl ) {
                 MethodDecl copycopy = (MethodDecl) dummyCopy.fullCopy();
+                copycopy.setParent(dummyCopy.getParent());
                 copycopy.setID( newID );
                 realThing = (BodyDecl) parentType.localMethodsSignatureMap().get( copycopy.signature() );
             }
@@ -129,6 +130,7 @@ class InstTupleRew {
         TypeDecl x = instantiator.getOriginator();
 
 		RequiredType ext = ((RequiredType)x).fullCopy();
+        ext.setParent(x.getParent());
 
         ext.visitRename( instantiator.getInstDecl().getRenamedClasses() );
 		DefinitionsRenamer.renameDefinitions( ext, getExplicitlyRenamedDefinitions());
@@ -143,6 +145,7 @@ class InstTupleRew {
         TypeDecl x = instantiator.getOriginator();
 
 		InterfaceDecl ext = ((InterfaceDecl)x).fullCopy();
+        ext.setParent(x.getParent());
 
 /*
         HashMap<ASTNode,String> internalRenames = findInternalRenames( ext );
@@ -172,6 +175,7 @@ class InstTupleRew {
 
         TypeDecl x = instantiator.getOriginator();
 		PTEnumDecl ext = ((PTEnumDecl)x).fullCopy();
+        ext.setParent(x.getParent());
 
         ext.fixupAfterCopy();
 
@@ -188,6 +192,7 @@ class InstTupleRew {
         TypeDecl x = instantiator.getOriginator();
 
 		ClassDecl ext = ((ClassDecl)x).fullCopy();
+        ext.setParent(x.getParent());
         // be aware that after this, going upwards into the parent and then
         // (apparently) backwards into the child will NOT find the copy, but
         // the original child, thus it will not reflect changes.
