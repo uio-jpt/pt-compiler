@@ -920,9 +920,11 @@ public class PTDeclRew {
             AST.List<TypeVariable> referenceTypePars = null;
             if( gtype instanceof GenericClassDecl ) {
                 referenceTypePars = ((GenericClassDecl)gtype).getTypeParameterList().fullCopy();
+                referenceTypePars.setParent(((GenericClassDecl)gtype).getTypeParameterList().getParent());
             }
             if( gtype instanceof GenericInterfaceDecl ) {
                 referenceTypePars = ((GenericInterfaceDecl)gtype).getTypeParameterList().fullCopy();
+                referenceTypePars.setParent(((GenericInterfaceDecl)gtype).getTypeParameterList().getParent());
             }
             // System.out.println( "checking " + referenceTypePars.dumpTree() );
 
@@ -931,9 +933,11 @@ public class PTDeclRew {
                 AST.List<TypeVariable> candidateTypePars = null;
                 if( otherGType instanceof GenericClassDecl ) {
                     candidateTypePars = ((GenericClassDecl)otherGType).getTypeParameterList().fullCopy();
+                    candidateTypePars.setParent(((GenericClassDecl)otherGType).getTypeParameterList().getParent());
                 }
                 if( otherGType instanceof GenericInterfaceDecl ) {
                     candidateTypePars = ((GenericInterfaceDecl)otherGType).getTypeParameterList().fullCopy();
+                    candidateTypePars.setParent(((GenericInterfaceDecl)otherGType).getTypeParameterList().getParent());
                 }
 
                 // System.out.println( "against " + candidateTypePars.dumpTree() );
