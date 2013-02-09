@@ -129,6 +129,7 @@ public class CompileToPackage extends PTFrontend {
         for (int i = 1; i < strings.length; ++i) {
             String str = strings[i];
             if (str.charAt(0) != '[') {
+                sb.append("tsuper");
                 sb.append(str);
                 continue;
             }
