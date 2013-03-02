@@ -1,0 +1,73 @@
+template T1 {
+
+    class A1 {
+        A1() {
+            System.out.println("T1.A1()");
+        }
+    }
+    class B1 extends A1 {
+        B1() {
+            System.out.println("T1.B()");
+        }
+    }
+    class C1 extends B1 {
+        C1() {
+            System.out.println("T1.C1()");
+        }
+    }
+}
+
+template T2 {
+    inst T1 with A1 => A2, B1 => B2, C1 => C2;
+    
+    class A2 adds {
+        A2() {
+            tsuper();
+            System.out.println("T2.A2()");
+        }
+    }
+    class B2 adds {
+        B2() {
+            tsuper();
+            System.out.println("T2.B2()");
+        }
+    }
+    class C2 adds {
+        C2() {
+            tsuper();
+            System.out.println("T2.C2()");
+        }
+    }
+}
+
+package P {
+    inst T2 with A2 => A, B2 => B, C2 => C;
+
+    class A adds {
+        A() {
+            tsuper();
+            System.out.println("P.A()");
+        }
+    }
+    class B adds {
+        B() {
+            super();
+            tsuper();
+            System.out.println("P.B()");
+        }
+    }
+    class C adds {
+        C() {
+            super();
+            tsuper();
+            System.out.println("P.C()");
+        }
+    }
+    
+    class Main {
+
+        public static void main(String[] args) {
+            C c = new C();
+        }
+    }
+}
