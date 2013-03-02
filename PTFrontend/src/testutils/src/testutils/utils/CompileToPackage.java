@@ -108,50 +108,8 @@ public class CompileToPackage extends PTFrontend {
 
 	public String getCompilableClassData(String packageName, String classname) {
 		String ptCode = source.get(createKey(packageName,classname));
-		String javaCode = makeJavaCompilable(ptCode);
-		return javaCode;
+		return ptCode;
 	}
-
-	/**
-	 * Replaces every:
-	 * tsuper[<classname>]() with tsuper$<classname>$()
-	 * tsuper[<templatename.classname>] with tsuper$<templatename$classname>$()
-	 * tsuper[<classname>].f() with tsuper$<classname>$f()
-	 * tsuper[<templatename.classname>].f() with tsuper$<templatename$classname>$f()
-	 * tsuper[<templatepath.templatename.classname>].f() with tsuper$<templatepath$templatename$classname>$f()
-	 *   where template path is <directory>(.<directory>)*
-	 */
-	private String makeJavaCompilable(String ptCode) {
-        String reg = "tsuper";
-        Pattern p = Pattern.compile(reg);
-        String[] strings = p.split(ptCode);
-        StringBuilder sb = new StringBuilder(strings[0]);
-        for (int i = 1; i < strings.length; ++i) {
-            String str = strings[i];
-            if (str.charAt(0) != '[') {
-                sb.append("tsuper");
-                sb.append(str);
-                continue;
-            }
-            sb.append("tsuper");
-            int j = 0;
-            for ( ; j < str.length() - 1; ++j) {
-                char c = str.charAt(j);
-                if (c == '[' || c == '.')
-                    sb.append('$');
-                else if (c == ']') {
-                    sb.append('$');
-                    break;
-                }
-                else
-                    sb.append(c);
-            }
-            if (str.charAt(++j) == '.')
-                ++j;
-            sb.append(str.substring(j));
-        }
-        return sb.toString();
-    }
 
 	public List<String> getSourceWithErrors() {
 		return sourceWithErrors;

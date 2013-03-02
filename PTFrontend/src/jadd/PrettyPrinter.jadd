@@ -100,5 +100,67 @@ aspect PrettyPrint {
         sb.append("tabstract");
         super.toString(sb);
     }
-        
+
+    /**
+     * The name of the method that's being added to the string buffer will be an
+     * altered version of the real name of the method. This is done to make the
+     * output Java compilable. 
+     */
+    public void TemplateMethodAccess.toString(StringBuffer s) {
+        String name = name();
+        name = name.replace('[', '$');
+        name = name.replace('.', '$');
+        name = name.replace(']', '$');
+        s.append(name);    
+        s.append("(");
+        if (getNumArg() > 0) {
+            getArg(0).toString(s);
+            for (int i = 1; i < getNumArg(); i++) {
+                s.append(", ");
+                getArg(i).toString(s);
+            }
+        }
+        s.append(")");
+    }
+
+    /**
+     * The names of tsuper methods added to the string buffer will be an altered
+     * version of the real names, to make them match the names from
+     * TemplateMethodAccess.toString(StringBuffer s).
+     */
+    refine PrettyPrint public void MethodDecl.toString(StringBuffer s) {
+        s.append(indent());
+        getModifiers().toString(s);
+        getTypeAccess().toString(s);
+        String name = name();
+        if (name().matches("tsuper\\[[^\\]]*\\]\\..*")) {
+            name = name.replace('[', '$');
+            name = name.replace('.', '$');
+            name = name.replace(']', '$');
+        }
+        s.append(" " + name + "(");
+        if (getNumParameter() > 0) {
+            getParameter(0).toString(s);
+            for (int i = 1; i < getNumParameter(); i++) {
+                s.append(", ");
+                getParameter(i).toString(s);
+            }
+        }
+        s.append(")");
+        if (getNumException() > 0) {
+            s.append(" throws ");
+            getException(0).toString(s);
+            for (int i = 1; i < getNumException(); i++) {
+                s.append(", ");
+                getException(i).toString(s);
+            }
+        }
+        if (hasBlock()) {
+            s.append(" ");
+            getBlock().toString(s);
+        }
+        else {
+            s.append(";");
+        }
+    }
 }
