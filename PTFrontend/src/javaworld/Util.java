@@ -6,6 +6,8 @@ import AST.Expr;
 import AST.List;
 import AST.PTClassDecl;
 import AST.PTInstDecl;
+import AST.PTInstTuple;
+import AST.PTPackage;
 import AST.TemplateMethodAccess;
 import AST.TemplateMethodAccessShort;
 import AST.ImportDecl;
@@ -52,8 +54,23 @@ public class Util {
 		String methodName = from.getID();
 		List<Expr> argList = from.getArgList(); // getArgListNoTransform??
 		String tclassID = from.getTClassID();
-		if (tclassID.equals(""))
-		    tclassID = host.getID();
+		if (tclassID.equals("")) {
+			// First check if the parent class has been renamed
+		    AST.PTPackage ptp = (AST.PTPackage) from.getParentClass(AST.PTPackage.class);
+		    start: for (int i = 0; i < ptp.getNumPTInstDeclNoTransform(); ++i) {
+				PTInstDecl ptid = ptp.getPTInstDecl(i);
+				for (int j = 0; j < ptid.getNumPTInstTupleNoTransform(); ++j) {
+					PTInstTuple ptit = ptid.getPTInstTuple(i);
+					if (ptit.getID().equals(host.getID())) {
+						tclassID = ptit.getOrgID();
+						break start;
+					}
+				}
+			}
+		    // If this wasn't set above, the class has not been renamed
+		    if (tclassID.equals(""))
+		    	tclassID = host.getID();
+		}
 		try {
 			templateID = host.getClassDecl().lookupTemplateForTClass(tclassID);
 		} catch (NoSuchElementException e) {
