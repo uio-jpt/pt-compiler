@@ -55,22 +55,24 @@ public class Util {
 		List<Expr> argList = from.getArgList(); // getArgListNoTransform??
 		String tclassID = from.getTClassID();
 		if (tclassID.equals("")) {
-			// First check if the parent class has been renamed
-		    AST.PTPackage ptp = (AST.PTPackage) from.getParentClass(AST.PTPackage.class);
-		    start: for (int i = 0; i < ptp.getNumPTInstDeclNoTransform(); ++i) {
-				PTInstDecl ptid = ptp.getPTInstDecl(i);
-				for (int j = 0; j < ptid.getNumPTInstTupleNoTransform(); ++j) {
-					PTInstTuple ptit = ptid.getPTInstTuple(i);
-					if (ptit.getID().equals(host.getID())) {
-						tclassID = ptit.getOrgID();
-						break start;
-					}
-				}
-			}
-		    // If this wasn't set above, the class has not been renamed
-		    if (tclassID.equals(""))
-		    	tclassID = host.getID();
-		}
+            // First check if the parent class has been renamed
+            AST.PTDecl ptd = (AST.PTDecl) from.getParentClass(AST.PTDecl.class);
+            if (ptd != null) {
+                start: for (int i = 0; i < ptd.getNumPTInstDeclNoTransform(); ++i) {
+                    PTInstDecl ptid = ptd.getPTInstDecl(i);
+                    for (int j = 0; j < ptid.getNumPTInstTupleNoTransform(); ++j) {
+                        PTInstTuple ptit = ptid.getPTInstTuple(i);
+                        if (ptit.getID().equals(host.getID())) {
+                            tclassID = ptit.getOrgID();
+                            break start;
+                        }
+                    }
+                }
+            }
+            // If this wasn't set above, the class has not been renamed
+            if (tclassID.equals(""))
+                tclassID = host.getID();
+        }
 		try {
 			templateID = host.getClassDecl().lookupTemplateForTClass(tclassID);
 		} catch (NoSuchElementException e) {
