@@ -1,0 +1,27 @@
+template T {
+    class A {
+        void f() {
+            System.out.println("T.A.f()");
+        }
+    }
+    class B extends A {
+        void f() {
+            super.f();
+            System.out.println("T.B.f()");
+        }
+    }
+}
+
+package P {
+    inst T with A => NewA(f() -> g);
+    
+    class NewA adds {
+        void f() {
+            System.out.println("P.NewA.f()");
+        }
+        public static void main(String[] args) {
+            new B().g();
+            new NewA().f();
+        }
+    }
+}
