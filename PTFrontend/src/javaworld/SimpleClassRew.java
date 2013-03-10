@@ -321,17 +321,14 @@ public class SimpleClassRew {
 	Set<String> collisions = new HashSet<String>();
 	Set<String> declaredMethods = new HashSet<String>();
         
-        for (ClassDeclRew renamedDecl : renamedSources) {
-	    for (BodyDecl bd : renamedDecl.getClassDecl().getBodyDecls()) {
-		if (bd instanceof MethodDecl) {
-		    MethodDecl md = (MethodDecl) bd;
-		    if (!md.isTabstract()) {
-			if (!declaredMethods.add(md.signature()))
-			    collisions.add(md.signature());
-		    }
-		}
-	    }
-	}
+    for (ClassDeclRew renamedDecl : renamedSources) {
+        for (MethodDecl md : renamedDecl.getClassDecl().getMethodDecls()) {
+            if (!md.isTabstract()) {
+                if (!declaredMethods.add(md.signature()))
+                    collisions.add(md.signature());
+            }
+        }
+    }
 
 	for (String s : collisions)
 	    decl.error(s + " is an unresolved conflict during merging.\n");
