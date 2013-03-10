@@ -21,34 +21,25 @@ aspect VirtualMethods {
 	 	
 	public void ClassDecl.findVirtualMethods() {
 
-		for (BodyDecl d: getBodyDecls()) { // the infamous getMethodDecls hack:
-			if (d instanceof MethodDecl) {
-				MethodDecl myMeth = (MethodDecl)d;
-				ClassDecl c = superclass();
+        for (MethodDecl md : getMethodDecls()) {
+            ClassDecl c = superclass();
 
-				wh: while (c != null) {
+            wh: while (c != null) {
 				/* Søker atm ALLE superklasser, helt opp til Object;
 				   Bør/trenger vel bare søke opp til det øverste som er innen
 				   vår package/template?  
 				   F.eks bør vel toString() settes som "virtuell" hvis det er første
 				   gang (øverst i klassehierarkiet) i denne P/T'en den blir deklarert,
 				   selv om den også er definert i Object. */
-					for (BodyDecl bd: c.getBodyDecls()) { 
-						if (bd instanceof MethodDecl) { 
-							MethodDecl superMeth = (MethodDecl)bd; 
-							if (myMeth.sameSignature(superMeth))
-								break wh;
-						}
-					}
-					c = c.superclass();
-				}
-				
-				if (c == null) // fant ingen supermetode
-					myMeth.isVirtual = true;
-				
-			}
-		}
+                for (MethodDecl supermd : c.getMethodDecls())
+                    if (md.sameSignature(supermd))
+                        break wh;
+                c = c.superclass();
+            }
 
+            if (c == null)
+                md.isVirtual = true;
+        }
 	}
 
 	public boolean MethodDecl.isVirtual; // first time defined [in this package/template]?

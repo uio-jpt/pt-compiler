@@ -14,6 +14,14 @@ import testutils.tester.Log;
 
 aspect InstantiationRewrite {
 
+    coll LinkedList<MethodDecl> ClassDecl.getMethodDecls() [new LinkedList<MethodDecl>()]
+        with add root ClassDecl;
+
+    MethodDecl contributes this
+        when getParentClass(ClassDecl.class) != null
+        to ClassDecl.getMethodDecls()
+        for getParentClass(ClassDecl.class);
+
     protected boolean PTDecl.isRewritten = false;
     protected boolean PTInstDecl.isRewritten = false;
 
