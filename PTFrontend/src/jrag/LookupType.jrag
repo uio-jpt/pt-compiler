@@ -186,12 +186,7 @@ aspect LookupType {
             }
         }
 
-        int pos = name.lastIndexOf('.');
-        TypeDecl t;
-        if (pos == -1)
-            t = lookupType("", name);
-        else
-            t = lookupType(name.substring(0, pos), name.substring(pos + 1, name.length()));
+        TypeDecl t = lookupType("", name);
         if (t!=null) return SimpleSet.emptySet.add(t);
 
         return SimpleSet.emptySet;
