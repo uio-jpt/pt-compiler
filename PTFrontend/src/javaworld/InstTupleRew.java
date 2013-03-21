@@ -95,7 +95,7 @@ class InstTupleRew {
                     boolean ok = true;
                     for(int i=0;i<mdecl.arity();i++) {
                         TypeDecl formalParamTypeDecl = mdecl.getParameter(i).type();
-                        TypeDecl fPTDinCopy = lookupUnambiguousTypeIn( target, formalParamTypeDecl.fullName() );
+                        TypeDecl fPTDinCopy = lookupUnambiguousTypeIn(target, formalParamTypeDecl.name());
                         Access myAcc = args.getChild(i);
 
                         if( myAcc.type() != fPTDinCopy ) {
