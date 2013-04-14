@@ -192,18 +192,9 @@ aspect ReferenceAttributes {
     inh PTDecl PTInstDecl.getPTDecl();
     inh PTDecl TemplateMethodAccess.getPTDecl();
     eq PTDecl.getChild(int i).getPTDecl() = this;
-    /* Look for a PTDecl in the tree, and return it, if found.
-     * Not very nice, but it's a quick fix. Note that it is not
-     * necessary to check if this is a PTDecl, because if it was
-     * the equation above would have been called, not this one. */
+    /* Look for a PTDecl in the tree, and return it, if found. */
     eq ASTNode.getChild(int i).getPTDecl() {
-        ASTNode parent = getParent();
-        while (parent != null) {
-            if (parent instanceof PTDecl)
-                return (PTDecl) parent;
-            parent = parent.getParent();
-        }
-        return null;
+        return (PTDecl)getParentClass(PTDecl.class);
     }
 
     coll Set<VarAccess> FieldDeclaration.fieldAccess()
