@@ -464,15 +464,12 @@ public class PTDeclRew {
 		Multimap<String, PTInstTuple> destinationClassIDsWithInstTuples = getDestinationClassIDsWithInstTuples();
         for( String key : destinationClassIDsWithInstTuples.keySet() ) {
             java.util.List<RequiredType> originatorReqTypes = new java.util.ArrayList<RequiredType>();
-            TypeDecl nonRTOriginator = null;
 
             for( PTInstTuple tuple : destinationClassIDsWithInstTuples.get( key ) ) {
                 TypeDecl decl = tuple.getOriginator();
                 if( decl instanceof RequiredType ) {
                     RequiredType renamedDecl = new InstTupleRew( tuple ).getRenamedSourceRequiredType();
                     originatorReqTypes.add( renamedDecl );
-                } else {
-                    nonRTOriginator = decl;
                 }
             }
 
