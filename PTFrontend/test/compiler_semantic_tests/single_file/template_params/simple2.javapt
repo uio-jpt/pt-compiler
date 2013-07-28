@@ -9,6 +9,7 @@ template T2 inst T {
 }
 
 template U<template V inst T> {
+    inst V;
 	class A adds {
 		void n() { System.out.println("n()"); }
 	}
