@@ -1,0 +1,38 @@
+template T {
+    class A {
+        A() { System.out.println("T.A()"); }
+        void h() { System.out.println("T.A.h()"); }
+    }
+    class B {
+        B() { System.out.println("T.B()"); }
+        void f() { System.out.println("T.B.f()"); }
+        void g() { System.out.println("T.B.g()"); }
+    }
+}
+template U {
+    class A {
+        A() { System.out.println("U.A()"); }
+    }
+    class C {
+        C() { System.out.println("U.C()"); }
+        void h() { System.out.println("U.C.h()"); }
+    }
+}
+package P {
+    inst T with A => X;
+    inst U with A => X;
+
+    class X adds {
+        X() {
+            tsuper[T.A]();
+            tsuper[U.A]();
+        }
+    }
+    class B adds {
+        void f() {
+            tsuper.h();
+            tsuper.f();
+            System.out.println("X.f()");
+        }
+    }
+}
