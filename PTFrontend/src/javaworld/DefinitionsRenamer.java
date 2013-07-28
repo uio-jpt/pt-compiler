@@ -51,11 +51,6 @@ public class DefinitionsRenamer {
             }
         }
 
-        Set<String> namesToRename = new HashSet<String>();
-        for( String key : namesMap.keySet() ) {
-            namesToRename.add( key );
-        }
-
 		for (MethodDecl decl : methods.values()) {
                 /* If we rename the tabstracts we have trouble recognizing
                    their signatures later. More elegant way? */
@@ -69,10 +64,6 @@ public class DefinitionsRenamer {
                 String oldSig = decl.signature();
 
 				decl.setID(newID);
-
-                if( namesToRename.contains( oldSig ) ) {
-                    namesToRename.remove( oldSig );
-                }
 			}
 		}
 
@@ -88,10 +79,6 @@ public class DefinitionsRenamer {
                     String oldId = fieldDecl.getID();
 
 					fieldDecl.setID(newID);
-
-                    if( namesToRename.contains( oldId ) ) {
-                        namesToRename.remove( oldId );
-                    }
 				}
 			}
 		}
