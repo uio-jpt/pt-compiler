@@ -4,13 +4,14 @@ template T {
 	}
 }
 
-template T2 inst T {
+template T2 subof T {
 	class A adds {
 		void n() { System.out.println("n() in T2"); }
 	}
 }
 
-template U<template V inst T> {
+template U<template V subof T> {
+    inst V;
 	class A adds {
 		void n() { System.out.println("n() in U"); }
 	}

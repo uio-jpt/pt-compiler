@@ -4,13 +4,14 @@ template T {
 	}
 }
 
-template U<template V inst T> {
+template U<template V subof T> {
+    inst V;
 	class A adds {
 		void n() { System.out.println("n()"); }
 	}
 }
 
-template T2<template V inst T> {
+template T2<template V subof T> {
 	inst U<V>;
 }
 

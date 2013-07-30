@@ -4,7 +4,7 @@ template T {
 	}
 }
 
-template U<template V inst T> {
+template U<template V subof T> {
     inst V;
 
 	class A adds {
