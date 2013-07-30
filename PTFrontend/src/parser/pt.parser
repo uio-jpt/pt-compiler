@@ -49,7 +49,7 @@ Modifier modifier =
     ;
 
 PTDecl pt_template =
- TEMPLATE name_decl.n type_parameters.ps? LBRACE inst_class_or_interface_single.l+ RBRACE
+ TEMPLATE name_decl.n template_parameters.ts? subof_templates.s? LBRACE inst_class_or_interface_single.l* RBRACE
           {:
                 javaworld.ChildClassifier cc = new javaworld.ChildClassifier( l );
                 return new PTTemplate(n.getID(),
@@ -60,7 +60,8 @@ PTDecl pt_template =
                                       cc.getRequiredTypes(),
                                       cc.getRequiredTypeAdditions(),
                                       new PTDeclContext(),
-                                      (ps == null) ? new AST.List<TypeVariable>() : ps );
+                                      new AST.List<TypeVariable>(),
+                                      (s == null) ? new AST.List<TemplateAccess>() : s);
           :}
           ;
 
@@ -117,6 +118,28 @@ SimpleClass pt_simple_declaration =
               {: return pt_ac; :}
 ;
 
+List subof_templates =
+    SUBOF subof_template_list.l {: return l; :};
+
+List subof_template_list =
+    subof_template_list.l COMMA template_access.ta {: return l.add(ta); :}
+    | template_access.ta {: return new List().add(ta); :}
+    ;
+
+TemplateAccess template_access =
+    name_decl.n {: return new TemplateAccess(n); :}
+    ;
+
+List template_parameters =
+    LT template_variable_list.l GT {: return l; :};
+
+List template_variable_list =
+    template_variable_list.l COMMA template_variable.tp {: return l.add(tp); :}
+    | TEMPLATE template_variable.tp {: return new List().add(tp); :}
+    ;
+
+TemplateVariable template_variable =
+    name_decl.n SUBOF name_decl.ta {: return new TemplateVariable(n, new TemplateAccess(ta)); :};
 
 /* Does not handle all the >> token subtleties yet. TODO TODO TODO*/
 List pt_type_arguments =

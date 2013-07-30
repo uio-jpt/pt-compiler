@@ -16,4 +16,5 @@
   "assumed"                 { return sym(Terminals.ASSUMED); }
   "required"                 { return sym(Terminals.REQUIRED); }
   "type"                 { return sym(Terminals.TYPE); }
+  "subof"                { return sym(Terminals.SUBOF); }
 }

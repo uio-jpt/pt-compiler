@@ -1,7 +1,7 @@
 PTCompilationUnit : CompilationUnit ::= PTDecl*;
 
 abstract PTDecl ::= <ID> PTInstDecl* SimpleClass* InterfaceDecl* PTEnumDecl* RequiredType* RequiredTypeAddition:RequiredType* PTDeclContext;
-PTTemplate : PTDecl ::= TypeParameter:TypeVariable*;
+PTTemplate : PTDecl ::= TypeParameter:TypeVariable* SubofTemplate:TemplateAccess*;
 PTPackage : PTDecl;
 
 PTDeclContext;
@@ -38,6 +38,9 @@ PTMethodRenameAll : PTDummyRename;
 PTFieldRename : PTDummyRename;
 
 abstract PTMethodAccess : MethodAccess;
+
+TemplateAccess ::= <TemplateID>;
+TemplateVariable ::= <TemplateID> TemplateAccess;
 
 // e.g. tsuper[<templateName>.<ClassName>].f()
 TemplateMethodAccess : PTMethodAccess ::= <TClassID> <TemplateID>;
