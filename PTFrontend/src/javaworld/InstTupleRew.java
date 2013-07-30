@@ -62,8 +62,7 @@ class InstTupleRew {
             BodyDecl realThing = null;
 
             if( dummyCopy instanceof MethodDecl ) {
-                MethodDecl copycopy = (MethodDecl) dummyCopy.fullCopy();
-                copycopy.setParent(dummyCopy.getParent());
+                MethodDecl copycopy = (MethodDecl) dummyCopy.fullCopyWithParent();
                 copycopy.setID( newID );
                 realThing = (BodyDecl) parentType.localMethodsSignatureMap().get( copycopy.signature() );
             }
@@ -129,8 +128,7 @@ class InstTupleRew {
     protected RequiredType getRenamedSourceRequiredType() {
         TypeDecl x = instantiator.getOriginator();
 
-		RequiredType ext = ((RequiredType)x).fullCopy();
-        ext.setParent(x.getParent());
+		RequiredType ext = (RequiredType) ((RequiredType)x).fullCopyWithParent();
 
         ext.visitRename( instantiator.getInstDecl().getRenamedClasses() );
 		DefinitionsRenamer.renameDefinitions( ext, getExplicitlyRenamedDefinitions());
@@ -144,8 +142,7 @@ class InstTupleRew {
     protected InterfaceDecl getRenamedSourceInterface() {
         TypeDecl x = instantiator.getOriginator();
 
-		InterfaceDecl ext = ((InterfaceDecl)x).fullCopy();
-        ext.setParent(x.getParent());
+		InterfaceDecl ext = (InterfaceDecl) ((InterfaceDecl)x).fullCopyWithParent();
 
 /*
         HashMap<ASTNode,String> internalRenames = findInternalRenames( ext );
@@ -174,8 +171,7 @@ class InstTupleRew {
         // straight rewrite of getRenamedSourceInterface, above concerns apply
 
         TypeDecl x = instantiator.getOriginator();
-		PTEnumDecl ext = ((PTEnumDecl)x).fullCopy();
-        ext.setParent(x.getParent());
+		PTEnumDecl ext = (PTEnumDecl) ((PTEnumDecl)x).fullCopyWithParent();
 
         ext.fixupAfterCopy();
 
@@ -191,8 +187,7 @@ class InstTupleRew {
 	protected ClassDeclRew getRenamedSourceClass() {
         TypeDecl x = instantiator.getOriginator();
 
-		ClassDecl ext = ((ClassDecl)x).fullCopy();
-        ext.setParent(x.getParent());
+		ClassDecl ext = (ClassDecl) ((ClassDecl)x).fullCopyWithParent();
         // be aware that after this, going upwards into the parent and then
         // (apparently) backwards into the child will NOT find the copy, but
         // the original child, thus it will not reflect changes.

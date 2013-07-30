@@ -614,8 +614,7 @@ public class PTDeclRew {
                 // so this is fromInterfaceDeclInto light.
 
                 for( Object superio : unrenamedOriginal.getSuperInterfaceIdList() ) {
-                    AST.Access myUnrenamedAccess = (AST.Access) ((AST.ASTNode)superio).fullCopy();
-                    myUnrenamedAccess.setParent(((AST.ASTNode)superio).getParent());
+                    AST.Access myUnrenamedAccess = (AST.Access) ((AST.ASTNode)superio).fullCopyWithParent();
                     InterfaceDecl originalDecl = (InterfaceDecl) Util.declarationFromTypeAccess( myUnrenamedAccess );
                     String originalName = originalDecl.getID();
                     String newName = internalInterfacesBeingRenamed.get( originalName );
@@ -916,12 +915,10 @@ public class PTDeclRew {
         } else if( genericOrigins > 1 && nonGenericOrigins == 0 ) {
             AST.List<TypeVariable> referenceTypePars = null;
             if( gtype instanceof GenericClassDecl ) {
-                referenceTypePars = ((GenericClassDecl)gtype).getTypeParameterList().fullCopy();
-                referenceTypePars.setParent(((GenericClassDecl)gtype).getTypeParameterList().getParent());
+                referenceTypePars = (AST.List<TypeVariable>) ((GenericClassDecl)gtype).getTypeParameterList().fullCopyWithParent();
             }
             if( gtype instanceof GenericInterfaceDecl ) {
-                referenceTypePars = ((GenericInterfaceDecl)gtype).getTypeParameterList().fullCopy();
-                referenceTypePars.setParent(((GenericInterfaceDecl)gtype).getTypeParameterList().getParent());
+                referenceTypePars = (AST.List<TypeVariable>) ((GenericInterfaceDecl)gtype).getTypeParameterList().fullCopyWithParent();
             }
             // System.out.println( "checking " + referenceTypePars.dumpTree() );
 
@@ -929,12 +926,10 @@ public class PTDeclRew {
                 TypeDecl otherGType = instTuple.getOriginator();
                 AST.List<TypeVariable> candidateTypePars = null;
                 if( otherGType instanceof GenericClassDecl ) {
-                    candidateTypePars = ((GenericClassDecl)otherGType).getTypeParameterList().fullCopy();
-                    candidateTypePars.setParent(((GenericClassDecl)otherGType).getTypeParameterList().getParent());
+                    candidateTypePars = (AST.List<TypeVariable>) ((GenericClassDecl)otherGType).getTypeParameterList().fullCopyWithParent();
                 }
                 if( otherGType instanceof GenericInterfaceDecl ) {
-                    candidateTypePars = ((GenericInterfaceDecl)otherGType).getTypeParameterList().fullCopy();
-                    candidateTypePars.setParent(((GenericInterfaceDecl)otherGType).getTypeParameterList().getParent());
+                    candidateTypePars = (AST.List<TypeVariable>) ((GenericInterfaceDecl)otherGType).getTypeParameterList().fullCopyWithParent();
                 }
 
                 // System.out.println( "against " + candidateTypePars.dumpTree() );

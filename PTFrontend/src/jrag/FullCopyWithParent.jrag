@@ -1,0 +1,9 @@
+aspect FullCopyWithParent {
+
+    public ASTNode<T> ASTNode.fullCopyWithParent() {
+        ASTNode treeParent = getParent();
+        ASTNode<T> tree = fullCopy();
+        tree.setParent(treeParent);
+        return tree;
+    }
+}
