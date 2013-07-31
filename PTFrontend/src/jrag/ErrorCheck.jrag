@@ -408,19 +408,9 @@ aspect ErrorCheck {
         super.collectErrors();
 
         java.util.HashSet<String> mappedTo = new java.util.LinkedHashSet<String>();
-        java.util.HashSet<String> duplicates = new java.util.LinkedHashSet<String>();
 
         for( PTInstTuple instTuples : getPTInstTuples() ) {
-            String destID = instTuples.getID();
-            if( mappedTo.contains( destID ) ) {
-                duplicates.add( destID );
-            } else {
-                mappedTo.add( destID );
-            }
-        }
-        
-        if( !duplicates.isEmpty() ) {
-            System.out.println( "[warning]: duplicate destination IDs in merge (merging classes from same package is deprecated): " + Joiner.on( ", " ).join( duplicates ) );
+            mappedTo.add(instTuples.getID());
         }
     }
 }
